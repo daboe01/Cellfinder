@@ -1,0 +1,205 @@
+/*
+ * AppController.j
+ * NewApplication
+ *
+ * Created by You on November 16, 2011.
+ * Copyright 2011, Your Company All rights reserved.
+ */
+
+@import <Foundation/CPObject.j>
+@import <Renaissance/Renaissance.j>
+@import "CompoController.j"
+@import "AnnotatedImageView.j"
+
+var BaseURL="http://localhost/cellfinder_image/";
+
+@implementation CPObject (ImageURLHack)
+-(CPImage) _cellfinderImageFromID
+{	var myURL=BaseURL+[self valueForKey:"id"]+"?width=10000";
+	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
+	[img setDelegate: self];
+	return img;
+}
+-(CPImage) provideCollectionViewImage
+{	var myURL=BaseURL+[self valueForKey:"idimage"]+"?width=10000";
+	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
+	return img;
+}
+
+@end
+
+
+@implementation ImageController : CPObject
+{	id		imageSuperview;
+	id		rawImageSuperview;
+	id		annotatedImageView;
+	id		myAppController;
+	id		compoPopup;
+
+	CPArrayController _analysesController;
+	double	_scale @accessors(property=scale);
+	CPSize	_originalSize;
+	int		_compoID @accessors(property=compoID);
+	int		_imageID;
+	id		_progress;
+	id		_mywindow;
+	id		_rawImage;
+	id		_cookedImage;
+	id		_analyzedImage;
+	int		_idtrial @accessors(property=idtrial);
+	int		_updateContinuously @accessors(property=updateContinuously);
+	BOOL	_isLoadingImage @accessors(property=isLoadingImage);
+}
+
+- (void)imageDidLoad:(CPImage)image
+{	var mySize=[image size];
+	var imageView=[[CPImageView alloc] initWithFrame: CPMakeRect(0,0, mySize.width, mySize.height)];
+	if(!_originalSize && _scale==1)
+	{	_originalSize=CPSizeCreateCopy(mySize);
+	//	[_mywindow setMaxSize: _originalSize];	// to small <!> fixme
+	}
+	[imageView setImage: image ];
+	if(image==_cookedImage)
+	{	[imageSuperview setDocumentView: imageView];
+	} else if(image==_rawImage)
+	{	[rawImageSuperview setDocumentView: imageView];
+	} else if(image==_analyzedImage)
+	{	[annotatedImageView setBackgroundImage: image];
+		[_analysesController setContent: [myAppController.analysesController arrangedObjects]];	// detach from selection in main GUI (because we are a 'document')
+	}
+	_isLoadingImage=NO;
+	[_progress stopAnimation:self];
+}
+
+-(void) _setImageID:(int) imageID 
+{	_imageID=imageID;
+	var rnd=Math.floor(Math.random()*1000);
+	var myURL=[myAppController baseImageURL]+imageID+"?rnd="+rnd;
+	if(_originalSize) myURL+="&width="+Math.floor(_originalSize.width*_originalSize.height*_scale);
+	_isLoadingImage=YES;
+	[_progress startAnimation: self];
+	if(_compoID)
+	{	 _cookedImage=[[CPImage alloc] initWithContentsOfFile: myURL+'&cmp='+_compoID+"&cc=1"];
+		[_cookedImage setDelegate: self];
+	}
+	_rawImage=[[CPImage alloc] initWithContentsOfFile: myURL];
+	[_rawImage setDelegate: self];
+	_analyzedImage=[[CPImage alloc] initWithContentsOfFile: myURL];
+	[_analyzedImage setDelegate: self];
+}
+-(id) initWithImageID:(int) someImageID appController:(id) mainController andIDTrial: someIDTrial
+{	self=[super init];
+	_scale=1.0;
+
+	myAppController=mainController;
+	_analysesController=[CPArrayController new];
+	[CPBundle loadRessourceNamed: "image.gsmarkup" owner:self];
+	_compoID=[[compoPopup selectedItem] tag ];
+	[self _setImageID: someImageID];
+	_idtrial= someIDTrial;
+
+	[_mywindow setTitle:"Image "+someImageID];
+	return self;
+}
+-(void) setScale:(double) someScale
+{	_scale=someScale;
+	if(!_originalSize) return;
+	[self _setImageID: _imageID];
+}
+-(void) compoChanged:(id) sender
+{	_compoID=[[sender selectedItem] tag ];
+	[self _setImageID: _imageID];
+}
+
+-(void) reload:(id) sender
+{	if(![self isLoadingImage])
+	 [self _setImageID: _imageID];
+}
+
+-(void) editCompo: sender
+{	var compoID=[[compoPopup selectedItem] tag];
+	var o=[[myAppController.displayfilters_ac entity] objectWithPK: compoID];
+	if (o)
+	{	[[CompoController alloc] initWithCompo:o andAppController: myAppController];
+	}
+}
+-(void) delete: sender
+{	[annotatedImageView delete: sender];
+}
+-(void) addAnalysis:sender
+{	[_analysesController insert:sender];
+}
+@end
+
+@implementation AppController : CPObject
+{	id	store @accessors;	
+	id	trialsController;
+	id	trialsWindow;
+	id	imagesController;
+	id	analysesController;
+	id	resultsController;
+	id	filterPredicate;
+
+	CPMutableSet	_imageControllers;
+
+	id trialsettingswindow;
+	id	displayfilters_ac;
+	id	uploadfilters_ac;
+	id	fixupfilters_ac;
+	id	overlayfilters_ac;
+	id	analyticsfilters_ac;
+	id	perlfilters_ac;
+	id	javascriptfilters_ac;
+
+}
+-(CPString) baseImageURL
+{	return BaseURL;
+}
+-(CPArray) imageControllersForIDTrial:(int) idtrial
+{	var all=[_imageControllers allObjects];
+	var i,l=all.length;
+	var ret=[CPMutableArray new];
+	for(i=0;i<l;i++)
+	{	if([all[i] idtrial]== idtrial)
+		{	[ret addObject: all[i] ];
+		}
+	} return ret;
+}
+- (void) applicationDidFinishLaunching:(CPNotification)aNotification
+{	store=[[FSStore alloc] initWithBaseURL: "http://127.0.0.1:3000"];
+	[CPBundle loadRessourceNamed: "gui.gsmarkup" owner:self];
+}
+-(void) loadImage: sender
+{	var o=[[imagesController arrangedObjects] objectAtIndex: [sender selectedRow]];
+	if (o)
+	{	if(!_imageControllers) _imageControllers=[CPMutableSet new];
+		var ic=[[ImageController alloc] initWithImageID:[o valueForKey:"id"] appController: self andIDTrial: [o valueForKey:"idtrial"] ];
+		[_imageControllers addObject:ic];
+//<!> fixme: implement unregistering upon window close in imagesController
+	}
+}
+
+-(void) loadAnalysis: sender
+{	var o=[[analysesController arrangedObjects] objectAtIndex: [sender selectedRow]];
+	if (o)
+	{	[[AnalysesController alloc] initWithAnalysis:o andAppController: self];
+	}
+}
+
+-(void) delete:sender
+{	[[[CPApp keyWindow] delegate] delete:sender];
+}
+
+
+- (void)closeSheet:(id)sender
+{
+    [CPApp endSheet: trialsettingswindow returnCode:[sender tag]];
+}
+-(void) didEndSheet: someSheet returnCode: someCode contextInfo: someInfo
+{
+}
+
+-(void) runSettings:sender
+{	[CPApp beginSheet: trialsettingswindow modalForWindow: trialsWindow modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
+}
+@end
