@@ -61,7 +61,7 @@
 					<tableColumn identifier="folder_name" title="name"/>
 	  			</tableView>
 			</scrollView>
-			<ButtonBar target="#CPOwner" plusButtonAction="addImage:" minusButtonAction="addImage:"/>
+			<ButtonBar target="#CPOwner" plusButtonAction="addImage:" minusButtonAction="deleteImage:"/>
 		</vbox>
 		<tabView type="topBezel">
 			<tabViewItem title="List">
