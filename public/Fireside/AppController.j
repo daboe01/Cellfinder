@@ -65,7 +65,7 @@ var BaseURL="http://localhost/cellfinder_image/";
 	{	[rawImageSuperview setDocumentView: imageView];
 	} else if(image==_analyzedImage)
 	{	[annotatedImageView setBackgroundImage: image];
-		[_analysesController setContent: [myAppController.analysesController arrangedObjects]];	// detach from selection in main GUI (because we are a 'document')
+		[_analysesController setContent: [myAppController.folderContentController valueForKeyPath: "selection.image.analyses"]];	// detach from selection in main GUI (because we are a 'document')
 	}
 	_isLoadingImage=NO;
 	[_progress stopAnimation:self];
@@ -87,16 +87,17 @@ var BaseURL="http://localhost/cellfinder_image/";
 	_analyzedImage=[[CPImage alloc] initWithContentsOfFile: myURL];
 	[_analyzedImage setDelegate: self];
 }
--(id) initWithImageID:(int) someImageID appController:(id) mainController andIDTrial: someIDTrial
+-(id) initWithImageID:(int) someImageID appController:(id) mainController
 {	self=[super init];
 	_scale=1.0;
 
 	myAppController=mainController;
-	_analysesController=[CPArrayController new];
+	_analysesController=[FSArrayController new];
+	[_analysesController setEntity: [myAppController.analysesController entity]]
 	[CPBundle loadRessourceNamed: "image.gsmarkup" owner:self];
 	_compoID=[[compoPopup selectedItem] tag ];
 	[self _setImageID: someImageID];
-	_idtrial= someIDTrial;
+	_idtrial= parseInt([myAppController.trialsController valueForKeyPath:"selection.id"]);
 
 	[_mywindow setTitle:"Image "+someImageID];
 	return self;
@@ -123,11 +124,8 @@ var BaseURL="http://localhost/cellfinder_image/";
 	{	[[CompoController alloc] initWithCompo:o andAppController: myAppController];
 	}
 }
--(void) delete: sender
+-(void) delete: sender	// delete a dot
 {	[annotatedImageView delete: sender];
-}
--(void) addAnalysis:sender
-{	[_analysesController insert:sender];
 }
 @end
 
@@ -135,7 +133,7 @@ var BaseURL="http://localhost/cellfinder_image/";
 {	id	store @accessors;	
 	id	trialsController;
 	id	trialsWindow;
-	id	imagesController;
+	id	folderContentController;
 	id	analysesController;
 	id	resultsController;
 	id	filterPredicate;
@@ -170,10 +168,10 @@ var BaseURL="http://localhost/cellfinder_image/";
 	[CPBundle loadRessourceNamed: "gui.gsmarkup" owner:self];
 }
 -(void) loadImage: sender
-{	var o=[[imagesController arrangedObjects] objectAtIndex: [sender selectedRow]];
+{	var o=[[folderContentController arrangedObjects] objectAtIndex: [sender selectedRow]];
 	if (o)
 	{	if(!_imageControllers) _imageControllers=[CPMutableSet new];
-		var ic=[[ImageController alloc] initWithImageID:[o valueForKey:"id"] appController: self andIDTrial: [o valueForKey:"idtrial"] ];
+		var ic=[[ImageController alloc] initWithImageID:[o valueForKey:"idimage"] appController: self];
 		[_imageControllers addObject:ic];
 //<!> fixme: implement unregistering upon window close in imagesController
 	}

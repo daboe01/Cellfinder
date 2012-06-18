@@ -33,7 +33,7 @@
 						<tableColumn identifier="id" title="id"/>
 					</tableView>
 				</scrollView>
-				<ButtonBar target="#CPOwner" halign="min" plusButtonAction="addAnalysis:" minusButtonAction="deleteAnalysis:"/>
+				<ButtonBar target="#CPOwner._analysesController" halign="min" plusButtonAction="insert:" minusButtonAction="remove:"/>
 			  </vbox>
 			 </hbox>
 			</tabViewItem>

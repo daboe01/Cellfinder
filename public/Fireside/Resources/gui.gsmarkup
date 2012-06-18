@@ -23,11 +23,9 @@
    <predicate id="trialname_pred" format="id == '1'"/>
    <arrayController id="trials_controller" entity="trials" autoFetch="YES"/>
    <arrayController id="compos_controller" entity="patch_compositions" valueBinding ="trials_controller.selection.compos"/>
-   <arrayController id="images_controller" entity="images" valueBinding ="trials_controller.selection.images"/>
    <arrayController id="folder_controller" entity="folders" valueBinding ="trials_controller.selection.folders"/>
    <arrayController id="folder_content_controller" entity="folder_content" valueBinding ="folder_controller.selection.folder_content"/>
-
-   <arrayController id="analyses_controller" entity="analyses" valueBinding ="images_controller.selection.analyses"/>
+   <arrayController id="analyses_controller" entity="analyses" valueBinding ="folder_content_controller.selection.image.analyses"/>
 
   <window title="Predicate Editor" x="10" y="30" width="300" height="100">
 		<predicateEditor id="myPE" width="300" height="100" valueBinding="trials_controller.filterPredicate">
@@ -219,7 +217,7 @@
 <connectors>
 	<outlet source="#CPOwner" target="results" label="resultsController"/>
 	<outlet source="#CPOwner" target="trials_controller" label="trialsController"/>
-	<outlet source="#CPOwner" target="images_controller" label="imagesController"/>
+	<outlet source="#CPOwner" target="folder_content_controller" label="folderContentController"/>
 	<outlet source="#CPOwner" target="trialname_pred" label="filterPredicate"/>
 	<outlet source="#CPOwner" target="analyses_controller" label="analysesController"/>
 	<outlet source="#CPOwner" target="trialswindow" label="trialsWindow"/>
