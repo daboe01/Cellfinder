@@ -6,7 +6,7 @@ use SQL::Abstract;
 use Data::Dumper;
 
 plugin 'database', { 
-			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
+			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
 			username => 'root',
 			password => 'root',
 			options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
@@ -29,12 +29,14 @@ get '/:table'=> sub
 };
 
 # fetch entities by (foreign) key
-get '/:table/:col/:pk' => sub	#=> [pk=>qr/\d+/]
+get '/:table/:col/:pk' => [pk=>qr/.+/] => sub
 {	my $self = shift;
 	my $sql = SQL::Abstract->new;
 	my $table  = $self->param('table');
 	my $pk  = $self->param('pk');
 	my $col  = $self->param('col');
+	app->log->debug( $pk );
+	app->log->debug( $col );
 	my $sth = $self->db->prepare(qq/select * from "/.$table.qq/" where /.$col.qq/=?/);
 	$sth->execute(($pk));
 	my @a;

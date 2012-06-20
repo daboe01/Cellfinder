@@ -28,12 +28,13 @@
 				<annotatedImageView id="annotatedImageView" valueBinding="#CPOwner._analysesController.selection.results"/>
 			  </scrollView>
 			  <vbox>
-				<scrollView halign="right" width="100" hasHorizontalScroller="NO">
-					<tableView usesAlternatingRowBackgroundColors="yes" valueBinding="#CPOwner._analysesController">
+				<scrollView halign="right" width="250" hasHorizontalScroller="NO">
+					<tableView zebra="yes" valueBinding="#CPOwner._analysesController">
 						<tableColumn identifier="id" title="id"/>
+						<tableColumn identifier="editing_compo.name" title="filter"/>
 					</tableView>
 				</scrollView>
-				<ButtonBar target="#CPOwner._analysesController" halign="min" plusButtonAction="insert:" minusButtonAction="remove:"/>
+				<ButtonBar target="#CPOwner._analysesController"  halign="right" width="250"  plusButtonAction="insert:" minusButtonAction="remove:"/>
 			  </vbox>
 			 </hbox>
 			</tabViewItem>

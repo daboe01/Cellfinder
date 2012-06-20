@@ -145,7 +145,9 @@
 	[self addSubview: _backgroundImageView];
 	[self setFrame: myFrame];
 }
-
+-(CPImage) backgroundImage
+{	return [_backgroundImageView image]
+}
 - (void)drawLayer:(CALayer)layer inContext:(CGContext)context 
 {	if(!CPRectEqualToRect (_marqueeSelectionBounds, CPRectMakeZero() )) 
 	{	CGContextSetStrokeColor(context, [CPColor lightGrayColor]);
