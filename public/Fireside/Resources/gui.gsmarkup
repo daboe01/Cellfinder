@@ -92,7 +92,7 @@
 			<tabViewItem title="Images">
 				<vbox>
 					<scrollView hasHorizontalScroller="NO" hasVerticalScroller="YES">
-						<collectionView itemWidth="100" itemHeight="100" valueBinding="folder_content_controller.arrangedObjects" selectable="YES"/>
+						<collectionView itemWidth="100" itemHeight="100" valueBinding="folder_content_controller.arrangedObjects" itemsClassName="SimleImageViewCollectionItem" selectable="YES"/>
 					</scrollView>
 					<hbox>
 						<slider continuous="NO" min="100" max="500"  current="100" halign="right"/><hspace/>

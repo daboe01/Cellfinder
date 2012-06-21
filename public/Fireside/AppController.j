@@ -26,8 +26,46 @@ var BaseURL="http://auginfo/cellfinder_image/";
 	return img;
 }
 
+-(CPImage) _backgroundImage
+{	var _compoID=[self valueForKey:"idcomposition_for_editing"];
+	var myURL=BaseURL+[self valueForKey:"idimage"]+"?cmp="+_compoID;
+	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
+	return img;
+}
+
 @end
 
+@implementation SimleImageViewCollectionItem: CPCollectionViewItem
+{	CPImage _img;
+	CPImageView _imgv;
+}
+- (void)imageDidLoad:(CPImage)image
+{	var mySize=[image size];
+	[_imgv setBounds: CPMakeRect(0, 0, mySize.width, mySize.height)];
+}
+-(CPView) loadView
+{	_img=[_representedObject provideCollectionViewImage];
+	_imgv=[CPImageView new];
+	[_imgv setImage: _img];
+	var size=[_img size];
+	if(size) [_imgv setBounds: CPMakeRect(0,0, size.width, size.height)];
+	else [_imgv setDelegate: self];
+	var myview=[CPBox new];
+    [myview setBorderType:  CPLineBorder ];
+    [myview setBorderWidth:  2.0 ];
+
+	[myview setContentView: _imgv];
+	[self setView: myview];
+	return myview;
+}
+-(void) setRepresentedObject:someObject
+{	[super setRepresentedObject: someObject];
+	[self loadView];
+}
+-(void) setSelected:(BOOL) state
+{	[[self view] setBorderColor: state? [CPColor yellowColor]: [CPColor blackColor] ];
+}
+@end
 
 @implementation ImageController : CPObject
 {	id		imageSuperview;
@@ -64,7 +102,8 @@ var BaseURL="http://auginfo/cellfinder_image/";
 	} else if(image==_rawImage)
 	{	[rawImageSuperview setDocumentView: imageView];
 	} else if(image==_analyzedImage)
-	{	[annotatedImageView setBackgroundImage: image];
+	{	
+		[annotatedImageView bind:"backgroundImage" toObject: _analysesController withKeyPath: "selection._backgroundImage" options:nil];
 		[_analysesController setContent: [myAppController.folderContentController valueForKeyPath: "selection.image.analyses"]];	// detach from selection in main GUI (because we are a 'document')
 	}
 	_isLoadingImage=NO;

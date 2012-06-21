@@ -136,13 +136,22 @@
 	[self rebuildLayoutForGraphicClass: [DotView class] ];
 }
 
+- (void)imageDidLoad:(CPImage)image
+{	[self setBackgroundImage: image];
+}
 -(void) setBackgroundImage:(CPImage) someImage
-{	var mySize=[someImage size];
-	if(_backgroundImageView)	[_backgroundImageView removeFromSuperview];
+{	if([someImage loadStatus]!=  CPImageLoadStatusCompleted)
+	{	[someImage setDelegate: self];
+		return;
+	}
+
+	var mySize=[someImage size];
+	if(_backgroundImageView) [_backgroundImageView removeFromSuperview];
 	var myFrame=CPMakeRect(0,0, mySize.width, mySize.height);
 	_backgroundImageView=[[CPImageView alloc] initWithFrame: myFrame];
+	[_backgroundImageView setImageScaling: CPScaleToFit];
 	[_backgroundImageView setImage: someImage ];
-	[self addSubview: _backgroundImageView];
+	[self addSubview: _backgroundImageView positioned: CPWindowBelow relativeTo: nil];
 	[self setFrame: myFrame];
 }
 -(CPImage) backgroundImage
