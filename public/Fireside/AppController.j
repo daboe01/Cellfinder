@@ -11,7 +11,7 @@
 @import "CompoController.j"
 @import "AnnotatedImageView.j"
 
-var BaseURL="http://auginfo/cellfinder_image/";
+var BaseURL="http://localhost/cellfinder_image/";
 
 @implementation CPObject (ImageURLHack)
 -(CPImage) _cellfinderImageFromID
@@ -25,14 +25,6 @@ var BaseURL="http://auginfo/cellfinder_image/";
 	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
 	return img;
 }
-
--(CPImage) _backgroundImage
-{	var _compoID=[self valueForKey:"idcomposition_for_editing"];
-	var myURL=BaseURL+[self valueForKey:"idimage"]+"?cmp="+_compoID;
-	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
-	return img;
-}
-
 @end
 
 @implementation SimleImageViewCollectionItem: CPCollectionViewItem
@@ -89,6 +81,18 @@ var BaseURL="http://auginfo/cellfinder_image/";
 	BOOL	_isLoadingImage @accessors(property=isLoadingImage);
 }
 
+-(CPImage) getImagePixelCount
+{   return Math.floor(_originalSize.width*_scale*_originalSize.height*_scale);
+}
+
+-(CPImage) _backgroundImage
+{	var _compoID=[_analysesController valueForKeyPath:"selection.idcomposition_for_editing" ];
+	var _idimage=[_analysesController valueForKeyPath:"selection.idimage" ];
+	var myURL=BaseURL+_idimage+"?cmp="+_compoID;
+	if(_originalSize) myURL+="&width="+[self getImagePixelCount];
+	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
+	return img;
+}
 - (void)imageDidLoad:(CPImage)image
 {	var mySize=[image size];
 	var imageView=[[CPImageView alloc] initWithFrame: CPMakeRect(0,0, mySize.width, mySize.height)];
@@ -103,7 +107,8 @@ var BaseURL="http://auginfo/cellfinder_image/";
 	{	[rawImageSuperview setDocumentView: imageView];
 	} else if(image==_analyzedImage)
 	{	
-		[annotatedImageView bind:"backgroundImage" toObject: _analysesController withKeyPath: "selection._backgroundImage" options:nil];
+		[annotatedImageView bind:"backgroundImage" toObject: self withKeyPath: "_backgroundImage" options:nil];
+		[annotatedImageView bind:"scale" toObject: self withKeyPath: "_scale" options:nil];
 		[_analysesController setContent: [myAppController.folderContentController valueForKeyPath: "selection.image.analyses"]];	// detach from selection in main GUI (because we are a 'document')
 	}
 	_isLoadingImage=NO;
@@ -114,7 +119,7 @@ var BaseURL="http://auginfo/cellfinder_image/";
 {	_imageID=imageID;
 	var rnd=Math.floor(Math.random()*1000);
 	var myURL=[myAppController baseImageURL]+imageID+"?rnd="+rnd;
-	if(_originalSize) myURL+="&width="+Math.floor(_originalSize.width*_originalSize.height*_scale);
+	if(_originalSize) myURL+="&width="+[self getImagePixelCount];
 	_isLoadingImage=YES;
 	[_progress startAnimation: self];
 	if(_compoID)

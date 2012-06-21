@@ -78,6 +78,7 @@
 
 @end
 
+
 @implementation AnnotatedImageView : CPControl
 {	CPImageView _backgroundImageView;
 	CPPoint		_selOriginOffset;
@@ -86,6 +87,15 @@
 	CPRect		_marqueeSelectionBounds;
 	CPPoint		_marqueeOrigin;
 	CALayer		_marqueeLayer;
+    double  _scale;
+}
+- (CPString)stringForObjectValue:(id)theObject	// no percentage sign in UI 
+{
+	return theObject*_scale;
+}
+
+- (id)objectValueForString:(CPString)aString error:(out CPError)theError
+{	return aString/_scale;
 }
 
 - (id)initWithFrame:(CGRect)aFrame
@@ -95,12 +105,13 @@
 		_marqueeLayer=[CALayer layer];
 		[self setLayer:_marqueeLayer];
 		[_marqueeLayer setDelegate: self];
+        _scale=1.0;
 	}
 
 	return self;
 }
 
--(void) rebuildLayoutForGraphicClass:someClass
+-(void) rebuildLayoutForGraphicClass: someClass
 {	// removeAllDots to recycle self
 	var mySubviews=[self subviews];
     var n = [mySubviews count];
@@ -133,6 +144,8 @@
 
 -(void) setObjectValue:(CPArray) someArr
 {	[super setObjectValue: someArr];
+    [[someArr entity] setFormatter: self forColumnName:"row"];
+    [[someArr entity] setFormatter: self forColumnName:"col"];
 	[self rebuildLayoutForGraphicClass: [DotView class] ];
 }
 
@@ -155,7 +168,14 @@
 	[self setFrame: myFrame];
 }
 -(CPImage) backgroundImage
-{	return [_backgroundImageView image]
+{	return [_backgroundImageView image];
+}
+-(double) scale
+{	return _scale;
+}
+-(double) setScale:(double) someScale
+{	_scale=someScale;
+    [self setObjectValue:[self objectValue]];
 }
 - (void)drawLayer:(CALayer)layer inContext:(CGContext)context 
 {	if(!CPRectEqualToRect (_marqueeSelectionBounds, CPRectMakeZero() )) 
