@@ -27,7 +27,7 @@ var BaseURL="http://auginfo/cellfinder_image/";
 }
 @end
 
-@implementation SimleImageViewCollectionItem: CPCollectionViewItem
+@implementation SimpleImageViewCollectionItem: CPCollectionViewItem
 {	CPImage _img;
 	CPImageView _imgv;
 }
