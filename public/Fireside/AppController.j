@@ -43,6 +43,9 @@ var BaseURL="http://auginfo/cellfinder_image/";
 	if(size) [_imgv setBounds: CPMakeRect(0,0, size.width, size.height)];
 	else [_imgv setDelegate: self];
 	var myview=[CPBox new];
+	var name=[_representedObject valueForKeyPath:"image.name"]
+	[myview setTitle: name];
+	[myview setTitlePosition: CPBelowBottom];
     [myview setBorderType:  CPLineBorder ];
     [myview setBorderWidth:  2.0 ];
 
