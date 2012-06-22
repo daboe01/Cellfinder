@@ -242,6 +242,23 @@
 		<column name="col"/>
 		<relationship type="toOne" name="analysis" bindingColumn="idanalysis" target="analyses"/>
 	</entity>
+	<entity id="montages" store="#CPOwner.store">
+		<column name="id" primaryKey="YES"/>
+		<column name="idtrial"/>
+		<column name="name"/>
+		<column name="width"/>
+		<column name="height"/>
+		<column name="idpatch"/>
+		<column name="idcompo_with_points"/>
+	</entity>
+	<entity id="montage_images" store="#CPOwner.store">
+		<column name="id" primaryKey="YES"/>
+		<column name="idanalysis"/>
+		<column name="row"/>
+		<column name="col"/>
+		<relationship type="toOne" name="analysis" bindingColumn="idanalysis" target="analyses"/>
+	</entity>
+
 </entities>
 
 <connectors>
