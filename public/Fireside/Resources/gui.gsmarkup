@@ -164,6 +164,7 @@
 		<relationship name="compos" type="toMany" target="patch_compositions" targetColumn="idtrials"/>
 		<relationship name="images" type="toMany" target="images" targetColumn="idtrial"/>
 		<relationship name="folders" type="toMany" target="folders" targetColumn="idtrial"/>
+		<relationship name="stacks" type="toMany" target="montages" targetColumn="idtrial"/>
 	</entity>
 	<entity id="patch_compositions" store="#CPOwner.store">
 		<column name="id" primaryKey="YES"/>
@@ -250,12 +251,16 @@
 		<column name="height"/>
 		<column name="idpatch"/>
 		<column name="idcompo_with_points"/>
+		<relationship type="toOne" name="trial" bindingColumn="idtrial" target="trials"/>
+		<relationship type="toMany" name="analyses" targetColumn="idmontage" target="montage_images"/>
 	</entity>
 	<entity id="montage_images" store="#CPOwner.store">
 		<column name="id" primaryKey="YES"/>
+		<column name="idmontage"/>
+		<column name="parameter"/>
+		<column name="disable"/>
+		<column name="idanalysis_reference"/>
 		<column name="idanalysis"/>
-		<column name="row"/>
-		<column name="col"/>
 		<relationship type="toOne" name="analysis" bindingColumn="idanalysis" target="analyses"/>
 	</entity>
 
