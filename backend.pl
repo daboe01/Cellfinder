@@ -6,7 +6,7 @@ use SQL::Abstract;
 use Data::Dumper;
 
 plugin 'database', { 
-			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
+			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
 			username => 'root',
 			password => 'root',
 			options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
@@ -18,7 +18,8 @@ get '/:table'=> sub
 {	my $self = shift;
 	my $sql = SQL::Abstract->new;
 	my $table  = $self->param('table');
-	my $sth = $self->db->prepare(qq/select * from "/.$table.'"');	# <!> secure against sql injects
+	$self->db->quote_identifier($table);
+	my $sth = $self->db->prepare(qq/select * from /.$table);	# <!> secure against sql injects
 	$sth->execute();
 	my @a;
 	while(my $c=$sth->fetchrow_hashref())
@@ -37,7 +38,8 @@ get '/:table/:col/:pk' => [pk=>qr/.+/] => sub
 	my $col  = $self->param('col');
 	app->log->debug( $pk );
 	app->log->debug( $col );
-	my $sth = $self->db->prepare(qq/select * from "/.$table.qq/" where /.$col.qq/=?/);
+	$self->db->quote_identifier($table);
+	my $sth = $self->db->prepare(qq/select * from /.$table.qq/ where /.$col.qq/=?/);
 	$sth->execute(($pk));
 	my @a;
 	my $i=0;
