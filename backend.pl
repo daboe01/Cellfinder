@@ -19,7 +19,7 @@ get '/:table'=> sub
 	my $sql = SQL::Abstract->new;
 	my $table  = $self->param('table');
 	$self->db->quote_identifier($table);
-	my $sth = $self->db->prepare(qq/select * from /.$table);	# <!> secure against sql injects
+	my $sth = $self->db->prepare(qq/select * from /.$table);
 	$sth->execute();
 	my @a;
 	while(my $c=$sth->fetchrow_hashref())
