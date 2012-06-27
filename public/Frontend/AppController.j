@@ -181,16 +181,21 @@ var BaseURL="http://localhost/cellfinder_image/";
 }
 @end
 
+PhotoDragType="PhotoDragType";
+
 @implementation StacksController: CPObject
 {
 	var myAppController;
+	id	stacksCollectionView;
+
 }
 
 - initWithTrial: someTrial andAppController: someAppController
 {	if(self=[self init])
 	{	myAppController=someAppController;
 		[CPBundle loadRessourceNamed: "stacks.gsmarkup" owner:self];
-alert("hello");
+//		[self registerForDraggedTypes:[PhotoDragType]];
+
 	}
 }
 @end
@@ -203,6 +208,7 @@ alert("hello");
 	id	stacksController;
 	id	stacksContentController;
 	id	folderContentController;
+	id	folderCollectionView;
 	id	analysesController;
 	id	resultsController;
 	id	filterPredicate;
@@ -267,6 +273,11 @@ alert("hello");
 {
 	alert("dClick");
 }
+-   (CPArray)collectionView:(CPCollectionView)aCollectionView dragTypesForItemsAtIndexes:(CPIndexSet)indices
+{
+    return [PhotoDragType];
+}
+
 
 - (void)closeSheet:(id)sender
 {

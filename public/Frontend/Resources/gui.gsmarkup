@@ -95,7 +95,7 @@
 			<tabViewItem title="Images">
 				<vbox>
 					<scrollView hasHorizontalScroller="NO" hasVerticalScroller="YES">
-						<collectionView itemWidth="100" itemHeight="100" valueBinding="folder_content_controller.arrangedObjects" delegate="#CPOwner" itemsClassName="SimpleImageViewCollectionItem" selectable="YES"/>
+						<collectionView id="folder_collection_view" itemWidth="100" itemHeight="100" valueBinding="folder_content_controller.arrangedObjects" delegate="#CPOwner" itemsClassName="SimpleImageViewCollectionItem" selectable="YES"/>
 					</scrollView>
 					<hbox>
 						<slider continuous="NO" min="100" max="500"  current="100" halign="right"/><hspace/>
@@ -259,12 +259,14 @@
 	</entity>
 	<entity id="montage_images" store="#CPOwner.store">
 		<column name="id" primaryKey="YES"/>
+		<column name="idimage"/>
 		<column name="idmontage"/>
 		<column name="parameter"/>
 		<column name="disable"/>
 		<column name="idanalysis_reference"/>
 		<column name="idanalysis"/>
 		<relationship type="toOne" name="analysis" bindingColumn="idanalysis" target="analyses"/>
+		<relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
 	</entity>
 
 </entities>
@@ -278,6 +280,7 @@
 	<outlet source="#CPOwner" target="trialswindow" label="trialsWindow"/>
 	<outlet source="#CPOwner" target="stacks_controller" label="stacksController"/>
 	<outlet source="#CPOwner" target="stacks_content_controller" label="stacksContentController"/>
+	<outlet source="#CPOwner" target="folder_collection_view" label="folderCollectionView"/>
 
 	<outlet source="#CPOwner" target="displayfilters_ac" label="displayfilters_ac"/>
 	<outlet source="#CPOwner" target="uploadfilters_ac" label="uploadfilters_ac"/>
