@@ -6,7 +6,7 @@
  * Copyright 2011, Your Company All rights reserved.
  *
  * <!> fixme
- * change scale when multiple windows are open...
+ * nothing to declare currently...
  *
  */
 
@@ -114,9 +114,6 @@ var BaseURL="http://localhost/cellfinder_image/";
 	{	[rawImageSuperview setDocumentView: imageView];
 	} else if(image==_analyzedImage)
 	{	
-		[annotatedImageView bind:"backgroundImage" toObject: self withKeyPath: "_backgroundImage" options:nil];
-		[annotatedImageView bind:"scale" toObject: self withKeyPath: "_scale" options:nil];
-		[_analysesController setContent: [myAppController.folderContentController valueForKeyPath: "selection.image.analyses"]];	// detach from selection in main GUI (because we are a 'document')
 	}
 	_isLoadingImage=NO;
 	[_progress stopAnimation:self];
@@ -137,6 +134,8 @@ var BaseURL="http://localhost/cellfinder_image/";
 	[_rawImage setDelegate: self];
 	_analyzedImage=[[CPImage alloc] initWithContentsOfFile: myURL];
 	[_analyzedImage setDelegate: self];
+	[annotatedImageView bind:"backgroundImage" toObject: self withKeyPath: "_backgroundImage" options:nil];
+	[annotatedImageView bind:"scale" toObject: self withKeyPath: "_scale" options:nil];
 }
 -(id) initWithImageID:(int) someImageID appController:(id) mainController
 {	self=[super init];
@@ -145,8 +144,10 @@ var BaseURL="http://localhost/cellfinder_image/";
 	myAppController=mainController;
 	_analysesController=[FSArrayController new];
 	[_analysesController setEntity: [myAppController.analysesController entity]]
+	[_analysesController setContent: [myAppController.folderContentController valueForKeyPath: "selection.image.analyses"]];	// detach from selection in main GUI (because we are a 'document')
 	[CPBundle loadRessourceNamed: "image.gsmarkup" owner:self];
 	_compoID=[[compoPopup selectedItem] tag ];
+
 	[self _setImageID: someImageID];
 	_idtrial= parseInt([myAppController.trialsController valueForKeyPath:"selection.id"]);
 
@@ -180,10 +181,27 @@ var BaseURL="http://localhost/cellfinder_image/";
 }
 @end
 
+@implementation StacksController: CPObject
+{
+	var myAppController;
+}
+
+- initWithTrial: someTrial andAppController: someAppController
+{	if(self=[self init])
+	{	myAppController=someAppController;
+		[CPBundle loadRessourceNamed: "stacks.gsmarkup" owner:self];
+alert("hello");
+	}
+}
+@end
+
+
 @implementation AppController : CPObject
 {	id	store @accessors;	
 	id	trialsController;
 	id	trialsWindow;
+	id	stacksController;
+	id	stacksContentController;
 	id	folderContentController;
 	id	analysesController;
 	id	resultsController;
@@ -234,11 +252,21 @@ var BaseURL="http://localhost/cellfinder_image/";
 	{	[[AnalysesController alloc] initWithAnalysis:o andAppController: self];
 	}
 }
+-(void) runStacks: sender
+{	var o=[trialsController valueForKeyPath:"selection"];
+	if (o)
+	{	[[StacksController alloc] initWithTrial:o andAppController: self];
+	}
+}
 
 -(void) delete:sender
 {	[[[CPApp keyWindow] delegate] delete:sender];
 }
 
+-(void) collectionView: someView didDoubleClickOnItemAtIndex: someIndex
+{
+	alert("dClick");
+}
 
 - (void)closeSheet:(id)sender
 {
