@@ -187,6 +187,8 @@ PhotoDragType="PhotoDragType";
 {
 	var myAppController;
 	id	stacksCollectionView;
+	id	stacksWindow;
+	id	stacksettingswindow;
 
 }
 
@@ -194,10 +196,48 @@ PhotoDragType="PhotoDragType";
 {	if(self=[self init])
 	{	myAppController=someAppController;
 		[CPBundle loadRessourceNamed: "stacks.gsmarkup" owner:self];
-//		[self registerForDraggedTypes:[PhotoDragType]];
+		[stacksCollectionView registerForDraggedTypes:[PhotoDragType]];
 
 	}
 }
+-(void) newStack: sender
+{	[myAppController.stacksController insert: self];
+	[CPApp beginSheet: stacksettingswindow modalForWindow: stacksWindow modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
+
+}
+-(void) deleteStack: sender
+{
+}
+-(void) runSettings:sender
+{
+}
+
+-(void) runFlicker: sender
+{
+}
+
+-(void) applyMerge: sender
+{
+}
+-(void) performBurnIn: sender
+{
+}
+
+- (void)performDragOperation:(CPDraggingInfo)aSender
+{
+    var data = [[aSender draggingPasteboard] dataForType:PhotoDragType];
+    var o=[CPKeyedUnarchiver unarchiveObjectWithData: data];
+alert([o description]);
+}
+
+- (void)closeSheet:(id)sender
+{	[CPApp endSheet: stacksettingswindow returnCode:[sender tag]];
+}
+-(void) didEndSheet: someSheet returnCode: someCode contextInfo: someInfo
+{
+}
+
+
 @end
 
 
@@ -270,12 +310,21 @@ PhotoDragType="PhotoDragType";
 }
 
 -(void) collectionView: someView didDoubleClickOnItemAtIndex: someIndex
-{
-	alert("dClick");
+{	var o=[[someView itemAtIndex: someIndex] representedObject];
+	var ic=[[ImageController alloc] initWithImageID:[o valueForKey:"idimage"] appController: self];
+	[_imageControllers addObject:ic];
+//<!> fixme: implement unregistering upon window close in imagesController
 }
+
+// Drag and Drop
 -   (CPArray)collectionView:(CPCollectionView)aCollectionView dragTypesForItemsAtIndexes:(CPIndexSet)indices
-{
-    return [PhotoDragType];
+{	return [PhotoDragType];
+}
+- (CPData)collectionView:(CPCollectionView)aCollectionView
+   dataForItemsAtIndexes:(CPIndexSet)indices
+                 forType:(CPString)aType
+{	var firstIndex = [indices firstIndex];
+    return [CPKeyedArchiver archivedDataWithRootObject: [[aCollectionView itemAtIndex: firstIndex] representedObject] ];
 }
 
 
