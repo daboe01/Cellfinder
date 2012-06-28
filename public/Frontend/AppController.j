@@ -201,15 +201,16 @@ PhotoDragType="PhotoDragType";
 	}
 }
 -(void) newStack: sender
-{	[myAppController.stacksController insert: self];
-	[CPApp beginSheet: stacksettingswindow modalForWindow: stacksWindow modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
-
+{	[myAppController.stacksController addObject: [CPDictionary dictionaryWithObject:"NewStack" forKey:"name" ]];
+	[self runSetting:self];
 }
 -(void) deleteStack: sender
-{
+{	[myAppController.stacksController delete: self];
 }
+
 -(void) runSettings:sender
-{
+{	[CPApp beginSheet: stacksettingswindow modalForWindow: stacksWindow modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
+
 }
 
 -(void) runFlicker: sender
@@ -227,7 +228,7 @@ PhotoDragType="PhotoDragType";
 {
     var data = [[aSender draggingPasteboard] dataForType:PhotoDragType];
     var o=[CPKeyedUnarchiver unarchiveObjectWithData: data];
-alert([o description]);
+	[myAppController.stacksContentController addObject: [CPDictionary dictionaryWithObjects: [ [o objectForKey:"idimage"] ] forKeys: ["idimage"] ] ];
 }
 
 - (void)closeSheet:(id)sender
