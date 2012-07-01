@@ -17,6 +17,7 @@
 
 var BaseURL="http://localhost/cellfinder_image/";
 
+
 @implementation CPObject (ImageURLHack)
 -(CPImage) _cellfinderImageFromID
 {	var myURL=BaseURL+[self valueForKey:"id"]+"?width=10000";
@@ -31,21 +32,24 @@ var BaseURL="http://localhost/cellfinder_image/";
 }
 @end
 
+/////////////////////////////////////////////////////////
+
 @implementation SimpleImageViewCollectionItem: CPCollectionViewItem
 {	CPImage _img;
 	CPImageView _imgv;
 }
 - (void)imageDidLoad:(CPImage)image
-{	var mySize=[image size];
-	[_imgv setBounds: CPMakeRect(0, 0, mySize.width, mySize.height)];
+{	[_imgv setImage: image];
+	var myframe=[_imgv frame];
+	var size=[image size];
+	[_imgv setFrame: CPMakeRect(myframe.origin.x,myframe.origin.y, size.width, size.height)];
+
 }
 -(CPView) loadView
 {	_img=[_representedObject provideCollectionViewImage];
+	[_img setDelegate: self];
 	_imgv=[CPImageView new];
 	[_imgv setImage: _img];
-	var size=[_img size];
-	if(size) [_imgv setBounds: CPMakeRect(0,0, size.width, size.height)];
-	else [_imgv setDelegate: self];
 	var myview=[CPBox new];
 	var name=[_representedObject valueForKeyPath:"image.name"]
 	[myview setTitle: name];
@@ -181,6 +185,68 @@ var BaseURL="http://localhost/cellfinder_image/";
 }
 @end
 
+
+/////////////////////////////////////////////////////////
+@implementation FlickerController: CPObject
+{	var myAppController;
+	id	flickerSuperview;
+	id	imageView;
+	id	slider;
+	unsigned	_scale;
+	id	imageArray;
+	unsigned _imageIndex;
+}
+- (void)imageDidLoad:(CPImage)image
+{	var myframe=[imageView frame];
+	var size=[image size];
+	[imageView setFrame: CPMakeRect(myframe.origin.x,myframe.origin.y, size.width, size.height)];
+
+	[imageView setObjectValue: image];
+}
+
+-(CPImage) provideImageForIndex:(unsigned) someIndex
+{	var rnd=Math.floor(Math.random()*1000);
+	var myURL=BaseURL+[imageArray objectAtIndex: someIndex]+"?rnd="+rnd;
+	if(_scale) myURL+=("&width="+parseInt(_scale));
+document.title=myURL;
+	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
+	[img setDelegate:self];
+	return img;
+}
+
+-(FlickerController) initWithImageIDArray: myArray andAppController: someAppController
+{	if(self=[self init])
+	{	myAppController=someAppController;
+		[CPBundle loadRessourceNamed: "flicker.gsmarkup" owner:self];
+		imageArray=myArray;
+		[slider setMaxValue: [imageArray count]-1 ];
+		[self setImageIndex:0];
+	}
+	return self;
+}
+-(void) setImageIndex:(unsigned) someIndex
+{	_imageIndex=Math.floor(someIndex);
+	_imageIndex=Math.min(_imageIndex, [imageArray count]-1 );
+	[imageView setObjectValue: [self provideImageForIndex:  _imageIndex ]];
+}
+-(unsigned) imageIndex
+{	return _imageIndex;
+}
+
+-(void) setScale:(unsigned) someScale
+{	_scale=parseInt(someScale);
+document.title=_scale;
+	[self setImageIndex: [self imageIndex] ];
+}
+-(unsigned) scale
+{	return _scale;
+}
+
+@end
+
+
+/////////////////////////////////////////////////////////
+
 PhotoDragType="PhotoDragType";
 
 @implementation StacksController: CPObject
@@ -214,7 +280,19 @@ PhotoDragType="PhotoDragType";
 }
 
 -(void) runFlicker: sender
-{
+{	var peek=[stacksCollectionView selectionIndexes];
+	
+	var selectedArray=[peek count]? [[stacksCollectionView content ]  objectsAtIndexes: peek ]: [stacksCollectionView content ];
+
+	var myArray=[CPMutableArray new];
+	var i,n=[selectedArray count];
+
+	for(i=0; i<n; i++)
+	{	var o=[selectedArray objectAtIndex: i];
+		[myArray addObject: [o valueForKey: "idimage"] ];
+	}
+	alert("got here");
+	[[FlickerController alloc] initWithImageIDArray: myArray andAppController: myAppController];
 }
 
 -(void) applyMerge: sender
@@ -240,6 +318,8 @@ PhotoDragType="PhotoDragType";
 
 
 @end
+
+/////////////////////////////////////////////////////////
 
 
 @implementation AppController : CPObject

@@ -103,10 +103,6 @@
 					</hbox>
 				</vbox>
 			</tabViewItem>
-			<tabViewItem title="Analyses">
-				<vbox>
-				</vbox>
-			</tabViewItem>
 		</tabView>
 	 </splitView>
   </window>
