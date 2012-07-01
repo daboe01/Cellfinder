@@ -206,9 +206,8 @@ var BaseURL="http://localhost/cellfinder_image/";
 
 -(CPImage) provideImageForIndex:(unsigned) someIndex
 {	var rnd=Math.floor(Math.random()*1000);
-	var myURL=BaseURL+[imageArray objectAtIndex: someIndex]+"?rnd="+rnd;
-	if(_scale) myURL+=("&width="+parseInt(_scale));
-document.title=myURL;
+	var myURL=BaseURL+[imageArray objectAtIndex: someIndex];	//+"?rnd="+rnd;
+	if(_scale) myURL+=("?width="+parseInt(_scale));
 	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
 	[img setDelegate:self];
 	return img;
@@ -235,7 +234,6 @@ document.title=myURL;
 
 -(void) setScale:(unsigned) someScale
 {	_scale=parseInt(someScale);
-document.title=_scale;
 	[self setImageIndex: [self imageIndex] ];
 }
 -(unsigned) scale
@@ -291,7 +289,6 @@ PhotoDragType="PhotoDragType";
 	{	var o=[selectedArray objectAtIndex: i];
 		[myArray addObject: [o valueForKey: "idimage"] ];
 	}
-	alert("got here");
 	[[FlickerController alloc] initWithImageIDArray: myArray andAppController: myAppController];
 }
 
