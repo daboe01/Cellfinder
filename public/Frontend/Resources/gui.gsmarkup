@@ -263,6 +263,7 @@
 		<column name="idanalysis"/>
 		<relationship type="toOne" name="analysis" bindingColumn="idanalysis" target="analyses"/>
 		<relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
+		<relationship type="toOne" name="montage" bindingColumn="idmontage" target="montages"/>
 	</entity>
 
 </entities>

@@ -25,8 +25,22 @@ var BaseURL="http://localhost/cellfinder_image/";
 	[img setDelegate: self];
 	return img;
 }
--(CPImage) provideCollectionViewImage
-{	var myURL=BaseURL+[self valueForKey:"idimage"]+"?width=10000";
+
+-(CPImage) provideImageForCollectionViewItem: someItem
+{	var rnd=Math.floor(Math.random()*100000);
+	var myURL=BaseURL+[self valueForKey:"idimage"]+"?rnd="+rnd;
+
+	if([self respondsToSelector:@selector(entity) ])
+	{	var myentity=[self entity];
+
+		if([[myentity columns] containsObject:"idmontage"])
+		{	var cmp=[self valueForKeyPath:"montage.idpatch"];
+			if(cmp) myURL+=("&cmp="+parseInt(cmp));
+			var handovers=[self valueForKey:"parameter"]
+			if(handovers) myURL+=("&handover_params="+handovers);
+		}
+	}
+	if(1) myURL+="&width=10000";
 	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
 	return img;
 }
@@ -46,10 +60,7 @@ var BaseURL="http://localhost/cellfinder_image/";
 
 }
 -(CPView) loadView
-{	_img=[_representedObject provideCollectionViewImage];
-	[_img setDelegate: self];
-	_imgv=[CPImageView new];
-	[_imgv setImage: _img];
+{	_imgv=[CPImageView new];
 	var myview=[CPBox new];
 	var name=[_representedObject valueForKeyPath:"image.name"]
 	[myview setTitle: name];
@@ -59,9 +70,11 @@ var BaseURL="http://localhost/cellfinder_image/";
 
 	[myview setContentView: _imgv];
 	[self setView: myview];
+	_img=[_representedObject provideImageForCollectionViewItem: self];
+	[_img setDelegate: self];
 	return myview;
 }
--(void) setRepresentedObject:someObject
+-(void) setRepresentedObject: someObject
 {	[super setRepresentedObject: someObject];
 	[self loadView];
 }
@@ -125,7 +138,7 @@ var BaseURL="http://localhost/cellfinder_image/";
 
 -(void) _setImageID:(int) imageID 
 {	_imageID=imageID;
-	var rnd=Math.floor(Math.random()*1000);
+	var rnd=Math.floor(Math.random()*100000);
 	var myURL=[myAppController baseImageURL]+imageID+"?rnd="+rnd;
 	if(_originalSize) myURL+="&width="+[self getImagePixelCount];
 	_isLoadingImage=YES;
@@ -252,6 +265,7 @@ PhotoDragType="PhotoDragType";
 	var myAppController;
 	id	stacksCollectionView;
 	id	stacksWindow;
+	id	_viewingCompo;
 	id	stacksettingswindow;
 
 }
@@ -275,6 +289,12 @@ PhotoDragType="PhotoDragType";
 -(void) runSettings:sender
 {	[CPApp beginSheet: stacksettingswindow modalForWindow: stacksWindow modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
 
+}
+-(void)setViewingCompo: someCompo
+{	_viewingCompo=someCompo;
+}
+-(unsigned)viewingCompo
+{	return _viewingCompo;
 }
 
 -(void) runFlicker: sender
