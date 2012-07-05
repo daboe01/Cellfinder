@@ -99,7 +99,7 @@
 					</scrollView>
 					<hbox>
 						<slider continuous="NO" min="100" max="500"  valueBinding="#CPOwner.itemSize" halign="right"/><hspace/>
-						<popUpButton width="100" id="compoPopup" itemsBinding="displayfilters_ac.arrangedObjects.name" target="#CPOwner" valueBinding="#CPOwner.viewingCompo"/>
+						<popUpButton width="100" id="compoPopup" itemsBinding="displayfilters_ac.arrangedObjects.name" target="#CPOwner" valueBinding="#CPOwner.viewingCompoID"/>
 					</hbox>
 				</vbox>
 			</tabViewItem>
@@ -142,8 +142,8 @@
 			</tabViewItem>
 			<tabViewItem title="Filters">
 				<vbox>
-	    		<popUpButton width="100" itemsBinding="uploadfilters_ac.arrangedObjects.name" valueBinding="trials_controller.selection.composition_for_upload"/>
-	    		<popUpButton width="100" itemsBinding="displayfilters_ac.arrangedObjects.name" valueBinding="trials_controller.selection.composition_for_editing"/>
+	    		<hbox><label valign="centre" halign="min" width="100">Upload</label><popUpButton width="100" itemsBinding="uploadfilters_ac.arrangedObjects.name" valueBinding="trials_controller.selection.composition_for_upload"/></hbox>
+	    		<hbox><label valign="centre" halign="min" width="100">Editing</label><popUpButton width="100" itemsBinding="displayfilters_ac.arrangedObjects.name" valueBinding="trials_controller.selection.composition_for_editing"/></hbox>
 				</vbox>
 			</tabViewItem>
 		</tabView>
