@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE gsmarkup>
+<gsmarkup>
+
+<objects>
+  <window title="Flicker" id="mywindow" closable="YES"  x="10" y="250"  width="400" height="200" delegate="#CPOwner">
+	<vbox>
+		<scrollView>
+			<image id="imageview" halign="expand"  valign="expand"/>
+		</scrollView>
+		<hbox>
+			<slider continuous="YES" id="slider" min="0" max="10"  current="0" valueBinding="#CPOwner.imageIndex" halign="centre"/>
+		</hbox>
+	</vbox>
+  </window>
+</objects>
+
+<connectors>
+	<outlet source="#CPOwner" target="imageview" label="imageView"/>
+	<outlet source="#CPOwner" target="slider" label="slider"/>
+</connectors>
+
+
+</gsmarkup>
