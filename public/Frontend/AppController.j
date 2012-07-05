@@ -40,7 +40,12 @@ var BaseURL="http://localhost/cellfinder_image/";
 			if(handovers) myURL+=("&handover_params="+handovers);
 		}
 	}
-	if(1) myURL+="&width=10000";
+	var size=[someItem size];
+	if(!size) size=10000;
+
+//<!> [someItem compoID]
+
+	myURL+="&width="+size;
 	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
 	return img;
 }
@@ -51,6 +56,18 @@ var BaseURL="http://localhost/cellfinder_image/";
 @implementation SimpleImageViewCollectionItem: CPCollectionViewItem
 {	CPImage _img;
 	CPImageView _imgv;
+	unsigned _size @accessors(property=size);
+	unsigned _compoID @accessors(property=compoID);
+}
+-(void) setSize:(insigned) someSize
+{	_size=someSize*someSize;
+	_img=[_representedObject provideImageForCollectionViewItem: self];
+	[_img setDelegate: self];
+}
+-(void) setCompoID:(insigned) someID
+{	_compoID=someID;
+	_img=[_representedObject provideImageForCollectionViewItem: self];
+	[_img setDelegate: self];
 }
 - (void)imageDidLoad:(CPImage)image
 {	[_imgv setImage: image];
@@ -61,6 +78,7 @@ var BaseURL="http://localhost/cellfinder_image/";
 }
 -(CPView) loadView
 {	_imgv=[CPImageView new];
+	[_imgv setImageScaling: CPScaleProportionally];
 	var myview=[CPBox new];
 	var name=[_representedObject valueForKeyPath:"image.name"]
 	[myview setTitle: name];
@@ -81,6 +99,7 @@ var BaseURL="http://localhost/cellfinder_image/";
 -(void) setSelected:(BOOL) state
 {	[[self view] setBorderColor: state? [CPColor yellowColor]: [CPColor blackColor] ];
 }
+
 @end
 
 @implementation ImageController : CPObject
@@ -209,6 +228,7 @@ var BaseURL="http://localhost/cellfinder_image/";
 	id	imageArray;
 	unsigned _imageIndex;
 }
+
 - (void)imageDidLoad:(CPImage)image
 {	var myframe=[imageView frame];
 	var size=[image size];
@@ -267,6 +287,7 @@ PhotoDragType="PhotoDragType";
 	id	stacksWindow;
 	id	_viewingCompo;
 	id	stacksettingswindow;
+	unsigned _itemSize;
 
 }
 
@@ -275,9 +296,22 @@ PhotoDragType="PhotoDragType";
 	{	myAppController=someAppController;
 		[CPBundle loadRessourceNamed: "stacks.gsmarkup" owner:self];
 		[stacksCollectionView registerForDraggedTypes:[PhotoDragType]];
+		_itemSize=10000;
 
 	}
 }
+
+-(void) setItemSize:(unsigned) someSize
+{	_itemSize=someSize;
+	[[stacksCollectionView items] makeObjectsPerformSelector:@selector(setSize:) withObject:_itemSize];
+	[stacksCollectionView setMinItemSize: CPMakeSize(_itemSize,_itemSize)];
+}
+-(void) itemSize
+{	return _itemSize;
+}
+
+
+
 -(void) newStack: sender
 {	[myAppController.stacksController addObject: [CPDictionary dictionaryWithObject:"NewStack" forKey:"name" ]];
 	[self runSetting:self];
@@ -347,6 +381,8 @@ PhotoDragType="PhotoDragType";
 	id	stacksContentController;
 	id	folderContentController;
 	id	folderCollectionView;
+	unsigned _itemSize;
+	unsigned _viewingCompoID @accessors(property=viewingCompo);
 	id	analysesController;
 	id	resultsController;
 	id	filterPredicate;
@@ -363,6 +399,21 @@ PhotoDragType="PhotoDragType";
 	id	javascriptfilters_ac;
 
 }
+-(void) setViewingCompo:(unsigned) someCompoID
+{	_viewingCompoID=someCompoID;
+	[[folderCollectionView items] makeObjectsPerformSelector:@selector(setCompoID:) withObject:_viewingCompoID];
+}
+
+
+-(void) setItemSize:(unsigned) someSize
+{	_itemSize=someSize;
+	[[folderCollectionView items] makeObjectsPerformSelector:@selector(setSize:) withObject:_itemSize];
+	[folderCollectionView setMinItemSize: CPMakeSize(_itemSize,_itemSize)];
+}
+-(void) itemSize
+{	return _itemSize;
+}
+
 -(CPString) baseImageURL
 {	return BaseURL;
 }
@@ -378,8 +429,11 @@ PhotoDragType="PhotoDragType";
 }
 - (void) applicationDidFinishLaunching:(CPNotification)aNotification
 {	store=[[FSStore alloc] initWithBaseURL: "http://127.0.0.1:3000"];
+	_itemSize=100;
 	[CPBundle loadRessourceNamed: "gui.gsmarkup" owner:self];
 }
+
+
 -(void) loadImage: sender
 {	var o=[[folderContentController arrangedObjects] objectAtIndex: [sender selectedRow]];
 	if (o)
