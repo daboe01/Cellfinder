@@ -4,7 +4,7 @@
 
 <objects>
   <predicate id="display_filters_pred" format="type == '1'"/>
-  <window title="Image" id="mywindow" closable="YES"  x="10" y="250"  width="400" height="200" delegate="#CPOwner">
+  <window title="Image" id="mywindow" closable="YES"  x="10" y="20"  width="1000" height="500" delegate="#CPOwner">
 	<vbox>
 		<tabView type="topBezel">
 			<tabViewItem title="Original">

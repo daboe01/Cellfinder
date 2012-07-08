@@ -40,7 +40,6 @@
 -(CPImage) getImagePixelCount
 {   return Math.floor(_originalSize.width*_scale*_originalSize.height*_scale);
 }
-
 -(CPImage) _backgroundImage
 {	var _compoID=[_analysesController valueForKeyPath:"selection.idcomposition_for_editing" ];
 	var _idimage=[_analysesController valueForKeyPath:"selection.idimage" ];
@@ -130,4 +129,15 @@
 }
 @end
 
+@implementation ImageController(CellfinderGUIAPI)
+-(void) setNumberingPoints
+{	[annotatedImageView setStyleFlags: [annotatedImageView styleFlags] | AIVStyleNumbers ];
+}
+-(void) setDrawingLines
+{	[annotatedImageView setStyleFlags: [annotatedImageView styleFlags] | AIVStylePolygon ];
+}
+-(void) setDrawingAngle
+{	[annotatedImageView setStyleFlags: [annotatedImageView styleFlags] | AIVStyleAngleInfo ];
+}
 
+@end

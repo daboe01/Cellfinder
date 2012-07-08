@@ -296,12 +296,24 @@ PhotoDragType="PhotoDragType";
 	[CPBundle loadRessourceNamed: "gui.gsmarkup" owner:self];
 }
 
-
+-(CPString) configureIC: someIC forTrial: someTrial
+{	var myreq=[CPURLRequest requestWithURL: BaseURL+"0?cmp="+[someTrial valueForKey: "composition_for_javascript"] ];
+	var package=[[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil]  rawString];
+	var arr = JSON.parse( package );
+	var i,l=arr.length;
+	for(i=0;i<l;i++)
+	{	var m=arr[i];
+		if([m characterAtIndex:0]=='<') next;
+		var sel=CPSelectorFromString(m);
+		if(sel) [someIC performSelector:sel];
+	}
+}
 -(void) loadImage: sender
 {	var o=[[folderContentController arrangedObjects] objectAtIndex: [sender selectedRow]];
 	if (o)
 	{	if(!_imageControllers) _imageControllers=[CPMutableSet new];
 		var ic=[[ImageController alloc] initWithImageID:[o valueForKey:"idimage"] appController: self];
+		[self configureIC: ic forTrial: [trialsController selectedObject]];
 		[_imageControllers addObject:ic];
 //<!> fixme: implement unregistering upon window close in imagesController
 	}
