@@ -160,6 +160,8 @@
 		<column name="entity_regex"/>
 		<column name="composition_for_upload"/>
 		<column name="composition_for_editing"/>
+		<column name="composition_for_javascript"/>
+
 		<relationship name="compos" type="toMany" target="patch_compositions" targetColumn="idtrials"/>
 		<relationship name="images" type="toMany" target="images" targetColumn="idtrial"/>
 		<relationship name="folders" type="toMany" target="folders" targetColumn="idtrial"/>

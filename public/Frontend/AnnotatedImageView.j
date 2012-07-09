@@ -200,43 +200,64 @@ AIVStyleAngleInfo=8;
 	{	CGContextSetStrokeColor(context, [CPColor lightGrayColor]);
 		CGContextStrokeRect(context, _marqueeSelectionBounds);
 	}
-	if(1|| _styleFlags & AIVStylePolygon)
+	if( _styleFlags & AIVStylePolygon)
 	{	CGContextBeginPath(context);
-		var mySubviews=[self subviews];
+		var mySubviews=[self allDots];
 		var n = [mySubviews count];
 		var isFirst=YES;
 		for(var i = 0; i < n; i++) 
 		{	var currSubview = mySubviews[i];
-			if ( [currSubview isKindOfClass: contentClass])
-			{	var o=[currSubview objectValue];
-				if(isFirst)
-				{	CGContextMoveToPoint(context, o.x, o.y);
-					isFirst=NO;
-				}
-				else CGContextAddLineToPoint(context, o.x, o.y);
+			var o=[currSubview objectValue];
+			if(isFirst)
+			{	CGContextMoveToPoint(context, o.x, o.y);
+				isFirst=NO;
 			}
+			else CGContextAddLineToPoint(context, o.x, o.y);
 		}
 		CGContextClosePath(context);
 		CGContextSetStrokeColor(context, [CPColor yellowColor]);
 		CGContextStrokePath(context);
+	}	// else?!
+	if( _styleFlags & AIVStyleAngleInfo)
+	{	CGContextBeginPath(context);
+		var mySubviews=[self allDots];
+		var n = [mySubviews count];
+		if (n)
+		{	var  lastPoint= [mySubviews[0] objectValue];
+			var firstPoint=[mySubviews[n-1] objectValue];
+			CGContextMoveToPoint(context, firstPoint.x, firstPoint.y);
+			CGContextAddLineToPoint(context, lastPoint.x, lastPoint.y);
+			CGContextClosePath(context);
+			CGContextSetStrokeColor(context, [CPColor yellowColor]);
+			CGContextStrokePath(context);
+
+			var radians=(lastPoint.x>firstPoint.x)? Math.atan((lastPoint.y-firstPoint.y)/(lastPoint.x-firstPoint.x)):
+											  (3.14-Math.atan((lastPoint.y-firstPoint.y)/(firstPoint.x- lastPoint.x)));
+			CGContextMoveToPoint(context, firstPoint.x, firstPoint.y);
+			CGContextAddLineToPoint(context, firstPoint.x+50, firstPoint.y);
+			CGContextClosePath(context);
+			CGContextStrokePath(context);
+			CGContextMoveToPoint(context, firstPoint.x, firstPoint.y);
+			CGContextAddArc	(context, firstPoint.x, firstPoint.y, 50,0,radians,NO); 	 
+			CGContextClosePath(context);
+			CGContextStrokePath(context);
+		}
 	}
-	if(1|| _styleFlags & AIVStyleNumbers )
+	if(_styleFlags & AIVStyleNumbers )
 	{	CGContextSelectFont(context, [CPFont systemFontOfSize:8]);
 		CGContextSetFillColor(context, [contentClass textColor]);
 		CGContextSetStrokeColor(context, [contentClass textColor]);
-		var mySubviews=[self subviews];
+		var mySubviews=[self allDots];
 		var n = [mySubviews count];
 		for(var i = 0; i < n; i++) 
 		{	var currSubview = mySubviews[i];
-			if ( [currSubview isKindOfClass: contentClass])
-			{	var o=[currSubview objectValue];
+			var o=[currSubview objectValue];
 
-				CGContextSetTextPosition(context, o.x-2, o.y+1)
-				CGContextShowText(context, i);
-			}
+			CGContextSetTextPosition(context, o.x-2, o.y+1)
+			CGContextShowText(context, i);
 		}
 	}
-	if(1|| _styleFlags & AIVStyleLengthInfo )
+	if( _styleFlags & AIVStyleLengthInfo )
 	{	CGContextSelectFont(context, [CPFont systemFontOfSize:12]);
 		var mySubviews=[self subviews];
 		var n = [mySubviews count];
