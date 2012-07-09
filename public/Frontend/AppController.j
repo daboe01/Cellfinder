@@ -15,7 +15,7 @@
 @import "CompoController.j"
 @import "ImageController.j"
 
-var BaseURL="http://localhost/cellfinder_image/";
+var BaseURL="http://auginfo/cellfinder_image/";
 
 
 @implementation CPObject (ImageURLHack)
