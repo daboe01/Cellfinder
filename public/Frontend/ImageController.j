@@ -41,9 +41,9 @@
 {   return Math.floor(_originalSize.width*_scale*_originalSize.height*_scale);
 }
 -(CPImage) _backgroundImage
-{	var _compoID=[_analysesController valueForKeyPath:"selection.idcomposition_for_editing" ];
-	var _idimage=[_analysesController valueForKeyPath:"selection.idimage" ];
-	var myURL= [myAppController baseImageURL]+_idimage+"?cmp="+_compoID;
+{	var mycompoID=[_analysesController valueForKeyPath:"selection.idcomposition_for_editing" ];
+	var myidimage=[_analysesController valueForKeyPath:"selection.idimage" ];
+	var myURL= [myAppController baseImageURL]+myidimage+"?cmp="+mycompoID;
 	if(_originalSize) myURL+="&width="+[self getImagePixelCount];
 	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
 	return img;
@@ -102,18 +102,23 @@
 	[_mywindow setTitle:"Image "+someImageID];
 	return self;
 }
+
+//<!> fixme: update only the currently visible tab.
 -(void) setScale:(double) someScale
 {	_scale=someScale;
 	if(!_originalSize) return;
 	[self _setImageID: _imageID];
 }
+//<!> fixme: update only the currently visible tab.
 -(void) compoChanged:(id) sender
 {	_compoID=[[sender selectedItem] tag ];
 	[self _setImageID: _imageID];
 }
 
+//<!> fixme: update only the currently visible tab.
 -(void) reload:(id) sender
-{	if(![self isLoadingImage])
+{
+	if(![self isLoadingImage])
 	 [self _setImageID: _imageID];
 }
 

@@ -282,6 +282,7 @@ PhotoDragType="PhotoDragType";
 }
 -(CPArray) imageControllersForIDTrial:(int) idtrial
 {	var all=[_imageControllers allObjects];
+	if(!all) all= [];
 	var i,l=all.length;
 	var ret=[CPMutableArray new];
 	for(i=0;i<l;i++)
@@ -296,10 +297,11 @@ PhotoDragType="PhotoDragType";
 	[CPBundle loadRessourceNamed: "gui.gsmarkup" owner:self];
 }
 
--(CPString) configureIC: someIC forTrial: someTrial
+-(void) configureIC: someIC forTrial: someTrial
 {	var myreq=[CPURLRequest requestWithURL: BaseURL+"0?cmp="+[someTrial valueForKey: "composition_for_javascript"] ];
-	var package=[[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil]  rawString];
-	var arr = JSON.parse( package );
+	var mypackage=[[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil]  rawString];
+	var arr = JSON.parse( mypackage );
+	if(!arr) return;
 	var i,l=arr.length;
 	for(i=0;i<l;i++)
 	{	var m=arr[i];
@@ -313,8 +315,8 @@ PhotoDragType="PhotoDragType";
 	if (o)
 	{	if(!_imageControllers) _imageControllers=[CPMutableSet new];
 		var ic=[[ImageController alloc] initWithImageID:[o valueForKey:"idimage"] appController: self];
-		[self configureIC: ic forTrial: [trialsController selectedObject]];
 		[_imageControllers addObject:ic];
+		[self configureIC: ic forTrial: [trialsController selectedObject]];
 //<!> fixme: implement unregistering upon window close in imagesController
 	}
 }
