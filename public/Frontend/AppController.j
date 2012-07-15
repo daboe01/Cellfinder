@@ -247,7 +247,6 @@ PhotoDragType="PhotoDragType";
 	unsigned _itemSize;
 	unsigned _viewingCompoID @accessors(property=viewingCompoID);
 	id	analysesController;
-	id	resultsController;
 	id	filterPredicate;
 
 	CPMutableSet	_imageControllers;

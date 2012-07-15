@@ -11,6 +11,7 @@
   <predicate id="perlfilters_pred" format="type == '7'"/>
   <predicate id="javascriptfilters_pred" format="type == '6'"/>
 
+  <sortDescriptor id="by_id" key="id" ascending="YES"/>
   <sortDescriptor id="by_reverse_id" key="id" ascending="NO"/>
   <sortDescriptor id="by_name" key="name"/>
   <sortDescriptor id="by_folder_name" key="folder_name"/>
@@ -271,7 +272,6 @@
 </entities>
 
 <connectors>
-	<outlet source="#CPOwner" target="results" label="resultsController"/>
 	<outlet source="#CPOwner" target="trials_controller" label="trialsController"/>
 	<outlet source="#CPOwner" target="folder_content_controller" label="folderContentController"/>
 	<outlet source="#CPOwner" target="trialname_pred" label="filterPredicate"/>
