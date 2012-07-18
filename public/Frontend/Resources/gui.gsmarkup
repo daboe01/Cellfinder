@@ -68,6 +68,7 @@
   <window title="Folders" closable="no"  x="330" y="30" width="400" height="640" autosaveName="imagesColumnSizes">
 	<splitView vertical="YES" autosaveName="splitview_folders">
 		<vbox>
+			<comboBox itemsBinding="folder_controller.arrangedObjects.folder_name"/>
 			<scrollView hasHorizontalScroller="NO">
 				<tableView zebra="yes" valueBinding="folder_controller" target="#CPOwner" doubleAction="loadFolder:">
 					<tableColumn identifier="folder_name" title="name"/>
