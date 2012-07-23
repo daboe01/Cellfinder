@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!DOCTYPE gsmarkup>
+<gsmarkup>
+
+<objects>
+  <window title="Stacks" id="stackswindow" closable="yes"  x="335" y="35" width="400" height="640">
+	<splitView vertical="YES" autosaveName="splitview_folders">
+		<vbox>
+			<scrollView hasHorizontalScroller="NO">
+				<tableView zebra="yes" valueBinding="#CPOwner.myAppController.stacksController" target="#CPOwner">
+					<tableColumn identifier="name" title="name"/>
+	  			</tableView>
+			</scrollView>
+			<ButtonBar plusButtonAction="newStack:" minusButtonAction="deleteStack:" actionsButton="YES" target="#CPOwner">
+  				<popUpButtonItem title="Settings…" target="#CPOwner" action="runSettings:"/>
+				<popUpButtonItem title="Flickering…" target="#CPOwner" action="runFlicker:"/>
+ 				<popUpButtonItem title="Merge…" target="#CPOwner" action="applyMerge:"/>
+ 				<popUpButtonItem title="Burnin…" target="#CPOwner" action="performBurnIn:"/>
+			</ButtonBar>
+		</vbox>
+		<vbox>
+			<scrollView hasHorizontalScroller="NO" hasVerticalScroller="YES">
+				<collectionView id="stacks_collection_view" itemWidth="100" itemHeight="100" valueBinding="#CPOwner.myAppController.stacksContentController.arrangedObjects" delegate="#CPOwner" itemsClassName="SimpleImageViewCollectionItem" selectable="YES"/>
+			</scrollView>
+			<hbox>
+				<slider continuous="NO" min="100" max="500"  valueBinding="#CPOwner.itemSize" halign="right"/><hspace/>
+					<popUpButton width="100" id="compoPopup" itemsBinding="#CPOwner.myAppController.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.viewingCompo"/>
+			</hbox>
+		</vbox>
+	 </splitView>
+  </window>
+
+  <window title="Stack settings" id="stacksettingswindow" modal="YES" visible="NO" width="300" height="200" resizable="YES">
+	<vbox>
+				<vbox>
+				<hbox><label valign="centre" halign="min" width="100">Name</label><textField valueBinding="#CPOwner.myAppController.stacksController.selection.name"/></hbox>
+				</vbox>
+		<button title="Done" target="#CPOwner" action="closeSheet:"/>
+	</vbox>
+  </window>
+
+</objects>
+
+<connectors>
+	<outlet source="#CPOwner" target="stacks_collection_view" label="stacksCollectionView"/>
+	<outlet source="#CPOwner" target="stackswindow" label="stacksWindow"/>
+	<outlet source="#CPOwner" target="stacksettingswindow" label="stacksettingswindow"/>
+</connectors>
+
+</gsmarkup>
