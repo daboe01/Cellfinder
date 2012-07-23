@@ -1,1 +1,0 @@
-@STATIC;1.0;u;22;Resources/magglass.png62;mhtml:Browser.environment/MHTMLData.txt!Resources/magglass.pngu;21;Resources/spinner.gif61;mhtml:Browser.environment/MHTMLData.txt!Resources/spinner.gif
