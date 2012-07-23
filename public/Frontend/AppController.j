@@ -14,9 +14,11 @@
 @import <Renaissance/Renaissance.j>
 @import "CompoController.j"
 @import "ImageController.j"
+@import "StacksController.j"
+@import "Stacks2Controller.j"
 
 var BaseURL="http://localhost/cellfinder_image/";
-
+var CV_MAXPIXELSIZE=500;
 
 @implementation CPObject (ImageURLHack)
 -(CPImage) _cellfinderImageFromID
@@ -41,196 +43,31 @@ var BaseURL="http://localhost/cellfinder_image/";
 		}
 	}
 	var size=[someItem size];
-	if(!size) size=10000;
+	if(!size) size=0.5;
 
 
-	myURL+="&width="+size;
+	myURL+="&width="+parseInt( (size*CV_MAXPIXELSIZE)* (size*CV_MAXPIXELSIZE) );
 	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
 	return img;
 }
 @end
 
-/////////////////////////////////////////////////////////
+@implementation FSObject(Archiving)
 
-@implementation SimpleImageViewCollectionItem: CPCollectionViewItem
-{	CPImage _img;
-	CPImageView _imgv;
-	unsigned _size @accessors(property=size);
-	unsigned _compoID @accessors(property=compoID);
+-(void) encodeWithCoder: aCoder
+{
+	//[super encodeWithCoder:aCoder];	// raises?!
+	var mydata=[_data copy];
+	if(_changes) [mydata addEntriesFromDictionary: _changes];
+	[aCoder _encodeDictionaryOfObjects: mydata forKey:@"FS.objects"];
 }
--(void) setSize:(insigned) someSize
-{	_size=someSize*someSize;
-	_img=[_representedObject provideImageForCollectionViewItem: self];
-	[_img setDelegate: self];
-}
--(void) setCompoID:(insigned) someID
-{	_compoID=someID;
-	_img=[_representedObject provideImageForCollectionViewItem: self];
-	[_img setDelegate: self];
-}
-- (void)imageDidLoad:(CPImage)image
-{	[_imgv setImage: image];
-	var myframe=[_imgv frame];
-	var size=[image size];
-	[_imgv setFrame: CPMakeRect(myframe.origin.x,myframe.origin.y, size.width, size.height)];
-
-}
--(CPView) loadView
-{	_imgv=[CPImageView new];
-	[_imgv setImageScaling: CPScaleProportionally];
-	var myview=[CPBox new];
-	var name=[_representedObject valueForKeyPath:"image.name"]
-	[myview setTitle: name];
-	[myview setTitlePosition: CPBelowBottom];
-    [myview setBorderType:  CPLineBorder ];
-    [myview setBorderWidth:  2.0 ];
-
-	[myview setContentView: _imgv];
-	[self setView: myview];
-	_img=[_representedObject provideImageForCollectionViewItem: self];
-	[_img setDelegate: self];
-	return myview;
-}
--(void) setRepresentedObject: someObject
-{	[super setRepresentedObject: someObject];
-	[self loadView];
-}
--(void) setSelected:(BOOL) state
-{	[[self view] setBorderColor: state? [CPColor yellowColor]: [CPColor blackColor] ];
-}
-
-@end
-
-
-/////////////////////////////////////////////////////////
-@implementation FlickerController: CPObject
-{	var myAppController;
-	id	flickerSuperview;
-	id	imageView;
-	id	slider;
-	id	imageArray;
-	unsigned _imageIndex;
-}
-
-
--(FlickerController) initWithImageArray: myArray andAppController: someAppController
-{	if(self=[self init])
-	{	myAppController=someAppController;
-		[CPBundle loadRessourceNamed: "flicker.gsmarkup" owner:self];
-		imageArray=myArray;
-		[slider setMaxValue: [imageArray count]-1 ];
-		[self setImageIndex:0];
+- initWithCoder: aCoder
+{	self=[self init];
+	if(self)
+	{	_changes=[aCoder _decodeDictionaryOfObjectsForKey:@"FS.objects"]
 	}
 	return self;
 }
--(void) setImageIndex:(unsigned) someIndex
-{	_imageIndex=Math.floor(someIndex);
-	_imageIndex=Math.min(_imageIndex, [imageArray count]-1 );
-	var image= [imageArray objectAtIndex:  _imageIndex ];
-	var size=[image size];
-	var myframe=[imageView frame];
-	[imageView setFrame: CPMakeRect(myframe.origin.x,myframe.origin.y, size.width, size.height)];
-	[imageView setObjectValue: image];
-}
--(unsigned) imageIndex
-{	return _imageIndex;
-}
-
-@end
-
-
-/////////////////////////////////////////////////////////
-
-PhotoDragType="PhotoDragType";
-
-@implementation StacksController: CPObject
-{
-	var myAppController;
-	id	stacksCollectionView;
-	id	stacksWindow;
-	id	_viewingCompo;
-	id	stacksettingswindow;
-	unsigned _itemSize;
-
-}
-
-- initWithTrial: someTrial andAppController: someAppController
-{	if(self=[self init])
-	{	myAppController=someAppController;
-		[CPBundle loadRessourceNamed: "stacks.gsmarkup" owner:self];
-		[stacksCollectionView registerForDraggedTypes:[PhotoDragType]];
-		_itemSize=10000;
-
-	}
-}
-
--(void) setItemSize:(unsigned) someSize
-{	_itemSize=someSize;
-	[[stacksCollectionView items] makeObjectsPerformSelector:@selector(setSize:) withObject:_itemSize];
-	[stacksCollectionView setMinItemSize: CPMakeSize(_itemSize,_itemSize)];
-}
--(void) itemSize
-{	return _itemSize;
-}
-
-
--(void) newStack: sender
-{	[myAppController.stacksController addObject: [CPDictionary dictionaryWithObject:"NewStack" forKey:"name" ]];
-	[self runSetting:self];
-}
--(void) deleteStack: sender
-{	[myAppController.stacksController delete: self];
-}
-
--(void) runSettings:sender
-{	[CPApp beginSheet: stacksettingswindow modalForWindow: stacksWindow modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
-
-}
--(void)setViewingCompo: someCompo
-{	_viewingCompo=someCompo;
-	[[stacksCollectionView items] makeObjectsPerformSelector:@selector(setCompoID:) withObject:_viewingCompo];
-}
--(unsigned)viewingCompo
-{	return _viewingCompo;
-}
-
--(void) runFlicker: sender
-{	var peek=[stacksCollectionView selectionIndexes];
-	
-	var selectedArray=[peek count]? [[stacksCollectionView items ]  objectsAtIndexes: peek ]: [stacksCollectionView items ];
-
-	var myArray=[CPMutableArray new];
-	var i,n=[selectedArray count];
-
-	for(i=0; i<n; i++)
-	{	var o=[selectedArray objectAtIndex: i];
-		[myArray addObject:o._img ];
-	}
-	[[FlickerController alloc] initWithImageArray: myArray andAppController: myAppController];
-}
-
--(void) applyMerge: sender
-{
-}
--(void) performBurnIn: sender
-{
-}
-
-- (void)performDragOperation:(CPDraggingInfo)aSender
-{
-    var data = [[aSender draggingPasteboard] dataForType:PhotoDragType];
-    var o=[CPKeyedUnarchiver unarchiveObjectWithData: data];
-	[myAppController.stacksContentController addObject: [CPDictionary dictionaryWithObjects: [ [o objectForKey:"idimage"] ] forKeys: ["idimage"] ] ];
-}
-
-- (void)closeSheet:(id)sender
-{	[CPApp endSheet: stacksettingswindow returnCode:[sender tag]];
-}
--(void) didEndSheet: someSheet returnCode: someCode contextInfo: someInfo
-{
-}
-
-
 @end
 
 /////////////////////////////////////////////////////////
@@ -270,7 +107,7 @@ PhotoDragType="PhotoDragType";
 -(void) setItemSize:(unsigned) someSize
 {	_itemSize=someSize;
 	[[folderCollectionView items] makeObjectsPerformSelector:@selector(setSize:) withObject:_itemSize];
-	[folderCollectionView setMinItemSize: CPMakeSize(_itemSize,_itemSize)];
+	[folderCollectionView setMinItemSize: CPMakeSize(_itemSize*CV_MAXPIXELSIZE,_itemSize*CV_MAXPIXELSIZE)];
 }
 -(void) itemSize
 {	return _itemSize;
@@ -292,8 +129,8 @@ PhotoDragType="PhotoDragType";
 }
 - (void) applicationDidFinishLaunching:(CPNotification)aNotification
 {	store=[[FSStore alloc] initWithBaseURL: "http://127.0.0.1:3000"];
-	_itemSize=100;
 	[CPBundle loadRessourceNamed: "gui.gsmarkup" owner:self];
+	[self setItemSize:0.5];
 }
 
 -(void) configureIC: someIC forTrial: someTrial
@@ -332,6 +169,12 @@ PhotoDragType="PhotoDragType";
 	{	[[StacksController alloc] initWithTrial:o andAppController: self];
 	}
 }
+-(void) runStacks2: sender
+{	var o=[trialsController valueForKeyPath:"selection"];
+	if (o)
+	{	[[Stacks2Controller alloc] initWithTrial:o andAppController: self];
+	}
+}
 
 -(void) delete:sender
 {	[[[CPApp keyWindow] delegate] delete:sender];
@@ -352,7 +195,8 @@ PhotoDragType="PhotoDragType";
    dataForItemsAtIndexes:(CPIndexSet)indices
                  forType:(CPString)aType
 {	var firstIndex = [indices firstIndex];
-    return [CPKeyedArchiver archivedDataWithRootObject: [[aCollectionView itemAtIndex: firstIndex] representedObject] ];
+	var o=[[aCollectionView itemAtIndex: firstIndex] representedObject];
+    return [CPKeyedArchiver archivedDataWithRootObject: o ];
 }
 
 

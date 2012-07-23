@@ -215,6 +215,7 @@ function mySortFunction(a,b,context)
 		for(var i = 0; i < n; i++) 
 		{	var currSubview = mySubviews[i];
 			var o=[currSubview objectValue];
+			if(!o) continue;
 			if(isFirst)
 			{	CGContextMoveToPoint(context, o.x, o.y);
 				isFirst=NO;

@@ -23,7 +23,7 @@
 				<collectionView id="stacks_collection_view" itemWidth="100" itemHeight="100" valueBinding="#CPOwner.myAppController.stacksContentController.arrangedObjects" delegate="#CPOwner" itemsClassName="SimpleImageViewCollectionItem" selectable="YES"/>
 			</scrollView>
 			<hbox>
-				<slider continuous="NO" min="100" max="500"  valueBinding="#CPOwner.itemSize" halign="right"/><hspace/>
+				<slider continuous="NO" min="0" max="1"  valueBinding="#CPOwner.itemSize" halign="right"/><hspace/>
 					<popUpButton width="100" id="compoPopup" itemsBinding="#CPOwner.myAppController.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.viewingCompo"/>
 			</hbox>
 		</vbox>

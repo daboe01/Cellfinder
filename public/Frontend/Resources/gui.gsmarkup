@@ -58,6 +58,7 @@
 	<ButtonBar actionsButton="YES" target="#CPOwner" plusButtonAction="newTrial:" minusButtonAction="removeTrial:">
  		<popUpButtonItem title="Settings..." target="#CPOwner" action="runSettings:" keyEquivalent="i"/>
  		<popUpButtonItem title="Stacks…" target="#CPOwner" action="runStacks:"/>
+ 		<popUpButtonItem title="Stacks2…" target="#CPOwner" action="runStacks2:"/>
  		<popUpButtonItem title="Duplicate structure" target="#CPOwner" action="duplicate:" keyEquivalent="i"/>
  		<popUpButtonItem title="Rebuild from repo..." target="#CPOwner" action="rebuildFromRepo:" keyEquivalent="i"/>
  		<popUpButtonItem title="Batching..." target="#CPOwner" action="applyFilterToAll:" keyEquivalent="i"/>
@@ -100,7 +101,7 @@
 						<collectionView id="folder_collection_view" itemWidth="100" itemHeight="100" valueBinding="folder_content_controller.arrangedObjects" delegate="#CPOwner"  itemsClassName="SimpleImageViewCollectionItem" selectable="YES"/>
 					</scrollView>
 					<hbox>
-						<slider continuous="NO" min="100" max="500"  valueBinding="#CPOwner.itemSize" halign="right"/><hspace/>
+						<slider continuous="NO" min="0" max="1"  valueBinding="#CPOwner.itemSize" halign="right"/><hspace/>
 						<popUpButton width="100" id="compoPopup" itemsBinding="displayfilters_ac.arrangedObjects.name" target="#CPOwner" valueBinding="#CPOwner.viewingCompoID"/>
 					</hbox>
 				</vbox>
