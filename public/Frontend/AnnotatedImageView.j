@@ -17,8 +17,9 @@ AIVStyleLengthInfo=4;
 AIVStyleAngleInfo=8;
 
 
-function mySortFunction(a,b,context)
-{	return [a valueForKey:"id"]-[b valueForKey:"id"];
+var mySortFunction=function(a,b,context)
+{
+	return [a valueForKey:"id"]-[b valueForKey:"id"];
 }
 
 

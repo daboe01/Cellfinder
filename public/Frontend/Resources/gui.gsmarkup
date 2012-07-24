@@ -35,19 +35,8 @@
    <arrayController id="folder_content_controller" entity="folder_content" valueBinding ="folder_controller.selection.folder_content"/>
    <arrayController id="analyses_controller" entity="analyses" valueBinding ="folder_content_controller.selection.image.analyses"/>
 
-  <window title="Predicate Editor" x="10" y="30" width="300" height="100">
-		<predicateEditor id="myPE" width="300" height="100" valueBinding="trials_controller.filterPredicate">
-			<rowTemplate>
-				<lexpression keyPath="id"/>
-				<lexpression keyPath="name"/>
-				<operator type="equal"/>
-				<operator type="begins"/>
-				<operator type="ends"/>
-			</rowTemplate>
-		</predicateEditor>
-  </window>
 
-  <window title="All trials" closable="no"  x="10" y="150" id="trialswindow" width="300" height="500">
+  <window title="All trials" closable="no"  x="10" y="50" id="trialswindow" width="300" height="600">
 	<vbox>
 	<scrollView>
 	 <tableView zebra="yes" valueBinding="trials_controller" target="#CPOwner" doubleAction="runSettings:">
@@ -69,7 +58,6 @@
   <window title="Folders" closable="no"  x="330" y="30" width="400" height="640" autosaveName="imagesColumnSizes">
 	<splitView vertical="YES" autosaveName="splitview_folders">
 		<vbox>
-			<comboBox itemsBinding="folder_controller.arrangedObjects.folder_name"/>
 			<scrollView hasHorizontalScroller="NO">
 				<tableView zebra="yes" valueBinding="folder_controller" target="#CPOwner" doubleAction="loadFolder:">
 					<tableColumn identifier="folder_name" title="name"/>
@@ -124,6 +112,10 @@
   </window>
 
   <menu type="main">
+	<menu title="Import">
+		<menuItem title="DocsCal" action="docsCalImport:"/>
+		<menuItem title="File" action="uploadImage:"/>
+	</menu>
 	<menu title="Edit">
 		<menuItem title="Delete" action="removeObject:" keyEquivalent="r"/>
 		<menuItem title="Cut" action="cut:" keyEquivalent="x"/>
@@ -131,7 +123,7 @@
 		<menuItem title="Paste" action="paste:" keyEquivalent="v"/>
 		<menuItem title="Remove" action="delete:" keyEquivalent="r"/>
 		<menuItem title="Select all" action="selectAll:" keyEquivalent="a"/>
-     </menu>
+	</menu>
    </menu>
 
   <window title="Trial settings" id="trialsettingswindow" modal="YES" visible="NO" width="300" height="200" resizable="YES">
@@ -217,14 +209,16 @@
 		<relationship type="toMany" name="analyses" targetColumn="idimage" target="analyses"/>
 	</entity>
 	<entity id="folders" store="#CPOwner.store">
-		<column name="folder_name" primaryKey="YES"/>
+		<column name="linkname" primaryKey="YES"/>
+		<column name="folder_name"/>
 		<column name="idtrial"/>
 		<relationship type="toOne" name="trial" bindingColumn="idtrial" target="trials"/>
-		<relationship type="toMany" name="folder_content" targetColumn="folder_name" target="folder_content"/>
+		<relationship type="toMany" name="folder_content" targetColumn="linkname" target="folder_content"/>
 	</entity>
 	<entity id="folder_content" store="#CPOwner.store">
 		<column name="idimage" primaryKey="YES"/>
 		<column name="folder_name"/>
+		<column name="linkname"/>
 		<relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
 	</entity>
 	<entity id="analyses" store="#CPOwner.store">

@@ -16,9 +16,15 @@
 @import "ImageController.j"
 @import "StacksController.j"
 @import "Stacks2Controller.j"
+@import "DocsCalImporter.j"
 
-var BaseURL="http://auginfo/cellfinder_image/";
-var CV_MAXPIXELSIZE=500;
+/////////////////////////////////////////////////////////
+
+BaseURL="http://auginfo/cellfinder_image/";
+CV_MAXPIXELSIZE=500;
+PhotoDragType="PhotoDragType";
+
+/////////////////////////////////////////////////////////
 
 @implementation CPObject (ImageURLHack)
 -(CPImage) _cellfinderImageFromID
@@ -131,7 +137,15 @@ var CV_MAXPIXELSIZE=500;
 {	store=[[FSStore alloc] initWithBaseURL: "http://127.0.0.1:3000"];
 	[CPBundle loadRessourceNamed: "gui.gsmarkup" owner:self];
 	[self setItemSize:0.5];
+	[folderCollectionView registerForDraggedTypes:[PhotoDragType]];
 }
+
+- (void)performDragOperation:(CPDraggingInfo)aSender
+{	var data = [[aSender draggingPasteboard] dataForType:PhotoDragType];
+    var o=[CPKeyedUnarchiver unarchiveObjectWithData: data];
+	alert(o);
+}
+
 
 -(void) configureIC: someIC forTrial: someTrial
 {	var myreq=[CPURLRequest requestWithURL: BaseURL+"0?cmp="+[someTrial valueForKey: "composition_for_javascript"] ];
@@ -199,6 +213,9 @@ var CV_MAXPIXELSIZE=500;
     return [CPKeyedArchiver archivedDataWithRootObject: o ];
 }
 
+-(void) docsCalImport:sender
+{	[DocsCalImporter sharedDocsCalImporter];
+}
 
 - (void)closeSheet:(id)sender
 {
