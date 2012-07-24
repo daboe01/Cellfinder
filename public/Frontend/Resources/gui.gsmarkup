@@ -73,7 +73,7 @@
 			<tabViewItem title="List">
 				<vbox>
 				 <scrollView>
-				  <tableView zebra="yes" valueBinding="folder_content_controller" target="#CPOwner" doubleAction="loadImage:">
+				  <tableView zebra="yes" id="images_table" valueBinding="folder_content_controller" target="#CPOwner" doubleAction="loadImage:">
 					<tableColumn identifier="idimage" title="idimage"/>
 				  </tableView>
 				 </scrollView>
@@ -269,6 +269,7 @@
 
 <connectors>
 	<outlet source="#CPOwner" target="trials_controller" label="trialsController"/>
+	<outlet source="#CPOwner" target="folder_controller" label="folderController"/>
 	<outlet source="#CPOwner" target="folder_content_controller" label="folderContentController"/>
 	<outlet source="#CPOwner" target="trialname_pred" label="filterPredicate"/>
 	<outlet source="#CPOwner" target="analyses_controller" label="analysesController"/>
@@ -276,6 +277,7 @@
 	<outlet source="#CPOwner" target="stacks_controller" label="stacksController"/>
 	<outlet source="#CPOwner" target="stacks_content_controller" label="stacksContentController"/>
 	<outlet source="#CPOwner" target="folder_collection_view" label="folderCollectionView"/>
+	<outlet source="#CPOwner" target="images_table" label="folderImagesTable"/>
 
 	<outlet source="#CPOwner" target="displayfilters_ac" label="displayfilters_ac"/>
 	<outlet source="#CPOwner" target="uploadfilters_ac" label="uploadfilters_ac"/>

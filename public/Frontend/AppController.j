@@ -10,6 +10,14 @@
  *
  */
 
+/////////////////////////////////////////////////////////
+
+BaseURL="http://auginfo/cellfinder_image/";
+CV_MAXPIXELSIZE=500;
+PhotoDragType="PhotoDragType";
+
+/////////////////////////////////////////////////////////
+
 @import <Foundation/CPObject.j>
 @import <Renaissance/Renaissance.j>
 @import "CompoController.j"
@@ -18,11 +26,6 @@
 @import "Stacks2Controller.j"
 @import "DocsCalImporter.j"
 
-/////////////////////////////////////////////////////////
-
-BaseURL="http://auginfo/cellfinder_image/";
-CV_MAXPIXELSIZE=500;
-PhotoDragType="PhotoDragType";
 
 /////////////////////////////////////////////////////////
 
@@ -85,8 +88,10 @@ PhotoDragType="PhotoDragType";
 	id	trialsWindow;
 	id	stacksController;
 	id	stacksContentController;
+	id	folderController;
 	id	folderContentController;
 	id	folderCollectionView;
+	id	folderImagesTable;
 	unsigned _itemSize;
 	unsigned _viewingCompoID @accessors(property=viewingCompoID);
 	id	analysesController;
@@ -138,12 +143,30 @@ PhotoDragType="PhotoDragType";
 	[CPBundle loadRessourceNamed: "gui.gsmarkup" owner:self];
 	[self setItemSize:0.5];
 	[folderCollectionView registerForDraggedTypes:[PhotoDragType]];
+	[folderImagesTable registerForDraggedTypes:[PhotoDragType]];
 }
 
 - (void)performDragOperation:(CPDraggingInfo)aSender
 {	var data = [[aSender draggingPasteboard] dataForType:PhotoDragType];
     var o=[CPKeyedUnarchiver unarchiveObjectWithData: data];
-	alert(o);
+	var myurl=BaseURL+"?";
+	
+	myurl+="idtrial="+ [trialsController valueForKeyPath:"selection.id"];
+	var cmp=[trialsController valueForKeyPath:"selection.composition_for_upload" ];
+	if(cmp!="CPNullMarker")
+		myurl+="&cmp="+ [trialsController valueForKeyPath:"selection.id"];
+	myurl+="&filedata="+"/tmp/"+[o objectForKey:"filename" ];
+	myurl+="&filename="+[o objectForKey:"filename" ];
+	var myreq=[CPURLRequest requestWithURL: myurl];
+	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
+	[[trialsController selectedObject] willChangeValueForKey:"folders"];
+	[trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
+	[[trialsController selectedObject] didChangeValueForKey:"folders"];
+
+	[[folderController selectedObject] willChangeValueForKey:"folder_content"];
+	[folderController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
+	[[folderController selectedObject] didChangeValueForKey:"folder_content"];
+
 }
 
 

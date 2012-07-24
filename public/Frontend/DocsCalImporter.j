@@ -1,7 +1,7 @@
 @import <AppKit/AppKit.j>
 @import <Renaissance/Renaissance.j>
 
-var BaseURL="http://ha21033/docscaldownload/";
+var BaseURL="http://auginfo/docscaldownload/";
 var spinnerImg;
 
 @implementation CPObject (ImageURLHack)
@@ -128,7 +128,24 @@ var _sharedCDImporter;
 	}
 	return _sharedCDImporter;
 }
--(void) collectionView: someView didDoubleClickOnItemAtIndex: someIndex
-{	var o=[[someView itemAtIndex: someIndex] representedObject];
+
+- (CPArray)collectionView:(CPCollectionView)aCollectionView dragTypesForItemsAtIndexes:(CPIndexSet)indices
+{
+	return [PhotoDragType];
 }
+- (CPData)collectionView:(CPCollectionView)aCollectionView
+   dataForItemsAtIndexes:(CPIndexSet)indices
+                 forType:(CPString)aType
+{
+	var firstIndex = [indices firstIndex];
+	var filename=[[aCollectionView itemAtIndex: firstIndex]._img filename];
+	var o =[CPMutableDictionary new];
+	var re = new RegExp("docscaldownload/([^?]+)");
+	var m = re.exec(filename);
+	if(m)
+	{	[o setObject: m[1] forKey:"filename"];
+	}
+    return [CPKeyedArchiver archivedDataWithRootObject: o ];
+}
+
 @end

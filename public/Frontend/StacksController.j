@@ -108,8 +108,6 @@ var CV_MAXPIXELSIZE=500;
 
 /////////////////////////////////////////////////////////
 
-PhotoDragType="PhotoDragType";
-
 @implementation StacksController: CPObject
 {
 	var myAppController;
@@ -130,7 +128,7 @@ PhotoDragType="PhotoDragType";
 	{	myAppController=someAppController;
 
 		[CPBundle loadRessourceNamed: [self _ressourceName] owner:self];
-		[stacksCollectionView registerForDraggedTypes:[PhotoDragType]];
+		[stacksCollectionView registerForDraggedTypes: [PhotoDragType]];
 		[self setItemSize:0.5];
 	}
 }
