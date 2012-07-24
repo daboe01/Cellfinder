@@ -17,6 +17,11 @@ AIVStyleLengthInfo=4;
 AIVStyleAngleInfo=8;
 
 
+function mySortFunction(a,b,context)
+{	return [a valueForKey:"id"]-[b valueForKey:"id"];
+}
+
+
 @implementation CPObject(SelectMeStub)
 -(void) selectMe
 {	if( [self respondsToSelector:@selector(setSelected:) ])
@@ -159,7 +164,9 @@ AIVStyleAngleInfo=8;
 
 
 -(void) setObjectValue:(CPArray) someArr
-{	[super setObjectValue: someArr];
+{
+	[someArr sortUsingFunction: mySortFunction context:nil];
+	[super setObjectValue: someArr];
     [[someArr entity] setFormatter: self forColumnName:"row"];
     [[someArr entity] setFormatter: self forColumnName:"col"];
 	[self rebuildLayoutForGraphicClass: [DotView class] ];
@@ -208,6 +215,7 @@ AIVStyleAngleInfo=8;
 		for(var i = 0; i < n; i++) 
 		{	var currSubview = mySubviews[i];
 			var o=[currSubview objectValue];
+			if(!o) continue;
 			if(isFirst)
 			{	CGContextMoveToPoint(context, o.x, o.y);
 				isFirst=NO;
@@ -415,7 +423,8 @@ AIVStyleAngleInfo=8;
 			[self dragMarqueeWithEvent: event];
 		} else
 		{	mydot=[[DotView alloc] initWithFrame: myFrame];
-			[self addToModelPoint: [mydot objectValue]];	// register newly created point with backend
+			var obV=[self addToModelPoint: [mydot objectValue]];	// register newly created point with backend
+			[mydot setData:obV];
 			[self deselectAllSubviews];
 			[self addDotView: mydot];
 
@@ -425,12 +434,13 @@ AIVStyleAngleInfo=8;
 	}
 }
 
--(void) addToModelPoint: (CPPoint) point
+-(CPDictionary) addToModelPoint: (CPPoint) point
 {	var myArr=[self objectValue];
 	var myDict=[CPDictionary new];
 	[myDict setObject: point.x forKey:"row"];
 	[myDict setObject: point.y forKey:"col"];
 	[myArr addObject: myDict];	// saves to database in backend
+	return [myArr lastObject];
 }
 
 -(void) deleteDots:(CPArray) arr

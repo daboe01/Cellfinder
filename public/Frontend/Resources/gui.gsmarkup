@@ -11,6 +11,7 @@
   <predicate id="perlfilters_pred" format="type == '7'"/>
   <predicate id="javascriptfilters_pred" format="type == '6'"/>
 
+  <sortDescriptor id="by_id" key="id" ascending="YES"/>
   <sortDescriptor id="by_reverse_id" key="id" ascending="NO"/>
   <sortDescriptor id="by_name" key="name"/>
   <sortDescriptor id="by_folder_name" key="folder_name"/>
@@ -57,6 +58,7 @@
 	<ButtonBar actionsButton="YES" target="#CPOwner" plusButtonAction="newTrial:" minusButtonAction="removeTrial:">
  		<popUpButtonItem title="Settings..." target="#CPOwner" action="runSettings:" keyEquivalent="i"/>
  		<popUpButtonItem title="Stacks…" target="#CPOwner" action="runStacks:"/>
+ 		<popUpButtonItem title="Stacks2…" target="#CPOwner" action="runStacks2:"/>
  		<popUpButtonItem title="Duplicate structure" target="#CPOwner" action="duplicate:" keyEquivalent="i"/>
  		<popUpButtonItem title="Rebuild from repo..." target="#CPOwner" action="rebuildFromRepo:" keyEquivalent="i"/>
  		<popUpButtonItem title="Batching..." target="#CPOwner" action="applyFilterToAll:" keyEquivalent="i"/>
@@ -67,6 +69,7 @@
   <window title="Folders" closable="no"  x="330" y="30" width="400" height="640" autosaveName="imagesColumnSizes">
 	<splitView vertical="YES" autosaveName="splitview_folders">
 		<vbox>
+			<comboBox itemsBinding="folder_controller.arrangedObjects.folder_name"/>
 			<scrollView hasHorizontalScroller="NO">
 				<tableView zebra="yes" valueBinding="folder_controller" target="#CPOwner" doubleAction="loadFolder:">
 					<tableColumn identifier="folder_name" title="name"/>
@@ -98,7 +101,7 @@
 						<collectionView id="folder_collection_view" itemWidth="100" itemHeight="100" valueBinding="folder_content_controller.arrangedObjects" delegate="#CPOwner"  itemsClassName="SimpleImageViewCollectionItem" selectable="YES"/>
 					</scrollView>
 					<hbox>
-						<slider continuous="NO" min="100" max="500"  valueBinding="#CPOwner.itemSize" halign="right"/><hspace/>
+						<slider continuous="NO" min="0" max="1"  valueBinding="#CPOwner.itemSize" halign="right"/><hspace/>
 						<popUpButton width="100" id="compoPopup" itemsBinding="displayfilters_ac.arrangedObjects.name" target="#CPOwner" valueBinding="#CPOwner.viewingCompoID"/>
 					</hbox>
 				</vbox>
@@ -271,7 +274,6 @@
 </entities>
 
 <connectors>
-	<outlet source="#CPOwner" target="results" label="resultsController"/>
 	<outlet source="#CPOwner" target="trials_controller" label="trialsController"/>
 	<outlet source="#CPOwner" target="folder_content_controller" label="folderContentController"/>
 	<outlet source="#CPOwner" target="trialname_pred" label="filterPredicate"/>
