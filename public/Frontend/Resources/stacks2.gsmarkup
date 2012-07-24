@@ -33,7 +33,7 @@
   <window title="Stack settings" id="stacksettingswindow" modal="YES" visible="NO" width="300" height="200" resizable="YES">
 	<vbox>
 				<vbox>
-				<hbox><label valign="centre" halign="min" width="100">Name</label><textField valueBinding="#CPOwner.myAppController.stacksController.selection.name"/></hbox>
+				<hbox><label valign="center" halign="min" width="100">Name</label><textField valueBinding="#CPOwner.myAppController.stacksController.selection.name"/></hbox>
 				</vbox>
 		<button title="Done" target="#CPOwner" action="closeSheet:"/>
 	</vbox>

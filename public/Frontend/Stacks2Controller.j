@@ -18,7 +18,6 @@
 
 - (void)imageDidLoad:(CPImage)image
 {
-if(![_representedObject valueForKeyPath: "analysis"]) alert("null issue");
 	[_imgv bind:"value" toObject: _representedObject withKeyPath: "analysis.results" options:nil];
 	[_imgv bind:"backgroundImage" toObject: self withKeyPath: "_img" options:nil];
 

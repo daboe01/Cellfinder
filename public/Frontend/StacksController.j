@@ -147,6 +147,7 @@ PhotoDragType="PhotoDragType";
 
 -(void) newStack: sender
 {	[myAppController.stacksController addObject: [CPDictionary dictionaryWithObject:"NewStack" forKey:"name" ]];
+
 	[self runSettings:self];
 }
 -(void) deleteStack: sender
@@ -198,7 +199,8 @@ PhotoDragType="PhotoDragType";
 	[newImg setValue: [newAnalysis valueForKey:"id"] forKey:"idanalysis" ];
 // <!>set new analysis type to value of "AnalysisHoldingThePoints"
 	[myAppController.stacksContentController addObject: newImg ];
-//	[self setItemSize: [self itemSize]];
+
+	[self setItemSize: [self itemSize]];
 }
 
 - (void)closeSheet:(id)sender
