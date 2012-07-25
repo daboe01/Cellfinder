@@ -48,9 +48,12 @@
 	{	var o=items[i];
 		var aiv=[[o view] contentView];
 		if(someView !== aiv)
-		{	var dots=[someView objectValue];
+		{	var dots=[aiv objectValue];
+alert(dotIndex +" "+ [dots count])
 			if(dotIndex > [dots count]-1)		//  add point, that is not yet present in other view
-			{
+			{	var mydot=[[DotView alloc] initWithCentroid: newPoint];
+				var obV=[self addToModelPoint: [mydot objectValue]];	// register newly created point with backend
+				[aiv addToModelPoint: [mydot objectValue]]
 			}
 		}
 	}
