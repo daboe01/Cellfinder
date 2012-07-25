@@ -18,6 +18,7 @@
 
 - (void)imageDidLoad:(CPImage)image
 {
+	[_imgv bind:"scale" toObject: self withKeyPath: "size" options:nil];
 	[_imgv bind:"value" toObject: _representedObject withKeyPath: "analysis.results" options:nil];
 	[_imgv bind:"backgroundImage" toObject: self withKeyPath: "_img" options:nil];
 
@@ -32,7 +33,27 @@
 }
 
 - _createContentView
-{	return [AnnotatedImageView new];
+{	var o= [AnnotatedImageView new];
+	[o setDelegate: self];
+	[o setStyleFlags: [o styleFlags] | AIVStyleNumbers ];
+	return o;
+}
+
+-(void) annotatedImageView: someView dot: someDot movedToPoint: newPoint
+{	var cv=[self collectionView];
+	var items=[cv items];
+	var i,j=[items count];
+	var dotIndex=[someView indexOfDot: [someDot data]];
+	for(i=0;i<j;i++)
+	{	var o=items[i];
+		var aiv=[[o view] contentView];
+		if(someView !== aiv)
+		{	var dots=[someView objectValue];
+			if(dotIndex > [dots count]-1)		//  add point, that is not yet present in other view
+			{
+			}
+		}
+	}
 }
 
 @end
@@ -46,4 +67,5 @@
 -(CPString) _ressourceName
 {	return "stacks2.gsmarkup";
 }
+
 @end

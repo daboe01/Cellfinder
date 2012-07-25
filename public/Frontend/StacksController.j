@@ -198,7 +198,7 @@ var CV_MAXPIXELSIZE=500;
 // <!>set new analysis type to value of "AnalysisHoldingThePoints"
 	[myAppController.stacksContentController addObject: newImg ];
 
-	[self setItemSize: [self itemSize]];
+	[self setItemSize: [self itemSize]];	// <!> why the heck do we need this to get the scaling right?
 }
 
 - (void)closeSheet:(id)sender

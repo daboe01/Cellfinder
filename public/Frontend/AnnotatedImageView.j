@@ -107,8 +107,16 @@ var mySortFunction=function(a,b,context)
 	CPPoint		_marqueeOrigin;
 	CALayer		_marqueeLayer;
     double		_scale;
-	unsignet	_styleFlags @accessors(property=styleFlags);
+	unsigned	_styleFlags @accessors(property=styleFlags);
+	id			_delegate @accessors(property=delegate);
+	BOOL		_sendDelegateMoves;
 }
+
+-(void) setDelegate: someDelegate
+{	_delegate=someDelegate;
+	_sendDelegateMoves= _delegate && [_delegate respondsToSelector:@selector(annotatedImageView:dot:movedToPoint:)];
+}
+
 - (CPString)stringForObjectValue:(id)theObject	// factor out GUI scaling 
 {	return parseInt(theObject*_scale);
 }
@@ -154,9 +162,23 @@ var mySortFunction=function(a,b,context)
 	}
 	[_marqueeLayer setNeedsDisplay];
 }
--(void) sizeToFit
-{	//<!> fixme
+
+-(int) indexOfDot: someDot
+{	var theArr=[self objectValue];
+	if(!theArr) return CPNotFound;
+	var l=[theArr count];
+	for(var i=0; i<l; i++)
+	{	var ai=[theArr objectAtIndex: i];
+		if(ai === someDot) return i;
+	}
+	return CPNotFound;
 }
+
+
+-(void) sizeToFit
+{	// this is here to make renaissance happy
+}
+
 -(void) addDotView:(DotView) someView
 {	if(_backgroundImageView)
 		[self addSubview:someView positioned: CPWindowAbove relativeTo: _backgroundImageView];
@@ -375,6 +397,8 @@ var mySortFunction=function(a,b,context)
 		{	[_currentGraphic translateByX:(curPoint.x - _lastPoint.x) andY:(curPoint.y - _lastPoint.y)];
 		}
 		_lastPoint=curPoint;
+		if(_sendDelegateMoves)
+			[_delegate annotatedImageView:self dot: _currentGraphic movedToPoint:curPoint];
     }
 	[_marqueeLayer setNeedsDisplay];
 	[CPApp setTarget:self selector:@selector(moveSelectedGraphicsWithEvent:) forNextEventMatchingMask:CPLeftMouseDraggedMask | CPLeftMouseUpMask untilDate:nil inMode:nil dequeue:YES];
@@ -426,6 +450,8 @@ var mySortFunction=function(a,b,context)
 		{	mydot=[[DotView alloc] initWithFrame: myFrame];
 			var obV=[self addToModelPoint: [mydot objectValue]];	// register newly created point with backend
 			[mydot setData:obV];
+			if(_sendDelegateMoves)
+				[_delegate annotatedImageView: self dot: mydot movedToPoint:nil];
 			[self deselectAllSubviews];
 			[self addDotView: mydot];
 
