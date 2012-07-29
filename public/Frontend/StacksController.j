@@ -164,9 +164,26 @@ var CV_MAXPIXELSIZE=500;
 {	return _viewingCompo;
 }
 
+-(CPImage) provideRegistratedImageForStackItem: someItem
+{	var rnd=Math.floor(Math.random()*100000);
+	var myURL=BaseURL+[someItem valueForKey:"idimage"]+"?rnd="+rnd;
+	var handovers=[someItem valueForKey:"parameter"]
+	if(handovers) myURL+=("&affine="+handovers);
+	var size=_itemSize;
+	myURL+="&width="+parseInt( (size*CV_MAXPIXELSIZE)* (size*CV_MAXPIXELSIZE) );
+	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
+	return img;
+}
+
+-(void) _triggerRegistrationMatrixGeneration
+{	var myreq=[CPURLRequest requestWithURL: BaseURL+"0?idstack="+[myAppController.stacksController valueForKeyPath: "selection.id"] ];
+	[[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil]  rawString];
+}
 -(void) runFlicker: sender
-{	var peek=[stacksCollectionView selectionIndexes];
-	
+{
+	[self _triggerRegistrationMatrixGeneration];
+	var peek=[stacksCollectionView selectionIndexes];
+
 	var selectedArray=[peek count]? [[stacksCollectionView items ]  objectsAtIndexes: peek ]: [stacksCollectionView items ];
 
 	var myArray=[CPMutableArray new];
@@ -174,7 +191,8 @@ var CV_MAXPIXELSIZE=500;
 
 	for(i=0; i<n; i++)
 	{	var o=[selectedArray objectAtIndex: i];
-		[myArray addObject:o._img ];
+alert([o representedObject]);
+		[myArray addObject: [self provideRegistratedImageForStackItem: [o representedObject] ]];
 	}
 	[[FlickerController alloc] initWithImageArray: myArray andAppController: myAppController];
 }
@@ -186,14 +204,26 @@ var CV_MAXPIXELSIZE=500;
 {
 }
 
+-(unsigned) getIDOfReferenceAnalaysis
+{	var arr=[myAppController.stacksContentController arrangedObjects];
+	var i,l=[arr count];
+	for(i=0; i<l; i++)
+	{	if(![arr[i] valueForKey:"idanalysis_reference"]) return [arr[i] valueForKey:"idanalysis"];
+	}
+	return CPNotFound;
+}
+
 - (void)performDragOperation:(CPDraggingInfo)aSender
 {	var data = [[aSender draggingPasteboard] dataForType:PhotoDragType];
     var o=[CPKeyedUnarchiver unarchiveObjectWithData: data];
 	var idimage=[o._changes objectForKey:"idimage"];
 	var newImg=[CPDictionary dictionaryWithObjects: [ idimage ] forKeys: [ "idimage" ] ];
 	var analysesEntity=[myAppController.analysesController entity];
+	var idReferenceAnalysis=[self getIDOfReferenceAnalaysis];
 	var newAnalysis=[analysesEntity insertObject:
 		[CPDictionary dictionaryWithObjects: [ idimage ] forKeys: [ "idimage" ] ] ];
+	if(idReferenceAnalysis!= CPNotFound)
+		[newImg setValue: idReferenceAnalysis forKey:"idanalysis_reference" ];
 	[newImg setValue: [newAnalysis valueForKey:"id"] forKey:"idanalysis" ];
 // <!>set new analysis type to value of "AnalysisHoldingThePoints"
 	[myAppController.stacksContentController addObject: newImg ];

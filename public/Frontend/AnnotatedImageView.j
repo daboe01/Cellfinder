@@ -139,6 +139,10 @@ var mySortFunction=function(a,b,context)
 	return self;
 }
 
+-(void) setNeedsDisplay:(BOOL) flag
+{	if(flag) [_marqueeLayer setNeedsDisplay];
+	[super setNeedsDisplay:flag];
+}
 -(void) rebuildLayoutForGraphicClass: someClass
 {	// removeAllDots to recycle self
 	var mySubviews=[self subviews];
@@ -285,7 +289,7 @@ var mySortFunction=function(a,b,context)
 			var o=[currSubview objectValue];
 
 			CGContextSetTextPosition(context, o.x-2, o.y+1)
-			CGContextShowText(context, i);
+			CGContextShowText(context, n-i);
 		}
 	}
 	if( _styleFlags & AIVStyleLengthInfo )
@@ -451,7 +455,7 @@ var mySortFunction=function(a,b,context)
 			var obV=[self addToModelPoint: [mydot objectValue]];	// register newly created point with backend
 			[mydot setData:obV];
 			if(_sendDelegateMoves)
-				[_delegate annotatedImageView: self dot: mydot movedToPoint:nil];
+				[_delegate annotatedImageView: self dot: mydot movedToPoint: mouseLocation];
 			[self deselectAllSubviews];
 			[self addDotView: mydot];
 
