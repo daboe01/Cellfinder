@@ -12,7 +12,7 @@
 
 /////////////////////////////////////////////////////////
 
-BaseURL="http://localhost/cellfinder_image/";
+BaseURL="http://auginfo/cellfinder_image/";
 CV_MAXPIXELSIZE=500;
 PhotoDragType="PhotoDragType";
 
@@ -34,29 +34,6 @@ PhotoDragType="PhotoDragType";
 {	var myURL=BaseURL+[self valueForKey:"id"]+"?width=10000";
 	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
 	[img setDelegate: self];
-	return img;
-}
-
--(CPImage) provideImageForCollectionViewItem: someItem
-{	var rnd=Math.floor(Math.random()*100000);
-	var myURL=BaseURL+[self valueForKey:"idimage"]+"?rnd="+rnd;
-
-	if([self respondsToSelector:@selector(entity) ])
-	{	var myentity=[self entity];
-		var cmp=[someItem compoID];
-		if(cmp) myURL+=("&cmp="+parseInt(cmp));
-
-		if([[myentity columns] containsObject:"idmontage"])
-		{	var handovers=[self valueForKey:"parameter"]
-			if(handovers) myURL+=("&handover_params="+handovers);
-		}
-	}
-	var size=[someItem size];
-	if(!size) size=0.5;
-
-
-	myURL+="&width="+parseInt( (size*CV_MAXPIXELSIZE)* (size*CV_MAXPIXELSIZE) );
-	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
 	return img;
 }
 @end

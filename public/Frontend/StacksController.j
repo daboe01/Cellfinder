@@ -165,18 +165,19 @@ var CV_MAXPIXELSIZE=500;
 }
 
 -(CPImage) provideRegistratedImageForStackItem: someItem
-{	var rnd=Math.floor(Math.random()*100000);
+{	var rnd= Math.floor(Math.random()*100000);	//=1;
 	var myURL=BaseURL+[someItem valueForKey:"idimage"]+"?rnd="+rnd;
 	var handovers=[someItem valueForKey:"parameter"]
 	if(handovers) myURL+=("&affine="+handovers);
 	var size=_itemSize;
 	myURL+="&width="+parseInt( (size*CV_MAXPIXELSIZE)* (size*CV_MAXPIXELSIZE) );
 	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
+	alert(myURL);
 	return img;
 }
 
 -(void) _triggerRegistrationMatrixGeneration
-{	var myreq=[CPURLRequest requestWithURL: BaseURL+"0?idstack="+[myAppController.stacksController valueForKeyPath: "selection.id"] ];
+{	var myreq=[CPURLRequest requestWithURL: BaseURL+"0?idstack="+[myAppController.stacksController valueForKeyPath: "selection.id"] +"&stackcmd=affine"];
 	[[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil]  rawString];
 }
 -(void) runFlicker: sender
@@ -191,7 +192,7 @@ var CV_MAXPIXELSIZE=500;
 
 	for(i=0; i<n; i++)
 	{	var o=[selectedArray objectAtIndex: i];
-alert([o representedObject]);
+//alert([o representedObject]);
 		[myArray addObject: [self provideRegistratedImageForStackItem: [o representedObject] ]];
 	}
 	[[FlickerController alloc] initWithImageArray: myArray andAppController: myAppController];
