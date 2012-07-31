@@ -16,26 +16,20 @@
 
 @implementation ImageEditorCollectionItem: SimpleImageViewCollectionItem
 
-- (void)imageDidLoad:(CPImage)image
-{
-	[_imgv bind:"scale" toObject: self withKeyPath: "size" options:nil];
-	[_imgv bind:"value" toObject: _representedObject withKeyPath: "analysis.results" options:nil];
-	[_imgv bind:"backgroundImage" toObject: self withKeyPath: "_img" options:nil];
-
-	var myframe=[_imgv frame];
-	var size=[image size];
-	[_imgv setFrame: CPMakeRect(myframe.origin.x,myframe.origin.y, size.width, size.height)];
-
-}
--(void) setSize:(insigned) someSize
-{	[super setSize: someSize];
-	[_imgv setScale: someSize];
+-(void) setImage: someImage
+{	_img=someImage;
+	[_imgv setBackgroundImage: _img];
+	var mysize=[_img size];
+	if ([[self collectionView] respondsToSelector:@selector(setMinItemSize:)])
+		[[self collectionView] setMinItemSize: mysize ];
 }
 
 - _createContentView
 {	var o= [AnnotatedImageView new];
 	[o setDelegate: self];
 	[o setStyleFlags: [o styleFlags] | AIVStyleNumbers ];
+	[o bind:"scale" toObject: self withKeyPath: "size" options:nil];
+	[o bind:"value" toObject: _representedObject withKeyPath: "analysis.results" options:nil];
 	return o;
 }
 
@@ -53,7 +47,7 @@
 			{
 				var mydot=[[DotView alloc] initWithCentroid: newPoint ];
 				var obV=[aiv addToModelPoint: newPoint]
-				[mydot setData:obV];
+				[mydot setData: obV];
 				[aiv addDotView: mydot];
 				[aiv setNeedsDisplay:YES];
 			}
