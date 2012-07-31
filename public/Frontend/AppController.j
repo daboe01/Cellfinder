@@ -115,7 +115,7 @@ PhotoDragType="PhotoDragType";
 	} return ret;
 }
 - (void) applicationDidFinishLaunching:(CPNotification)aNotification
-{	store=[[FSStore alloc] initWithBaseURL: "http://127.0.0.1:3000"];
+{	store=[[FSStore alloc] initWithBaseURL: "http://127.0.0.1:3000"];	//<!> fixme
 
 	[CPBundle loadRessourceNamed: "gui.gsmarkup" owner:self];
 	[self setItemSize:0.1];
@@ -132,7 +132,7 @@ PhotoDragType="PhotoDragType";
 	var cmp=[trialsController valueForKeyPath:"selection.composition_for_upload" ];
 	if(cmp!="CPNullMarker")
 		myurl+="&cmp="+ [trialsController valueForKeyPath:"selection.id"];
-	myurl+="&filedata="+"/tmp/"+[o objectForKey:"filename" ];
+	myurl+="&filedata="+"/tmp/"+[o objectForKey:"filename" ]+'_s.jpg';
 	myurl+="&filename="+[o objectForKey:"filename" ];
 	var myreq=[CPURLRequest requestWithURL: myurl];
 	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
