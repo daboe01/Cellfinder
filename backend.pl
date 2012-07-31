@@ -6,7 +6,7 @@ use SQL::Abstract;
 use Data::Dumper;
 
 plugin 'database', { 
-			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
+			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
 			username => 'root',
 			password => 'root',
 			options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },

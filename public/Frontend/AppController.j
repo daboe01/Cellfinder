@@ -12,7 +12,7 @@
 
 /////////////////////////////////////////////////////////
 
-BaseURL="http://auginfo/cellfinder_image/";
+BaseURL="http://localhost/cellfinder_image/";
 CV_MAXPIXELSIZE=500;
 PhotoDragType="PhotoDragType";
 
