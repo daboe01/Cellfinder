@@ -6,7 +6,10 @@
  * Copyright 2011, Your Company All rights reserved.
  *
  * <!> fixme
- * nothing to declare currently...
+ * caching issue when running flicker (affine matrix needs to be refetched)
+ * give full access to fx operator (presets for avg et al would be fine)
+ * limit pixelsize from docscal download for performance reasons
+ * download animated gif
  *
  */
 

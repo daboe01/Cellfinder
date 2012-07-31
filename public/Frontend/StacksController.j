@@ -80,7 +80,7 @@
 }
 - _createContentView
 {	var o=[CPImageView new];
-//	[o setImageScaling: CPScaleProportionally];
+	[o setImageScaling:CPScaleNone ];	//CPScaleProportionally
 	return o;
 }
 -(CPView) loadView
