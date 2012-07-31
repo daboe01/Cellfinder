@@ -13,16 +13,47 @@
 @import <Foundation/CPObject.j>
 @import <Renaissance/Renaissance.j>
 
-var CV_MAXPIXELSIZE=500;
+
+@implementation CPObject (ImageURLCV)
+-(CPSize) _getImageSize
+{	var myreq=[CPURLRequest requestWithURL: BaseURL+[self valueForKey:"idimage"]+"?spc=geom" ];
+	var mypackage=[[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil]  rawString];
+	var arr=mypackage.split(' ');
+	return CPMakeSize(arr[0],arr[1]);
+}
+
+-(CPImage) provideImageForCollectionViewItem: someItem
+{	var rnd=1;	//Math.floor(Math.random()*100000);
+	var myURL=BaseURL+[self valueForKey:"idimage"]+"?rnd="+rnd;
+
+	if([self respondsToSelector:@selector(entity) ])
+	{	var myentity=[self entity];
+		var cmp=[someItem compoID];
+		if(cmp) myURL+=("&cmp="+parseInt(cmp));
+
+		if([[myentity columns] containsObject:"idmontage"])
+		{	var handovers=[self valueForKey:"parameter"]
+			if(handovers) myURL+=("&handover_params="+handovers);
+		}
+	}
+	var myscale=[someItem size];
+	if(!myscale) myscale=0.1;		//<!>fixme: establish link to appController somehow
+	var imgsize=[self _getImageSize];
+	myURL+="&width="+parseInt( (myscale*imgsize.width)* (myscale*imgsize.height) );
+	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
+	return img;
+}
+@end
 
 @implementation SimpleImageViewCollectionItem: CPCollectionViewItem
-{	CPImage _img;
+{	CPImage		_img;
 	CPImageView _imgv;
 	unsigned _size @accessors(property=size);
 	unsigned _compoID @accessors(property=compoID);
 }
--(void) setSize:(insigned) someSize
-{	if(_size == someSize) return;
+
+-(void) setSize:(insigned) someSize		//<!> should read setScale
+{	if(_size === someSize) return;
 	_size=someSize;
 	_img=[_representedObject provideImageForCollectionViewItem: self];
 	[_img setDelegate: self];
@@ -32,16 +63,24 @@ var CV_MAXPIXELSIZE=500;
 	_img=[_representedObject provideImageForCollectionViewItem: self];
 	[_img setDelegate: self];
 }
-- (void)imageDidLoad:(CPImage)image
-{	[_imgv setImage: image];
+-(void) setImage: someImage
+{	_img=someImage;
+	[_imgv setImage: _img];
 	var myframe=[_imgv frame];
-	var mysize=[image size];
+	var mysize=[_img size];
+	if ([[self collectionView] respondsToSelector:@selector(setMinItemSize:)])
+		[[self collectionView] setMinItemSize: mysize ];
 	[_imgv setFrame: CPMakeRect(myframe.origin.x,myframe.origin.y, mysize.width, mysize.height)];
-
+}
+-(CPImage) image
+{	return _img;
+}
+- (void)imageDidLoad:(CPImage)image
+{	[self setImage: image];
 }
 - _createContentView
 {	var o=[CPImageView new];
-	[o setImageScaling: CPScaleProportionally];
+//	[o setImageScaling: CPScaleProportionally];
 	return o;
 }
 -(CPView) loadView
@@ -56,7 +95,9 @@ var CV_MAXPIXELSIZE=500;
 	[myview setContentView: _imgv];
 	[self setView: myview];
 	_img=[_representedObject provideImageForCollectionViewItem: self];
-	[_img setDelegate: self];
+	if([_img loadStatus] == CPImageLoadStatusCompleted)
+		[self setImage: _img];
+	else [_img setDelegate: self];
 	return myview;
 }
 -(void) setRepresentedObject: someObject
@@ -127,16 +168,16 @@ var CV_MAXPIXELSIZE=500;
 {	if(self=[self init])
 	{	myAppController=someAppController;
 
+		_itemSize=[someAppController itemSize];
 		[CPBundle loadRessourceNamed: [self _ressourceName] owner:self];
 		[stacksCollectionView registerForDraggedTypes: [PhotoDragType]];
-		[self setItemSize:0.5];
+		[self setItemSize: [someAppController itemSize]];
 	}
 }
 
--(void) setItemSize:(unsigned) someSize
+-(void) setItemSize:(unsigned) someSize	//<!> should read setItemScale
 {	_itemSize=someSize;
 	[[stacksCollectionView items] makeObjectsPerformSelector:@selector(setSize:) withObject:_itemSize];
-	[stacksCollectionView setMinItemSize: CPMakeSize(_itemSize*CV_MAXPIXELSIZE,_itemSize*CV_MAXPIXELSIZE)];
 }
 -(void) itemSize
 {	return _itemSize;
@@ -169,10 +210,9 @@ var CV_MAXPIXELSIZE=500;
 	var myURL=BaseURL+[someItem valueForKey:"idimage"]+"?rnd="+rnd;
 	var handovers=[someItem valueForKey:"parameter"]
 	if(handovers) myURL+=("&affine="+handovers);
-	var size=_itemSize;
-	myURL+="&width="+parseInt( (size*CV_MAXPIXELSIZE)* (size*CV_MAXPIXELSIZE) );
+	var imgsize=[someItem _getImageSize];
+	myURL+="&width="+parseInt( (_itemSize*imgsize.width)* (_itemSize*imgsize.height) );
 	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
-	alert(myURL);
 	return img;
 }
 
@@ -192,7 +232,6 @@ var CV_MAXPIXELSIZE=500;
 
 	for(i=0; i<n; i++)
 	{	var o=[selectedArray objectAtIndex: i];
-//alert([o representedObject]);
 		[myArray addObject: [self provideRegistratedImageForStackItem: [o representedObject] ]];
 	}
 	[[FlickerController alloc] initWithImageArray: myArray andAppController: myAppController];

@@ -13,7 +13,7 @@
 /////////////////////////////////////////////////////////
 
 BaseURL="http://auginfo/cellfinder_image/";
-CV_MAXPIXELSIZE=500;
+
 PhotoDragType="PhotoDragType";
 
 /////////////////////////////////////////////////////////
@@ -92,10 +92,9 @@ PhotoDragType="PhotoDragType";
 }
 
 
--(void) setItemSize:(unsigned) someSize
+-(void) setItemSize:(unsigned) someSize	//<!> should read setItemScale
 {	_itemSize=someSize;
 	[[folderCollectionView items] makeObjectsPerformSelector:@selector(setSize:) withObject:_itemSize];
-	[folderCollectionView setMinItemSize: CPMakeSize(_itemSize*CV_MAXPIXELSIZE,_itemSize*CV_MAXPIXELSIZE)];
 }
 -(void) itemSize
 {	return _itemSize;
@@ -117,8 +116,9 @@ PhotoDragType="PhotoDragType";
 }
 - (void) applicationDidFinishLaunching:(CPNotification)aNotification
 {	store=[[FSStore alloc] initWithBaseURL: "http://127.0.0.1:3000"];
+	_itemSize=0.1;
 	[CPBundle loadRessourceNamed: "gui.gsmarkup" owner:self];
-	[self setItemSize:0.5];
+	[self setItemSize:0.1];
 	[folderCollectionView registerForDraggedTypes:[PhotoDragType]];
 	[folderImagesTable registerForDraggedTypes:[PhotoDragType]];
 }
