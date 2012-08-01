@@ -16,7 +16,8 @@
 
 @implementation CPObject (ImageURLCV)
 -(CPSize) _getImageSize
-{	var myreq=[CPURLRequest requestWithURL: BaseURL+[self valueForKey:"idimage"]+"?spc=geom" ];
+{
+	var myreq=[CPURLRequest requestWithURL: BaseURL+[self valueForKey:"idimage"]+"?spc=geom" ];
 	var mypackage=[[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil]  rawString];
 	var arr=mypackage.split(' ');
 	return CPMakeSize(arr[0],arr[1]);
@@ -220,9 +221,9 @@
 {	var myreq=[CPURLRequest requestWithURL: BaseURL+"0?idstack="+[myAppController.stacksController valueForKeyPath: "selection.id"] +"&stackcmd=affine"];
 	[[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil]  rawString];
 	// force refetch of image matrix
-	[[myAppController.stacksController selectedObject] willChangeValueForKey:"montage_images"];
+	[[myAppController.stacksController selectedObject] willChangeValueForKey:"analyses"];
 	[ myAppController.stacksController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
-	[[myAppController.stacksController selectedObject] didChangeValueForKey:"montage_images"];
+	[[myAppController.stacksController selectedObject] didChangeValueForKey:"analyses"];
 }
 -(void) runFlicker: sender
 {
@@ -236,6 +237,7 @@
 
 	for(i=0; i<n; i++)
 	{	var o=[selectedArray objectAtIndex: i];
+	alert([o representedObject]);
 		[myArray addObject: [self provideRegistratedImageForStackItem: [o representedObject] ]];
 	}
 	[[FlickerController alloc] initWithImageArray: myArray andAppController: myAppController];
