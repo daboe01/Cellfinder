@@ -1,7 +1,9 @@
 #!/usr/local/ActivePerl-5.14/site/bin/morbo
 
+use lib qw {/Users/boehringer/src/daboe01_Cellfinder/Cellfinder/};
 use Mojolicious::Lite;
 use Mojolicious::Plugin::Database;
+#use cellfinder_image;
 use SQL::Abstract;
 use Data::Dumper;
 
