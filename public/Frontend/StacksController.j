@@ -218,7 +218,7 @@
 }
 
 -(void) _triggerRegistrationMatrixGeneration
-{	var myreq=[CPURLRequest requestWithURL: BaseURL+"0?idstack="+[myAppController.stacksController valueForKeyPath: "selection.id"] +"&stackcmd=affine"];
+{	var myreq=[CPURLRequest requestWithURL: BaseURL+"STACK/"+[myAppController.stacksController valueForKeyPath: "selection.id"] +"?spc=affine"];
 	[[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil]  rawString];
 	// force refetch of image matrix
 	[[myAppController.stacksController selectedObject] willChangeValueForKey:"analyses"];

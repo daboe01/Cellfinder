@@ -45,7 +45,8 @@
 -(CPImage) _backgroundImage
 {	var mycompoID=[_analysesController valueForKeyPath:"selection.idcomposition_for_editing" ];
 	var myidimage=[_analysesController valueForKeyPath:"selection.idimage" ];
-	var myURL= [myAppController baseImageURL]+myidimage+"?cmp="+mycompoID;
+	var myURL= [myAppController baseImageURL]+myidimage+"?rnd=1";
+	if(mycompoID && mycompoID!==CPNullMarker) myURL+="&cmp="+mycompoID;
 	if(_originalSize) myURL+="&width="+[self getImagePixelCount];
 	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
 	return img;
@@ -53,7 +54,7 @@
 - (void)imageDidLoad:(CPImage)image
 {	var mySize=[image size];
 	var imageView=[[CPImageView alloc] initWithFrame: CPMakeRect(0,0, mySize.width, mySize.height)];
-	if(!_originalSize && _scale==1)
+	if(!_originalSize && _scale==1)	//<!> replace with ajax image size query
 	{	_originalSize=CPSizeCreateCopy(mySize);
 	//	[_mywindow setMaxSize: _originalSize];	// to small <!> fixme
 	}

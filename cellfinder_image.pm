@@ -20,12 +20,14 @@ use JSON::XS;
 use Statistics::R;
 use SQL::Abstract;
 
-use constant server_root=>'/srv/www/htdocs/cellfinder';
+use constant server_root=>'/Library/WebServer/Documents/cellfinder';
+#use constant server_root=>'/srv/www/htdocs/cellfinder';
 
+#<!> fixme hardcoded URL
 sub runSimpleRegistrationRCode { my ($id1,$id2)=@_;
 	my $RCmd=<<'ENDOFR'
 	read.pointset=function(id){
-		d1=read.delim(paste("http://auginfo/cellfinder_results/<idtrial>?mode=results&constraint=idanalysis=", id, sep=""))
+		d1=read.delim(paste("http://localhost/cellfinder_results/<idtrial>?mode=results&constraint=idanalysis=", id, sep=""))
 		return (d1)
 	}
 	d0= subset(read.pointset(<id1>), select=c(row,col))
@@ -39,6 +41,7 @@ ENDOFR
 	warn $RCmd;
 	my $R = Statistics::R->new();
 	$R->run($RCmd);
+warn $R->get('out');
 	return '['. $R->get('out') . ']';
 }
 
@@ -49,7 +52,7 @@ sub imageForComposition{
 	my $p = shift;
 	my $cacheReadDisabled=shift;
 	my $idanalysis=shift;
-	
+
 	my $curr_cmp = getObjectFromDBHandID($dbh,'patch_compositions', $idcomposition);
 	return imageForDBHAndRenderchainIDAndImage($dbh, $curr_cmp->{primary_chain}, $f, $p, $cacheReadDisabled, $idanalysis) if($curr_cmp->{primary_chain});
 }
@@ -75,13 +78,12 @@ sub imageForDBHAndRenderchainIDAndImage{
 	my $p = shift;
 	my $cacheReadDisabled = shift;
 	my $idanalysis=shift;
-	$idanalysis= CGIonlyDigits('idanalysis') unless $idanalysis;
-	my $idpoint=	CGIonlyDigits('idpoint');
+	my $idpoint;
 
 	my $idimage=$readImageFunction? $readImageFunction->(1):0;
 
 	my $stash;
-	
+
 	my $cachename='/tmp/cellfinder_cache_'.$idimage.'_'.$id.'.jpg';
 	if($idimage && $id && -e  $cachename && !$cacheReadDisabled )
 	{	$p = Image::Magick->new();
@@ -100,9 +102,6 @@ sub imageForDBHAndRenderchainIDAndImage{
 		if($curr_patch->{params}=~/<handover>/o)
 		{	my  $analysis = getObjectFromDBHandID($dbh,'analyses', $idanalysis);
 			my  $handover_params=$analysis->{setup_params};
-			if(!$handover_params)
-			{	$handover_params=CGIonlyAlphanum('handover_params');
-			}
 			$curr_patch->{params}=~s/<handover>/$handover_params/gs;
 			#warn $handover_params;
 			$idimage=0;	# dont write to cache
@@ -158,21 +157,28 @@ sub imageForDBHAndRenderchainIDAndImage{
 				map { [ split/=>/o ] }
 				map {s/^["\s]+//ogs;$_;}
 				split  /[^\\],/o, $curr_patch->{params};
-			my $call=$curr_patch->{patch}.' '.join ' ', @arr;
+			my $call=$curr_patch->{patch};
 			my $filename=tempFileName('/tmp/cellf');
 			$p->Write($filename.'.jpg');
 			my @filenamelist=glob($filename."*.jpg");
-			if((scalar @filenamelist)>1)	# was a stack
-			{	$call.=" $filename".'.jpg'." >$filename".'.jpg'.'_out';
+
+			my $effective_fn= ((scalar @filenamelist)>1) ?  (join ' ', @filenamelist) : $filename.'.jpg';
+			my $effective_fn_out=$filename.'_out.jpg';
+			my $args=join ' ', @arr;
+
+			if( $call  =~/<infiles>/o)
+			{	$call=~s/<infiles>/$effective_fn/ogs;
+				$call=~s/<args>/$args/ogs;
+				$call=~s/<outfile>/$effective_fn_out/ogs;
 				$call=~s/<idanalysis>/$idanalysis/gs;
-				system($call);
- warn $call;
 			} else
-			{	$call.=" $filename".'.jpg'." >$filename".'.jpg'.'_out';
+			{	$call.=" $args $filename".'.jpg';
 				$call=~s/<idanalysis>/$idanalysis/gs;
-				system($call);
- warn $call;
 			}
+			$call.=" >$filename".'.jpg'.'_out';
+			system($call);
+			warn $call;
+
 			my $infile=readFile($filename.'.jpg'.'_out');
 			unlink($filename.'.jpg'.'_out');
 			$infile=~s/\s+$//ogs;
@@ -207,6 +213,8 @@ sub getObjectFromDBHandID{
 	my $dbh  = shift;
 	my $table = shift;
 	my $id = shift;
+
+warn "select * from $table where id=$id";
 	my $sth = $dbh->prepare( qq/select * from "/.$table.qq/" where id=?/);
 	$sth->execute(($id));
 	return $sth->fetchrow_hashref();
@@ -222,20 +230,20 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $csize
 		{	$p->BlobToImage(LWP::Simple::get($curr_img->{image_repository}.'/'.$filename));
 		} else
 		{	$p->Read(server_root."/$filename");
-		}
+		} return $p;
 	}
 	my $curr_img = getObjectFromDBHandID($dbh,'images_name', $idimage);
 	return sub{
 		return ($nocache? 0: $idimage) if shift;
 		$p = Image::Magick->new(magick=>'jpg');
 		if($idstack)
-		{	my $list=getObjectFromDBHandID($dbh,'montage_image_list',$idstack);
+		{	my $list=getObjectFromDBHandID($dbh,'montage_image_list',$idstack)->{list};
 			my @idarr=split/,/o, $list;
 			foreach my $id (@idarr)
 			{	push @$p, doReadImageFile(undef, getObjectFromDBHandID($dbh,'images_name', $id));
 			}
 		} else {
-			doReadImageFile($p, $curr_img);
+			$p=doReadImageFile($p, $curr_img);
 		}
 		if($affine)
 		{	$affine="[$affine]" unless $affine=~/^\[/o;

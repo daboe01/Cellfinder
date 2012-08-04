@@ -12,7 +12,7 @@
 
 /////////////////////////////////////////////////////////
 
-BaseURL="http://127.0.0.1/cellfinder_image/";
+BaseURL="http://127.0.0.1:3000/IMG/";
 
 PhotoDragType="PhotoDragType";
 
@@ -115,7 +115,7 @@ PhotoDragType="PhotoDragType";
 	} return ret;
 }
 - (void) applicationDidFinishLaunching:(CPNotification)aNotification
-{	store=[[FSStore alloc] initWithBaseURL: "http://127.0.0.1:3000"];	//<!> fixme
+{	store=[[FSStore alloc] initWithBaseURL: "http://127.0.0.1:3000/DBI"];	//<!> fixme
 
 	[CPBundle loadRessourceNamed: "gui.gsmarkup" owner:self];
 	[self setItemSize:0.1];
