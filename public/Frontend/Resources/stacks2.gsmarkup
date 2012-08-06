@@ -3,7 +3,7 @@
 <gsmarkup>
 
 <objects>
-  <window title="Stacks" id="stackswindow" closable="yes"  x="335" y="35" width="400" height="640">
+  <window title="Stacks" id="stackswindow" closable="yes"  x="750" y="30" width="400" height="640">
 	<splitView vertical="YES" autosaveName="splitview_folders">
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
@@ -14,8 +14,8 @@
 			<ButtonBar plusButtonAction="newStack:" minusButtonAction="deleteStack:" actionsButton="YES" target="#CPOwner">
   				<popUpButtonItem title="Settings…" target="#CPOwner" action="runSettings:"/>
 				<popUpButtonItem title="Flickering…" target="#CPOwner" action="runFlicker:"/>
- 				<popUpButtonItem title="Merge…" target="#CPOwner" action="applyMerge:"/>
- 				<popUpButtonItem title="Burnin…" target="#CPOwner" action="performBurnIn:"/>
+ 				<popUpButtonItem title="Flatten…" target="#CPOwner" action="flattenStack:"/>
+ 				<popUpButtonItem title="GIF" target="#CPOwner" action="downloadGIF:"/>
 			</ButtonBar>
 		</vbox>
 		<vbox>
@@ -30,10 +30,14 @@
 	 </splitView>
   </window>
 
+
   <window title="Stack settings" id="stacksettingswindow" modal="YES" visible="NO" width="300" height="200" resizable="YES">
 	<vbox>
 				<vbox>
 				<hbox><label valign="center" halign="min" width="100">Name</label><textField valueBinding="#CPOwner.myAppController.stacksController.selection.name"/></hbox>
+				<hbox><label valign="center" halign="min" width="100">Name</label>
+					<popUpButton width="100" id="flattenCompoPopup" itemsBinding="#CPOwner.myAppController.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.myAppController.stacksController.selection.idpatch"/>
+				</hbox>
 				</vbox>
 		<button title="Done" target="#CPOwner" action="closeSheet:"/>
 	</vbox>

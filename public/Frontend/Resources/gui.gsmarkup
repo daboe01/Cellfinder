@@ -36,10 +36,10 @@
    <arrayController id="analyses_controller" entity="analyses" valueBinding ="folder_content_controller.selection.image.analyses"/>
 
 
-  <window title="All trials" closable="no"  x="10" y="50" id="trialswindow" width="300" height="600">
+  <window title="All trials" closable="no"  x="10" y="50" id="trialswindow" width="300" height="300">
 	<vbox>
 	<scrollView>
-	 <tableView zebra="yes" valueBinding="trials_controller" target="#CPOwner" doubleAction="runSettings:">
+	 <tableView zebra="yes" autosaveName="alltrials" valueBinding="trials_controller" target="#CPOwner" doubleAction="runSettings:">
 		<tableColumn identifier="id" title="id"/>
 		<tableColumn identifier="name" title="name"/>
 	 </tableView>
@@ -47,7 +47,7 @@
 	<ButtonBar actionsButton="YES" target="#CPOwner" plusButtonAction="newTrial:" minusButtonAction="removeTrial:">
  		<popUpButtonItem title="Settings..." target="#CPOwner" action="runSettings:" keyEquivalent="i"/>
  		<popUpButtonItem title="Stacks…" target="#CPOwner" action="runStacks:"/>
- 		<popUpButtonItem title="Stacks2…" target="#CPOwner" action="runStacks2:"/>
+ 		<popUpButtonItem title="Manual Stacks…" target="#CPOwner" action="runStacks2:"/>
  		<popUpButtonItem title="Duplicate structure" target="#CPOwner" action="duplicate:" keyEquivalent="i"/>
  		<popUpButtonItem title="Rebuild from repo..." target="#CPOwner" action="rebuildFromRepo:" keyEquivalent="i"/>
  		<popUpButtonItem title="Batching..." target="#CPOwner" action="applyFilterToAll:" keyEquivalent="i"/>
@@ -55,11 +55,11 @@
 	</vbox>
  </window>
 
-  <window title="Folders" closable="no"  x="330" y="30" width="400" height="640" autosaveName="imagesColumnSizes">
+  <window title="Images" closable="no"  x="330" y="30" width="400" height="640" autosaveName="imagesColumnSizes">
 	<splitView vertical="YES" autosaveName="splitview_folders">
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
-				<tableView zebra="yes" valueBinding="folder_controller" target="#CPOwner" doubleAction="loadFolder:">
+				<tableView autosaveName="folders" zebra="yes" valueBinding="folder_controller" target="#CPOwner" doubleAction="loadFolder:">
 					<tableColumn identifier="folder_name" title="name"/>
 	  			</tableView>
 			</scrollView>
@@ -69,45 +69,44 @@
  				<popUpButtonItem title="Batching..." target="#CPOwner" action="applyFilterToImages:" keyEquivalent="i"/>
 			</ButtonBar>
 		</vbox>
-		<tabView type="topBezel">
-			<tabViewItem title="List">
-				<vbox>
-				 <scrollView>
-				  <tableView zebra="yes" id="images_table" valueBinding="folder_content_controller" target="#CPOwner" doubleAction="loadImage:">
-					<tableColumn identifier="idimage" title="idimage"/>
-				  </tableView>
-				 </scrollView>
-				<ButtonBar actionsButton="YES" target="#CPOwner" minusButtonAction="deleteImage:">
+		<vbox>
+			<scrollView hasHorizontalScroller="NO" hasVerticalScroller="YES">
+				<collectionView id="folder_collection_view" itemWidth="100" itemHeight="100" valueBinding="folder_content_controller.arrangedObjects" delegate="#CPOwner"  itemsClassName="SimpleImageViewCollectionItem" selectable="YES" emptySelectionAllowed="NO"/>
+			</scrollView>
+			<hbox>
+				<slider continuous="NO" min="0" max="1"  valueBinding="#CPOwner.itemSize" halign="right"/><hspace/>
+				<popUpButton width="100" id="compoPopup" itemsBinding="displayfilters_ac.arrangedObjects.name" target="#CPOwner" valueBinding="#CPOwner.viewingCompoID"/>
+			</hbox>
+			<ButtonBar actionsButton="YES" target="#CPOwner" minusButtonAction="deleteImage:">
   					<popUpButtonItem title="Run default analyses" target="#CPOwner" action="runDefaultAnalyses:" keyEquivalent="i"/>
 					<popUpButtonItem title="Add analysis..." target="#CPOwner" action="runRegistration:" keyEquivalent="i"/>
-				 </ButtonBar>
-				</vbox>
-			</tabViewItem>
-			<tabViewItem title="Images">
-				<vbox>
-					<scrollView hasHorizontalScroller="NO" hasVerticalScroller="YES">
-						<collectionView id="folder_collection_view" itemWidth="100" itemHeight="100" valueBinding="folder_content_controller.arrangedObjects" delegate="#CPOwner"  itemsClassName="SimpleImageViewCollectionItem" selectable="YES"/>
-					</scrollView>
-					<hbox>
-						<slider continuous="NO" min="0" max="1"  valueBinding="#CPOwner.itemSize" halign="right"/><hspace/>
-						<popUpButton width="100" id="compoPopup" itemsBinding="displayfilters_ac.arrangedObjects.name" target="#CPOwner" valueBinding="#CPOwner.viewingCompoID"/>
-					</hbox>
-				</vbox>
-			</tabViewItem>
-		</tabView>
+			</ButtonBar>
+		</vbox>
 	 </splitView>
   </window>
 
-  <window title="Image inspector" HUD="YES"  x="770" y="30" width="250" height="200">
+  <window title="Image inspector" HUD="YES"  x="10" y="400" width="250" height="200">
 	<vbox>
 		<hbox>
-			<textField valueBinding="folder_content_controller.selection.image.name"/>
-			<textField valueBinding="folder_content_controller.selection.image.filename"/>
-			<popUpButton itemsBinding="trials_controller.arrangedObjects.name" width="100" valueBinding="folder_content_controller.selection.image.idtrial"/>
+			<label textColor="white" valign="center" halign="min" width="100">ID</label>
+			<textField valueBinding="folder_content_controller.selection.image.id"/>
 		</hbox>
-		<box width="110" height="110">
-			<image valueBinding="folder_content_controller.selection.image._cellfinderImageFromID" scaling="toFit"/>
-		</box>
+		<hbox>
+			<label textColor="white" valign="center" halign="min" width="100">Name</label>
+			<textField valueBinding="folder_content_controller.selection.image.name"/>
+		</hbox>
+		<hbox>
+			<label textColor="white" valign="center" halign="min" width="100">Filename</label>
+			<textField valueBinding="folder_content_controller.selection.image.filename"/>
+		</hbox>
+		<hbox>
+			<label textColor="white" valign="center" halign="min" width="100">Size</label>
+			<textField valueBinding="folder_content_controller.selection.image._cellfinderGeom"/>
+		</hbox>
+		<hbox>
+			<label textColor="white" valign="center" halign="min" width="100">Move to trial</label>
+			<popUpButton itemsBinding="trials_controller.arrangedObjects.name" halign="min" width="100" valueBinding="folder_content_controller.selection.image.idtrial"/>
+		</hbox>
 	</vbox>
   </window>
 

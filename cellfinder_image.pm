@@ -170,14 +170,13 @@ sub imageForDBHAndRenderchainIDAndImage{
 			{	$call=~s/<infiles>/$effective_fn/ogs;
 				$call=~s/<args>/$args/ogs;
 				$call=~s/<outfile>/$effective_fn_out/ogs;
-				$call=~s/<idanalysis>/$idanalysis/gs;
 			} else
 			{	$call.=" $args $filename".'.jpg';
-				$call=~s/<idanalysis>/$idanalysis/gs;
 			}
+			$call=~s/<idanalysis>/$idanalysis/gs;
 			$call.=" >$filename".'.jpg'.'_out';
 			system($call);
-			warn $call;
+###			warn $call;
 
 			my $infile=readFile($filename.'.jpg'.'_out');
 			unlink($filename.'.jpg'.'_out');
@@ -214,13 +213,19 @@ sub getObjectFromDBHandID{
 	my $table = shift;
 	my $id = shift;
 
-warn "select * from $table where id=$id";
+### warn "select * from $table where id=$id";
 	my $sth = $dbh->prepare( qq/select * from "/.$table.qq/" where id=?/);
 	$sth->execute(($id));
 	return $sth->fetchrow_hashref();
 }
 					
-	
+sub getMontageForIDImageAndIDStack{ my ($dbh, $idimage, $idstack)=@_;
+	my $sql = SQL::Abstract->new;
+	my($stmt, @bind) = $sql->select('montage_images', [qw/parameter/], {idimage=>, $idimage, idmontage=> $idstack});
+	my $sth = $dbh->prepare($stmt);
+	$sth->execute(@bind);
+	return $sth->fetchrow_hashref();
+}
 sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $csize, $affine, $idstack)=@_;
 	return sub {return undef} if(!$idimage&& !$idstack);
 	sub doReadImageFile{ my ($p, $curr_img)=@_;
@@ -240,7 +245,12 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $csize
 		{	my $list=getObjectFromDBHandID($dbh,'montage_image_list',$idstack)->{list};
 			my @idarr=split/,/o, $list;
 			foreach my $id (@idarr)
-			{	push @$p, doReadImageFile(undef, getObjectFromDBHandID($dbh,'images_name', $id));
+			{	my $i=doReadImageFile(undef, getObjectFromDBHandID($dbh,'images_name', $id));
+				my $m=getMontageForIDImageAndIDStack($dbh, $id, $idstack);
+				if($m->{parameter})
+				{	$i->Distort(method=>'AffineProjection', points=>eval($m->{parameter}), 'virtual-pixel'=> 'Transparent')  #<!>fixme replace with JSON deparser
+				}
+				push @$p,$i;
 			}
 		} else {
 			$p=doReadImageFile($p, $curr_img);

@@ -208,14 +208,13 @@ var mySortFunction=function(a,b,context)
 		return;
 	}
 
-	var mySize=[someImage size];
 	if(_backgroundImageView) [_backgroundImageView removeFromSuperview];
+	var mySize=[someImage size];
 	var myFrame=CPMakeRect(0,0, mySize.width, mySize.height);
 	_backgroundImageView=[[CPImageView alloc] initWithFrame: myFrame];
-	[_backgroundImageView setImageScaling: CPScaleToFit];
+	[_backgroundImageView setImageScaling: CPScaleNone];
 	[_backgroundImageView setImage: someImage ];
 	[self addSubview: _backgroundImageView positioned: CPWindowBelow relativeTo: nil];
-	[self setFrame: myFrame];
 	[self setNeedsDisplay: YES];
 }
 -(CPImage) backgroundImage

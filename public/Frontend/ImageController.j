@@ -6,9 +6,7 @@
  * Copyright 2011, Your Company All rights reserved.
  *
  * <!> fixme
- * give full access to fx operator (presets for avg et al would be fine)
- * limit pixelsize from docscal download for performance reasons
- * download animated gif
+ * nothing to declare
  *
  */
 

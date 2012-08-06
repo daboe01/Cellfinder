@@ -230,24 +230,24 @@
 	[self _triggerRegistrationMatrixGeneration];
 	var peek=[stacksCollectionView selectionIndexes];
 
-	var selectedArray=[peek count]? [[stacksCollectionView items ]  objectsAtIndexes: peek ]: [stacksCollectionView items ];
+	var selectedArray=([peek count]>1)? [[stacksCollectionView items ]  objectsAtIndexes: peek ]: [stacksCollectionView items ];
 
 	var myArray=[CPMutableArray new];
 	var i,n=[selectedArray count];
 
 	for(i=0; i<n; i++)
 	{	var o=[selectedArray objectAtIndex: i];
-	alert([o representedObject]);
+ alert([o representedObject]);
 		[myArray addObject: [self provideRegistratedImageForStackItem: [o representedObject] ]];
 	}
 	[[FlickerController alloc] initWithImageArray: myArray andAppController: myAppController];
 }
 
--(void) applyMerge: sender
-{
+-(void) flattenStack: sender
+{	window.open(BaseURL+"0?idstack="+[myAppController  valueForKeyPath:"stacksController.selection.id"] +"&cmp="+[myAppController valueForKeyPath:"stacksController.selection.idpatch"],'flattened_stackwindow');
 }
--(void) performBurnIn: sender
-{
+-(void) downloadGIF: sender
+{	window.open(BaseURL+"STACK/"+[myAppController valueForKeyPath:"stacksController.selection.id"] +"?spc=gif",'animated_gifwindow');
 }
 
 -(unsigned) getIDOfReferenceAnalaysis
