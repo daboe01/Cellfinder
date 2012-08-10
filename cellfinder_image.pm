@@ -8,9 +8,6 @@ use lib qw {/Users/boehringer/src/privatePerl /Users/boehringer/bin /HHB/bin};
 use DBI;
 use Image::Magick;
 
-use Apache2::RequestIO ();
-use Apache2::RequestRec ();
-use Apache2::Request ();
 use TempFileNames;
 use LWP::Simple;
 use Encode;
@@ -20,8 +17,8 @@ use JSON::XS;
 use Statistics::R;
 use SQL::Abstract;
 
-use constant server_root=>'/Library/WebServer/Documents/cellfinder';
-#use constant server_root=>'/srv/www/htdocs/cellfinder';
+#use constant server_root=>'/Library/WebServer/Documents/cellfinder';
+use constant server_root=>'/srv/www/htdocs/cellfinder';
 
 #<!> fixme hardcoded URL
 sub runSimpleRegistrationRCode { my ($id1,$id2)=@_;
@@ -213,7 +210,7 @@ sub getObjectFromDBHandID{
 	my $table = shift;
 	my $id = shift;
 
-### warn "select * from $table where id=$id";
+warn "select * from $table where id=$id";
 	my $sth = $dbh->prepare( qq/select * from "/.$table.qq/" where id=?/);
 	$sth->execute(($id));
 	return $sth->fetchrow_hashref();
@@ -235,9 +232,12 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $csize
 		{	$p->BlobToImage(LWP::Simple::get($curr_img->{image_repository}.'/'.$filename));
 		} else
 		{	$p->Read(server_root."/$filename");
+warn server_root."/$filename";
 		} return $p;
 	}
+	warn $idimage;
 	my $curr_img = getObjectFromDBHandID($dbh,'images_name', $idimage);
+ warn Dumper $curr_img;
 	return sub{
 		return ($nocache? 0: $idimage) if shift;
 		$p = Image::Magick->new(magick=>'jpg');

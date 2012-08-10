@@ -1,11 +1,12 @@
 #!/usr/local/ActivePerl-5.14/site/bin/morbo
 
-use lib qw {/Users/boehringer/src/daboe01_Cellfinder/Cellfinder/ /Users/daboe01/src/daboe01_Cellfinder/Cellfinder /Users/boehringer/src/privatePerl /Users/daboe01/src/privatePerl};
+use lib qw {/HHB/bin/Cellfinder/ /Users/boehringer/src/daboe01_Cellfinder/Cellfinder/ /Users/daboe01/src/daboe01_Cellfinder/Cellfinder /Users/boehringer/src/privatePerl /Users/daboe01/src/privatePerl};
 use Mojolicious::Lite;
 use Mojolicious::Plugin::Database;
 use cellfinder_image;
 use SQL::Abstract;
 use Data::Dumper;
+use Mojo::UserAgent;
 
 plugin 'database', { 
 			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
@@ -14,6 +15,9 @@ plugin 'database', {
 			options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
 			helper   => 'db'
 };
+
+###########################################
+# dbi part
 
 # fetch all entities
 get '/DBI/:table'=> sub
@@ -48,29 +52,6 @@ get '/DBI/:table/:col/:pk' => [pk=>qr/.+/] => sub
 	{	push @a,$c;
 	}
 	$self-> render_json( \@a );
-};
-
-# fuzzy-fetch entities by (foreign) key
-get '/DBI/:table/:col/like/:pk' => [pk=>qr/.+/] => sub
-{	my $self = shift;
-	my $sql = SQL::Abstract->new;
-	my $table  = $self->param('table');
-	my $pk  = $self->param('pk');
-	my $col  = $self->param('col');
-	app->log->debug( $pk );
-	app->log->debug( $col );
-	$self->db->quote_identifier($table);
-	my $sth = $self->db->prepare(qq/select * from /.$table.qq/ where /.$col.qq/~*?/);
-	$sth->execute(($pk));
-	my @a;
-	my $i=0;
-	while(my $c=$sth->fetchrow_hashref())
-	{	push @a,$c;
-		$i++;
-	}
-	warn $i;
-#	app->log->debug(Dumper \@a);
-	$self->render(json  => \@a);
 };
 
 # update
@@ -122,6 +103,33 @@ del '/DBI/:table/:pk/:key'=> [key=>qr/\d+/] => sub
 	$self->render_json( {err=> $DBI::errstr} );
 };
 
+#<!> experimental
+# fuzzy-fetch entities by (foreign) key
+get '/DBI/:table/:col/like/:pk' => [pk=>qr/.+/] => sub
+{	my $self = shift;
+	my $sql = SQL::Abstract->new;
+	my $table  = $self->param('table');
+	my $pk  = $self->param('pk');
+	my $col  = $self->param('col');
+	app->log->debug( $pk );
+	app->log->debug( $col );
+	$self->db->quote_identifier($table);
+	my $sth = $self->db->prepare(qq/select * from /.$table.qq/ where /.$col.qq/~*?/);
+	$sth->execute(($pk));
+	my @a;
+	my $i=0;
+	while(my $c=$sth->fetchrow_hashref())
+	{	push @a,$c;
+		$i++;
+	}
+	warn $i;
+	#	app->log->debug(Dumper \@a);
+	$self->render(json  => \@a);
+};
+
+###################################################################
+# imaging part
+
 get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
 {	my $self=shift;
 	my $spc=			$self->param("spc");
@@ -143,7 +151,6 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
 
 	my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage, $width, $nocache, $csize, $affine, $idstack);
 	my $p= $f->(0);
-
 	$p= cellfinder_image::imageForComposition($self->db, $preload,$f,$p)		if($preload);
 	$p= cellfinder_image::imageForComposition($self->db, $idcomposition,$f,$p)	if($idcomposition);
 	$p= cellfinder_image::imageForComposition($self->db, $afterload,$f,$p,1)	if($afterload);
@@ -184,7 +191,7 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 
 		while ( my $curr = $sth->fetchrow_hashref() )
 		{	next unless $curr->{idanalysis_reference};
-			my $par= cellfinder_image::runSimpleRegistrationRCode($curr->{idanalysis}, $curr->{idanalysis_reference});
+			my $par= cellfinder_image::runSimpleRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis});
 			my $sql=SQL::Abstract->new();
 			my($stmt, @bind) = $sql->update('montage_images', {parameter=> $par}, {id=>$curr->{id} } );
 			my $sth =  $self->db->prepare($stmt);
@@ -199,6 +206,51 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 		$p->Write($tempfilename.'.gif');
 		$self->render_data(cellfinder_image::readFile($tempfilename.'.gif'), format=>'gif');
 	}
+};
+
+get '/IMG/import/:idtrial/:name'=> [name=>qr/.+/] => sub
+{	my $self=shift;
+	my $idtrial=		$self->param("idtrial");
+	my $filename=		$self->param("name");
+	my ($idimage, $upload_dest)=cellfinder_image::createImageFromUpload($self->db,$idtrial, $filename, '/tmp/'.$filename.'_s.jpg');
+	my $idcomposition;
+	if($filename && !$idcomposition)
+	{	my $trial = cellfinder_image::getObjectFromDBHandID($self->db,'trials', $idtrial);
+		$idcomposition= $trial->{composition_for_upload};
+	}
+	my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage, undef, 1);
+	my $p= $f->(0);
+	$p= cellfinder_image::imageForComposition($self->db, $idcomposition,$f,$p) if($idcomposition);
+	$p->Write($upload_dest);
+	$self->render_text($idimage);
+};
+
+
+###################################################################
+# docscal interface
+
+get '/DC/dir/:piz'=> [piz =>qr/\d{8}/] => sub
+{	my $self=shift;
+	my $piz= $self->param("piz");
+	my $ua = Mojo::UserAgent->new;
+	my $data=$ua->get('http://auginfo/docscaldownload/'.$piz.'?peek=1')->res->body;
+	$self->render_text( $data);
+};
+get '/DC/dir/:piz/:type' => [piz =>qr/\d{8}/] => sub
+{	my $self=shift;
+	my $piz= $self->param("piz");
+	my $type= $self->param("type");
+	my $ua = Mojo::UserAgent->new;
+	my $data=$ua->get('http://auginfo/docscaldownload/'.$piz.'?dir='.$type)->res->body;
+	$self->render_text( $data);
+};
+get '/DC/fetch/:name/:scale'=> [name =>qr/.+/] => sub
+{	my $self=shift;
+	my $name= $self->param("name");
+	my $scale= $self->param("scale");
+	my $ua = Mojo::UserAgent->new;
+	my $data=$ua->get("http://auginfo/docscaldownload/$name?size=$scale")->res->body;
+	$self->render_data($data , format =>'jpg' );
 };
 
 

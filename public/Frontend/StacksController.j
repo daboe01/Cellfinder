@@ -42,6 +42,7 @@
 	var imgsize=[self _getImageSize];
 	myURL+="&width="+parseInt( (myscale*imgsize.width)* (myscale*imgsize.height) );
 	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
+document.title=myURL;
 	return img;
 }
 @end

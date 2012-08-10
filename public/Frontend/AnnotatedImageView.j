@@ -19,7 +19,7 @@ AIVStyleAngleInfo=8;
 
 var mySortFunction=function(a,b,context)
 {
-	return [a valueForKey:"id"]-[b valueForKey:"id"];
+	return [b valueForKey:"id"]-[a valueForKey:"id"];
 }
 
 
@@ -203,7 +203,7 @@ var mySortFunction=function(a,b,context)
 {	[self setBackgroundImage: image];
 }
 -(void) setBackgroundImage:(CPImage) someImage
-{	if([someImage loadStatus]!=  CPImageLoadStatusCompleted)
+{	if([someImage loadStatus]!==  CPImageLoadStatusCompleted)
 	{	[someImage setDelegate: self];
 		return;
 	}
@@ -211,6 +211,7 @@ var mySortFunction=function(a,b,context)
 	if(_backgroundImageView) [_backgroundImageView removeFromSuperview];
 	var mySize=[someImage size];
 	var myFrame=CPMakeRect(0,0, mySize.width, mySize.height);
+	[self setFrame: myFrame];
 	_backgroundImageView=[[CPImageView alloc] initWithFrame: myFrame];
 	[_backgroundImageView setImageScaling: CPScaleNone];
 	[_backgroundImageView setImage: someImage ];
@@ -275,6 +276,10 @@ var mySortFunction=function(a,b,context)
 			CGContextAddArc	(context, firstPoint.x, firstPoint.y, 50,0,radians,NO); 	 
 			CGContextClosePath(context);
 			CGContextStrokePath(context);
+
+			CGContextSelectFont(context, [CPFont systemFontOfSize:8]);
+			CGContextSetTextPosition(context, firstPoint.x-4, firstPoint.y+1)
+			CGContextShowText(context, Math.floor(radians*57.2957795*(-1)));
 		}
 	}
 	if(_styleFlags & AIVStyleNumbers )

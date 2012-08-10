@@ -1,17 +1,16 @@
 @import <AppKit/AppKit.j>
 @import <Renaissance/Renaissance.j>
 
-var BaseURL="http://auginfo/docscaldownload/";
+var BaseURL="http://auginfo:3000/DC/";
 var spinnerImg;
 
 @implementation CPObject (ImageURLHack)
 
 -(CPImage) _dc_provideImageForCollectionViewItem: someItem
-{	var rnd=1;	//Math.floor(Math.random()*100000);
-	var myURL=BaseURL+[self valueForKey:"name"]+"?rnd="+rnd;
+{	var myURL=BaseURL+"fetch/"+[self valueForKey:"name"];
 	var size=[someItem size];
 	if(!size) size=100;
-	myURL+="&size="+size;
+	myURL+="/"+size;
 	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
 	return img;
 }
@@ -93,7 +92,7 @@ var _sharedCDImporter;
 {	var piz=[pizField stringValue];
 	[stacksController addObject: [CPDictionary dictionaryWithObject: piz forKey:"piz"] ];
 	if(![[stacksDirController arrangedObjects] count])
-	{	var arr = [self arrayForURL: BaseURL+piz+"?peek=1"];
+	{	var arr = [self arrayForURL: BaseURL+"dir/"+piz];
 		var i,l=arr.length;
 		for(i=0;i<l;i++)
 		{	[stacksDirController addObject: [CPDictionary dictionaryWithObjects: [arr[i], piz] forKeys:["name", "piz"]] ];
@@ -106,7 +105,7 @@ var _sharedCDImporter;
 {	var type=[[typePopup selectedItem] title];
 	var piz=[pizField stringValue];
 
-	var arr = [self arrayForURL: BaseURL+piz+"?dir="+type];
+	var arr = [self arrayForURL: BaseURL+"dir/"+piz+"/"+type];
 
 	var i,l=arr.length;
 	[stacksContentController setContent:[]];
@@ -140,7 +139,7 @@ var _sharedCDImporter;
 	var firstIndex = [indices firstIndex];
 	var filename=[[aCollectionView itemAtIndex: firstIndex]._img filename];
 	var o =[CPMutableDictionary new];
-	var re = new RegExp("docscaldownload/([^?]+)");
+	var re = new RegExp("fetch/([^/]+)");
 	var m = re.exec(filename);
 	if(m)
 	{	[o setObject: m[1] forKey:"filename"];

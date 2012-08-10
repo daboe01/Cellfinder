@@ -12,7 +12,7 @@
 
 /////////////////////////////////////////////////////////
 
-BaseURL="http://127.0.0.1:3000/IMG/";
+BaseURL="http://auginfo:3000/IMG/";
 
 PhotoDragType="PhotoDragType";
 
@@ -125,7 +125,7 @@ PhotoDragType="PhotoDragType";
 	} return ret;
 }
 - (void) applicationDidFinishLaunching:(CPNotification)aNotification
-{	store=[[FSStore alloc] initWithBaseURL: "http://127.0.0.1:3000/DBI"];	//<!> fixme
+{	store=[[FSStore alloc] initWithBaseURL: "http://auginfo:3000/DBI"];	//<!> fixme
 
 	[CPBundle loadRessourceNamed: "gui.gsmarkup" owner:self];
 	[self setItemSize:0.1];
@@ -136,49 +136,27 @@ PhotoDragType="PhotoDragType";
 - (void)performDragOperation:(CPDraggingInfo)aSender
 {	var data = [[aSender draggingPasteboard] dataForType:PhotoDragType];
     var o=[CPKeyedUnarchiver unarchiveObjectWithData: data];
-	var myurl=BaseURL+"?";
-	
-	myurl+="idtrial="+ [trialsController valueForKeyPath:"selection.id"];
+	var myurl=BaseURL+"import/"+ [trialsController valueForKeyPath:"selection.id"];
+	myurl+="/"+[o objectForKey:"filename" ];
+
+/*
 	var cmp=[trialsController valueForKeyPath:"selection.composition_for_upload" ];
 	if(cmp!="CPNullMarker")
 		myurl+="&cmp="+ [trialsController valueForKeyPath:"selection.id"];
-	myurl+="&filedata="+"/tmp/"+[o objectForKey:"filename" ]+'_s.jpg';
-	myurl+="&filename="+[o objectForKey:"filename" ];
+*/
+
 	var myreq=[CPURLRequest requestWithURL: myurl];
 	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
 	[[trialsController selectedObject] willChangeValueForKey:"folders"];
 	[trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 	[[trialsController selectedObject] didChangeValueForKey:"folders"];
 
-	[[folderController selectedObject] willChangeValueForKey:"folder_content"];
-	[folderController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
-	[[folderController selectedObject] didChangeValueForKey:"folder_content"];
-
-}
-
-
--(void) configureIC: someIC forTrial: someTrial
-{	var myreq=[CPURLRequest requestWithURL: BaseURL+"0?cmp="+[someTrial valueForKey: "composition_for_javascript"] ];
-	var mypackage=[[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil]  rawString];
-	var arr = JSON.parse( mypackage );
-	if(!arr) return;
-	var i,l=arr.length;
-	for(i=0;i<l;i++)
-	{	var m=arr[i];
-		if([m characterAtIndex:0]=='<') next;
-		var sel=CPSelectorFromString(m);
-		if(sel) [someIC performSelector:sel];
+	if([folderController selectedObject])
+	{	[[folderController selectedObject] willChangeValueForKey:"folder_content"];
+		[folderController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
+		[[folderController selectedObject] didChangeValueForKey:"folder_content"];
 	}
-}
--(void) loadImage: sender
-{	var o=[[folderContentController arrangedObjects] objectAtIndex: [sender selectedRow]];
-	if (o)
-	{	if(!_imageControllers) _imageControllers=[CPMutableSet new];
-		var ic=[[ImageController alloc] initWithImageID:[o valueForKey:"idimage"] appController: self];
-		[_imageControllers addObject:ic];
-		[self configureIC: ic forTrial: [trialsController selectedObject]];
-//<!> fixme: implement unregistering upon window close in imagesController
-	}
+alert("hello");
 }
 
 -(void) loadAnalysis: sender

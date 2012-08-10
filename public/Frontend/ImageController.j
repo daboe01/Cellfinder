@@ -31,7 +31,6 @@
 	id		_mywindow;
 	id		_rawImage;
 	id		_cookedImage;
-	id		_analyzedImage;
 	int		_idtrial @accessors(property=idtrial);
 	int		_updateContinuously @accessors(property=updateContinuously);
 	BOOL	_isLoadingImage @accessors(property=isLoadingImage);
@@ -46,8 +45,7 @@
 	var myURL= [myAppController baseImageURL]+myidimage+"?rnd=1";
 	if(mycompoID && mycompoID!==CPNullMarker) myURL+="&cmp="+mycompoID;
 	if(_originalSize) myURL+="&width="+[self getImagePixelCount];
-	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
-	return img;
+	return [[CPImage alloc] initWithContentsOfFile: myURL];
 }
 - (void)imageDidLoad:(CPImage)image
 {	var mySize=[image size];
@@ -61,8 +59,6 @@
 	{	[imageSuperview setDocumentView: imageView];
 	} else if(image==_rawImage)
 	{	[rawImageSuperview setDocumentView: imageView];
-	} else if(image==_analyzedImage)
-	{	
 	}
 	_isLoadingImage=NO;
 	[_progress stopAnimation:self];
@@ -75,17 +71,29 @@
 	if(_originalSize) myURL+="&width="+[self getImagePixelCount];
 	_isLoadingImage=YES;
 	[_progress startAnimation: self];
+	_rawImage=[[CPImage alloc] initWithContentsOfFile: myURL];
+	[_rawImage setDelegate: self];
 	if(_compoID)
 	{	 _cookedImage=[[CPImage alloc] initWithContentsOfFile: myURL+'&cmp='+_compoID+"&cc=1"];
 		[_cookedImage setDelegate: self];
 	}
-	_rawImage=[[CPImage alloc] initWithContentsOfFile: myURL];
-	[_rawImage setDelegate: self];
-	_analyzedImage=[[CPImage alloc] initWithContentsOfFile: myURL];
-	[_analyzedImage setDelegate: self];
-	[annotatedImageView bind:"backgroundImage" toObject: self withKeyPath: "_backgroundImage" options:nil];
 	[annotatedImageView bind:"scale" toObject: self withKeyPath: "_scale" options:nil];
+	[annotatedImageView bind:"backgroundImage" toObject: self withKeyPath: "_backgroundImage" options:nil];
 }
+-(void) _configureAnalysis
+{	var myreq=[CPURLRequest requestWithURL: BaseURL+"0?cmp="+[myAppController.trialsController valueForKeyPath: "selection.composition_for_javascript"] ];
+	var mypackage=[[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil]  rawString];
+	var arr = JSON.parse( mypackage );
+	if(!arr) return;
+	var i,l=arr.length;
+	for(i=0;i<l;i++)
+	{	var m=arr[i];
+		if([m characterAtIndex:0]=='<') next;
+		var sel=CPSelectorFromString(m);
+		if(sel) [self performSelector:sel];
+	}
+}
+
 -(id) initWithImageID:(int) someImageID appController:(id) mainController
 {	self=[super init];
 	_scale=1.0;
@@ -101,6 +109,7 @@
 	_idtrial= parseInt([myAppController.trialsController valueForKeyPath:"selection.id"]);
 
 	[_mywindow setTitle:"Image "+someImageID];
+	[self _configureAnalysis];
 	return self;
 }
 
