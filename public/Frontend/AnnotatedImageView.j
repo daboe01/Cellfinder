@@ -33,6 +33,7 @@ var mySortFunction=function(a,b,context)
 @implementation DotView : CPView
 {	BOOL	_selected;
 	id		_data @accessors(property=data);
+	id		_id @accessors(property=id);
 }
 +(double) radius
 {	return 5.0;	//<!> fixme GUI configurable
@@ -118,11 +119,13 @@ var mySortFunction=function(a,b,context)
 }
 
 - (CPString)stringForObjectValue:(id)theObject	// factor out GUI scaling 
-{	return parseInt(theObject*_scale);
+{
+	return parseInt(theObject*_scale);
 }
 
 - (id)objectValueForString:(CPString)aString error:(out CPError)theError
-{	return parseInt(aString/_scale);
+{
+	return parseInt(aString/_scale);
 }
 
 - (id)initWithFrame:(CGRect)aFrame
@@ -161,7 +164,7 @@ var mySortFunction=function(a,b,context)
 	{	var ai=[theArr objectAtIndex: i];
 		var o=[[someClass alloc] initWithCentroid: CPMakePoint( [ai valueForKey:"row"],  [ai valueForKey:"col"] )];
 		[o setData: ai ];
-
+		[o setId: i+1]
 		[self addDotView: o];
 	}
 	[_marqueeLayer setNeedsDisplay];
@@ -184,9 +187,7 @@ var mySortFunction=function(a,b,context)
 }
 
 -(void) addDotView:(DotView) someView
-{	if(_backgroundImageView)
-		[self addSubview:someView positioned: CPWindowAbove relativeTo: _backgroundImageView];
-	else [self addSubview:someView];
+{	[self addSubview:someView positioned: CPWindowAbove relativeTo: _backgroundImageView];
 }
 
 
@@ -293,7 +294,7 @@ var mySortFunction=function(a,b,context)
 			var o=[currSubview objectValue];
 
 			CGContextSetTextPosition(context, o.x-2, o.y+1)
-			CGContextShowText(context, n-i);
+			CGContextShowText(context, currSubview._id);
 		}
 	}
 	if( _styleFlags & AIVStyleLengthInfo )

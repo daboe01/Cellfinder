@@ -42,7 +42,7 @@
 	var imgsize=[self _getImageSize];
 	myURL+="&width="+parseInt( (myscale*imgsize.width)* (myscale*imgsize.height) );
 	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
-document.title=myURL;
+
 	return img;
 }
 @end
@@ -50,8 +50,8 @@ document.title=myURL;
 @implementation SimpleImageViewCollectionItem: CPCollectionViewItem
 {	CPImage		_img;
 	CPImageView _imgv;
-	unsigned _size @accessors(property=size);
-	unsigned _compoID @accessors(property=compoID);
+	unsigned	_size @accessors(property=size);
+	unsigned	_compoID @accessors(property=compoID);
 }
 
 -(void) setSize:(insigned) someSize		//<!> should read setScale
@@ -184,7 +184,9 @@ document.title=myURL;
 -(void) itemSize
 {	return _itemSize;
 }
-
+-(void) resetItemSize
+{	[self setItemSize:_itemSize];
+}
 
 -(void) newStack: sender
 {	[myAppController.stacksController addObject: [CPDictionary dictionaryWithObject:"NewStack" forKey:"name" ]];
@@ -238,7 +240,7 @@ document.title=myURL;
 
 	for(i=0; i<n; i++)
 	{	var o=[selectedArray objectAtIndex: i];
- alert([o representedObject]);
+ //		alert([o representedObject]);
 		[myArray addObject: [self provideRegistratedImageForStackItem: [o representedObject] ]];
 	}
 	[[FlickerController alloc] initWithImageArray: myArray andAppController: myAppController];

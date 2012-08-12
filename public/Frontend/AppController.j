@@ -12,7 +12,8 @@
 
 /////////////////////////////////////////////////////////
 
-BaseURL="http://auginfo:3000/IMG/";
+HostURL="http://127.0.0.1:3000"
+BaseURL= HostURL+"/IMG/";
 
 PhotoDragType="PhotoDragType";
 
@@ -125,7 +126,7 @@ PhotoDragType="PhotoDragType";
 	} return ret;
 }
 - (void) applicationDidFinishLaunching:(CPNotification)aNotification
-{	store=[[FSStore alloc] initWithBaseURL: "http://auginfo:3000/DBI"];	//<!> fixme
+{	store=[[FSStore alloc] initWithBaseURL: HostURL+"/DBI"];
 
 	[CPBundle loadRessourceNamed: "gui.gsmarkup" owner:self];
 	[self setItemSize:0.1];
@@ -177,6 +178,10 @@ alert("hello");
 	{	[[Stacks2Controller alloc] initWithTrial:o andAppController: self];
 	}
 }
+-(void) applyFilterToAll: sender
+{	var o=[trialsController valueForKeyPath:"selection"];
+	alert(o);
+}
 
 -(void) delete:sender
 {	[[[CPApp keyWindow] delegate] delete:sender];
@@ -184,6 +189,7 @@ alert("hello");
 
 -(void) collectionView: someView didDoubleClickOnItemAtIndex: someIndex
 {	var o=[[someView itemAtIndex: someIndex] representedObject];
+
 	var ic=[[ImageController alloc] initWithImageID:[o valueForKey:"idimage"] appController: self];
 	[_imageControllers addObject:ic];
 //<!> fixme: implement unregistering upon window close in imagesController

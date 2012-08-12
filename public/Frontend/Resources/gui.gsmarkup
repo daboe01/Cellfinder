@@ -35,6 +35,20 @@
    <arrayController id="folder_content_controller" entity="folder_content" valueBinding ="folder_controller.selection.folder_content"/>
    <arrayController id="analyses_controller" entity="analyses" valueBinding ="folder_content_controller.selection.image.analyses"/>
 
+  <menu type="main">
+	<menu title="Import">
+		<menuItem title="DocsCal" action="docsCalImport:"/>
+		<menuItem title="File" action="uploadImage:"/>
+	</menu>
+	<menu title="Edit">
+		<menuItem title="Delete" action="removeObject:" keyEquivalent="r"/>
+		<menuItem title="Cut" action="cut:" keyEquivalent="x"/>
+		<menuItem title="Copy" action="copy:" keyEquivalent="c"/>
+		<menuItem title="Paste" action="paste:" keyEquivalent="v"/>
+		<menuItem title="Remove" action="delete:" keyEquivalent="r"/>
+		<menuItem title="Select all" action="selectAll:" keyEquivalent="a"/>
+	</menu>
+   </menu>
 
   <window title="All trials" closable="no"  x="10" y="50" id="trialswindow" width="300" height="300">
 	<vbox>
@@ -109,21 +123,6 @@
 		</hbox>
 	</vbox>
   </window>
-
-  <menu type="main">
-	<menu title="Import">
-		<menuItem title="DocsCal" action="docsCalImport:"/>
-		<menuItem title="File" action="uploadImage:"/>
-	</menu>
-	<menu title="Edit">
-		<menuItem title="Delete" action="removeObject:" keyEquivalent="r"/>
-		<menuItem title="Cut" action="cut:" keyEquivalent="x"/>
-		<menuItem title="Copy" action="copy:" keyEquivalent="c"/>
-		<menuItem title="Paste" action="paste:" keyEquivalent="v"/>
-		<menuItem title="Remove" action="delete:" keyEquivalent="r"/>
-		<menuItem title="Select all" action="selectAll:" keyEquivalent="a"/>
-	</menu>
-   </menu>
 
   <window title="Trial settings" id="trialsettingswindow" modal="YES" visible="NO" width="300" height="200" resizable="YES">
 	<vbox>

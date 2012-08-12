@@ -22,6 +22,7 @@
 	var mysize=[_img size];
 	if ([[self collectionView] respondsToSelector:@selector(setMinItemSize:)])
 		[[self collectionView] setMinItemSize: mysize ];
+	[[[self collectionView] delegate] resetItemSize];
 }
 
 - _createContentView
