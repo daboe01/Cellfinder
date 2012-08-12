@@ -22,6 +22,11 @@ var mySortFunction=function(a,b,context)
 	return [b valueForKey:"id"]-[a valueForKey:"id"];
 }
 
+var myFastSortFunction=function(a,b,context)
+{
+	return b._id - a._id;
+}
+
 
 @implementation CPObject(SelectMeStub)
 -(void) selectMe
@@ -159,12 +164,13 @@ var mySortFunction=function(a,b,context)
 
 	var theArr=[self objectValue];
 	if(!theArr) return;
+	[theArr sortUsingFunction: mySortFunction context:nil];
 	var l=[theArr count];
 	for(var i=0; i<l; i++)
 	{	var ai=[theArr objectAtIndex: i];
 		var o=[[someClass alloc] initWithCentroid: CPMakePoint( [ai valueForKey:"row"],  [ai valueForKey:"col"] )];
 		[o setData: ai ];
-		[o setId: i+1]
+		[o setId: [ai valueForKey:"id"] ]
 		[self addDotView: o];
 	}
 	[_marqueeLayer setNeedsDisplay];
@@ -193,7 +199,6 @@ var mySortFunction=function(a,b,context)
 
 -(void) setObjectValue:(CPArray) someArr
 {
-	[someArr sortUsingFunction: mySortFunction context:nil];
 	[super setObjectValue: someArr];
     [[someArr entity] setFormatter: self forColumnName:"row"];
     [[someArr entity] setFormatter: self forColumnName:"col"];
@@ -294,7 +299,7 @@ var mySortFunction=function(a,b,context)
 			var o=[currSubview objectValue];
 
 			CGContextSetTextPosition(context, o.x-2, o.y+1)
-			CGContextShowText(context, currSubview._id);
+			CGContextShowText(context, n-i);
 		}
 	}
 	if( _styleFlags & AIVStyleLengthInfo )
@@ -459,6 +464,8 @@ var mySortFunction=function(a,b,context)
 		{	mydot=[[DotView alloc] initWithFrame: myFrame];
 			var obV=[self addToModelPoint: [mydot objectValue]];	// register newly created point with backend
 			[mydot setData:obV];
+			[mydot setId: [obV valueForKey:"id"]];
+
 			if(_sendDelegateMoves)
 				[_delegate annotatedImageView: self dot: mydot movedToPoint: mouseLocation];
 			[self deselectAllSubviews];
@@ -505,6 +512,7 @@ var mySortFunction=function(a,b,context)
 		{	[ret addObject: currSubview ];
 		}
 	}
+	[ret sortUsingFunction: myFastSortFunction context:nil];
 	return ret;
 }
 
