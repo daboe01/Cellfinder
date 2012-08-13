@@ -223,23 +223,21 @@
 -(void) _triggerRegistrationMatrixGeneration
 {	var myreq=[CPURLRequest requestWithURL: BaseURL+"STACK/"+[myAppController.stacksController valueForKeyPath: "selection.id"] +"?spc=affine"];
 	[[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil]  rawString];
-	// force refetch of image matrix
-	[[myAppController.stacksController selectedObject] willChangeValueForKey:"analyses"];
-	[ myAppController.stacksController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
-	[[myAppController.stacksController selectedObject] didChangeValueForKey:"analyses"];
 }
 -(void) runFlicker: sender
 {
 	[self _triggerRegistrationMatrixGeneration];
 	var peek=[stacksCollectionView selectionIndexes];
 
-	var selectedArray=([peek count]>1)? [[stacksCollectionView items ]  objectsAtIndexes: peek ]: [stacksCollectionView items ];
-
+alert([myAppController.stacksController selectedObject]);
+	var selectedArray=[[myAppController.stacksController selectedObject] valueForKey:"analyses" synchronous:YES];
+alert(selectedArray);
 	var myArray=[CPMutableArray new];
 	var i,n=[selectedArray count];
 
 	for(i=0; i<n; i++)
-	{	var o=[selectedArray objectAtIndex: i];
+	{
+		var o=[selectedArray objectAtIndex: i];
  //		alert([o representedObject]);
 		[myArray addObject: [self provideRegistratedImageForStackItem: [o representedObject] ]];
 	}
