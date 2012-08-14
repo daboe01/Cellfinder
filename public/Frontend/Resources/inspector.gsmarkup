@@ -1,0 +1,24 @@
+  <window title="Image inspector" HUD="YES"  x="10" y="400" width="250" height="200">
+	<vbox>
+		<hbox>
+			<label textColor="white" valign="center" halign="min" width="100">ID</label>
+			<textField valueBinding="folder_content_controller.selection.image.id"/>
+		</hbox>
+		<hbox>
+			<label textColor="white" valign="center" halign="min" width="100">Name</label>
+			<textField valueBinding="folder_content_controller.selection.image.name"/>
+		</hbox>
+		<hbox>
+			<label textColor="white" valign="center" halign="min" width="100">Filename</label>
+			<textField valueBinding="folder_content_controller.selection.image.filename"/>
+		</hbox>
+		<hbox>
+			<label textColor="white" valign="center" halign="min" width="100">Size</label>
+			<textField valueBinding="folder_content_controller.selection.image._cellfinderGeom"/>
+		</hbox>
+		<hbox>
+			<label textColor="white" valign="center" halign="min" width="100">Move to trial</label>
+			<popUpButton itemsBinding="trials_controller.arrangedObjects.name" halign="min" width="100" valueBinding="folder_content_controller.selection.image.idtrial"/>
+		</hbox>
+	</vbox>
+  </window>

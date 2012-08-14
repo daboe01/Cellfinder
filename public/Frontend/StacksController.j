@@ -15,6 +15,14 @@
 
 
 @implementation CPObject (ImageURLCV)
+
+
+
+-(void) _setImageSizedWithDelegate: someDelegate
+{	var myreq=[CPURLRequest requestWithURL: BaseURL+[self valueForKey:"idimage"]+"?spc=geom"];
+	[CPURLConnection connectionWithRequest:myreq delegate: someDelegate];
+}
+
 -(CPSize) _getImageSize
 {
 	var myreq=[CPURLRequest requestWithURL: BaseURL+[self valueForKey:"idimage"]+"?spc=geom" ];
@@ -23,6 +31,7 @@
 	return CPMakeSize(arr[0],arr[1]);
 }
 
+//<!> make obsolete by setImageForCollectionViewItem
 -(CPImage) provideImageForCollectionViewItem: someItem
 {	var rnd=1;	//Math.floor(Math.random()*100000);
 	var myURL=BaseURL+[self valueForKey:"idimage"]+"?rnd="+rnd;
@@ -45,24 +54,39 @@
 
 	return img;
 }
+
 @end
 
 @implementation SimpleImageViewCollectionItem: CPCollectionViewItem
-{	CPImage		_img;
+{	var			_idimage;
+	CPImage		_img;
 	CPImageView _imgv;
 	unsigned	_size @accessors(property=size);
 	unsigned	_compoID @accessors(property=compoID);
 }
 
+-(void) connection: someConnection didReceiveData: data
+{	var arr=data.split(' ');
+	var mysize=CPMakeSize(arr[0],arr[1]);
+
+	var rnd=1;
+	var myURL=BaseURL+_idimage+"?rnd="+rnd;
+	if(!_size) 	_size=0.1;
+	myURL+="&width="+parseInt( (_size*mysize.width)* (_size*mysize.height) );
+	var image=[[CPImage alloc] initWithContentsOfFile: myURL];
+	[image setDelegate: self];
+
+}
+
+
 -(void) setSize:(insigned) someSize		//<!> should read setScale
 {	if(_size === someSize) return;
 	_size=someSize;
-	_img=[_representedObject provideImageForCollectionViewItem: self];
-	[_img setDelegate: self];
+	[_representedObject _setImageSizedWithDelegate: self];
 }
 -(void) setCompoID:(insigned) someID
 {	_compoID=someID;
-	_img=[_representedObject provideImageForCollectionViewItem: self];
+	[_representedObject provideImageForCollectionViewItem: self];
 	[_img setDelegate: self];
 }
 -(void) setImage: someImage
@@ -103,7 +127,8 @@
 	return myview;
 }
 -(void) setRepresentedObject: someObject
-{	[super setRepresentedObject: someObject];
+{	_idimage=[someObject valueForKey:"idimage"];
+	[super setRepresentedObject: someObject];
 	[self loadView];
 }
 -(void) setSelected:(BOOL) state
@@ -231,7 +256,7 @@
 
 alert([myAppController.stacksController selectedObject]);
 	var selectedArray=[[myAppController.stacksController selectedObject] valueForKey:"analyses" synchronous:YES];
-alert(selectedArray);
+alert([selectedArray class]);
 	var myArray=[CPMutableArray new];
 	var i,n=[selectedArray count];
 

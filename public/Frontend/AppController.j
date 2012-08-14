@@ -39,6 +39,8 @@ PhotoDragType="PhotoDragType";
 	[img setDelegate: self];
 	return img;
 }
+
+
 -(CPImage) _cellfinderSpc: someSpc forID: someID
 {	var myreq=[CPURLRequest requestWithURL: BaseURL+someID+"?spc="+someSpc ];
 	return [[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil]  rawString];
