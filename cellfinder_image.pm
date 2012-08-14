@@ -118,6 +118,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 		} elsif($curr_patch->{patch_type} ~~ [4,5,6])	# only parameter substitution required
 		{	my @arr= map {  $_->[0]=~s/"$//ogs; $_->[1]=~s/"//ogs;$_;}
 				map { [ split/=>/o ] }
+				sort 
 				map {s/^["\s]+//ogs;$_;}
 				split  /[^\\],/o, $curr_patch->{params};
 			$p=$curr_patch->{patch};
