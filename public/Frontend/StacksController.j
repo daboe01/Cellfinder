@@ -30,35 +30,11 @@
 	var arr=mypackage.split(' ');
 	return CPMakeSize(arr[0],arr[1]);
 }
-
-//<!> make obsolete by setImageForCollectionViewItem
--(CPImage) provideImageForCollectionViewItem: someItem
-{	var rnd=1;	//Math.floor(Math.random()*100000);
-	var myURL=BaseURL+[self valueForKey:"idimage"]+"?rnd="+rnd;
-
-	if([self respondsToSelector:@selector(entity) ])
-	{	var myentity=[self entity];
-		var cmp=[someItem compoID];
-		if(cmp) myURL+=("&cmp="+parseInt(cmp));
-
-		if([[myentity columns] containsObject:"idmontage"])
-		{	var handovers=[self valueForKey:"parameter"]
-			if(handovers) myURL+=("&handover_params="+handovers);
-		}
-	}
-	var myscale=[someItem size];
-	if(!myscale) myscale=0.1;		//<!>fixme: establish link to appController somehow
-	var imgsize=[self _getImageSize];
-	myURL+="&width="+parseInt( (myscale*imgsize.width)* (myscale*imgsize.height) );
-	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
-
-	return img;
-}
-
 @end
 
 @implementation SimpleImageViewCollectionItem: CPCollectionViewItem
 {	var			_idimage;
+	var			_handovers;
 	CPImage		_img;
 	CPImageView _imgv;
 	unsigned	_size @accessors(property=size);
@@ -71,6 +47,8 @@
 
 	var rnd=1;
 	var myURL=BaseURL+_idimage+"?rnd="+rnd;
+	if(_compoID) myURL+=("&cmp="+parseInt(_compoID));
+	if(_handovers) myURL+=("&handover_params="+_handovers);
 	if(!_size) 	_size=0.1;
 	myURL+="&width="+parseInt( (_size*mysize.width)* (_size*mysize.height) );
 	var image=[[CPImage alloc] initWithContentsOfFile: myURL];
@@ -86,8 +64,7 @@
 }
 -(void) setCompoID:(insigned) someID
 {	_compoID=someID;
-	[_representedObject provideImageForCollectionViewItem: self];
-	[_img setDelegate: self];
+	[_representedObject _setImageSizedWithDelegate: self];
 }
 -(void) setImage: someImage
 {	_img=someImage;
@@ -120,14 +97,13 @@
 
 	[myview setContentView: _imgv];
 	[self setView: myview];
-	_img=[_representedObject provideImageForCollectionViewItem: self];
-	if([_img loadStatus] == CPImageLoadStatusCompleted)
-		[self setImage: _img];
-	else [_img setDelegate: self];
+	[_representedObject _setImageSizedWithDelegate: self];
 	return myview;
 }
 -(void) setRepresentedObject: someObject
 {	_idimage=[someObject valueForKey:"idimage"];
+	if([[[someObject entity] columns] containsObject:"idmontage"])
+		_handovers=[someObject valueForKey:"parameter"];
 	[super setRepresentedObject: someObject];
 	[self loadView];
 }
