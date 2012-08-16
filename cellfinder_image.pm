@@ -17,8 +17,8 @@ use JSON::XS;
 use Statistics::R;
 use SQL::Abstract;
 
-use constant server_root=>'/Library/WebServer/Documents/cellfinder';
-#use constant server_root=>'/srv/www/htdocs/cellfinder';
+#use constant server_root=>'/Library/WebServer/Documents/cellfinder';
+use constant server_root=>'/srv/www/htdocs/cellfinder';
 
 #<!> fixme hardcoded URL
 sub runSimpleRegistrationRCode { my ($id1,$id2)=@_;
@@ -118,7 +118,6 @@ sub imageForDBHAndRenderchainIDAndImage{
 		} elsif($curr_patch->{patch_type} ~~ [4,5,6])	# only parameter substitution required
 		{	my @arr= map {  $_->[0]=~s/"$//ogs; $_->[1]=~s/"//ogs;$_;}
 				map { [ split/=>/o ] }
-				sort 
 				map {s/^["\s]+//ogs;$_;}
 				split  /[^\\],/o, $curr_patch->{params};
 			$p=$curr_patch->{patch};
@@ -153,6 +152,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 				grep {($_->[0]=~/%/ogs &&  $_->[1]) || (!($_->[0]=~/%/ogs) && $_->[1])}
 				map {  $_->[0]=~s/"$//ogs; $_->[1]=~s/"//ogs;$_;}
 				map { [ split/=>/o ] }
+				sort 
 				map {s/^["\s]+//ogs;$_;}
 				split  /[^\\],/o, $curr_patch->{params};
 			my $call=$curr_patch->{patch};
@@ -162,6 +162,8 @@ sub imageForDBHAndRenderchainIDAndImage{
 
 			my $effective_fn= ((scalar @filenamelist)>1) ?  (join ' ', @filenamelist) : $filename.'.jpg';
 			my $effective_fn_out=$filename.'_out.jpg';
+ warn $curr_patch->{params};
+ warn "@arr";
 			my $args=join ' ', @arr;
 
 			if( $call  =~/<infiles>/o)
@@ -174,7 +176,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 			$call=~s/<idanalysis>/$idanalysis/gs;
 			$call.=" >$filename".'.jpg'.'_out';
 			system($call);
-###			warn $call;
+			warn $call;
 
 			my $infile=readFile($filename.'.jpg'.'_out');
 			unlink($filename.'.jpg'.'_out');

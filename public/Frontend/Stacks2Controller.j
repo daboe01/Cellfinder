@@ -49,6 +49,8 @@
 				var mydot=[[DotView alloc] initWithCentroid: newPoint ];
 				var obV=[aiv addToModelPoint: newPoint]
 				[mydot setData: obV];
+				[mydot setId: [obV valueForKey:"id"] ]
+
 				[aiv addDotView: mydot];
 				[aiv setNeedsDisplay:YES];
 			}

@@ -230,26 +230,25 @@
 	[self _triggerRegistrationMatrixGeneration];
 	var peek=[stacksCollectionView selectionIndexes];
 
-alert([myAppController.stacksController selectedObject]);
 	var selectedArray=[[myAppController.stacksController selectedObject] valueForKey:"analyses" synchronous:YES];
-alert([selectedArray class]);
 	var myArray=[CPMutableArray new];
 	var i,n=[selectedArray count];
 
 	for(i=0; i<n; i++)
 	{
 		var o=[selectedArray objectAtIndex: i];
- //		alert([o representedObject]);
-		[myArray addObject: [self provideRegistratedImageForStackItem: [o representedObject] ]];
+		[myArray addObject: [self provideRegistratedImageForStackItem: o ]];
 	}
 	[[FlickerController alloc] initWithImageArray: myArray andAppController: myAppController];
 }
 
 -(void) flattenStack: sender
-{	window.open(BaseURL+"0?idstack="+[myAppController  valueForKeyPath:"stacksController.selection.id"] +"&cmp="+[myAppController valueForKeyPath:"stacksController.selection.idpatch"],'flattened_stackwindow');
+{	[self _triggerRegistrationMatrixGeneration];
+	window.open(BaseURL+"0?idstack="+[myAppController  valueForKeyPath:"stacksController.selection.id"] +"&cmp="+[myAppController valueForKeyPath:"stacksController.selection.idpatch"],'flattened_stackwindow');
 }
 -(void) downloadGIF: sender
-{	window.open(BaseURL+"STACK/"+[myAppController valueForKeyPath:"stacksController.selection.id"] +"?spc=gif",'animated_gifwindow');
+{	[self _triggerRegistrationMatrixGeneration];
+	window.open(BaseURL+"STACK/"+[myAppController valueForKeyPath:"stacksController.selection.id"] +"?spc=gif",'animated_gifwindow');
 }
 
 -(unsigned) getIDOfReferenceAnalaysis

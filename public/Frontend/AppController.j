@@ -12,7 +12,7 @@
 
 /////////////////////////////////////////////////////////
 
-HostURL="http://127.0.0.1:3000"
+HostURL="http://auginfo:3000"
 BaseURL= HostURL+"/IMG/";
 
 PhotoDragType="PhotoDragType";
@@ -39,8 +39,6 @@ PhotoDragType="PhotoDragType";
 	[img setDelegate: self];
 	return img;
 }
-
-
 -(CPImage) _cellfinderSpc: someSpc forID: someID
 {	var myreq=[CPURLRequest requestWithURL: BaseURL+someID+"?spc="+someSpc ];
 	return [[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil]  rawString];
@@ -142,24 +140,15 @@ PhotoDragType="PhotoDragType";
 	var myurl=BaseURL+"import/"+ [trialsController valueForKeyPath:"selection.id"];
 	myurl+="/"+[o objectForKey:"filename" ];
 
-/*
-	var cmp=[trialsController valueForKeyPath:"selection.composition_for_upload" ];
-	if(cmp!="CPNullMarker")
-		myurl+="&cmp="+ [trialsController valueForKeyPath:"selection.id"];
-*/
-
 	var myreq=[CPURLRequest requestWithURL: myurl];
 	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
 	[[trialsController selectedObject] willChangeValueForKey:"folders"];
 	[trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 	[[trialsController selectedObject] didChangeValueForKey:"folders"];
 
-	if([folderController selectedObject])
-	{	[[folderController selectedObject] willChangeValueForKey:"folder_content"];
-		[folderController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
-		[[folderController selectedObject] didChangeValueForKey:"folder_content"];
-	}
-alert("hello");
+	[[folderController selectedObject] willChangeValueForKey:"folder_content"];
+	[folderController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
+	[[folderController selectedObject] didChangeValueForKey:"folder_content"];
 }
 
 -(void) loadAnalysis: sender
