@@ -237,6 +237,7 @@
 	for(i=0; i<n; i++)
 	{
 		var o=[selectedArray objectAtIndex: i];
+		[o reload];
 		[myArray addObject: [self provideRegistratedImageForStackItem: o ]];
 	}
 	[[FlickerController alloc] initWithImageArray: myArray andAppController: myAppController];
