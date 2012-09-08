@@ -12,7 +12,7 @@
 
 /////////////////////////////////////////////////////////
 
-HostURL="http://auginfo:3000"
+HostURL="http://127.0.0.1:3000"
 BaseURL= HostURL+"/IMG/";
 
 PhotoDragType="PhotoDragType";
@@ -51,14 +51,13 @@ PhotoDragType="PhotoDragType";
 
 @implementation FSObject(Archiving)
 
--(void) encodeWithCoder: aCoder
+- (void)encodeWithCoder: (CPCoder)aCoder
 {
-	//[super encodeWithCoder:aCoder];	// raises?!
 	var mydata=[_data copy];
 	if(_changes) [mydata addEntriesFromDictionary: _changes];
 	[aCoder _encodeDictionaryOfObjects: mydata forKey:@"FS.objects"];
 }
-- initWithCoder: aCoder
+- (void)initWithCoder:(CPCoder)aCoder
 {	self=[self init];
 	if(self)
 	{	_changes=[aCoder _decodeDictionaryOfObjectsForKey:@"FS.objects"]
@@ -203,8 +202,8 @@ PhotoDragType="PhotoDragType";
 }
 
 - (void)closeSheet:(id)sender
-{
-    [CPApp endSheet: trialsettingswindow returnCode:[sender tag]];
+{	[trialsettingswindow orderOut:sender];
+    [CPApp endSheet: trialsettingswindow returnCode:CPRunStoppedResponse];
 }
 -(void) didEndSheet: someSheet returnCode: someCode contextInfo: someInfo
 {

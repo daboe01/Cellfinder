@@ -13,12 +13,12 @@ use LWP::Simple;
 use Encode;
 use v5.10.0;
 use Data::Dumper;
-use JSON::XS;
+#use JSON::XS;
 use Statistics::R;
 use SQL::Abstract;
 
-#use constant server_root=>'/Library/WebServer/Documents/cellfinder';
-use constant server_root=>'/srv/www/htdocs/cellfinder';
+use constant server_root=>'/Library/WebServer/Documents/cellfinder';
+#use constant server_root=>'/srv/www/htdocs/cellfinder';
 
 #<!> fixme hardcoded URL
 sub runSimpleRegistrationRCode { my ($id1,$id2)=@_;

@@ -18,10 +18,10 @@
 
 -(void) setImage: someImage
 {	_img=someImage;
-	[_imgv setBackgroundImage: _img];
 	var mysize=[_img size];
 	if ([[self collectionView] respondsToSelector:@selector(setMinItemSize:)])
 		[[self collectionView] setMinItemSize: mysize ];
+	[_imgv setBackgroundImage: _img];
 	[[[self collectionView] delegate] resetItemSize];
 }
 

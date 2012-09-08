@@ -52,8 +52,10 @@
 	if(!_size) 	_size=0.1;
 	myURL+="&width="+parseInt( (_size*mysize.width)* (_size*mysize.height) );
 	var image=[[CPImage alloc] initWithContentsOfFile: myURL];
-	[image setDelegate: self];
 
+	if([image loadStatus]!==  CPImageLoadStatusCompleted)
+	{	[image setDelegate: self];
+	} else [self setImage: image];
 }
 
 
@@ -264,6 +266,7 @@
 - (void)performDragOperation:(CPDraggingInfo)aSender
 {	var data = [[aSender draggingPasteboard] dataForType:PhotoDragType];
     var o=[CPKeyedUnarchiver unarchiveObjectWithData: data];
+
 	var idimage=[o._changes objectForKey:"idimage"];
 	var newImg=[CPDictionary dictionaryWithObjects: [ idimage ] forKeys: [ "idimage" ] ];
 	var analysesEntity=[myAppController.analysesController entity];
@@ -280,7 +283,9 @@
 }
 
 - (void)closeSheet:(id)sender
-{	[CPApp endSheet: stacksettingswindow returnCode:[sender tag]];
+{
+	[stacksettingswindow orderOut:sender];
+	[CPApp endSheet: stacksettingswindow returnCode: CPRunStoppedResponse];
 }
 -(void) didEndSheet: someSheet returnCode: someCode contextInfo: someInfo
 {
