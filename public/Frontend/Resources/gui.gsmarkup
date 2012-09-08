@@ -237,6 +237,12 @@
 		<relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
 		<relationship type="toOne" name="montage" bindingColumn="idmontage" target="montages"/>
 	</entity>
+	<entity id="rois" store="#CPOwner.store">
+		<column name="id" primaryKey="YES"/>
+		<column name="geom_string"/>
+		<column name="idimage"/>
+		<relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
+	</entity>
 
 </entities>
 
