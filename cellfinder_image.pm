@@ -184,15 +184,27 @@ sub imageForDBHAndRenderchainIDAndImage{
 			if($curr_patch->{patch_type} == 3)
 			{	$p=$infile;
 				$dbh->{AutoCommit}=0;
-				my $sql = 'delete from results where idanalysis = ?';
-				my $sth = $dbh->prepare($sql);
-				$sth->execute(($idanalysis));
-				my $sql = 'insert into results (idanalysis, row, col) values (?, ?, ?)';
-				my $sth = $dbh->prepare($sql);
 				my @lines=split /\n/o, $infile;
-				foreach (@lines)
-				{	my ($x,$y)=split /\t/o;
-					$sth->execute(($idanalysis, $x, $y));
+				if($lines[0]=~/[^0-9\s]+/)	# roi geoms
+				{	my $sql = 'delete from results where idimage = ?';
+					my $sth = $dbh->prepare($sql);
+					$sth->execute(($idimage));
+					my $sql = 'insert into rois (idimage, geom_string) values (?, ?)';
+					my $sth = $dbh->prepare($sql);
+					foreach (@lines)
+					{	my ($x)=split /\t/o;
+						$sth->execute(($idimage, $x));
+					}
+				} else						# results
+				{	my $sql = 'delete from results where idanalysis = ?';
+					my $sth = $dbh->prepare($sql);
+					$sth->execute(($idanalysis));
+					my $sql = 'insert into results (idanalysis, row, col) values (?, ?, ?)';
+					my $sth = $dbh->prepare($sql);
+					foreach (@lines)
+					{	my ($x,$y)=split /\t/o;
+						$sth->execute(($idanalysis, $x, $y));
+					}
 				}
 				$dbh->commit;
 				$dbh->{AutoCommit}=1;
