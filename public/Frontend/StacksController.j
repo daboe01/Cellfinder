@@ -291,5 +291,24 @@
 {
 }
 
+-(unsigned) indexOfItem: someItem
+{	var arr=[stacksCollectionView items];
+	var l=[arr count];
+	for(var i=0;i< l; i++)
+	{	if([arr objectAtIndex: i] === someItem) return i;
+	}
+	return CPNotFound;
+}
+
+
+-(void) removeImageAtIndex:(int) i
+{	if(i === CPNotFound) return;
+// <!> delete only, if shift is pressed
+//	if(CPAlert("Really delete?"))	//<!>
+	[myAppController.stacksContentController removeObjectsAtArrangedObjectIndexes: [CPIndexSet indexSetWithIndex: i ]];
+}
+-(void) collectionView:(CPCollectionView)collectionView didDoubleClickOnItemAtIndex:(int)index
+{	[self removeImageAtIndex: index];
+}
 
 @end

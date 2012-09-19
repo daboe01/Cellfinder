@@ -418,6 +418,7 @@ var myFastSortFunction=function(a,b,context)
 	[CPApp setTarget:self selector:@selector(moveSelectedGraphicsWithEvent:) forNextEventMatchingMask:CPLeftMouseDraggedMask | CPLeftMouseUpMask untilDate:nil inMode:nil dequeue:YES];
 }
 
+
 -(void) dragMarqueeWithEvent: (CPEvent)event
 {	var type = [event type];
 	if (type == CPLeftMouseUp)
@@ -441,7 +442,14 @@ var myFastSortFunction=function(a,b,context)
 }
 
 - (void)mouseDown:(CPEvent)event
-{	var mouseLocation = [self convertPoint:[event locationInWindow] fromView:nil];
+{
+
+	if ( [event clickCount] == 2 && _delegate && [_delegate respondsToSelector:@selector(annotatedImageView:didDoubleClickWithEvent:)])
+    {	[_delegate annotatedImageView: self didDoubleClickWithEvent: anEvent];
+		return;
+	}	
+
+	var mouseLocation = [self convertPoint:[event locationInWindow] fromView:nil];
 	var radius=[DotView radius];
 	var myFrame=CPMakeRect(mouseLocation.x-radius-1,mouseLocation.y-radius-1, radius*2+1, radius*2+1);
 	var mydot;

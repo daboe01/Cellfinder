@@ -41,7 +41,6 @@
 		<menuItem title="File" action="uploadImage:"/>
 	</menu>
 	<menu title="Edit">
-		<menuItem title="Delete" action="removeObject:" keyEquivalent="r"/>
 		<menuItem title="Cut" action="cut:" keyEquivalent="x"/>
 		<menuItem title="Copy" action="copy:" keyEquivalent="c"/>
 		<menuItem title="Paste" action="paste:" keyEquivalent="v"/>

@@ -57,6 +57,14 @@
 		}
 	}
 }
+-(void) delete: sender	// delete a dot
+{	[_imgv delete:sender];
+}
+
+- (void) annotatedImageView: aView didDoubleClickWithEvent: anEvent
+{	var d=[[self collectionView] delegate];
+	[ d removeImageAtIndex:[d indexOfItem: aView._delegate]];
+}
 
 @end
 
@@ -69,5 +77,11 @@
 -(CPString) _ressourceName
 {	return "stacks2.gsmarkup";
 }
+
+
+-(void) delete: sender	// delete a dot
+{	[[stacksCollectionView items] makeObjectsPerformSelector:@selector(delete:) withObject: sender];
+}
+
 
 @end
