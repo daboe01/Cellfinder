@@ -68,6 +68,16 @@ sub fetchall_hashref_for_sth{
 	return \@ret;
 }
 
+sub tmpfilenameForImgCallParams
+{	my $dbh=shift;
+	my $readImageFunction=shift;
+	my $params=shift;
+	my $p=eval('imageForDBHAndRenderchainIDAndImage('.$params.')');
+	my $filename=tempFileName('/tmp/cellf');
+	$p->Write($filename.'.jpg');
+	return $filename.'.jpg';
+}
+
 sub imageForDBHAndRenderchainIDAndImage{
 	my $dbh=shift;
 	my $id= shift;
@@ -148,13 +158,17 @@ sub imageForDBHAndRenderchainIDAndImage{
 		}
 		else				# call external programm
 		{	next unless ref $p eq 'Image::Magick';
+
+			my $patchparams=$curr_patch->{params};
+			$patchparams=~s/imageForDBHAndRenderchainIDAndImage\(([^\)]+)\)/tmpfilenameForImgCallParams($dbh, $readImageFunction, $1)/oegs;
+
 			my @arr= map {sprintf $_->[0], $_->[1]}
 				grep {($_->[0]=~/%/ogs &&  $_->[1]) || (!($_->[0]=~/%/ogs) && $_->[1])}
 				map {  $_->[0]=~s/"$//ogs; $_->[1]=~s/"//ogs;$_;}
 				map { [ split/=>/o ] }
 				sort 
 				map {s/^["\s]+//ogs;$_;}
-				split  /[^\\],/o, $curr_patch->{params};
+				split  /,/o, $patchparams;	# <!> fixme negative lookbehind \\
 			my $call=$curr_patch->{patch};
 			my $filename=tempFileName('/tmp/cellf');
 			$p->Write($filename.'.jpg');
@@ -162,8 +176,8 @@ sub imageForDBHAndRenderchainIDAndImage{
 
 			my $effective_fn= ((scalar @filenamelist)>1) ?  (join ' ', @filenamelist) : $filename.'.jpg';
 			my $effective_fn_out=$filename.'_out.jpg';
- warn $curr_patch->{params};
- warn "@arr";
+# warn $curr_patch->{params};
+# warn "@arr";
 			my $args=join ' ', @arr;
 
 			if( $call  =~/<infiles>/o)
