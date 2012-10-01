@@ -283,9 +283,11 @@ var myFastSortFunction=function(a,b,context)
 			CGContextClosePath(context);
 			CGContextStrokePath(context);
 
-			CGContextSelectFont(context, [CPFont systemFontOfSize:8]);
+			CGContextSelectFont(context, [CPFont systemFontOfSize:9]);
 			CGContextSetTextPosition(context, firstPoint.x-4, firstPoint.y+1)
-			CGContextShowText(context, Math.floor(radians*57.2957795*(-1)));
+			var degs=Math.floor(radians*57.2957795*(-1));
+			
+			CGContextShowText(context, degs<0? (90+(degs+270)): degs);
 		}
 	}
 	if(_styleFlags & AIVStyleNumbers )

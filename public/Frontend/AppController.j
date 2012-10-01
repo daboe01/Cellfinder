@@ -12,7 +12,7 @@
 
 /////////////////////////////////////////////////////////
 
-HostURL="http://127.0.0.1:3000"
+HostURL="http://auginfo:3000"
 BaseURL= HostURL+"/IMG/";
 
 PhotoDragType="PhotoDragType";
