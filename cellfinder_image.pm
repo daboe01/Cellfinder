@@ -164,11 +164,11 @@ sub imageForDBHAndRenderchainIDAndImage{
 
 			my @arr= map {sprintf $_->[0], $_->[1]}
 				grep {($_->[0]=~/%/ogs &&  $_->[1]) || (!($_->[0]=~/%/ogs) && $_->[1])}
-				map {  $_->[0]=~s/"$//ogs; $_->[1]=~s/"//ogs;$_;}
+				map {  $_->[0]=~s/"$//ogs; $_->[1]=~s/\\,/,/ogs; $_->[1]=~s/"//ogs;$_;}
 				map { [ split/=>/o ] }
 				sort 
 				map {s/^["\s]+//ogs;$_;}
-				split  /,/o, $patchparams;	# <!> fixme negative lookbehind \\
+				split  /(?<!\\),/o, $patchparams;	# <!> fixme negative lookbehind \\
 			my $call=$curr_patch->{patch};
 			my $filename=tempFileName('/tmp/cellf');
 			$p->Write($filename.'.jpg');

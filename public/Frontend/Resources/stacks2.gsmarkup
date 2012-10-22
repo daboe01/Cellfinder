@@ -39,6 +39,9 @@
 				<hbox><label valign="center" halign="min" width="100">Name</label>
 					<popUpButton width="100" id="flattenCompoPopup" itemsBinding="#CPOwner.myAppController.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.myAppController.stacksController.selection.idpatch"/>
 				</hbox>
+				<hbox><label valign="center" halign="min" width="100">Width</label><textField valueBinding="#CPOwner.myAppController.stacksController.selection.width"/></hbox>
+				<hbox><label valign="center" halign="min" width="100">Height</label><textField valueBinding="#CPOwner.myAppController.stacksController.selection.height"/></hbox>
+
 				</vbox>
 		<button title="Done" target="#CPOwner" action="closeSheet:"/>
 	</vbox>

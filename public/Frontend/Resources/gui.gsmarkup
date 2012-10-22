@@ -49,7 +49,7 @@
 	</menu>
    </menu>
 
-  <window title="All trials" closable="no"  x="10" y="50" id="trialswindow" width="300" height="300">
+  <window title="All trials" closable="no"  x="10" y="50" id="trialswindow" width="300" height="640">
 	<vbox>
 	<scrollView>
 	 <tableView zebra="yes" autosaveName="alltrials" valueBinding="trials_controller" target="#CPOwner" doubleAction="runSettings:">
