@@ -247,7 +247,7 @@
 
 -(void) flattenStack: sender
 {	[self _triggerRegistrationMatrixGeneration];
-	window.open(BaseURL+"0?idstack="+[myAppController  valueForKeyPath:"stacksController.selection.id"] +"&cmp="+[myAppController valueForKeyPath:"stacksController.selection.idpatch"],'flattened_stackwindow');
+	window.open(BaseURL+"0?idstack="+[myAppController  valueForKeyPath:"stacksController.selection.id"] +"&cmp="+[myAppController valueForKeyPath:"stacksController.selection.idpatch"]+"&csize="+[myAppController valueForKeyPath:"stacksController.selection.width"]+"x"+[myAppController valueForKeyPath:"stacksController.selection.height"],'flattened_stackwindow');
 }
 -(void) downloadGIF: sender
 {	[self _triggerRegistrationMatrixGeneration];

@@ -283,13 +283,13 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $csize
 		} else {
 			$p=doReadImageFile($p, $curr_img);
 		}
+		$p->Extent(geometry=>$csize, gravity=>'Northwest', background=>'graya(0%, 0)') if $csize;
 		if($affine)
 		{	$affine="[$affine]" unless $affine=~/^\[/o;
 			warn $affine;
 			$p->Distort(method=>'AffineProjection', points=>eval($affine), 'virtual-pixel'=> 'Transparent') 	#<!>fixme replace with JSON deparser
 		}
 		$p->Resize('@'.$width) if $width;
-		$p->Extent(geometry=>$csize, gravity=>'Northwest', background=>'graya(0%, 0)') if $csize;
 		return $p;
 	}
 }
