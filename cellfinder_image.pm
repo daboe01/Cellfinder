@@ -274,16 +274,16 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $csize
 			my @idarr=split/,/o, $list;
 			foreach my $id (@idarr)
 			{	my $i=doReadImageFile(undef, getObjectFromDBHandID($dbh,'images_name', $id));
+					$i->Extent(geometry=>$csize, gravity=>'Northwest', background=>'graya(0%, 0)') if $csize;
 				my $m=getMontageForIDImageAndIDStack($dbh, $id, $idstack);
 				if($m->{parameter})
-				{	$i->Distort(method=>'AffineProjection', points=>eval($m->{parameter}), 'virtual-pixel'=> 'Transparent')  #<!>fixme replace with JSON deparser
+				{	$i->Distort(method=>'AffineProjection', points=>eval($m->{parameter}), 'virtual-pixel'=> 'Background');  #<!>fixme replace with JSON deparser
 				}
 				push @$p,$i;
 			}
 		} else {
 			$p=doReadImageFile($p, $curr_img);
 		}
-		$p->Extent(geometry=>$csize, gravity=>'Northwest', background=>'graya(0%, 0)') if $csize;
 		if($affine)
 		{	$affine="[$affine]" unless $affine=~/^\[/o;
 			warn $affine;
