@@ -26,7 +26,6 @@
   <arrayController id="javascriptfilters_ac" entity="patch_compositions" valueBinding="trials_controller.selection.compos" filterPredicate="javascriptfilters_pred"/>
 
 
-   <predicate id="trialname_pred" format="id == '1'"/>
    <arrayController id="trials_controller" entity="trials" autoFetch="YES" sortDescriptor="by_name"/>
    <arrayController id="compos_controller" entity="patch_compositions" valueBinding ="trials_controller.selection.compos"/>
    <arrayController id="stacks_controller" entity="montages" valueBinding ="trials_controller.selection.stacks" sortDescriptor="by_name"/>
@@ -249,7 +248,6 @@
 	<outlet source="#CPOwner" target="trials_controller" label="trialsController"/>
 	<outlet source="#CPOwner" target="folder_controller" label="folderController"/>
 	<outlet source="#CPOwner" target="folder_content_controller" label="folderContentController"/>
-	<outlet source="#CPOwner" target="trialname_pred" label="filterPredicate"/>
 	<outlet source="#CPOwner" target="analyses_controller" label="analysesController"/>
 	<outlet source="#CPOwner" target="trialswindow" label="trialsWindow"/>
 	<outlet source="#CPOwner" target="stacks_controller" label="stacksController"/>

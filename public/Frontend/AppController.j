@@ -82,7 +82,6 @@ PhotoDragType="PhotoDragType";
 	unsigned _itemSize;
 	unsigned _viewingCompoID @accessors(property=viewingCompoID);
 	id	analysesController;
-	id	filterPredicate;
 
 	CPMutableSet	_imageControllers;
 
@@ -128,6 +127,13 @@ PhotoDragType="PhotoDragType";
 {	store=[[FSStore alloc] initWithBaseURL: HostURL+"/DBI"];
 
 	[CPBundle loadRessourceNamed: "gui-admin.gsmarkup" owner:self];
+
+	var re = new RegExp("id=([0-9]+)");
+	var m = re.exec(document.location);
+	if(m)
+	{	[trialsController setFilterPredicate: [CPPredicate predicateWithFormat:"id=='"+m[1]+"'" ]];
+	}
+
 	[self setItemSize:0.1];
 	[folderCollectionView registerForDraggedTypes:[PhotoDragType]];
 	[folderImagesTable registerForDraggedTypes:[PhotoDragType]];
