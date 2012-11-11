@@ -13,9 +13,10 @@ use LWP::Simple;
 use Encode;
 use v5.10.0;
 use Data::Dumper;
-#use JSON::XS;
+use JSON::XS;
 use Statistics::R;
 use SQL::Abstract;
+use POSIX;
 
 use constant server_root=>'/Library/WebServer/Documents/cellfinder';
 #use constant server_root=>'/srv/www/htdocs/cellfinder';
@@ -34,13 +35,27 @@ sub runSimpleRegistrationRCode { my ($id1,$id2)=@_;
 	out=paste( round(c(t(coef(l)))[c(3:6,1:2)], digits=4), collapse=",")
 ENDOFR
 ;	$RCmd=~s/<id1>/$id1/ogs;
-	$RCmd=~s/<id2>/$id2/ogs;
 	warn $RCmd;
 	my $R = Statistics::R->new();
 	$R->run($RCmd);
-warn $R->get('out');
 	return '['. $R->get('out') . ']';
 }
+
+sub runEBImageRCode { my ($infile,$code)=@_;
+	my $RCmd=<<'ENDOFR'
+	library(EBImage)
+	e=readImage("<infile>")
+	out=""
+	<code>
+ENDOFR
+;	$RCmd=~s/<infile>/$infile/ogs;
+	$RCmd=~s/<code>/$code/ogs;
+	my $R = Statistics::R->new();
+	$R->run($RCmd);
+	my $out $R->get('out');
+	return JSON::XS->new->utf8->decode($out);
+}
+
 
 sub imageForComposition{
 	my $dbh=shift;
@@ -125,7 +140,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 			};
 ###			warn $curr_patch->{patch};
 			warn "error: $@" if($@);
-		} elsif($curr_patch->{patch_type} ~~ [4,5,6])	# only parameter substitution required
+		} elsif($curr_patch->{patch_type} ~~ [3,4,5,6])	# only parameter substitution required
 		{	my @arr= map {  $_->[0]=~s/"$//ogs; $_->[1]=~s/"//ogs;$_;}
 				map { [ split/=>/o ] }
 				map {s/^["\s]+//ogs;$_;}
@@ -149,15 +164,44 @@ sub imageForDBHAndRenderchainIDAndImage{
 			{	$p=~s/API::([^(]+)\(/$1(\$dbh, \$idimage, \$idanalysis,\$p,/ogs;
 				$result=eval($p);
 				warn "error: $@ $p" if($@);
-			}
+			} elsif ($curr_patch->{patch_type} == 3)	# R
+			{
+				next unless ref $old_p eq 'Image::Magick';
+				my $filename=tempFileName('/tmp/cellf');
+				$old_p->Write($filename.'.jpg');
+				my $infile=runEBImageRCode($filename.'.jpg', $p);
+ use Data::Dumper;
+ warn Dumper $infile;
+				if(exists $infile->{xpoint} && exists $infile->{ypoint}) # simple points return
+				{
+					$dbh->{AutoCommit}=0;
+					my $sql = 'delete from results where idanalysis = ?';
+					my $sth = $dbh->prepare($sql);
+					$sth->execute(($idanalysis));
+					my $sql = 'insert into results (idanalysis, row, col) values (?, ?, ?)';
+					my $sth = $dbh->prepare($sql);
+					for(my $i=0; $i< scalar @{$infile->{xpoint}}; $i++)
+					{	my ($x,$y)=(floor ($infile->{xpoint}->[$i]), floor ($infile->{ypoint}->[$i]));
+warn "$x,$y";
+						$sth->execute(($idanalysis, $x, $y));
+					}
+
+					$dbh->commit;
+					$dbh->{AutoCommit}=1;
+				} elsif(exists $infile->{xarea} && exists $infile->{yarea}) # ROI return
+				{
+				}
+
 			if(ref($stash) eq 'ARRAY')
 			{	push(@$stash,$result); 
 			} else
 			{	$stash=[$result];
 			}
 		}
-		else				# call external programm
+		elsif($curr_patch->{patch_type} == 2 )				# R or call external programm
 		{	next unless ref $p eq 'Image::Magick';
+			my $filename=tempFileName('/tmp/cellf');
+			$p->Write($filename.'.jpg');
 
 			my $patchparams=$curr_patch->{params};
 			$patchparams=~s/imageForDBHAndRenderchainIDAndImage\(([^\)]+)\)/tmpfilenameForImgCallParams($dbh, $readImageFunction, $1)/oegs;
@@ -168,10 +212,8 @@ sub imageForDBHAndRenderchainIDAndImage{
 				map { [ split/=>/o ] }
 				sort 
 				map {s/^["\s]+//ogs;$_;}
-				split  /(?<!\\),/o, $patchparams;	# <!> fixme negative lookbehind \\
+				split  /(?<!\\),/o, $patchparams;
 			my $call=$curr_patch->{patch};
-			my $filename=tempFileName('/tmp/cellf');
-			$p->Write($filename.'.jpg');
 			my @filenamelist=glob($filename."*.jpg");
 
 			my $effective_fn= ((scalar @filenamelist)>1) ?  (join ' ', @filenamelist) : $filename.'.jpg';
@@ -179,51 +221,23 @@ sub imageForDBHAndRenderchainIDAndImage{
 # warn $curr_patch->{params};
 # warn "@arr";
 			my $args=join ' ', @arr;
-
-			if( $call  =~/<infiles>/o)
-			{	$call=~s/<infiles>/$effective_fn/ogs;
-				$call=~s/<args>/$args/ogs;
-				$call=~s/<outfile>/$effective_fn_out/ogs;
-			} else
-			{	$call.=" $args $filename".'.jpg';
-			}
-			$call=~s/<idanalysis>/$idanalysis/gs;
-			$call.=" >$filename".'.jpg'.'_out';
-			system($call);
-			warn $call;
-
-			my $infile=readFile($filename.'.jpg'.'_out');
-			unlink($filename.'.jpg'.'_out');
-			$infile=~s/\s+$//ogs;
-			if($curr_patch->{patch_type} == 3)
-			{	$p=$infile;
-				$dbh->{AutoCommit}=0;
-				my @lines=split /\n/o, $infile;
-				if($lines[0]=~/[^0-9\s]+/)	# roi geoms
-				{	my $sql = 'delete from results where idimage = ?';
-					my $sth = $dbh->prepare($sql);
-					$sth->execute(($idimage));
-					my $sql = 'insert into rois (idimage, geom_string) values (?, ?)';
-					my $sth = $dbh->prepare($sql);
-					foreach (@lines)
-					{	my ($x)=split /\t/o;
-						$sth->execute(($idimage, $x));
-					}
-				} else						# results
-				{	my $sql = 'delete from results where idanalysis = ?';
-					my $sth = $dbh->prepare($sql);
-					$sth->execute(($idanalysis));
-					my $sql = 'insert into results (idanalysis, row, col) values (?, ?, ?)';
-					my $sth = $dbh->prepare($sql);
-					foreach (@lines)
-					{	my ($x,$y)=split /\t/o;
-						$sth->execute(($idanalysis, $x, $y));
-					}
+			if($curr_patch->{patch_type} == 2)
+			{	if( $call=~ /<infiles>/o)
+				{	$call=~s/<infiles>/$effective_fn/ogs;
+					$call=~s/<args>/$args/ogs;
+					$call=~s/<outfile>/$effective_fn_out/ogs;
+				} else
+				{	$call.=" $args $filename".'.jpg';
 				}
-				$dbh->commit;
-				$dbh->{AutoCommit}=1;
-			} else
-			{	$p = Image::Magick->new();
+				$call=~s/<idanalysis>/$idanalysis/gs;
+				$call.=" >$filename".'.jpg'.'_out';
+				system($call);
+				warn $call;
+
+				my $infile=readFile($filename.'.jpg'.'_out');
+				unlink($filename.'.jpg'.'_out');
+				$infile=~s/\s+$//ogs;
+				$p = Image::Magick->new();
 				$p->Read($infile);
 			}
 		}
