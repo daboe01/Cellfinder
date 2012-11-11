@@ -127,7 +127,7 @@ PhotoDragType="PhotoDragType";
 - (void) applicationDidFinishLaunching:(CPNotification)aNotification
 {	store=[[FSStore alloc] initWithBaseURL: HostURL+"/DBI"];
 
-	[CPBundle loadRessourceNamed: "gui.gsmarkup" owner:self];
+	[CPBundle loadRessourceNamed: "gui-admin.gsmarkup" owner:self];
 	[self setItemSize:0.1];
 	[folderCollectionView registerForDraggedTypes:[PhotoDragType]];
 	[folderImagesTable registerForDraggedTypes:[PhotoDragType]];

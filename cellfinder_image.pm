@@ -52,7 +52,7 @@ ENDOFR
 	$RCmd=~s/<code>/$code/ogs;
 	my $R = Statistics::R->new();
 	$R->run($RCmd);
-	my $out $R->get('out');
+	my $out=$R->get('out');
 	return JSON::XS->new->utf8->decode($out);
 }
 
@@ -118,17 +118,17 @@ sub imageForDBHAndRenderchainIDAndImage{
 	my $sql=qq/select * from patch_chains_with_parameters where idpatch_chain=?/;
 	my $sth = $dbh->prepare( $sql );
 	$sth->execute(($id));
-	while(my $curr_patch =$sth->fetchrow_hashref())
+	while(my $curr_patch = $sth->fetchrow_hashref())
 	{
 ###		warn Dumper $curr_patch;
 		if($curr_patch->{params}=~/<handover>/o)
-		{	my  $analysis = getObjectFromDBHandID($dbh,'analyses', $idanalysis);
+		{	my  $analysis = getObjectFromDBHandID($dbh, 'analyses', $idanalysis);
 			my  $handover_params=$analysis->{setup_params};
 			$curr_patch->{params}=~s/<handover>/$handover_params/gs;
 			#warn $handover_params;
 			$idimage=0;	# dont write to cache
 		}
-		if($curr_patch->{patch_type}==1)	# let do imagemagick do the magick
+		if($curr_patch->{patch_type} == 1)	# let do imagemagick do the magick
 		{	next unless ref $p eq 'Image::Magick';
 			$curr_patch->{params}=~s/"_anonymous_"=>//ogsi;
 			if($curr_patch->{patch} eq 'Perl') {$curr_patch->{params}=~s/"//ogs;  eval($curr_patch->{params})}
@@ -191,7 +191,7 @@ warn "$x,$y";
 				} elsif(exists $infile->{xarea} && exists $infile->{yarea}) # ROI return
 				{
 				}
-
+			}
 			if(ref($stash) eq 'ARRAY')
 			{	push(@$stash,$result); 
 			} else
