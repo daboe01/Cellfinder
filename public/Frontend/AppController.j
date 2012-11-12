@@ -125,8 +125,13 @@ PhotoDragType="PhotoDragType";
 }
 - (void) applicationDidFinishLaunching:(CPNotification)aNotification
 {	store=[[FSStore alloc] initWithBaseURL: HostURL+"/DBI"];
+	var markup="gui-admin.gsmarkup";
 
-	[CPBundle loadRessourceNamed: "gui-admin.gsmarkup" owner:self];
+	var re = new RegExp("t=([^&]+?)");
+	var m = re.exec(document.location);
+	if(m) markup=m[1];
+
+	[CPBundle loadRessourceNamed: markup owner:self];
 
 	var re = new RegExp("id=([0-9]+)");
 	var m = re.exec(document.location);
@@ -217,5 +222,16 @@ PhotoDragType="PhotoDragType";
 
 -(void) runSettings:sender
 {	[CPApp beginSheet: trialsettingswindow modalForWindow: trialsWindow modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
+}
+@end
+
+@implementation GSMarkupTagStacks2Controller:GSMarkupTagObject
+
++ (Class) platformObjectClass
+{	return [Stacks2Controller class];
+}
+- (id) initPlatformObject: (id)platformObject
+{	platformObject=[super initPlatformObject: platformObject];
+	return platformObject;
 }
 @end
