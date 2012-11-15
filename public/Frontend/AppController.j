@@ -79,8 +79,7 @@ PhotoDragType="PhotoDragType";
 }
 
 - init
-{
-	if(self=[super init])
+{	if(self=[super init])
 	{	[self setItemSize:0.1];
 		[folderCollectionView registerForDraggedTypes:[PhotoDragType]];
 	}
@@ -91,7 +90,6 @@ PhotoDragType="PhotoDragType";
 	[[folderCollectionView items] makeObjectsPerformSelector:@selector(setCompoID:) withObject:_viewingCompoID];
 }
 
-
 -(void) setItemSize:(unsigned) someSize	//<!> should read setItemScale
 {	_itemSize=someSize;
 	[[folderCollectionView items] makeObjectsPerformSelector:@selector(setSize:) withObject:_itemSize];
@@ -99,7 +97,6 @@ PhotoDragType="PhotoDragType";
 -(void) itemSize
 {	return _itemSize;
 }
-
 
 -(void) loadAnalysis: sender
 {	var o=[[analysesController arrangedObjects] objectAtIndex: [sender selectedRow]];
@@ -241,6 +238,8 @@ PhotoDragType="PhotoDragType";
 }
 
 @end
+
+/////////////////////////////////////////////////////////
 
 @implementation GSMarkupTagAdminController:GSMarkupTagObject
 + (CPString) tagName
