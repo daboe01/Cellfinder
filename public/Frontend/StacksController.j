@@ -169,9 +169,9 @@
 {	return "stacks.gsmarkup";
 }
 
-- initWithTrial: someTrial andAppController: someAppController
+- init
 {	if(self=[self init])
-	{	myAppController=someAppController;
+	{	myAppController=[CPApp delegate];
 
 		_itemSize=[someAppController itemSize];
 		[CPBundle loadRessourceNamed: [self _ressourceName] owner:self];

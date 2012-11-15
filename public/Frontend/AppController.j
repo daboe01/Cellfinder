@@ -68,31 +68,22 @@ PhotoDragType="PhotoDragType";
 
 /////////////////////////////////////////////////////////
 
-
-@implementation AppController : CPObject
-{	id	store @accessors;	
-	id	trialsController;
+@implementation AdminController : CPObject
+{
 	id	trialsWindow;
-	id	stacksController;
-	id	stacksContentController;
-	id	folderController;
-	id	folderContentController;
 	id	folderCollectionView;
-	id	folderImagesTable;
 	unsigned _itemSize;
 	unsigned _viewingCompoID @accessors(property=viewingCompoID);
-	id	analysesController;
-
-	CPMutableSet	_imageControllers;
-
 	id	trialsettingswindow;
-	id	displayfilters_ac;
-	id	uploadfilters_ac;
-	id	fixupfilters_ac;
-	id	overlayfilters_ac;
-	id	analyticsfilters_ac;
-	id	perlfilters_ac;
-	id	javascriptfilters_ac;
+
+}
+
+- init
+{
+	if(self=[super init])
+	{	[self setItemSize:0.1];
+		[folderCollectionView registerForDraggedTypes:[PhotoDragType]];
+	}
 
 }
 -(void) setViewingCompoID:(unsigned) someCompoID
@@ -109,57 +100,6 @@ PhotoDragType="PhotoDragType";
 {	return _itemSize;
 }
 
--(CPString) baseImageURL
-{	return BaseURL;
-}
--(CPArray) imageControllersForIDTrial:(int) idtrial
-{	var all=[_imageControllers allObjects];
-	if(!all) all= [];
-	var i,l=all.length;
-	var ret=[CPMutableArray new];
-	for(i=0;i<l;i++)
-	{	if([all[i] idtrial]== idtrial)
-		{	[ret addObject: all[i] ];
-		}
-	} return ret;
-}
-- (void) applicationDidFinishLaunching:(CPNotification)aNotification
-{	store=[[FSStore alloc] initWithBaseURL: HostURL+"/DBI"];
-	var markup="gui-admin.gsmarkup";
-
-	var re = new RegExp("t=([^&]+?)");
-	var m = re.exec(document.location);
-	if(m) markup=m[1];
-
-	[CPBundle loadRessourceNamed: markup owner:self];
-
-	var re = new RegExp("id=([0-9]+)");
-	var m = re.exec(document.location);
-	if(m)
-	{	[trialsController setFilterPredicate: [CPPredicate predicateWithFormat:"id=='"+m[1]+"'" ]];
-	}
-
-	[self setItemSize:0.1];
-	[folderCollectionView registerForDraggedTypes:[PhotoDragType]];
-	[folderImagesTable registerForDraggedTypes:[PhotoDragType]];
-}
-
-- (void)performDragOperation:(CPDraggingInfo)aSender
-{	var data = [[aSender draggingPasteboard] dataForType:PhotoDragType];
-    var o=[CPKeyedUnarchiver unarchiveObjectWithData: data];
-	var myurl=BaseURL+"import/"+ [trialsController valueForKeyPath:"selection.id"];
-	myurl+="/"+[o objectForKey:"filename" ];
-
-	var myreq=[CPURLRequest requestWithURL: myurl];
-	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
-	[[trialsController selectedObject] willChangeValueForKey:"folders"];
-	[trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
-	[[trialsController selectedObject] didChangeValueForKey:"folders"];
-
-	[[folderController selectedObject] willChangeValueForKey:"folder_content"];
-	[folderController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
-	[[folderController selectedObject] didChangeValueForKey:"folder_content"];
-}
 
 -(void) loadAnalysis: sender
 {	var o=[[analysesController arrangedObjects] objectAtIndex: [sender selectedRow]];
@@ -170,7 +110,7 @@ PhotoDragType="PhotoDragType";
 -(void) runStacks: sender
 {	var o=[trialsController valueForKeyPath:"selection"];
 	if (o)
-	{	[[StacksController alloc] initWithTrial:o andAppController: self];
+	{	[StacksController new];
 	}
 }
 -(void) runStacks2: sender
@@ -184,9 +124,6 @@ PhotoDragType="PhotoDragType";
 	alert(o);
 }
 
--(void) delete:sender
-{	[[[CPApp keyWindow] delegate] delete:sender];
-}
 
 -(void) collectionView: someView didDoubleClickOnItemAtIndex: someIndex
 {	var o=[[someView itemAtIndex: someIndex] representedObject];
@@ -207,11 +144,6 @@ PhotoDragType="PhotoDragType";
 	var o=[[aCollectionView itemAtIndex: firstIndex] representedObject];
     return [CPKeyedArchiver archivedDataWithRootObject: o ];
 }
-
--(void) docsCalImport:sender
-{	[DocsCalImporter sharedDocsCalImporter];
-}
-
 - (void)closeSheet:(id)sender
 {	[trialsettingswindow orderOut:sender];
     [CPApp endSheet: trialsettingswindow returnCode:CPRunStoppedResponse];
@@ -225,13 +157,110 @@ PhotoDragType="PhotoDragType";
 }
 @end
 
+/////////////////////////////////////////////////////////
+
+
+@implementation AppController : CPObject
+{	id	store @accessors;	
+	id	trialsController;
+	id	stacksController;
+	id	stacksContentController;
+	id	folderController;
+	id	folderContentController;
+	id	analysesController;
+
+	CPMutableSet	_imageControllers;
+
+	id	displayfilters_ac;
+	id	uploadfilters_ac;
+	id	fixupfilters_ac;
+	id	overlayfilters_ac;
+	id	analyticsfilters_ac;
+	id	perlfilters_ac;
+	id	javascriptfilters_ac;
+
+}
+
+-(CPString) baseImageURL
+{	return BaseURL;
+}
+-(CPArray) imageControllersForIDTrial:(int) idtrial
+{	var all=[_imageControllers allObjects];
+	if(!all) all= [];
+	var i,l=all.length;
+	var ret=[CPMutableArray new];
+	for(i=0;i<l;i++)
+	{	if([all[i] idtrial]== idtrial)
+		{	[ret addObject: all[i] ];
+		}
+	} return ret;
+}
+- (void) applicationDidFinishLaunching:(CPNotification)aNotification
+{	store=[[FSStore alloc] initWithBaseURL: HostURL+"/DBI"];
+	[CPBundle loadRessourceNamed: "model.gsmarkup" owner:self];
+
+	var model = "gui-admin.gsmarkup";
+	var re = new RegExp("t=([^&]+?)");
+	var m = re.exec(document.location);
+	if(m)
+	{	model = m[1];
+	}
+	[CPBundle loadRessourceNamed: model owner:self];
+
+	var re = new RegExp("id=([0-9]+)");
+	var m = re.exec(document.location);
+	if(m)
+	{	[trialsController setFilterPredicate: [CPPredicate predicateWithFormat:"id=='"+m[1]+"'" ]];
+	}
+}
+
+- (void)performDragOperation:(CPDraggingInfo)aSender
+{	var data = [[aSender draggingPasteboard] dataForType:PhotoDragType];
+    var o=[CPKeyedUnarchiver unarchiveObjectWithData: data];
+	var myurl=BaseURL+"import/"+ [trialsController valueForKeyPath:"selection.id"];
+	myurl+="/"+[o objectForKey:"filename" ];
+
+	var myreq=[CPURLRequest requestWithURL: myurl];
+	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
+	[[trialsController selectedObject] willChangeValueForKey:"folders"];
+	[trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
+	[[trialsController selectedObject] didChangeValueForKey:"folders"];
+
+	[[folderController selectedObject] willChangeValueForKey:"folder_content"];
+	[folderController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
+	[[folderController selectedObject] didChangeValueForKey:"folder_content"];
+}
+
+-(void) delete:sender
+{	[[[CPApp keyWindow] delegate] delete:sender];
+}
+
+
+-(void) docsCalImport:sender
+{	[DocsCalImporter sharedDocsCalImporter];
+}
+
+@end
+
+@implementation GSMarkupTagAdminController:GSMarkupTagObject
++ (CPString) tagName
+{
+  return @"adminController";
+}
+
++ (Class) platformObjectClass
+{
+	return [AdminController class];
+}
+- initPlatformObject: someObj
+{	someObj=[someObj init];
+	return someObj;
+}
+@end
+
 @implementation GSMarkupTagStacks2Controller:GSMarkupTagObject
 
 + (Class) platformObjectClass
 {	return [Stacks2Controller class];
-}
-- (id) initPlatformObject: (id)platformObject
-{	platformObject=[super initPlatformObject: platformObject];
-	return platformObject;
 }
 @end

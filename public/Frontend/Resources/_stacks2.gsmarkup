@@ -3,12 +3,12 @@
 <gsmarkup>
 
 <objects>
-	<stacksController id="mystackscontroller"/>
+  <stacks2Controller id="mystackscontroller"/>
   <window title="Stacks" id="stackswindow" closable="yes"  x="750" y="30" width="400" height="640" delegate="mystackscontroller">
 	<splitView vertical="YES" autosaveName="splitview_folders">
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
-				<tableView zebra="yes" valueBinding="#CPOwner.myAppController.stacksController" target="mystackscontroller">
+				<tableView zebra="yes" valueBinding="#CPOwner.stacksController" target="mystackscontroller">
 					<tableColumn identifier="name" title="name"/>
 	  			</tableView>
 			</scrollView>
@@ -22,11 +22,11 @@
 		<vbox>
 			<label>Drag in images; dbl-click to remove; shift for marquee.</label>
 			<scrollView hasHorizontalScroller="NO" hasVerticalScroller="YES">
-				<collectionView id="stacks_collection_view" itemWidth="100" itemHeight="100" valueBinding="#CPOwner.myAppController.stacksContentController.arrangedObjects" delegate="mystackscontroller" itemsClassName="ImageEditorCollectionItem" selectable="YES"/>
+				<collectionView id="stacks_collection_view" itemWidth="100" itemHeight="100" valueBinding="#CPOwner.stacksContentController.arrangedObjects" delegate="mystackscontroller" itemsClassName="ImageEditorCollectionItem" selectable="YES"/>
 			</scrollView>
 			<hbox>
 				<slider continuous="NO" min="0" max="1"  valueBinding="mystackscontroller.itemSize" halign="right"/><hspace/>
-				<popUpButton width="100" id="compoPopup" itemsBinding="#CPOwner.myAppController.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.viewingCompo"/>
+				<popUpButton width="100" id="compoPopup" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.viewingCompo"/>
 			</hbox>
 		</vbox>
 	 </splitView>
@@ -36,12 +36,12 @@
   <window title="Stack settings" id="stacksettingswindow" modal="YES" visible="NO" width="300" height="200" resizable="YES">
 	<vbox>
 				<vbox>
-				<hbox><label valign="center" halign="min" width="100">Name</label><textField valueBinding="#CPOwner.myAppController.stacksController.selection.name"/></hbox>
+				<hbox><label valign="center" halign="min" width="100">Name</label><textField valueBinding="#CPOwner.stacksController.selection.name"/></hbox>
 				<hbox><label valign="center" halign="min" width="100">Name</label>
-					<popUpButton width="100" id="flattenCompoPopup" itemsBinding="#CPOwner.myAppController.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.myAppController.stacksController.selection.idpatch"/>
+					<popUpButton width="100" id="flattenCompoPopup" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.stacksController.selection.idpatch"/>
 				</hbox>
-				<hbox><label valign="center" halign="min" width="100">Width</label><textField valueBinding="#CPOwner.myAppController.stacksController.selection.width"/></hbox>
-				<hbox><label valign="center" halign="min" width="100">Height</label><textField valueBinding="#CPOwner.myAppController.stacksController.selection.height"/></hbox>
+				<hbox><label valign="center" halign="min" width="100">Width</label><textField valueBinding="#CPOwner.stacksController.selection.width"/></hbox>
+				<hbox><label valign="center" halign="min" width="100">Height</label><textField valueBinding="#CPOwner.stacksController.selection.height"/></hbox>
 
 				</vbox>
 		<button title="Done" target="mystackscontroller" action="closeSheet:"/>

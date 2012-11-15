@@ -1,0 +1,272 @@
+<?xml version="1.0"?>
+<!DOCTYPE gsmarkup>
+<gsmarkup>
+
+<objects>
+  <predicate id="displayfilters_pred" format="type == '1'"/>
+  <predicate id="uploadfilters_pred" format="type == '3'"/>
+  <predicate id="fixupfilters_pred" format="type == '4'"/>
+  <predicate id="overlayfilters_pred" format="type == '2'"/>
+  <predicate id="analyticsfilters_pred" format="type == '5'"/>
+  <predicate id="perlfilters_pred" format="type == '7'"/>
+  <predicate id="javascriptfilters_pred" format="type == '6'"/>
+
+  <sortDescriptor id="by_id" key="id" ascending="YES"/>
+  <sortDescriptor id="by_reverse_id" key="id" ascending="NO"/>
+  <sortDescriptor id="by_name" key="name"/>
+  <sortDescriptor id="by_folder_name" key="folder_name"/>
+
+
+  <arrayController id="displayfilters_ac" entity="patch_compositions" valueBinding="trials_controller.selection.compos" filterPredicate="displayfilters_pred"/>
+  <arrayController id="uploadfilters_ac" entity="patch_compositions" valueBinding="trials_controller.selection.compos" filterPredicate="uploadfilters_pred"/>
+  <arrayController id="fixupfilters_ac" entity="patch_compositions" valueBinding="trials_controller.selection.compos" filterPredicate="fixupfilters_pred"/>
+  <arrayController id="overlayfilters_ac" entity="patch_compositions" valueBinding="trials_controller.selection.compos" filterPredicate="overlayfilters_pred"/>
+  <arrayController id="analyticsfilters_ac" entity="patch_compositions" valueBinding="trials_controller.selection.compos" filterPredicate="analyticsfilters_pred"/>
+  <arrayController id="perlfilters_ac" entity="patch_compositions" valueBinding="trials_controller.selection.compos" filterPredicate="perlfilters_pred"/>
+  <arrayController id="javascriptfilters_ac" entity="patch_compositions" valueBinding="trials_controller.selection.compos" filterPredicate="javascriptfilters_pred"/>
+
+
+   <predicate id="trialname_pred" format="id == '1'"/>
+   <arrayController id="trials_controller" entity="trials" autoFetch="YES" sortDescriptor="by_name"/>
+   <arrayController id="compos_controller" entity="patch_compositions" valueBinding ="trials_controller.selection.compos"/>
+   <arrayController id="stacks_controller" entity="montages" valueBinding ="trials_controller.selection.stacks" sortDescriptor="by_name"/>
+   <arrayController id="stacks_content_controller" entity="montage_images" valueBinding ="stacks_controller.selection.analyses"/>
+   <arrayController id="folder_controller" entity="folders" valueBinding ="trials_controller.selection.folders" sortDescriptor="by_folder_name"/>
+   <arrayController id="folder_content_controller" entity="folder_content" valueBinding ="folder_controller.selection.folder_content"/>
+   <arrayController id="analyses_controller" entity="analyses" valueBinding ="folder_content_controller.selection.image.analyses"/>
+
+  <menu type="main">
+	<menu title="Import">
+		<menuItem title="DocsCal" action="docsCalImport:"/>
+		<menuItem title="File" action="uploadImage:"/>
+	</menu>
+	<menu title="Edit">
+		<menuItem title="Cut" action="cut:" keyEquivalent="x"/>
+		<menuItem title="Copy" action="copy:" keyEquivalent="c"/>
+		<menuItem title="Paste" action="paste:" keyEquivalent="v"/>
+		<menuItem title="Remove" action="delete:" keyEquivalent="r"/>
+		<menuItem title="Select all" action="selectAll:" keyEquivalent="a"/>
+	</menu>
+   </menu>
+
+  <window title="All trials" closable="no"  x="10" y="50" id="trialswindow" width="300" height="640">
+	<vbox>
+	<scrollView>
+	 <tableView zebra="yes" autosaveName="alltrials" valueBinding="trials_controller" target="#CPOwner" doubleAction="runSettings:">
+		<tableColumn identifier="id" title="id"/>
+		<tableColumn identifier="name" title="name"/>
+	 </tableView>
+	</scrollView>
+	<ButtonBar actionsButton="YES" target="#CPOwner" plusButtonAction="newTrial:" minusButtonAction="removeTrial:">
+ 		<popUpButtonItem title="Settings..." target="#CPOwner" action="runSettings:" keyEquivalent="i"/>
+ 		<popUpButtonItem title="Stacks…" target="#CPOwner" action="runStacks:"/>
+ 		<popUpButtonItem title="Manual Stacks…" target="#CPOwner" action="runStacks2:"/>
+ 		<popUpButtonItem title="Duplicate structure" target="#CPOwner" action="duplicate:" keyEquivalent="i"/>
+ 		<popUpButtonItem title="Rebuild from repo..." target="#CPOwner" action="rebuildFromRepo:" keyEquivalent="i"/>
+ 		<popUpButtonItem title="Batching..." target="#CPOwner" action="applyFilterToAll:" keyEquivalent="i"/>
+	</ButtonBar>
+	</vbox>
+ </window>
+
+  <window title="Images" closable="no"  x="330" y="30" width="400" height="640" autosaveName="imagesColumnSizes">
+	<splitView vertical="YES" autosaveName="splitview_folders">
+		<vbox>
+			<scrollView hasHorizontalScroller="NO">
+				<tableView autosaveName="folders" zebra="yes" valueBinding="folder_controller" target="#CPOwner" doubleAction="loadFolder:">
+					<tableColumn identifier="folder_name" title="name"/>
+	  			</tableView>
+			</scrollView>
+			<ButtonBar actionsButton="YES" target="#CPOwner">
+  				<popUpButtonItem title="Run default analyses" target="#CPOwner" action="runDefaultAnalyses:" keyEquivalent="i"/>
+				<popUpButtonItem title="Registration..." target="#CPOwner" action="runRegistration:" keyEquivalent="i"/>
+ 				<popUpButtonItem title="Batching..." target="#CPOwner" action="applyFilterToImages:" keyEquivalent="i"/>
+			</ButtonBar>
+		</vbox>
+		<vbox>
+			<scrollView hasHorizontalScroller="NO" hasVerticalScroller="YES">
+				<collectionView id="folder_collection_view" itemWidth="100" itemHeight="100" valueBinding="folder_content_controller.arrangedObjects" delegate="#CPOwner"  itemsClassName="SimpleImageViewCollectionItem" selectable="YES" emptySelectionAllowed="NO"/>
+			</scrollView>
+			<hbox>
+				<slider continuous="NO" min="0" max="1"  valueBinding="#CPOwner.itemSize" halign="right"/><hspace/>
+				<popUpButton width="100" id="compoPopup" itemsBinding="displayfilters_ac.arrangedObjects.name" target="#CPOwner" valueBinding="#CPOwner.viewingCompoID"/>
+			</hbox>
+			<ButtonBar actionsButton="YES" target="#CPOwner" minusButtonAction="deleteImage:">
+  					<popUpButtonItem title="Run default analyses" target="#CPOwner" action="runDefaultAnalyses:" keyEquivalent="i"/>
+					<popUpButtonItem title="Add analysis..." target="#CPOwner" action="runRegistration:" keyEquivalent="i"/>
+			</ButtonBar>
+		</vbox>
+	 </splitView>
+  </window>
+
+  <window title="Trial settings" id="trialsettingswindow" modal="YES" visible="NO" width="300" height="200" resizable="YES">
+	<vbox>
+		<tabView type="topBezel">
+			<tabViewItem title="General">
+				<vbox>
+				<hbox><label valign="centre" halign="min" width="100">Name</label><textField valueBinding="trials_controller.selection.name"/></hbox>
+				<hbox><label valign="centre" halign="min" width="100">Grouping regex</label><textField valueBinding="trials_controller.selection.entity_regex"/></hbox>
+				</vbox>
+			</tabViewItem>
+			<tabViewItem title="Filters">
+				<vbox>
+	    		<hbox><label valign="centre" halign="min" width="100">Upload</label><popUpButton width="100" itemsBinding="uploadfilters_ac.arrangedObjects.name" valueBinding="trials_controller.selection.composition_for_upload"/></hbox>
+	    		<hbox><label valign="centre" halign="min" width="100">Editing</label><popUpButton width="100" itemsBinding="displayfilters_ac.arrangedObjects.name" valueBinding="trials_controller.selection.composition_for_editing"/></hbox>
+				</vbox>
+			</tabViewItem>
+		</tabView>
+		<button title="Done" target="#CPOwner" action="closeSheet:"/>
+	</vbox>
+  </window>
+
+</objects>
+
+<entities>
+	<entity id="trials" store="#CPOwner.store">
+		<column name="id" primaryKey="YES"/>
+		<column name="name"/>
+		<column name="entity_regex"/>
+		<column name="composition_for_upload"/>
+		<column name="composition_for_editing"/>
+		<column name="composition_for_javascript"/>
+
+		<relationship name="compos" type="toMany" target="patch_compositions" targetColumn="idtrials"/>
+		<relationship name="images" type="toMany" target="images" targetColumn="idtrial"/>
+		<relationship name="folders" type="toMany" target="folders" targetColumn="idtrial"/>
+		<relationship name="stacks" type="toMany" target="montages" targetColumn="idtrial"/>
+	</entity>
+	<entity id="patch_compositions" store="#CPOwner.store">
+		<column name="id" primaryKey="YES"/>
+		<column name="idtrials"/>
+		<column name="type"/>
+		<column name="name"/>
+		<relationship type="toOne" name="trial" bindingColumn="idtrials" target="trials"/>
+		<relationship name="chains" type="toMany" target="patch_chains" targetColumn="idpatch_composition"/>
+		<relationship name="inputParams" type="toMany" target="composition_interactive_parameters" targetColumn="idpatch_composition"/>
+	</entity>
+	<entity id="patch_chains" store="#CPOwner.store">
+		<column name="id" primaryKey="YES"/>
+		<column name="idpatch_composition"/>
+		<column name="name"/>
+		<relationship name="patches" type="toMany" target="patches" targetColumn="idpatch_chain"/>
+	</entity>
+	<entity id="patches" store="#CPOwner.store">
+		<column name="id" primaryKey="YES"/>
+		<column name="idpatch_chain"/>
+		<column name="idpatch"/>
+		<relationship type="toOne" name="patch" bindingColumn="idpatch" target="patch_repository"/>
+	</entity>
+	<entity id="patch_repository" store="#CPOwner.store">
+		<column name="id" primaryKey="YES"/>
+		<column name="type"/>
+		<column name="name"/>
+	</entity>
+	<entity id="composition_interactive_parameters" store="#CPOwner.store">
+		<column name="idinput" primaryKey="YES"/>
+		<column name="patch"/>
+		<column name="idpatch_composition"/>
+		<column name="name"/>
+		<column name="type"/>
+		<column name="value"/>
+		<column name="range1"/>
+		<column name="range2"/>
+		<column name="disabled"/>
+		<column name="idparameter"/>
+	</entity>
+	<entity id="images" store="#CPOwner.store">
+		<column name="id" primaryKey="YES"/>
+		<column name="idtrial"/>
+		<column name="name"/>
+		<column name="filename"/>
+		<relationship type="toOne" name="trial" bindingColumn="idtrial" target="trials"/>
+		<relationship type="toMany" name="analyses" targetColumn="idimage" target="analyses"/>
+	</entity>
+	<entity id="folders" store="#CPOwner.store">
+		<column name="linkname" primaryKey="YES"/>
+		<column name="folder_name"/>
+		<column name="idtrial"/>
+		<relationship type="toOne" name="trial" bindingColumn="idtrial" target="trials"/>
+		<relationship type="toMany" name="folder_content" targetColumn="linkname" target="folder_content"/>
+	</entity>
+	<entity id="folder_content" store="#CPOwner.store">
+		<column name="idimage" primaryKey="YES"/>
+		<column name="folder_name"/>
+		<column name="linkname"/>
+		<relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
+	</entity>
+	<entity id="analyses" store="#CPOwner.store">
+		<column name="id" primaryKey="YES"/>
+		<column name="idimage"/>
+		<column name="width"/>
+		<column name="height"/>
+		<column name="manual_edit"/>
+		<column name="idcomposition_for_editing"/>
+		<column name="idcomposition_for_analysis"/>
+		<relationship type="toOne" name="editing_compo" bindingColumn="idcomposition_for_editing" target="patch_compositions"/>
+		<relationship type="toOne" name="analysis_compo" bindingColumn="idcomposition_for_analysis" target="patch_compositions"/>
+		<relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
+		<relationship type="toMany" name="results" targetColumn="idanalysis" target="results"/>
+	</entity>
+	<entity id="results" store="#CPOwner.store">
+		<column name="id" primaryKey="YES"/>
+		<column name="idanalysis"/>
+		<column name="row"/>
+		<column name="col"/>
+		<relationship type="toOne" name="analysis" bindingColumn="idanalysis" target="analyses"/>
+	</entity>
+	<entity id="montages" store="#CPOwner.store">
+		<column name="id" primaryKey="YES"/>
+		<column name="idtrial"/>
+		<column name="name"/>
+		<column name="width"/>
+		<column name="height"/>
+		<column name="idpatch"/>
+		<column name="idcompo_with_points"/>
+		<relationship type="toOne" name="trial" bindingColumn="idtrial" target="trials"/>
+		<relationship type="toMany" name="analyses" targetColumn="idmontage" target="montage_images"/>
+	</entity>
+	<entity id="montage_images" store="#CPOwner.store">
+		<column name="id" primaryKey="YES"/>
+		<column name="idimage"/>
+		<column name="idmontage"/>
+		<column name="parameter"/>
+		<column name="disable"/>
+		<column name="idanalysis_reference"/>
+		<column name="idanalysis"/>
+		<relationship type="toOne" name="analysis" bindingColumn="idanalysis" target="analyses"/>
+		<relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
+		<relationship type="toOne" name="montage" bindingColumn="idmontage" target="montages"/>
+	</entity>
+	<entity id="rois" store="#CPOwner.store">
+		<column name="id" primaryKey="YES"/>
+		<column name="geom_string"/>
+		<column name="idimage"/>
+		<relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
+	</entity>
+
+</entities>
+
+<connectors>
+	<outlet source="#CPOwner" target="trials_controller" label="trialsController"/>
+	<outlet source="#CPOwner" target="folder_controller" label="folderController"/>
+	<outlet source="#CPOwner" target="folder_content_controller" label="folderContentController"/>
+	<outlet source="#CPOwner" target="trialname_pred" label="filterPredicate"/>
+	<outlet source="#CPOwner" target="analyses_controller" label="analysesController"/>
+	<outlet source="#CPOwner" target="trialswindow" label="trialsWindow"/>
+	<outlet source="#CPOwner" target="stacks_controller" label="stacksController"/>
+	<outlet source="#CPOwner" target="stacks_content_controller" label="stacksContentController"/>
+	<outlet source="#CPOwner" target="folder_collection_view" label="folderCollectionView"/>
+	<outlet source="#CPOwner" target="images_table" label="folderImagesTable"/>
+
+	<outlet source="#CPOwner" target="displayfilters_ac" label="displayfilters_ac"/>
+	<outlet source="#CPOwner" target="uploadfilters_ac" label="uploadfilters_ac"/>
+	<outlet source="#CPOwner" target="fixupfilters_ac" label="fixupfilters_ac"/>
+	<outlet source="#CPOwner" target="overlayfilters_ac" label="overlayfilters_ac"/>
+	<outlet source="#CPOwner" target="analyticsfilters_ac" label="analyticsfilters_ac"/>
+	<outlet source="#CPOwner" target="perlfilters_ac" label="perlfilters_ac"/>
+	<outlet source="#CPOwner" target="javascriptfilters_ac" label="javascriptfilters_ac"/>
+
+	<outlet source="#CPOwner" target="trialsettingswindow" label="trialsettingswindow"/>
+</connectors>
+
+
+</gsmarkup>
