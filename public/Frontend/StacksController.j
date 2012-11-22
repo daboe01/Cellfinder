@@ -170,7 +170,7 @@
 	{	myAppController=[CPApp delegate];
 		[self setItemSize:0.1];
 		[stacksCollectionView registerForDraggedTypes: [PhotoDragType]];
-	}
+	} return self;
 }
 
 -(void) setItemSize:(unsigned) someSize	//<!> should read setItemScale

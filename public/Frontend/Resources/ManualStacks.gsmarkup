@@ -4,7 +4,7 @@
 
 <objects>
   <stacks2Controller id="mystackscontroller"/>
-  <window title="Stacks" id="stackswindow" closable="yes"  x="50" y="30" width="400" height="640" delegate="mystackscontroller">
+  <window title="Stacks" id="stackswindow" closable="yes"  x="50" y="30" width="400" height="340"  bridge="YES" delegate="mystackscontroller">
 	<splitView vertical="YES" autosaveName="splitview_folders">
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">

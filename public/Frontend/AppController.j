@@ -250,10 +250,6 @@ PhotoDragType="PhotoDragType";
 {
 	return [AdminController class];
 }
-- initPlatformObject: someObj
-{	someObj=[someObj init];
-	return someObj;
-}
 @end
 
 @implementation GSMarkupTagStacks2Controller:GSMarkupTagObject
@@ -261,8 +257,8 @@ PhotoDragType="PhotoDragType";
 {
   return @"stacks2Controller";
 }
-
 + (Class) platformObjectClass
-{	return [Stacks2Controller class];
+{
+	return [Stacks2Controller class];
 }
 @end
