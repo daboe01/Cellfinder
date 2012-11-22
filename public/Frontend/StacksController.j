@@ -165,23 +165,17 @@
 
 }
 
--(CPString) _ressourceName
-{	return "stacks.gsmarkup";
-}
-
 - init
-{	if(self=[self init])
+{	if(self=[super init])
 	{	myAppController=[CPApp delegate];
-
-		_itemSize=[someAppController itemSize];
-		[CPBundle loadRessourceNamed: [self _ressourceName] owner:self];
+		[self setItemSize:0.1];
 		[stacksCollectionView registerForDraggedTypes: [PhotoDragType]];
-		[self setItemSize: [someAppController itemSize]];
 	}
 }
 
 -(void) setItemSize:(unsigned) someSize	//<!> should read setItemScale
 {	_itemSize=someSize;
+document.title="got here"+someSize;
 	[[stacksCollectionView items] makeObjectsPerformSelector:@selector(setSize:) withObject:_itemSize];
 }
 -(void) itemSize

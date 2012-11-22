@@ -4,7 +4,7 @@
 
 <objects>
   <stacks2Controller id="mystackscontroller"/>
-  <window title="Stacks" id="stackswindow" closable="yes"  x="750" y="30" width="400" height="640" delegate="mystackscontroller">
+  <window title="Stacks" id="stackswindow" closable="yes"  x="50" y="30" width="400" height="640" delegate="mystackscontroller">
 	<splitView vertical="YES" autosaveName="splitview_folders">
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
@@ -26,7 +26,7 @@
 			</scrollView>
 			<hbox>
 				<slider continuous="NO" min="0" max="1"  valueBinding="mystackscontroller.itemSize" halign="right"/><hspace/>
-				<popUpButton width="100" id="compoPopup" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.viewingCompo"/>
+				<popUpButton width="100" id="compoPopup" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" valueBinding="mystackscontroller.viewingCompo"/>
 			</hbox>
 		</vbox>
 	 </splitView>

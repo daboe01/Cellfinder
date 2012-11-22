@@ -197,17 +197,16 @@ PhotoDragType="PhotoDragType";
 	[CPBundle loadRessourceNamed: "model.gsmarkup" owner:self];
 
 	var model = "gui-admin.gsmarkup";
-	var re = new RegExp("t=([^&]+?)");
+	var re = new RegExp("t=([^&]+)");
 	var m = re.exec(document.location);
-	if(m)
-	{	model = m[1];
-	}
+	if(m) model = m[1];
 	[CPBundle loadRessourceNamed: model owner:self];
 
 	var re = new RegExp("id=([0-9]+)");
 	var m = re.exec(document.location);
 	if(m)
 	{	[trialsController setFilterPredicate: [CPPredicate predicateWithFormat:"id=='"+m[1]+"'" ]];
+		[trialsController setSelectionIndex:0];
 	}
 }
 
@@ -258,6 +257,10 @@ PhotoDragType="PhotoDragType";
 @end
 
 @implementation GSMarkupTagStacks2Controller:GSMarkupTagObject
++ (CPString) tagName
+{
+  return @"stacks2Controller";
+}
 
 + (Class) platformObjectClass
 {	return [Stacks2Controller class];
