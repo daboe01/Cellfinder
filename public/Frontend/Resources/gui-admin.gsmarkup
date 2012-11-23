@@ -24,37 +24,7 @@
 	</vbox>
  </window>
 
-  <window title="Images" closable="no"  x="330" y="30" width="400" height="640" autosaveName="imagesColumnSizes">
-	<splitView vertical="YES" autosaveName="splitview_folders">
-		<vbox>
-			<scrollView hasHorizontalScroller="NO">
-				<tableView autosaveName="folders" zebra="yes" valueBinding="#CPOwner.folderController" target="#CPOwner" doubleAction="loadFolder:">
-					<tableColumn identifier="folder_name" title="name"/>
-	  			</tableView>
-			</scrollView>
-			<ButtonBar actionsButton="YES" target="#CPOwner">
-  				<popUpButtonItem title="Run default analyses" target="#CPOwner" action="runDefaultAnalyses:" keyEquivalent="i"/>
-				<popUpButtonItem title="Registration..." target="#CPOwner" action="runRegistration:" keyEquivalent="i"/>
- 				<popUpButtonItem title="Batching..." target="#CPOwner" action="applyFilterToImages:" keyEquivalent="i"/>
-			</ButtonBar>
-		</vbox>
-		<vbox>
-			<scrollView hasHorizontalScroller="NO" hasVerticalScroller="YES">
-				<collectionView id="folder_collection_view" itemWidth="100" itemHeight="100" valueBinding="#CPOwner.folderContentController.arrangedObjects" delegate="#CPOwner"  itemsClassName="SimpleImageViewCollectionItem" selectable="YES" emptySelectionAllowed="NO"/>
-			</scrollView>
-			<hbox>
-				<slider continuous="NO" min="0" max="1"  valueBinding="myadmincontroller.itemSize" halign="right"/><hspace/>
-				<popUpButton width="100" id="compoPopup" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" target="#CPOwner" valueBinding="#CPOwner.viewingCompoID"/>
-			</hbox>
-			<ButtonBar actionsButton="YES" target="#CPOwner" minusButtonAction="deleteImage:">
-  					<popUpButtonItem title="Run default analyses" target="#CPOwner" action="runDefaultAnalyses:" keyEquivalent="i"/>
-					<popUpButtonItem title="Add analysis..." target="#CPOwner" action="runRegistration:" keyEquivalent="i"/>
-			</ButtonBar>
-		</vbox>
-	 </splitView>
-  </window>
-
-  <window title="Trial settings" id="trialsettingswindow" modal="YES" visible="NO" width="300" height="200" resizable="YES">
+  <window title="Trial settings" id="trialsettingswindow" x="10" y="50" width="300" height="200" resizable="YES">
 	<vbox>
 		<tabView type="topBezel">
 			<tabViewItem title="General">
@@ -78,7 +48,6 @@
 
 
 <connectors>
-	<outlet source="myadmincontroller" target="folder_collection_view" label="folderCollectionView"/>
 	<outlet source="myadmincontroller" target="trialswindow" label="trialsWindow"/>
 	<outlet source="myadmincontroller" target="trialsettingswindow" label="trialsettingswindow"/>
 </connectors>

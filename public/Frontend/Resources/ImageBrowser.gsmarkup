@@ -3,12 +3,12 @@
 <gsmarkup>
 
 <objects>
-
+  <imageBrowser id="myimagebrowser"/>
   <window title="Images" closable="no"  x="330" y="30" width="400" height="640" autosaveName="imagesColumnSizes">
 	<splitView vertical="YES" autosaveName="splitview_folders">
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
-				<tableView autosaveName="folders" zebra="yes" valueBinding="folder_controller" target="#CPOwner" doubleAction="loadFolder:">
+				<tableView autosaveName="folders" zebra="yes" valueBinding="#CPOwner.folderController" target="#CPOwner">
 					<tableColumn identifier="folder_name" title="name"/>
 	  			</tableView>
 			</scrollView>
@@ -20,10 +20,10 @@
 		</vbox>
 		<vbox>
 			<scrollView hasHorizontalScroller="NO" hasVerticalScroller="YES">
-				<collectionView id="folder_collection_view" itemWidth="100" itemHeight="100" valueBinding="folder_content_controller.arrangedObjects" delegate="#CPOwner"  itemsClassName="SimpleImageViewCollectionItem" selectable="YES" emptySelectionAllowed="NO"/>
+				<collectionView id="folder_collection_view" itemWidth="100" itemHeight="100" valueBinding="#CPOwner.folderContentController.arrangedObjects" delegate="#CPOwner"  itemsClassName="SimpleImageViewCollectionItem" selectable="YES" emptySelectionAllowed="NO"/>
 			</scrollView>
 			<hbox>
-				<slider continuous="NO" min="0" max="1"  valueBinding="#CPOwner.itemSize" halign="right"/><hspace/>
+				<slider continuous="NO" min="0" max="1"  valueBinding="myimagebrowser.itemSize" halign="right"/><hspace/>
 				<popUpButton width="100" id="compoPopup" itemsBinding="displayfilters_ac.arrangedObjects.name" target="#CPOwner" valueBinding="#CPOwner.viewingCompoID"/>
 			</hbox>
 			<ButtonBar actionsButton="YES" target="#CPOwner" minusButtonAction="deleteImage:">
@@ -37,7 +37,7 @@
 
 
 <connectors>
-	<outlet source="#CPOwner" target="folder_collection_view" label="folderCollectionView"/>
+	<outlet source="myimagebrowser" target="folder_collection_view" label="folderCollectionView"/>
 </connectors>
 
 

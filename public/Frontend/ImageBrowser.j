@@ -82,3 +82,14 @@
 }
 
 @end
+
+@implementation GSMarkupTagImageBrowser:GSMarkupTagObject
++ (CPString) tagName
+{
+  return @"imageBrowser";
+}
++ (Class) platformObjectClass
+{
+	return [ImageBrowser class];
+}
+@end
