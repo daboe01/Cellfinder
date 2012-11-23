@@ -1,33 +1,8 @@
 /*
- * AppController.j
- * NewApplication
- *
- * Created by You on November 16, 2011.
- * Copyright 2011, Your Company All rights reserved.
- *
- * <!> fixme
- * nothing to declare currently...
  *
  */
-
-/////////////////////////////////////////////////////////
-
-HostURL="http://localhost:3000"
-BaseURL= HostURL+"/IMG/";
-
-PhotoDragType="PhotoDragType";
-
-/////////////////////////////////////////////////////////
-
 @import <Foundation/CPObject.j>
 @import <Renaissance/Renaissance.j>
-@import "CompoController.j"
-@import "StacksController.j"
-@import "Stacks2Controller.j"
-@import "DocsCalImporter.j"
-@import "ConfigController.j"
-@import "ImageBrowser.j"
-@import "ImageController.j"
 
 
 /////////////////////////////////////////////////////////
@@ -72,58 +47,13 @@ PhotoDragType="PhotoDragType";
 /////////////////////////////////////////////////////////
 
 
-@implementation AppController : CPObject
-{	id	store @accessors;	
-	id	trialsController;
-	id	stacksController;
-	id	stacksContentController;
-	id	folderController;
-	id	folderContentController;
-	id	analysesController;
-
-	CPMutableSet	_imageControllers;
-
-	id	displayfilters_ac;
-	id	uploadfilters_ac;
-	id	fixupfilters_ac;
-	id	overlayfilters_ac;
-	id	analyticsfilters_ac;
-	id	perlfilters_ac;
-	id	javascriptfilters_ac;
-
+@implementation ImageBrowser : CPObject
+{
+	id	folderCollectionView;
+	unsigned _itemSize;
+	unsigned _viewingCompoID @accessors(property=viewingCompoID);
 }
 
--(CPString) baseImageURL
-{	return BaseURL;
-}
--(CPArray) imageControllersForIDTrial:(int) idtrial
-{	var all=[_imageControllers allObjects];
-	if(!all) all= [];
-	var i,l=all.length;
-	var ret=[CPMutableArray new];
-	for(i=0;i<l;i++)
-	{	if([all[i] idtrial]== idtrial)
-		{	[ret addObject: all[i] ];
-		}
-	} return ret;
-}
-- (void) applicationDidFinishLaunching:(CPNotification)aNotification
-{	store=[[FSStore alloc] initWithBaseURL: HostURL+"/DBI"];
-	[CPBundle loadRessourceNamed: "model.gsmarkup" owner:self];
-
-	var model = "gui-admin.gsmarkup";
-	var re = new RegExp("t=([^&]+)");
-	var m = re.exec(document.location);
-	if(m) model = m[1];
-	[CPBundle loadRessourceNamed: model owner:self];
-
-	var re = new RegExp("id=([0-9]+)");
-	var m = re.exec(document.location);
-	if(m)
-	{	[trialsController setFilterPredicate: [CPPredicate predicateWithFormat:"id=='"+m[1]+"'" ]];
-		[trialsController setSelectionIndex:0];
-	}
-}
 
 - (void)performDragOperation:(CPDraggingInfo)aSender
 {	var data = [[aSender draggingPasteboard] dataForType:PhotoDragType];
@@ -151,17 +81,4 @@ PhotoDragType="PhotoDragType";
 {	[DocsCalImporter sharedDocsCalImporter];
 }
 
-@end
-
-/////////////////////////////////////////////////////////
-
-@implementation GSMarkupTagStacks2Controller:GSMarkupTagObject
-+ (CPString) tagName
-{
-  return @"stacks2Controller";
-}
-+ (Class) platformObjectClass
-{
-	return [Stacks2Controller class];
-}
 @end
