@@ -91,23 +91,24 @@ PhotoDragType="PhotoDragType";
 	id	perlfilters_ac;
 	id	javascriptfilters_ac;
 	id  guiClassesArrayController;
-	id	sharedConfigController;
+	id	_sharedConfigController;
 }
 
 - sharedConfigController;
 {
-	if(!sharedConfigController)
-	{	var classes=[[[CPBundle mainBundle] infoDictionary] objectForKey:"ViewerClasses"];
-		[CPBundle loadRessourceNamed: "Admin.dgwapp" owner: self ];
+	if(!_sharedConfigController)
+	{	[CPBundle loadRessourceNamed: "Admin.gsmarkup" owner: self ];
+		var classes=[[[CPBundle mainBundle] infoDictionary] objectForKey:"ViewerClasses"];
 		var l=classes.length;
 		var a=[CPMutableArray new];
 		for(var i=0; i<l; i++)
 		{	[a addObject: [CPDictionary dictionaryWithObject: classes[i] forKey: "name"] ];
 		}
 		[guiClassesArrayController setContent: a ];
+alert(guiClassesArrayController);
 	}
-// [sharedConfigController.trialsWindow makeKeyAndOrderFront:_sharedConfigController]
-	return sharedConfigController;
+// [_sharedConfigController.trialsWindow makeKeyAndOrderFront:_sharedConfigController]
+	return _sharedConfigController;
 }
 
 -(CPString) baseImageURL
@@ -128,12 +129,7 @@ PhotoDragType="PhotoDragType";
 {	store=[[FSStore alloc] initWithBaseURL: HostURL+"/DBI"];
 	[CPBundle loadRessourceNamed: "model.gsmarkup" owner:self];
 
-	var re = new RegExp("t=([^&]+)");
-	var m = re.exec(document.location);
-	if(m) [CPBundle loadRessourceNamed: m[1] owner:self];
-	else [self sharedConfigController];
-
-
+	var model;
 	var re = new RegExp("id=([0-9]+)");
 	var m = re.exec(document.location);
 	if(m)
@@ -144,7 +140,17 @@ PhotoDragType="PhotoDragType";
 		if (m) [trialsController setFilterPredicate: [CPPredicate predicateWithFormat:"name=='"+m[1]+"'" ]];
 
 	}
-	[trialsController setSelectionIndex:0];
+	if([trialsController filterPredicate])
+	{	[trialsController setSelectionIndex:0];
+		var o=[trialsController selectedObject];
+		model=[o valueForKey:"editing_controller"]+".gsmarkup";
+	}
+	var re = new RegExp("t=([^&]+)");
+	var m = re.exec(document.location);
+	if(m) model=m[1];
+	if(model) [CPBundle loadRessourceNamed: model owner:self];
+	else [self sharedConfigController];
+
 }
 
 -(void) delete:sender

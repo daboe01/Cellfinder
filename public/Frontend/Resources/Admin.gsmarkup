@@ -5,7 +5,7 @@
 <objects>
   <adminController id="myadmincontroller"/>
 
-  <arrayController id="guiclasses_ac"/>
+  <arrayController id="guiclasses_ac" entity="gui_classes"/>
 
   <window title="All trials" closable="no"  x="10" y="50" id="trialswindow" width="300" height="640">
 	<vbox>
@@ -33,7 +33,7 @@
 				<vbox>
 				<hbox><label valign="centre" halign="min" width="100">Name</label><textField valueBinding="#CPOwner.trialsController.selection.name"/></hbox>
 				<hbox><label valign="centre" halign="min" width="100">Grouping regex</label><textField valueBinding="#CPOwner.trialsController.selection.entity_regex"/></hbox>
-				<popUpButton width="100" itemsBinding="guiclasses_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.editing_controller"/>
+				<popUpButton width="200" itemsBinding="guiclasses_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.editing_controller"/>
 				</vbox>
 			</tabViewItem>
 			<tabViewItem title="Filters">
@@ -59,7 +59,7 @@
 	<outlet source="myadmincontroller" target="trialswindow" label="trialsWindow"/>
 	<outlet source="myadmincontroller" target="trialsettingswindow" label="trialsettingswindow"/>
 	<outlet source="#CPOwner" target="guiclasses_ac" label="guiClassesArrayController"/>
-	<outlet source="#CPOwner" target="myadmincontroller" label="sharedConfigController"/>
+	<outlet source="#CPOwner" target="myadmincontroller" label="_sharedConfigController"/>
 </connectors>
 
 
