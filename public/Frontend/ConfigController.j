@@ -11,32 +11,10 @@
 
 /////////////////////////////////////////////////////////
 
-
 @implementation AdminController : CPObject
 {
 	id	trialsWindow;
 	id	trialsettingswindow;
-
-}
-
-- init
-{	if(self=[super init])
-	{	[self setItemSize:0.1];
-		[folderCollectionView registerForDraggedTypes:[PhotoDragType]];
-	}
-	return self;
-}
--(void) setViewingCompoID:(unsigned) someCompoID
-{	_viewingCompoID=someCompoID;
-	[[folderCollectionView items] makeObjectsPerformSelector:@selector(setCompoID:) withObject:_viewingCompoID];
-}
-
--(void) setItemSize:(unsigned) someSize	//<!> should read setItemScale
-{	_itemSize=someSize;
-	[[folderCollectionView items] makeObjectsPerformSelector:@selector(setSize:) withObject:_itemSize];
-}
--(void) itemSize
-{	return _itemSize;
 }
 
 -(void) loadAnalysis: sender

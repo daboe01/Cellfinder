@@ -46,14 +46,44 @@
 
 /////////////////////////////////////////////////////////
 
+var _sharedImageBrowser;
+
 
 @implementation ImageBrowser : CPObject
-{
+{	id  mainWindow;
 	id	folderCollectionView;
 	unsigned _itemSize;
 	unsigned _viewingCompoID @accessors(property=viewingCompoID);
 }
 
++ sharedImageBrowser
+{	if(!_sharedImageBrowser)
+	{	_sharedImageBrowser=[self new];
+		[CPBundle loadRessourceNamed: "ImageBrowser.gsmarkup" owner: [CPApp delegate] ];
+	}
+	[_sharedImageBrowser.mainWindow makeKeyAndOrderFront:_sharedImageBrowser ];
+	return _sharedImageBrowser;
+}
+
+- init
+{	if(self=[super init])
+	{	[self setItemSize:0.1];
+		[folderCollectionView registerForDraggedTypes:[PhotoDragType]];
+	}
+	return self;
+}
+-(void) setViewingCompoID:(unsigned) someCompoID
+{	_viewingCompoID=someCompoID;
+	[[folderCollectionView items] makeObjectsPerformSelector:@selector(setCompoID:) withObject:_viewingCompoID];
+}
+
+-(void) setItemSize:(unsigned) someSize	//<!> should read setItemScale
+{	_itemSize=someSize;
+	[[folderCollectionView items] makeObjectsPerformSelector:@selector(setSize:) withObject:_itemSize];
+}
+-(void) itemSize
+{	return _itemSize;
+}
 
 - (void)performDragOperation:(CPDraggingInfo)aSender
 {	var data = [[aSender draggingPasteboard] dataForType:PhotoDragType];

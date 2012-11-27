@@ -90,7 +90,24 @@ PhotoDragType="PhotoDragType";
 	id	analyticsfilters_ac;
 	id	perlfilters_ac;
 	id	javascriptfilters_ac;
+	id  guiClassesArrayController;
+	id	sharedConfigController;
+}
 
+- sharedConfigController;
+{
+	if(!sharedConfigController)
+	{	var classes=[[[CPBundle mainBundle] infoDictionary] objectForKey:"ViewerClasses"];
+		[CPBundle loadRessourceNamed: "Admin.dgwapp" owner: self ];
+		var l=classes.length;
+		var a=[CPMutableArray new];
+		for(var i=0; i<l; i++)
+		{	[a addObject: [CPDictionary dictionaryWithObject: classes[i] forKey: "name"] ];
+		}
+		[guiClassesArrayController setContent: a ];
+	}
+// [sharedConfigController.trialsWindow makeKeyAndOrderFront:_sharedConfigController]
+	return sharedConfigController;
 }
 
 -(CPString) baseImageURL
@@ -111,35 +128,23 @@ PhotoDragType="PhotoDragType";
 {	store=[[FSStore alloc] initWithBaseURL: HostURL+"/DBI"];
 	[CPBundle loadRessourceNamed: "model.gsmarkup" owner:self];
 
-	var model = "gui-admin.gsmarkup";
 	var re = new RegExp("t=([^&]+)");
 	var m = re.exec(document.location);
-	if(m) model = m[1];
-	[CPBundle loadRessourceNamed: model owner:self];
+	if(m) [CPBundle loadRessourceNamed: m[1] owner:self];
+	else [self sharedConfigController];
+
 
 	var re = new RegExp("id=([0-9]+)");
 	var m = re.exec(document.location);
 	if(m)
 	{	[trialsController setFilterPredicate: [CPPredicate predicateWithFormat:"id=='"+m[1]+"'" ]];
-		[trialsController setSelectionIndex:0];
+	} else
+	{	var re = new RegExp("\\?([^&]+)");
+		var m = re.exec(document.location);
+		if (m) [trialsController setFilterPredicate: [CPPredicate predicateWithFormat:"name=='"+m[1]+"'" ]];
+
 	}
-}
-
-- (void)performDragOperation:(CPDraggingInfo)aSender
-{	var data = [[aSender draggingPasteboard] dataForType:PhotoDragType];
-    var o=[CPKeyedUnarchiver unarchiveObjectWithData: data];
-	var myurl=BaseURL+"import/"+ [trialsController valueForKeyPath:"selection.id"];
-	myurl+="/"+[o objectForKey:"filename" ];
-
-	var myreq=[CPURLRequest requestWithURL: myurl];
-	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
-	[[trialsController selectedObject] willChangeValueForKey:"folders"];
-	[trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
-	[[trialsController selectedObject] didChangeValueForKey:"folders"];
-
-	[[folderController selectedObject] willChangeValueForKey:"folder_content"];
-	[folderController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
-	[[folderController selectedObject] didChangeValueForKey:"folder_content"];
+	[trialsController setSelectionIndex:0];
 }
 
 -(void) delete:sender
@@ -149,6 +154,10 @@ PhotoDragType="PhotoDragType";
 
 -(void) docsCalImport:sender
 {	[DocsCalImporter sharedDocsCalImporter];
+}
+
+-(void) runImageBrowser:sender
+{	[ImageBrowser sharedImageBrowser];
 }
 
 @end

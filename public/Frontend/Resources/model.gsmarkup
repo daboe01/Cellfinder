@@ -35,9 +35,10 @@
    <arrayController id="analyses_controller" entity="analyses" valueBinding ="folder_content_controller.selection.image.analyses"/>
 
   <menu type="main">
-	<menu title="Import">
-		<menuItem title="DocsCal" action="docsCalImport:"/>
-		<menuItem title="File" action="uploadImage:"/>
+	<menu title="Images">
+		<menuItem title="Import from DocsCal" action="docsCalImport:"/>
+		<menuItem title="Upload File" action="uploadImage:"/>
+		<menuItem title="ImageBrowser" action="runImageBrowser:"/>
 	</menu>
 	<menu title="Edit">
 		<menuItem title="Cut" action="cut:" keyEquivalent="x"/>
@@ -53,6 +54,7 @@
 	<entity id="trials" store="#CPOwner.store">
 		<column name="id" primaryKey="YES"/>
 		<column name="name"/>
+		<column name="editing_controller"/>
 		<column name="entity_regex"/>
 		<column name="composition_for_upload"/>
 		<column name="composition_for_editing"/>

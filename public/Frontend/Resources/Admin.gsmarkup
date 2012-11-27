@@ -5,6 +5,8 @@
 <objects>
   <adminController id="myadmincontroller"/>
 
+  <arrayController id="guiclasses_ac"/>
+
   <window title="All trials" closable="no"  x="10" y="50" id="trialswindow" width="300" height="640">
 	<vbox>
 	<scrollView>
@@ -24,13 +26,14 @@
 	</vbox>
  </window>
 
-  <window title="Trial settings" id="trialsettingswindow" x="10" y="50" width="300" height="200" resizable="YES">
+  <window title="Trial settings" id="trialsettingswindow" x="310" y="50" width="300" height="200" resizable="YES">
 	<vbox>
 		<tabView type="topBezel">
 			<tabViewItem title="General">
 				<vbox>
 				<hbox><label valign="centre" halign="min" width="100">Name</label><textField valueBinding="#CPOwner.trialsController.selection.name"/></hbox>
 				<hbox><label valign="centre" halign="min" width="100">Grouping regex</label><textField valueBinding="#CPOwner.trialsController.selection.entity_regex"/></hbox>
+				<popUpButton width="100" itemsBinding="guiclasses_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.editing_controller"/>
 				</vbox>
 			</tabViewItem>
 			<tabViewItem title="Filters">
@@ -46,10 +49,17 @@
 
 </objects>
 
+<entities>
+	<entity id="gui_classes">
+		<column name="name" primaryKey="YES"/>
+	</entity>
+</entities>
 
 <connectors>
 	<outlet source="myadmincontroller" target="trialswindow" label="trialsWindow"/>
 	<outlet source="myadmincontroller" target="trialsettingswindow" label="trialsettingswindow"/>
+	<outlet source="#CPOwner" target="guiclasses_ac" label="guiClassesArrayController"/>
+	<outlet source="#CPOwner" target="myadmincontroller" label="sharedConfigController"/>
 </connectors>
 
 
