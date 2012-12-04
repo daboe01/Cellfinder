@@ -27,7 +27,6 @@ PhotoDragType="PhotoDragType";
 @import "DocsCalImporter.j"
 @import "ConfigController.j"
 @import "ImageBrowser.j"
-@import "ImageController.j"
 
 
 /////////////////////////////////////////////////////////
@@ -81,8 +80,6 @@ PhotoDragType="PhotoDragType";
 	id	folderContentController;
 	id	analysesController;
 
-	CPMutableSet	_imageControllers;
-
 	id	displayfilters_ac;
 	id	uploadfilters_ac;
 	id	fixupfilters_ac;
@@ -114,17 +111,7 @@ alert(guiClassesArrayController);
 -(CPString) baseImageURL
 {	return BaseURL;
 }
--(CPArray) imageControllersForIDTrial:(int) idtrial
-{	var all=[_imageControllers allObjects];
-	if(!all) all= [];
-	var i,l=all.length;
-	var ret=[CPMutableArray new];
-	for(i=0;i<l;i++)
-	{	if([all[i] idtrial]== idtrial)
-		{	[ret addObject: all[i] ];
-		}
-	} return ret;
-}
+
 - (void) applicationDidFinishLaunching:(CPNotification)aNotification
 {	store=[[FSStore alloc] initWithBaseURL: HostURL+"/DBI"];
 	[CPBundle loadRessourceNamed: "model.gsmarkup" owner:self];
