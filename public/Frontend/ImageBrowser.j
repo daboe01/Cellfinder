@@ -3,6 +3,7 @@
  */
 @import <Foundation/CPObject.j>
 @import <Renaissance/Renaissance.j>
+@import "AnnotatedImageView.j";
 
 
 /////////////////////////////////////////////////////////
@@ -58,20 +59,15 @@ var _sharedImageBrowser;
 
 + sharedImageBrowser
 {	if(!_sharedImageBrowser)
-	{	_sharedImageBrowser=[self new];
-		[CPBundle loadRessourceNamed: "ImageBrowser.gsmarkup" owner: [CPApp delegate] ];
+	{	[CPBundle loadRessourceNamed: "ImageBrowser.gsmarkup" owner: [CPApp delegate] ];
+		_sharedImageBrowser= [CPApp delegate]._sharedImageBrowser;
+		[_sharedImageBrowser.folderCollectionView registerForDraggedTypes:[PhotoDragType]];
+		[_sharedImageBrowser setItemSize:0.1]
 	}
 	[_sharedImageBrowser.mainWindow makeKeyAndOrderFront:_sharedImageBrowser ];
 	return _sharedImageBrowser;
 }
 
-- init
-{	if(self=[super init])
-	{	[self setItemSize:0.1];
-		[folderCollectionView registerForDraggedTypes:[PhotoDragType]];
-	}
-	return self;
-}
 -(void) setViewingCompoID:(unsigned) someCompoID
 {	_viewingCompoID=someCompoID;
 	[[folderCollectionView items] makeObjectsPerformSelector:@selector(setCompoID:) withObject:_viewingCompoID];
@@ -83,6 +79,10 @@ var _sharedImageBrowser;
 }
 -(void) itemSize
 {	return _itemSize;
+}
+- (CPArray)collectionView:(CPCollectionView)aCollectionView dragTypesForItemsAtIndexes:(CPIndexSet)indices
+{
+	return [PhotoDragType];
 }
 
 - (void)performDragOperation:(CPDraggingInfo)aSender
@@ -100,6 +100,15 @@ var _sharedImageBrowser;
 	[[folderController selectedObject] willChangeValueForKey:"folder_content"];
 	[folderController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 	[[folderController selectedObject] didChangeValueForKey:"folder_content"];
+}
+
+- (CPData)collectionView:(CPCollectionView)aCollectionView
+   dataForItemsAtIndexes:(CPIndexSet)indices
+                 forType:(CPString)aType
+{
+	var firstIndex = [indices firstIndex];
+	var o =[aCollectionView itemAtIndex: firstIndex]._img;
+    return [CPKeyedArchiver archivedDataWithRootObject: o ];
 }
 
 -(void) delete:sender

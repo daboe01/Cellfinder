@@ -89,6 +89,7 @@ PhotoDragType="PhotoDragType";
 	id	javascriptfilters_ac;
 	id  guiClassesArrayController;
 	id	_sharedConfigController;
+	id	_sharedImageBrowser;
 }
 
 - sharedConfigController;
