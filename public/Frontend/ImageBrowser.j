@@ -63,7 +63,6 @@ var _sharedImageBrowser;
 		 _sharedImageBrowser= [CPApp delegate]._sharedImageBrowser;
 		[_sharedImageBrowser.folderCollectionView registerForDraggedTypes:[PhotoDragType]];
 		[_sharedImageBrowser setItemSize:0.1];
-		[_sharedImageBrowser.folderCollectionView setDelegate: _sharedImageBrowser];
 	}
 	[_sharedImageBrowser.mainWindow makeKeyAndOrderFront: _sharedImageBrowser ];
 	return _sharedImageBrowser;

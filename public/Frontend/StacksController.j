@@ -170,6 +170,7 @@
 	{	myAppController=[CPApp delegate];
 		[self setItemSize:0.2];
 		[stacksCollectionView registerForDraggedTypes: [PhotoDragType]];
+alert([stacksCollectionView delegate])
 	} return self;
 }
 
@@ -260,6 +261,7 @@
 {	var data = [[aSender draggingPasteboard] dataForType:PhotoDragType];
     var o=[CPKeyedUnarchiver unarchiveObjectWithData: data];
 
+alert(o);
 	var idimage=[o._changes objectForKey:"idimage"];
 	var newImg=[CPDictionary dictionaryWithObjects: [ idimage ] forKeys: [ "idimage" ] ];
 	var analysesEntity=[myAppController.analysesController entity];

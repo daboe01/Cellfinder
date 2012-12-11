@@ -9,7 +9,7 @@ use Data::Dumper;
 use Mojo::UserAgent;
 
 plugin 'database', { 
-			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
+			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
 			username => 'root',
 			password => 'root',
 			options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
@@ -253,5 +253,18 @@ get '/DC/fetch/:name/:scale'=> [name =>qr/.+/] => sub
 	$self->render_data($data , format =>'jpg' );
 };
 
+get '/DC/import_stack/:idtrial/:name'=> [name=>qr/.+/] => sub
+{	my $self=shift;
+	my $name= $self->param("name");
+	my $idtrial= $self->param("idtrial");
+	my $json_decoder= Mojo::JSON->new;
+	my $jsonR   = $json_decoder->decode( $self->req->body );
+	while(@$jsonR)
+	{	my $dc_name=$_;
+		my $ua = Mojo::UserAgent->new;
+		my $data=$ua->get("http://10.250.0.33/docscaldownload/$dc_name")->res->body;
+	}
+	$self->render_data('OK', format =>'txt' );
+};
 
 app->start;
