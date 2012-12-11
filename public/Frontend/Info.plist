@@ -6,6 +6,11 @@
 	<string>AppController</string>
 	<key>CPBundleName</key>
 	<string>NewApplication</string>
+	<key>ViewerClasses</key>
+	<array>
+		<string>ManualStacks</string>
+		<string>FeatureExtractor</string>
+	</array>
 	<key>CPPrincipalClass</key>
 	<string>CPApplication</string>
 </dict>

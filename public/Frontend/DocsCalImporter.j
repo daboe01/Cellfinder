@@ -120,7 +120,7 @@ var _sharedCDImporter;
 {	if(!_sharedCDImporter) {
 		_sharedCDImporter=[self new];
 		[_sharedCDImporter setItemSize:100];
-		[CPBundle loadRessourceNamed: "docscal.gsmarkup" owner:_sharedCDImporter];
+		[CPBundle loadRessourceNamed: "DocsCal.gsmarkup" owner:_sharedCDImporter];
 		spinnerImg=[[CPImage alloc] initWithContentsOfFile: [CPString stringWithFormat:@"%@/%@", [[CPBundle mainBundle] resourcePath],"spinner.gif" ]];
 		[_sharedCDImporter.mainWindow setInitialFirstResponder: _sharedCDImporter.pizField ];
 		[_sharedCDImporter.mainWindow makeKeyAndOrderFront:_sharedCDImporter ];

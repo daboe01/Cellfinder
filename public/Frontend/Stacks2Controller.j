@@ -74,10 +74,6 @@
 
 @implementation Stacks2Controller: StacksController
 
--(CPString) _ressourceName
-{	return "stacks2.gsmarkup";
-}
-
 
 -(void) delete: sender	// delete a dot
 {	[[stacksCollectionView items] makeObjectsPerformSelector:@selector(delete:) withObject: sender];

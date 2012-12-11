@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<!DOCTYPE gsmarkup>
+<gsmarkup>
+
+<objects>
+  <adminController id="myadmincontroller"/>
+
+  <arrayController id="guiclasses_ac" entity="gui_classes"/>
+
+  <window title="All trials" closable="no"  x="10" y="50" id="trialswindow" width="300" height="640">
+	<vbox>
+	<scrollView>
+	 <tableView zebra="yes" autosaveName="alltrials" valueBinding="#CPOwner.trialsController" target="#CPOwner" doubleAction="runSettings:">
+		<tableColumn identifier="id" title="id"/>
+		<tableColumn identifier="name" title="name"/>
+	 </tableView>
+	</scrollView>
+	<ButtonBar actionsButton="YES" target="#CPOwner" plusButtonAction="newTrial:" minusButtonAction="removeTrial:">
+ 		<popUpButtonItem title="Settings..." target="#CPOwner" action="runSettings:" keyEquivalent="i"/>
+ 		<popUpButtonItem title="Stacks…" target="#CPOwner" action="runStacks:"/>
+ 		<popUpButtonItem title="Manual Stacks…" target="#CPOwner" action="runStacks2:"/>
+ 		<popUpButtonItem title="Duplicate structure" target="#CPOwner" action="duplicate:" keyEquivalent="i"/>
+ 		<popUpButtonItem title="Rebuild from repo..." target="#CPOwner" action="rebuildFromRepo:" keyEquivalent="i"/>
+ 		<popUpButtonItem title="Batching..." target="#CPOwner" action="applyFilterToAll:" keyEquivalent="i"/>
+	</ButtonBar>
+	</vbox>
+ </window>
+
+  <window title="Trial settings" id="trialsettingswindow" x="310" y="50" width="300" height="200" resizable="YES">
+	<vbox>
+		<tabView type="topBezel">
+			<tabViewItem title="General">
+				<vbox>
+				<hbox><label valign="centre" halign="min" width="100">Name</label><textField valueBinding="#CPOwner.trialsController.selection.name"/></hbox>
+				<hbox><label valign="centre" halign="min" width="100">Grouping regex</label><textField valueBinding="#CPOwner.trialsController.selection.entity_regex"/></hbox>
+				<popUpButton width="200" itemsBinding="guiclasses_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.editing_controller"/>
+				</vbox>
+			</tabViewItem>
+			<tabViewItem title="Filters">
+				<vbox>
+	    		<hbox><label valign="centre" halign="min" width="100">Upload</label><popUpButton width="100" itemsBinding="#CPOwner.uploadfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_upload"/></hbox>
+	    		<hbox><label valign="centre" halign="min" width="100">Editing</label><popUpButton width="100" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_editing"/></hbox>
+				</vbox>
+			</tabViewItem>
+		</tabView>
+		<button title="Done" target="#CPOwner" action="closeSheet:"/>
+	</vbox>
+  </window>
+
+</objects>
+
+<entities>
+	<entity id="gui_classes">
+		<column name="name" primaryKey="YES"/>
+	</entity>
+</entities>
+
+<connectors>
+	<outlet source="myadmincontroller" target="trialswindow" label="trialsWindow"/>
+	<outlet source="myadmincontroller" target="trialsettingswindow" label="trialsettingswindow"/>
+	<outlet source="#CPOwner" target="guiclasses_ac" label="guiClassesArrayController"/>
+	<outlet source="#CPOwner" target="myadmincontroller" label="_sharedConfigController"/>
+</connectors>
+
+
+</gsmarkup>

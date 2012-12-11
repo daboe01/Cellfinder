@@ -22,10 +22,11 @@ PhotoDragType="PhotoDragType";
 @import <Foundation/CPObject.j>
 @import <Renaissance/Renaissance.j>
 @import "CompoController.j"
-@import "ImageController.j"
 @import "StacksController.j"
 @import "Stacks2Controller.j"
 @import "DocsCalImporter.j"
+@import "ConfigController.j"
+@import "ImageBrowser.j"
 
 
 /////////////////////////////////////////////////////////
@@ -66,27 +67,19 @@ PhotoDragType="PhotoDragType";
 }
 @end
 
+
 /////////////////////////////////////////////////////////
 
 
 @implementation AppController : CPObject
 {	id	store @accessors;	
 	id	trialsController;
-	id	trialsWindow;
 	id	stacksController;
 	id	stacksContentController;
 	id	folderController;
 	id	folderContentController;
-	id	folderCollectionView;
-	id	folderImagesTable;
-	unsigned _itemSize;
-	unsigned _viewingCompoID @accessors(property=viewingCompoID);
 	id	analysesController;
-	id	filterPredicate;
 
-	CPMutableSet	_imageControllers;
-
-	id	trialsettingswindow;
 	id	displayfilters_ac;
 	id	uploadfilters_ac;
 	id	fixupfilters_ac;
@@ -94,122 +87,84 @@ PhotoDragType="PhotoDragType";
 	id	analyticsfilters_ac;
 	id	perlfilters_ac;
 	id	javascriptfilters_ac;
-
-}
--(void) setViewingCompoID:(unsigned) someCompoID
-{	_viewingCompoID=someCompoID;
-	[[folderCollectionView items] makeObjectsPerformSelector:@selector(setCompoID:) withObject:_viewingCompoID];
+	id  guiClassesArrayController;
+	id	_sharedConfigController;
+	id	_sharedImageBrowser;
 }
 
-
--(void) setItemSize:(unsigned) someSize	//<!> should read setItemScale
-{	_itemSize=someSize;
-	[[folderCollectionView items] makeObjectsPerformSelector:@selector(setSize:) withObject:_itemSize];
-}
--(void) itemSize
-{	return _itemSize;
+- sharedConfigController;
+{
+	if(!_sharedConfigController)
+	{	[CPBundle loadRessourceNamed: "Admin.gsmarkup" owner: self ];
+		var classes=[[[CPBundle mainBundle] infoDictionary] objectForKey:"ViewerClasses"];
+		var l=classes.length;
+		var a=[CPMutableArray new];
+		for(var i=0; i<l; i++)
+		{	[a addObject: [CPDictionary dictionaryWithObject: classes[i] forKey: "name"] ];
+		}
+		[guiClassesArrayController setContent: a ];
+alert(guiClassesArrayController);
+	}
+// [_sharedConfigController.trialsWindow makeKeyAndOrderFront:_sharedConfigController]
+	return _sharedConfigController;
 }
 
 -(CPString) baseImageURL
 {	return BaseURL;
 }
--(CPArray) imageControllersForIDTrial:(int) idtrial
-{	var all=[_imageControllers allObjects];
-	if(!all) all= [];
-	var i,l=all.length;
-	var ret=[CPMutableArray new];
-	for(i=0;i<l;i++)
-	{	if([all[i] idtrial]== idtrial)
-		{	[ret addObject: all[i] ];
-		}
-	} return ret;
-}
+
 - (void) applicationDidFinishLaunching:(CPNotification)aNotification
 {	store=[[FSStore alloc] initWithBaseURL: HostURL+"/DBI"];
+	[CPBundle loadRessourceNamed: "model.gsmarkup" owner:self];
 
-	[CPBundle loadRessourceNamed: "gui.gsmarkup" owner:self];
-	[self setItemSize:0.1];
-	[folderCollectionView registerForDraggedTypes:[PhotoDragType]];
-	[folderImagesTable registerForDraggedTypes:[PhotoDragType]];
-}
+	var model;
+	var re = new RegExp("id=([0-9]+)");
+	var m = re.exec(document.location);
+	if(m)
+	{	[trialsController setFilterPredicate: [CPPredicate predicateWithFormat:"id=='"+m[1]+"'" ]];
+	} else
+	{	var re = new RegExp("\\?([^&]+)");
+		var m = re.exec(document.location);
+		if (m) [trialsController setFilterPredicate: [CPPredicate predicateWithFormat:"name=='"+m[1]+"'" ]];
 
-- (void)performDragOperation:(CPDraggingInfo)aSender
-{	var data = [[aSender draggingPasteboard] dataForType:PhotoDragType];
-    var o=[CPKeyedUnarchiver unarchiveObjectWithData: data];
-	var myurl=BaseURL+"import/"+ [trialsController valueForKeyPath:"selection.id"];
-	myurl+="/"+[o objectForKey:"filename" ];
-
-	var myreq=[CPURLRequest requestWithURL: myurl];
-	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
-	[[trialsController selectedObject] willChangeValueForKey:"folders"];
-	[trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
-	[[trialsController selectedObject] didChangeValueForKey:"folders"];
-
-	[[folderController selectedObject] willChangeValueForKey:"folder_content"];
-	[folderController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
-	[[folderController selectedObject] didChangeValueForKey:"folder_content"];
-}
-
--(void) loadAnalysis: sender
-{	var o=[[analysesController arrangedObjects] objectAtIndex: [sender selectedRow]];
-	if (o)
-	{	[[AnalysesController alloc] initWithAnalysis:o andAppController: self];
 	}
-}
--(void) runStacks: sender
-{	var o=[trialsController valueForKeyPath:"selection"];
-	if (o)
-	{	[[StacksController alloc] initWithTrial:o andAppController: self];
+	if([trialsController filterPredicate])
+	{	[trialsController setSelectionIndex:0];
+		var o=[trialsController selectedObject];
+		model=[o valueForKey:"editing_controller"]+".gsmarkup";
 	}
-}
--(void) runStacks2: sender
-{	var o=[trialsController valueForKeyPath:"selection"];
-	if (o)
-	{	[[Stacks2Controller alloc] initWithTrial:o andAppController: self];
-	}
-}
--(void) applyFilterToAll: sender
-{	var o=[trialsController valueForKeyPath:"selection"];
-	alert(o);
+	var re = new RegExp("t=([^&]+)");
+	var m = re.exec(document.location);
+	if(m) model=m[1];
+	if(model) [CPBundle loadRessourceNamed: model owner:self];
+	else [self sharedConfigController];
+
 }
 
 -(void) delete:sender
 {	[[[CPApp keyWindow] delegate] delete:sender];
 }
 
--(void) collectionView: someView didDoubleClickOnItemAtIndex: someIndex
-{	var o=[[someView itemAtIndex: someIndex] representedObject];
-
-	var ic=[[ImageController alloc] initWithImageID:[o valueForKey:"idimage"] appController: self];
-	[_imageControllers addObject:ic];
-//<!> fixme: implement unregistering upon window close in imagesController
-}
-
-// Drag and Drop
--   (CPArray)collectionView:(CPCollectionView)aCollectionView dragTypesForItemsAtIndexes:(CPIndexSet)indices
-{	return [PhotoDragType];
-}
-- (CPData)collectionView:(CPCollectionView)aCollectionView
-   dataForItemsAtIndexes:(CPIndexSet)indices
-                 forType:(CPString)aType
-{	var firstIndex = [indices firstIndex];
-	var o=[[aCollectionView itemAtIndex: firstIndex] representedObject];
-    return [CPKeyedArchiver archivedDataWithRootObject: o ];
-}
 
 -(void) docsCalImport:sender
 {	[DocsCalImporter sharedDocsCalImporter];
 }
 
-- (void)closeSheet:(id)sender
-{	[trialsettingswindow orderOut:sender];
-    [CPApp endSheet: trialsettingswindow returnCode:CPRunStoppedResponse];
-}
--(void) didEndSheet: someSheet returnCode: someCode contextInfo: someInfo
-{
+-(void) runImageBrowser:sender
+{	[ImageBrowser sharedImageBrowser];
 }
 
--(void) runSettings:sender
-{	[CPApp beginSheet: trialsettingswindow modalForWindow: trialsWindow modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
+@end
+
+/////////////////////////////////////////////////////////
+
+@implementation GSMarkupTagStacks2Controller:GSMarkupTagObject
++ (CPString) tagName
+{
+  return @"stacks2Controller";
+}
++ (Class) platformObjectClass
+{
+	return [Stacks2Controller class];
 }
 @end
