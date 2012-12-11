@@ -168,14 +168,13 @@
 - init
 {	if(self=[super init])
 	{	myAppController=[CPApp delegate];
-		[self setItemSize:0.1];
+		[self setItemSize:0.2];
 		[stacksCollectionView registerForDraggedTypes: [PhotoDragType]];
 	} return self;
 }
 
 -(void) setItemSize:(unsigned) someSize	//<!> should read setItemScale
 {	_itemSize=someSize;
-document.title="got here"+someSize;
 	[[stacksCollectionView items] makeObjectsPerformSelector:@selector(setSize:) withObject:_itemSize];
 }
 -(void) itemSize

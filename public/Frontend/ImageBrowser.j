@@ -60,11 +60,12 @@ var _sharedImageBrowser;
 + sharedImageBrowser
 {	if(!_sharedImageBrowser)
 	{	[CPBundle loadRessourceNamed: "ImageBrowser.gsmarkup" owner: [CPApp delegate] ];
-		_sharedImageBrowser= [CPApp delegate]._sharedImageBrowser;
+		 _sharedImageBrowser= [CPApp delegate]._sharedImageBrowser;
 		[_sharedImageBrowser.folderCollectionView registerForDraggedTypes:[PhotoDragType]];
-		[_sharedImageBrowser setItemSize:0.1]
+		[_sharedImageBrowser setItemSize:0.1];
+		[_sharedImageBrowser.folderCollectionView setDelegate: _sharedImageBrowser];
 	}
-	[_sharedImageBrowser.mainWindow makeKeyAndOrderFront:_sharedImageBrowser ];
+	[_sharedImageBrowser.mainWindow makeKeyAndOrderFront: _sharedImageBrowser ];
 	return _sharedImageBrowser;
 }
 
@@ -107,7 +108,7 @@ var _sharedImageBrowser;
                  forType:(CPString)aType
 {
 	var firstIndex = [indices firstIndex];
-	var o =[aCollectionView itemAtIndex: firstIndex]._img;
+	var o=[[aCollectionView itemAtIndex: firstIndex] representedObject];
     return [CPKeyedArchiver archivedDataWithRootObject: o ];
 }
 
