@@ -233,7 +233,7 @@ get '/DC/dir/:piz'=> [piz =>qr/\d{8}/] => sub
 {	my $self=shift;
 	my $piz= $self->param("piz");
 	my $ua = Mojo::UserAgent->new;
-	my $data=$ua->get('http://auginfo/docscaldownload/'.$piz.'?peek=1')->res->body;
+	my $data=$ua->get('http://10.250.0.33/docscaldownload/'.$piz.'?peek=1')->res->body;
 	$self->render_text( $data);
 };
 get '/DC/dir/:piz/:type' => [piz =>qr/\d{8}/] => sub
@@ -241,7 +241,7 @@ get '/DC/dir/:piz/:type' => [piz =>qr/\d{8}/] => sub
 	my $piz= $self->param("piz");
 	my $type= $self->param("type");
 	my $ua = Mojo::UserAgent->new;
-	my $data=$ua->get('http://auginfo/docscaldownload/'.$piz.'?dir='.$type)->res->body;
+	my $data=$ua->get('http://10.250.0.33/docscaldownload/'.$piz.'?dir='.$type)->res->body;
 	$self->render_text( $data);
 };
 get '/DC/fetch/:name/:scale'=> [name =>qr/.+/] => sub
@@ -249,7 +249,7 @@ get '/DC/fetch/:name/:scale'=> [name =>qr/.+/] => sub
 	my $name= $self->param("name");
 	my $scale= $self->param("scale");
 	my $ua = Mojo::UserAgent->new;
-	my $data=$ua->get("http://auginfo/docscaldownload/$name?size=$scale")->res->body;
+	my $data=$ua->get("http://10.250.0.33/docscaldownload/$name?size=$scale")->res->body;
 	$self->render_data($data , format =>'jpg' );
 };
 
