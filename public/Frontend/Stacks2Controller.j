@@ -63,7 +63,7 @@
 
 - (void) annotatedImageView: aView didDoubleClickWithEvent: anEvent
 {	var d=[[self collectionView] delegate];
-	[ d removeImageAtIndex:[d indexOfItem: aView._delegate]];
+	[d removeImageAtIndex:[d indexOfItem: aView._delegate]];
 }
 
 @end
@@ -80,4 +80,16 @@
 }
 
 
+@end
+
+
+@implementation GSMarkupTagStacks2Controller:GSMarkupTagObject
++ (CPString) tagName
+{
+  return @"stacks2Controller";
+}
++ (Class) platformObjectClass
+{
+	return [Stacks2Controller class];
+}
 @end

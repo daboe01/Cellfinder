@@ -47,6 +47,9 @@
 		<menuItem title="Remove" action="delete:" keyEquivalent="r"/>
 		<menuItem title="Select all" action="selectAll:" keyEquivalent="a"/>
 	</menu>
+	<menu title="Testing">
+		<menuItem title="TestRequest" action="__testRequest:"/>
+	</menu>
    </menu>
 </objects>
 

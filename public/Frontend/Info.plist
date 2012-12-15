@@ -10,6 +10,7 @@
 	<array>
 		<string>ManualStacks</string>
 		<string>FeatureExtractor</string>
+		<string>ImageDotting</string>
 	</array>
 	<key>CPPrincipalClass</key>
 	<string>CPApplication</string>

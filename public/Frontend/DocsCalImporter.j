@@ -138,11 +138,13 @@ var _sharedCDImporter;
 {
 	var firstIndex = [indices firstIndex];
 	var filename=[[aCollectionView itemAtIndex: firstIndex]._img filename];
+alert(filename);
 	var o =[CPMutableDictionary new];
 	var re = new RegExp("fetch/([^/]+)");
 	var m = re.exec(filename);
 	if(m)
 	{	[o setObject: m[1] forKey:"filename"];
+//<!>	[o setObject: m[2] forKey:"uri"];
 	}
     return [CPKeyedArchiver archivedDataWithRootObject: o ];
 }

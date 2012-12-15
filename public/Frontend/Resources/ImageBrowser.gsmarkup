@@ -4,7 +4,7 @@
 
 <objects>
   <imageBrowser id="myimagebrowser"/>
-  <window title="Images" closable="no" id="mainwindow" x="330" y="30" width="400" height="640" autosaveName="imagesColumnSizes">
+  <window title="Images" closable="yes" id="mainwindow" x="330" y="30" width="400" height="640" autosaveName="imagesColumnSizes">
 	<splitView vertical="YES" autosaveName="splitview_folders2">
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
@@ -12,11 +12,6 @@
 					<tableColumn identifier="folder_name" title="name"/>
 	  			</tableView>
 			</scrollView>
-			<ButtonBar actionsButton="YES" target="#CPOwner">
-  				<popUpButtonItem title="Run default analyses" target="#CPOwner" action="runDefaultAnalyses:" keyEquivalent="i"/>
-				<popUpButtonItem title="Registration..." target="#CPOwner" action="runRegistration:" keyEquivalent="i"/>
- 				<popUpButtonItem title="Batching..." target="#CPOwner" action="applyFilterToImages:" keyEquivalent="i"/>
-			</ButtonBar>
 		</vbox>
 		<vbox>
 			<scrollView hasHorizontalScroller="NO" hasVerticalScroller="YES">
@@ -24,12 +19,9 @@
 			</scrollView>
 			<hbox>
 				<slider continuous="NO" min="0" max="1"  valueBinding="myimagebrowser.itemSize" halign="right"/><hspace/>
-				<popUpButton width="100" id="compoPopup" itemsBinding="displayfilters_ac.arrangedObjects.name" target="#CPOwner" valueBinding="myimagebrowser.viewingCompoID"/>
+				<popUpButton width="100" id="compoPopup" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" target="#CPOwner" valueBinding="myimagebrowser.viewingCompoID"/>
 			</hbox>
-			<ButtonBar actionsButton="YES" target="#CPOwner" minusButtonAction="deleteImage:">
-  					<popUpButtonItem title="Run default analyses" target="#CPOwner" action="runDefaultAnalyses:" keyEquivalent="i"/>
-					<popUpButtonItem title="Add analysis..." target="#CPOwner" action="runRegistration:" keyEquivalent="i"/>
-			</ButtonBar>
+			<ButtonBar target="#myimagebrowser" minusButtonAction="deleteImage:"/>
 		</vbox>
 	 </splitView>
   </window>

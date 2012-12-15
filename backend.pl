@@ -208,21 +208,43 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 	}
 };
 
-get '/IMG/import/:idtrial/:name'=> [name=>qr/.+/] => sub
+get '/IMG/import/:idtrial/:name/:uri'=> [name=>qr/.+/, uri=>qr/.+/] => sub
 {	my $self=shift;
-	my $idtrial=		$self->param("idtrial");
-	my $filename=		$self->param("name");
-	my ($idimage, $upload_dest)=cellfinder_image::createImageFromUpload($self->db,$idtrial, $filename, '/tmp/'.$filename.'_s.jpg');
-	my $idcomposition;
-	if($filename && !$idcomposition)
-	{	my $trial = cellfinder_image::getObjectFromDBHandID($self->db,'trials', $idtrial);
-		$idcomposition= $trial->{composition_for_upload};
-	}
-	my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage, undef, 1);
-	my $p= $f->(0);
-	$p= cellfinder_image::imageForComposition($self->db, $idcomposition,$f,$p) if($idcomposition);
-	$p->Write($upload_dest);
+	my $idtrial=	$self->param("idtrial");
+	my $name=		$self->param("name");
+	my $uri=		$self->param("uri");
+	my $ua = Mojo::UserAgent->new;
+	my $data=		$ua->get($uri)->res->body;
+	my $suffix='.jpg';	# sensible default
+	$suffix=$1 if $uri =~/^.+\.(.+)$/o;
+	my $idimage= cellfinder_image::uploadImageFromData($self->db, $idtrial, $name, $suffix, $data);
 	$self->render_text($idimage);
+};
+
+post '/IMG/import_stack/:idtrial/:name'=> [name=>qr/.+/] => sub
+{	my $self=shift;
+	my $name= $self->param("name");
+	my $idtrial= $self->param("idtrial");
+	my $json_decoder= Mojo::JSON->new;
+	my $jsonR   = $json_decoder->decode( $self->req->body );
+	use TempFileNames;
+	my $i=0;
+	my $suffix='.jpg';	# sensible default
+	my @image_ids;
+	foreach my $dc_name (@$jsonR)	# import every image
+	{	my $ua = Mojo::UserAgent->new;
+		my $data=$ua->get($dc_name)->res->body;
+		$suffix=$1 if $dc_name =~/^.+\.(.+)$/o;
+		my $idimage= cellfinder_image::uploadImageFromData($self->db, $idtrial, $name. ($i? "_$i":''), $suffix, $data);
+		push @image_ids, $idimage;
+		$i++;
+	}
+	my $idmontage=cellfinder_image::insertObjectIntoTable($self->db, 'montages', 'id', {idtrial=> $idtrial, name=> $name} );
+	foreach my $id (@image_ids)
+	{	my $idanalysis=cellfinder_image::insertObjectIntoTable($self->db, 'analyses', 'id', { idimage=> $id } );
+		cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $id, idanalysis=> $idanalysis, idmontage=> $idmontage} );
+	}
+	$self->render_data('OK', format =>'txt' );
 };
 
 
@@ -253,18 +275,5 @@ get '/DC/fetch/:name/:scale'=> [name =>qr/.+/] => sub
 	$self->render_data($data , format =>'jpg' );
 };
 
-get '/DC/import_stack/:idtrial/:name'=> [name=>qr/.+/] => sub
-{	my $self=shift;
-	my $name= $self->param("name");
-	my $idtrial= $self->param("idtrial");
-	my $json_decoder= Mojo::JSON->new;
-	my $jsonR   = $json_decoder->decode( $self->req->body );
-	while(@$jsonR)
-	{	my $dc_name=$_;
-		my $ua = Mojo::UserAgent->new;
-		my $data=$ua->get("http://10.250.0.33/docscaldownload/$dc_name")->res->body;
-	}
-	$self->render_data('OK', format =>'txt' );
-};
 
 app->start;

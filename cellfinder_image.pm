@@ -257,6 +257,19 @@ sub getObjectFromDBHandID{
 	$sth->execute(($id));
 	return $sth->fetchrow_hashref();
 }
+sub insertObjectIntoTable{
+	my $dbh  = shift;
+	my $table = shift;
+	my $pk = shift;
+	my $o = shift;
+
+	my $sql = SQL::Abstract->new;
+	my($stmt, @bind) = $sql->insert($table, $o);
+	my $sth = $dbh->prepare($stmt);
+	$sth->execute(@bind);
+	warn "err: ".$DBI::errstr if $DBI::errstr;
+	return $dbh->last_insert_id(undef, undef, $table, $pk);
+}
 					
 sub getMontageForIDImageAndIDStack{ my ($dbh, $idimage, $idstack)=@_;
 	my $sql = SQL::Abstract->new;
@@ -335,32 +348,37 @@ sub createImageFromUpload { my ($dbh, $idtrial, $local_filename, $filedataname, 
 
 	my $idimage;
 	unless($replace_idimage)
-	{	use SQL::Abstract;
-		my $sql = SQL::Abstract->new;
+	{
 		my $d={name=>$visible_filename, filename=>"$filename.jpg", idtrial=>$idtrial};
 		$d->{image_time}=$timestamp if($timestamp);
-		my($stmt, @bind) = $sql->insert('images', $d);
-		my $sth = $dbh->prepare($stmt);
-		$sth->execute(@bind);
-		$idimage=$dbh->last_insert_id(undef, undef, 'images', 'id');
+		$idimage=insertObjectIntoTable($dbh, 'images', 'id', $d );
 	} else
 	{	$idimage=$replace_idimage;
 	}
 	return ($idimage, $dest);
 }
+sub uploadImageFromData { my ($dbh, $idtrial, $name, $suffix, $data)=@_;
+	my $filename=tempFileName('/tmp/cellf', $suffix);
+	TempFileNames::writeFile($filename, $data);
+	my ($idimage, $upload_dest)=createImageFromUpload($dbh, $idtrial, $name.".$suffix", $filename);
+	my $idcomposition;
+	my $trial = getObjectFromDBHandID($dbh,'trials', $idtrial);
+	$idcomposition= $trial->{composition_for_upload};
+	my $f= readImageFunctionForIDAndWidth($dbh, $idimage, undef, 1);
+	my $p= $f->(0);
+	$p= imageForComposition($dbh, $idcomposition,$f,$p) if($idcomposition);
+	$p->Write($upload_dest);
+	return $idimage;
+}
 
 sub addDefaultAnalysis { my ($dbh, $idimage, $p,$f, $level)=@_;
 	my ($width, $height)= $p->Get('width', 'height');
-	use SQL::Abstract;
-	my $sql = SQL::Abstract->new;
+
 	my $image = getObjectFromDBHandID($dbh,'images', $idimage);
 	my $trial = getObjectFromDBHandID($dbh,'trials', $image->{idtrial});
 	my $d={idimage=>$idimage, width=> $width, height=>$height, idcomposition_for_editing=> $trial->{composition_for_editing}};
 	$d->{idcomposition_for_analysis}=$trial->{composition_for_celldetection} if($level>0);
-	my($stmt, @bind) = $sql->insert('analyses', $d);
-	my $sth = $dbh->prepare($stmt);
-	$sth->execute(@bind);
-	my $lastid = $dbh->last_insert_id(undef, undef, 'analyses', 'id');
+	my $lastid =insertObjectIntoTable($dbh, 'analyses', 'id', $d );
 	if($d->{idcomposition_for_analysis})	# perform also analysis
 	{	my $p= imageForComposition($dbh, $trial->{composition_for_editing}, $f);
 		imageForComposition($dbh, $d->{idcomposition_for_analysis}, $f, $p, 0, $lastid);

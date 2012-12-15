@@ -6,7 +6,7 @@ var _sharedUploadManager;
 
 
 @implementation UploadManager : CPObject
-{
+{	id	uploadWindow;
 	id	uploadButton;
 	id	statusDisplay;
 
@@ -14,20 +14,11 @@ var _sharedUploadManager;
 
 + sharedUploadManager
 {	if(!_sharedUploadManager)
-	{
+	{	_sharedUploadManager=[self new];
 	}
-	[CPBundle loadRessourceNamed: "gui.gsmarkup" owner:self];
-	spinnerImg=[[CPImage alloc] initWithContentsOfFile: [CPString stringWithFormat:@"%@/%@", [[CPBundle mainBundle] resourcePath],"spinner.gif" ]];
-
-	_store.stacksEntity=[stacksController entity];
-	_store.stacksDirEntity=[stacksDirController entity];
-	[stacksController setContent: [[stacksController entity] allObjects] ];
-    [typePopup addObserver:self
-                forKeyPath:@"itemArray"
-				   options: (CPKeyValueObservingOptionNew)
-				   context: NULL];
+	[CPBundle loadRessourceNamed: "UploadManager.gsmarkup" owner: _sharedUploadManager];
 	[uploadButton setURL: BaseURL];
-	[mainWindow makeKeyAndOrderFront:self];
+	[uploadWindow makeKeyAndOrderFront:self];
 }
 
 -(void) uploadButton:(UploadButton)button didChangeSelection:(CPArray)selection
@@ -59,7 +50,7 @@ var _sharedUploadManager;
 @implementation GSMarkupUploadButton : GSMarkupTagButton
 + (CPString) tagName
 {
-  return @"levelIndicator";
+  return @"uploadButton";
 }
 
 + (Class) platformObjectClass

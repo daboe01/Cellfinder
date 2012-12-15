@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE gsmarkup>
+<gsmarkup>
+
+<objects>
+  <window title="Import" id="mywindow">
+	<hbox>
+	<label id="statusdisplay"/>
+	<uploadButton id="mybutton" url="/IMG/import/:idtrial/:name"/>
+	</hbox>
+  </window>
+</objects>
+
+<connectors>
+	<outlet source="#CPOwner" target="mybutton" label="uploadButton"/>
+	<outlet source="#CPOwner" target="statusdisplay" label="statusDisplay"/>
+	<outlet source="#CPOwner" target="mywindow" label="uploadWindow"/>
+</connectors>
+
+</gsmarkup>

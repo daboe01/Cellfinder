@@ -103,7 +103,6 @@ PhotoDragType="PhotoDragType";
 		{	[a addObject: [CPDictionary dictionaryWithObject: classes[i] forKey: "name"] ];
 		}
 		[guiClassesArrayController setContent: a ];
-alert(guiClassesArrayController);
 	}
 // [_sharedConfigController.trialsWindow makeKeyAndOrderFront:_sharedConfigController]
 	return _sharedConfigController;
@@ -123,7 +122,7 @@ alert(guiClassesArrayController);
 	if(m)
 	{	[trialsController setFilterPredicate: [CPPredicate predicateWithFormat:"id=='"+m[1]+"'" ]];
 	} else
-	{	var re = new RegExp("\\?([^&]+)");
+	{	var re = new RegExp("\\?([^&#]+)");
 		var m = re.exec(document.location);
 		if (m) [trialsController setFilterPredicate: [CPPredicate predicateWithFormat:"name=='"+m[1]+"'" ]];
 
@@ -133,7 +132,7 @@ alert(guiClassesArrayController);
 		var o=[trialsController selectedObject];
 		model=[o valueForKey:"editing_controller"]+".gsmarkup";
 	}
-	var re = new RegExp("t=([^&]+)");
+	var re = new RegExp("t=([^&#]+)");
 	var m = re.exec(document.location);
 	if(m) model=m[1];
 	if(model) [CPBundle loadRessourceNamed: model owner:self];
@@ -154,17 +153,17 @@ alert(guiClassesArrayController);
 {	[ImageBrowser sharedImageBrowser];
 }
 
-@end
-
 /////////////////////////////////////////////////////////
+-(void) __testRequest:sender
+{	var arr=['http://localhost/cellfinder_image/22234','http://localhost/cellfinder_image/22235'];
+	var json=JSON.stringify(arr);
 
-@implementation GSMarkupTagStacks2Controller:GSMarkupTagObject
-+ (CPString) tagName
-{
-  return @"stacks2Controller";
-}
-+ (Class) platformObjectClass
-{
-	return [Stacks2Controller class];
+	var myurl="/IMG/import_stack/"+ [trialsController valueForKeyPath:"selection.id"];
+	myurl+="/mystack";
+
+	var myreq=[CPURLRequest requestWithURL: myurl];
+    [myreq setHTTPMethod:"POST"];
+	[myreq setHTTPBody: json ];
+	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
 }
 @end

@@ -126,10 +126,10 @@
 }
 
 
--(FlickerController) initWithImageArray: myArray andAppController: someAppController
+-(FlickerController) initWithImageArray: myArray
 {	if(self=[self init])
-	{	myAppController=someAppController;
-		[CPBundle loadRessourceNamed: "flicker.gsmarkup" owner:self];
+	{	myAppController=[CPApp delegate];
+		[CPBundle loadRessourceNamed: "Flicker.gsmarkup" owner:self];
 		imageArray=myArray;
 		[slider setMaxValue: [imageArray count]-1 ];
 		[self setImageIndex:0];
@@ -168,12 +168,17 @@
 - init
 {	if(self=[super init])
 	{	myAppController=[CPApp delegate];
-		[self setItemSize:0.2];
-		[stacksCollectionView registerForDraggedTypes: [PhotoDragType]];
-alert([stacksCollectionView delegate])
+		[[CPRunLoop currentRunLoop] performSelector:@selector(_postInit) target:self argument: nil order:0 modes:[CPDefaultRunLoopMode]];
 	} return self;
 }
 
+-(void) _postInit
+{	[self setItemSize:0.2];
+	[stacksCollectionView registerForDraggedTypes: [PhotoDragType]];
+	var re = new RegExp("#([^&#]+)");
+	var m=re.exec(document.location);
+	if (m) [myAppController.stacksController setFilterPredicate: [CPPredicate predicateWithFormat:"name=='"+m[1]+"'" ]];
+}
 -(void) setItemSize:(unsigned) someSize	//<!> should read setItemScale
 {	_itemSize=someSize;
 	[[stacksCollectionView items] makeObjectsPerformSelector:@selector(setSize:) withObject:_itemSize];
@@ -236,7 +241,7 @@ alert([stacksCollectionView delegate])
 		[o reload];
 		[myArray addObject: [self provideRegistratedImageForStackItem: o ]];
 	}
-	[[FlickerController alloc] initWithImageArray: myArray andAppController: myAppController];
+	[[FlickerController alloc] initWithImageArray: myArray];
 }
 
 -(void) flattenStack: sender

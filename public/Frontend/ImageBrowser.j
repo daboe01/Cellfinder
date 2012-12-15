@@ -53,6 +53,7 @@ var _sharedImageBrowser;
 @implementation ImageBrowser : CPObject
 {	id  mainWindow;
 	id	folderCollectionView;
+	id	_appDelegate;
 	unsigned _itemSize;
 	unsigned _viewingCompoID @accessors(property=viewingCompoID);
 }
@@ -60,7 +61,8 @@ var _sharedImageBrowser;
 + sharedImageBrowser
 {	if(!_sharedImageBrowser)
 	{	[CPBundle loadRessourceNamed: "ImageBrowser.gsmarkup" owner: [CPApp delegate] ];
-		 _sharedImageBrowser= [CPApp delegate]._sharedImageBrowser;
+		_sharedImageBrowser= [CPApp delegate]._sharedImageBrowser;
+		_sharedImageBrowser._appDelegate= [CPApp delegate];
 		[_sharedImageBrowser.folderCollectionView registerForDraggedTypes:[PhotoDragType]];
 		[_sharedImageBrowser setItemSize:0.1];
 	}
@@ -80,6 +82,13 @@ var _sharedImageBrowser;
 -(void) itemSize
 {	return _itemSize;
 }
+
+-(void) deleteImage: sender
+{	var selectedItems=[[folderCollectionView items] objectsAtIndexes: [folderCollectionView selectionIndexes] ]
+alert([[selectedItems objectAtIndex: 0] representedObject]);
+	[_appDelegate.folderContentController removeObject: [[selectedItems objectAtIndex: 0] representedObject]];
+}
+
 - (CPArray)collectionView:(CPCollectionView)aCollectionView dragTypesForItemsAtIndexes:(CPIndexSet)indices
 {
 	return [PhotoDragType];
@@ -89,10 +98,14 @@ var _sharedImageBrowser;
 {	var data = [[aSender draggingPasteboard] dataForType:PhotoDragType];
     var o=[CPKeyedUnarchiver unarchiveObjectWithData: data];
 	var myurl=BaseURL+"import/"+ [trialsController valueForKeyPath:"selection.id"];
-	myurl+="/"+[o objectForKey:"filename" ];
+	myurl+="/"+[o objectForKey:"filename" ]+"/"+ [o objectForKey:"uri" ];
 
 	var myreq=[CPURLRequest requestWithURL: myurl];
 	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
+
+//<!> fixme: call this only, if import will result in new folder
+//<!> fixme: select the folder into which was imported by this drop
+
 	[[trialsController selectedObject] willChangeValueForKey:"folders"];
 	[trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 	[[trialsController selectedObject] didChangeValueForKey:"folders"];
