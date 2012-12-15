@@ -218,7 +218,7 @@ var myFastSortFunction=function(a,b,context)
 	var mySize=[someImage size];
 	var myFrame=CPMakeRect(0,0, mySize.width, mySize.height);
 	[self setFrame: myFrame];
-	_backgroundImageView=[[CPImageView alloc] initWithFrame: myFrame];
+	 _backgroundImageView=[[CPImageView alloc] initWithFrame: myFrame];
 	[_backgroundImageView setImageScaling: CPScaleNone];
 	[_backgroundImageView setImage: someImage ];
 	[self addSubview: _backgroundImageView positioned: CPWindowBelow relativeTo: nil];

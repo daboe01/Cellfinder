@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!DOCTYPE gsmarkup>
+<gsmarkup>
+
+<objects>
+  <angulationController id="myangulationcontroller"/>
+  <window title="Imageangulation" x="50" y="30" width="400" height="340"  bridge="YES" delegate="myangulationcontroller">
+	<splitView vertical="YES" autosaveName="splitview_folders_angulation">
+		<vbox>
+			<scrollView hasHorizontalScroller="NO">
+				<tableView autosaveName="folders_angulation" zebra="yes" valueBinding="#CPOwner.folderController" target="#CPOwner">
+					<tableColumn identifier="folder_name" title="Folder"/>
+	  			</tableView>
+			</scrollView>
+		</vbox>
+		<vbox>
+			<scrollView hasHorizontalScroller="NO">
+				<tableView autosaveName="folders_angulation_content" zebra="yes" valueBinding="#CPOwner.folderContentController" target="#CPOwner">
+					<tableColumn identifier="folder_name" title="Image"/>
+	  			</tableView>
+			</scrollView>
+		</vbox>
+		<vbox>
+			<scrollView hasHorizontalScroller="NO">
+				<tableView autosaveName="folders_angulation_analyses" zebra="yes" valueBinding="#CPOwner.analysesController" target="#CPOwner">
+					<tableColumn identifier="idimage" title="Analysis"/>
+	  			</tableView>
+			</scrollView>
+		</vbox>
+		<vbox>
+			<scrollView halign="expand">
+				<annotatedImageView id="annotated_image_view" valueBinding="#CPOwner.analysesController.selection.results"/>
+			</scrollView>
+			<hbox>
+				<slider continuous="NO" min="0" max="1" valueBinding="myangulationcontroller.scale" halign="right"/>
+			</hbox>
+		</vbox>
+	 </splitView>
+  </window>
+
+</objects>
+
+<connectors>
+	<outlet source="myangulationcontroller" target="annotated_image_view" label="annotatedImageView"/>
+
+</connectors>
+
+
+</gsmarkup>

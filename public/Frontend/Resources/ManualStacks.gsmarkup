@@ -8,15 +8,15 @@
 	<splitView vertical="YES" autosaveName="splitview_folders">
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
-				<tableView zebra="yes" valueBinding="#CPOwner.stacksController" target="mystackscontroller">
+				<tableView zebra="yes" valueBinding="#CPOwner.stacksController" target="#mystackscontroller">
 					<tableColumn identifier="name" title="name"/>
 	  			</tableView>
 			</scrollView>
-			<ButtonBar plusButtonAction="newStack:" minusButtonAction="deleteStack:" actionsButton="YES" target="mystackscontroller">
-  				<popUpButtonItem title="Settings…" target="mystackscontroller" action="runSettings:"/>
-				<popUpButtonItem title="Flickering…" target="mystackscontroller" action="runFlicker:"/>
- 				<popUpButtonItem title="Flatten…" target="mystackscontroller" action="flattenStack:"/>
- 				<popUpButtonItem title="GIF" target="mystackscontroller" action="downloadGIF:"/>
+			<ButtonBar plusButtonAction="newStack:" minusButtonAction="deleteStack:" actionsButton="YES" target="#mystackscontroller">
+  				<popUpButtonItem title="Settings…" target="#mystackscontroller" action="runSettings:"/>
+				<popUpButtonItem title="Flickering…" target="#mystackscontroller" action="runFlicker:"/>
+ 				<popUpButtonItem title="Flatten…" target="#mystackscontroller" action="flattenStack:"/>
+ 				<popUpButtonItem title="GIF" target="#mystackscontroller" action="downloadGIF:"/>
 			</ButtonBar>
 		</vbox>
 		<vbox>
@@ -44,7 +44,7 @@
 				<hbox><label valign="center" halign="min" width="100">Height</label><textField valueBinding="#CPOwner.stacksController.selection.height"/></hbox>
 
 				</vbox>
-		<button title="Done" target="mystackscontroller" action="closeSheet:"/>
+		<button title="Done" target="#mystackscontroller" action="closeSheet:"/>
 	</vbox>
   </window>
 

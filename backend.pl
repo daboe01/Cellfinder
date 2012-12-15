@@ -36,7 +36,7 @@ get '/DBI/:table'=> sub
 };
 
 # fetch entities by (foreign) key
-get '/DBI/:table/:col/:pk' => [pk=>qr/.+/] => sub
+get '/DBI/:table/:col/:pk' => [col=>qr/.+/, pk=>qr/.+/] => sub
 {	my $self = shift;
 	my $sql = SQL::Abstract->new;
 	my $table  = $self->param('table');

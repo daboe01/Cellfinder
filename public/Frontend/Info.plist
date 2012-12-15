@@ -5,12 +5,12 @@
 	<key>CPApplicationDelegateClass</key>
 	<string>AppController</string>
 	<key>CPBundleName</key>
-	<string>NewApplication</string>
+	<string>Cellfinder2</string>
 	<key>ViewerClasses</key>
 	<array>
 		<string>ManualStacks</string>
-		<string>FeatureExtractor</string>
-		<string>ImageDotting</string>
+		<string>Angulation</string>
+		<string>SimpleDotting</string>
 	</array>
 	<key>CPPrincipalClass</key>
 	<string>CPApplication</string>

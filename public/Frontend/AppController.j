@@ -24,6 +24,8 @@ PhotoDragType="PhotoDragType";
 @import "CompoController.j"
 @import "StacksController.j"
 @import "Stacks2Controller.j"
+@import "DottingController.j"
+@import "AngulationController.j"
 @import "DocsCalImporter.j"
 @import "ConfigController.j"
 @import "ImageBrowser.j"

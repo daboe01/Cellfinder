@@ -6,27 +6,6 @@
 @import "AnnotatedImageView.j";
 
 
-/////////////////////////////////////////////////////////
-
-@implementation CPObject (ImageURLHack)
-
-//<!> unused?!
--(CPImage) _cellfinderImageFromID
-{	var myURL=BaseURL+[self valueForKey:"id"]+"?width=10000";
-	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
-	[img setDelegate: self];
-	return img;
-}
--(CPImage) _cellfinderSpc: someSpc forID: someID
-{	var myreq=[CPURLRequest requestWithURL: BaseURL+someID+"?spc="+someSpc ];
-	return [[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil]  rawString];
-
-}
--(CPImage) _cellfinderGeom
-{	return [self _cellfinderSpc: "geom" forID: [self valueForKey:"id"] ];
-}
-@end
-
 @implementation FSObject(Archiving)
 
 - (void)encodeWithCoder: (CPCoder)aCoder

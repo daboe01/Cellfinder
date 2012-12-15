@@ -1,82 +1,74 @@
-/*
- * AppController.j
- * NewApplication
- *
- * Created by You on November 16, 2011.
- * Copyright 2011, Your Company All rights reserved.
- *
- * <!> fixme
- * nothing to declare
- *
- */
-
 @import <Foundation/CPObject.j>
 @import <Renaissance/Renaissance.j>
 @import "AnnotatedImageView.j"
 
 
-@implementation DottingController : CPObject
-{	id		annotatedImageView;
-	id		myAppController;
-	id		compoPopup;
-
-	double	_scale @accessors(property=scale);
-	CPSize	_originalSize;
-	int		_compoID @accessors(property=compoID);
-}
+@implementation CPObject (ImageURLForDottingController)
 
 -(CPImage) _backgroundImage
-{	var mycompoID=[myAppController.analysesController valueForKeyPath:"selection.idcomposition_for_editing" ];
-	var myidimage=[myAppController.analysesController valueForKeyPath:"selection.idimage" ];
-	var myURL= [myAppController baseImageURL]+myidimage+"?rnd=1";
+{	var mycompoID=[self valueForKey:"idcomposition_for_editing" ];
+	var myidimage=[self valueForKey:"idimage" ];
+	var myURL= [[CPApp delegate] baseImageURL]+myidimage+"?rnd=1";
 	if(mycompoID && mycompoID!==CPNullMarker) myURL+="&cmp="+mycompoID;
-	if(_originalSize) myURL+="&width="+(Math.floor(_originalSize.width*_scale*_originalSize.height*_scale));
+	var mycontroller= [[CPApp mainWindow] delegate];	// this is hack to get hold of the UI context from within the database context
+	var scale= mycontroller._scale;
+	if(mycontroller._originalSize) myURL+="&width="+ Math.floor(mycontroller._originalSize.width *scale*
+																mycontroller._originalSize.height*scale);
 	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
-	[img setDelegate:self];
+	[img setDelegate: mycontroller];
 	return img;
 }
+
+@end
+
+
+/////////////////////////////////////////////////////////
+
+@implementation DottingController : CPObject
+{	id annotatedImageView;
+	id _scale @accessors(property=scale);
+	CPSize _originalSize;
+}
+
+// this is a hack to get the scaling right
 - (void)imageDidLoad:(CPImage)image
-{	_originalSize=CPSizeCreateCopy([image size]);
-	[_progress stopAnimation:self];
+{	if(!_originalSize) _originalSize= [image size];
 }
 
--(void) _configureAnalysis
-{	var myreq=[CPURLRequest requestWithURL: BaseURL+"0?cmp="+[myAppController.trialsController valueForKeyPath: "selection.composition_for_javascript"] ];
-	var mypackage=[[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil]  rawString];
-	var arr = JSON.parse( mypackage );
-	if(!arr) return;
-	var i,l=arr.length;
-	for(i=0;i<l;i++)
-	{	var m=arr[i];
-		if([m characterAtIndex:0]=='<') next;
-		var sel=CPSelectorFromString(m);
-		if(sel) [self performSelector:sel];
-	}
+- init
+{	if(self=[super init])
+	{	_scale=1;
+		[[CPRunLoop currentRunLoop] performSelector:@selector(_postInit) target:self argument: nil order:0 modes:[CPDefaultRunLoopMode]];
+	} return self;
 }
-
 
 -(void) _postInit
-{	_scale=1.0;
-
-	myAppController=[CPApp delegate];
-	[CPBundle loadRessourceNamed: "image.gsmarkup" owner:self];
-	_compoID=[[compoPopup selectedItem] tag ];
-
-
-	[self _configureAnalysis];
-	[annotatedImageView bind:"scale" toObject: self withKeyPath: "_scale" options:nil];
-	[annotatedImageView bind:"backgroundImage" toObject: self withKeyPath: "_backgroundImage" options:nil];
-}
-
-
-
--(void) editCompo: sender
-{	var compoID=[[compoPopup selectedItem] tag];
-	var o=[[myAppController.displayfilters_ac entity] objectWithPK: compoID];
-	if (o)
-	{	[[CompoController alloc] initWithCompo:o andAppController: myAppController];
+{
+	var mycompo= [[CPApp delegate].trialsController valueForKeyPath: "selection.composition_for_javascript"];
+	if(mycompo != CPNullMarker)
+	{	var myreq=[CPURLRequest requestWithURL: BaseURL+"0?cmp="+mycompo ];
+		var mypackage=[[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil]  rawString];
+		var arr = JSON.parse( mypackage );
+		if(!arr) return;
+		var i,l=arr.length;
+		for(i=0;i<l;i++)
+		{	var m=arr[i];
+			if([m characterAtIndex:0]=='<') next;
+			var sel=CPSelectorFromString(m);
+			if(sel) [self performSelector:sel];
+		}
 	}
+	[annotatedImageView bind:"backgroundImage" toObject: [CPApp delegate].analysesController withKeyPath: "selection._backgroundImage" options:nil];
 }
+
+-(void) setScale:(double) someScale
+{	_scale=someScale;
+	[annotatedImageView setScale: _scale];
+	[annotatedImageView setBackgroundImage: [[[CPApp delegate].analysesController selectedObject] _backgroundImage]];	// force image update
+
+}
+
+
 -(void) delete: sender	// delete a dot
 {	[annotatedImageView delete: sender];
 }
@@ -94,7 +86,7 @@
 
 @end
 
-@implementation GSMarkupTagDottingController:GSMarkupTagObject
+@implementation GSMarkupTagDottingController : GSMarkupTagObject
 + (CPString) tagName
 {
   return @"dottingController";
