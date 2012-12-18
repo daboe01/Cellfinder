@@ -35,7 +35,7 @@ sub runSimpleRegistrationRCode { my ($id1,$id2)=@_;
 	out=paste( round(c(t(coef(l)))[c(3:6,1:2)], digits=4), collapse=",")
 ENDOFR
 ;	$RCmd=~s/<id1>/$id1/ogs;
-	warn $RCmd;
+	$RCmd=~s/<id2>/$id2/ogs;
 	my $R = Statistics::R->new();
 	$R->run($RCmd);
 	return '['. $R->get('out') . ']';
