@@ -245,6 +245,7 @@
 -(void) flattenStack: sender
 {	if ([myAppController valueForKeyPath:"stacksController.selection.idpatch"] === CPNullMarker) {
 		alert("Config flattening compo first");
+		return;
 	}
 	[self _triggerRegistrationMatrixGeneration];
 	my url=BaseURL+"0?idstack="+[myAppController  valueForKeyPath:"stacksController.selection.id"] +"&cmp="+[myAppController valueForKeyPath:"stacksController.selection.idpatch"];
