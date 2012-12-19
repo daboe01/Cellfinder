@@ -117,24 +117,17 @@
 
 /////////////////////////////////////////////////////////
 @implementation FlickerController: CPObject
-{	var myAppController;
-	id	flickerSuperview;
-	id	imageView;
+{	id	imageView;
 	id	slider;
 	id	imageArray;
 	unsigned _imageIndex;
 }
 
 
--(FlickerController) initWithImageArray: myArray
-{	if(self=[self init])
-	{	myAppController=[CPApp delegate];
-		[CPBundle loadRessourceNamed: "Flicker.gsmarkup" owner:self];
-		imageArray=myArray;
-		[slider setMaxValue: [imageArray count]-1 ];
-		[self setImageIndex:0];
-	}
-	return self;
+-(void) setImageArray: myArray
+{	[CPBundle loadRessourceNamed: "Flicker.gsmarkup" owner:self];
+	imageArray=myArray;
+	[slider setMaxValue: [imageArray count]-1 ];
 }
 -(void) setImageIndex:(unsigned) someIndex
 {	_imageIndex=Math.floor(someIndex);
@@ -147,6 +140,9 @@
 }
 -(unsigned) imageIndex
 {	return _imageIndex;
+}
+- (void)imageDidLoad:(CPImage)image
+{	[self setImageIndex:0];
 }
 
 @end
@@ -229,19 +225,21 @@
 -(void) runFlicker: sender
 {
 	[self _triggerRegistrationMatrixGeneration];
-	var peek=[stacksCollectionView selectionIndexes];
 
 	var selectedArray=[[myAppController.stacksController selectedObject] valueForKey:"analyses" synchronous:YES];
 	var myArray=[CPMutableArray new];
 	var i,n=[selectedArray count];
+	var fc=[FlickerController new];
 
 	for(i=0; i<n; i++)
 	{
 		var o=[selectedArray objectAtIndex: i];
 		[o reload];
-		[myArray addObject: [self provideRegistratedImageForStackItem: o ]];
+		var img=[self provideRegistratedImageForStackItem: o ];
+		[img setDelegate: fc];
+		[myArray addObject: img];
 	}
-	[[FlickerController alloc] initWithImageArray: myArray];
+	[fc setImageArray: myArray];
 }
 
 -(void) flattenStack: sender
@@ -266,7 +264,6 @@
 {	var data = [[aSender draggingPasteboard] dataForType:PhotoDragType];
     var o=[CPKeyedUnarchiver unarchiveObjectWithData: data];
 
-alert(o);
 	var idimage=[o._changes objectForKey:"idimage"];
 	var newImg=[CPDictionary dictionaryWithObjects: [ idimage ] forKeys: [ "idimage" ] ];
 	var analysesEntity=[myAppController.analysesController entity];
