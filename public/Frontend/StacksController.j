@@ -243,8 +243,14 @@
 }
 
 -(void) flattenStack: sender
-{	[self _triggerRegistrationMatrixGeneration];
-	window.open(BaseURL+"0?idstack="+[myAppController  valueForKeyPath:"stacksController.selection.id"] +"&cmp="+[myAppController valueForKeyPath:"stacksController.selection.idpatch"]+"&csize="+[myAppController valueForKeyPath:"stacksController.selection.width"]+"x"+[myAppController valueForKeyPath:"stacksController.selection.height"],'flattened_stackwindow');
+{	if ([myAppController valueForKeyPath:"stacksController.selection.idpatch"] === CPNullMarker) {
+		alert("Config flattening compo first");
+	}
+	[self _triggerRegistrationMatrixGeneration];
+	my url=BaseURL+"0?idstack="+[myAppController  valueForKeyPath:"stacksController.selection.id"] +"&cmp="+[myAppController valueForKeyPath:"stacksController.selection.idpatch"];
+	if([myAppController valueForKeyPath:"stacksController.selection.width"]!===CPNullMarker && [myAppController valueForKeyPath:"stacksController.selection.height"]!===CPNullMarker)
+		url+="&csize="+[myAppController valueForKeyPath:"stacksController.selection.width"]+"x"+[myAppController valueForKeyPath:"stacksController.selection.height"];
+	window.open(url,'flattened_stackwindow');
 }
 -(void) downloadGIF: sender
 {	[self _triggerRegistrationMatrixGeneration];
