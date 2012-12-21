@@ -248,10 +248,11 @@
 		return;
 	}
 	[self _triggerRegistrationMatrixGeneration];
-	my url=BaseURL+"0?idstack="+[myAppController  valueForKeyPath:"stacksController.selection.id"] +"&cmp="+[myAppController valueForKeyPath:"stacksController.selection.idpatch"];
-	if([myAppController valueForKeyPath:"stacksController.selection.width"]!===CPNullMarker && [myAppController valueForKeyPath:"stacksController.selection.height"]!===CPNullMarker)
-		url+="&csize="+[myAppController valueForKeyPath:"stacksController.selection.width"]+"x"+[myAppController valueForKeyPath:"stacksController.selection.height"];
-	window.open(url,'flattened_stackwindow');
+	
+	var myurl = BaseURL+"0?idstack="+[myAppController  valueForKeyPath:"stacksController.selection.id"] +"&cmp="+[myAppController valueForKeyPath:"stacksController.selection.idpatch"];
+	if([myAppController valueForKeyPath:"stacksController.selection.width"]!==CPNullMarker && [myAppController valueForKeyPath:"stacksController.selection.height"]!==CPNullMarker)
+		myurl+=("&csize="+[myAppController valueForKeyPath:"stacksController.selection.width"]+"x"+[myAppController valueForKeyPath:"stacksController.selection.height"]);
+	window.open(myurl,'flattened_stackwindow');
 }
 -(void) downloadGIF: sender
 {	[self _triggerRegistrationMatrixGeneration];
