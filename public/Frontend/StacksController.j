@@ -16,20 +16,18 @@
 
 @implementation CPObject (ImageURLCV)
 
-
-
 -(void) _setImageSizedWithDelegate: someDelegate
 {	var myreq=[CPURLRequest requestWithURL: BaseURL+[self valueForKey:"idimage"]+"?spc=geom"];
 	[CPURLConnection connectionWithRequest:myreq delegate: someDelegate];
 }
 
 -(CPSize) _getImageSize
-{
-	var myreq=[CPURLRequest requestWithURL: BaseURL+[self valueForKey:"idimage"]+"?spc=geom" ];
+{	var myreq=[CPURLRequest requestWithURL: BaseURL+[self valueForKey:"idimage"]+"?spc=geom" ];
 	var mypackage=[[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil]  rawString];
 	var arr=mypackage.split(' ');
 	return CPMakeSize(arr[0],arr[1]);
 }
+
 @end
 
 @implementation SimpleImageViewCollectionItem: CPCollectionViewItem
@@ -151,8 +149,7 @@
 /////////////////////////////////////////////////////////
 
 @implementation StacksController: CPObject
-{
-	var myAppController;
+{	var myAppController;
 	id	stacksCollectionView;
 	id	stacksWindow;
 	id	_viewingCompo;
@@ -232,8 +229,7 @@
 	var fc=[FlickerController new];
 
 	for(i=0; i<n; i++)
-	{
-		var o=[selectedArray objectAtIndex: i];
+	{	var o=[selectedArray objectAtIndex: i];
 		[o reload];
 		var img=[self provideRegistratedImageForStackItem: o ];
 		[img setDelegate: fc];
@@ -288,8 +284,7 @@
 }
 
 - (void)closeSheet:(id)sender
-{
-	[stacksettingswindow orderOut:sender];
+{	[stacksettingswindow orderOut:sender];
 	[CPApp endSheet: stacksettingswindow returnCode: CPRunStoppedResponse];
 }
 -(void) didEndSheet: someSheet returnCode: someCode contextInfo: someInfo

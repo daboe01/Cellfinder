@@ -24,8 +24,7 @@ PhotoDragType="PhotoDragType";
 @import "CompoController.j"
 @import "StacksController.j"
 @import "Stacks2Controller.j"
-@import "DottingController.j"
-@import "AngulationController.j"
+@import "ManualDottingController.j"
 @import "DocsCalImporter.j"
 @import "ConfigController.j"
 @import "ImageBrowser.j"
@@ -55,8 +54,7 @@ PhotoDragType="PhotoDragType";
 @implementation FSObject(Archiving)
 
 - (void)encodeWithCoder: (CPCoder)aCoder
-{
-	var mydata=[_data copy];
+{	var mydata=[_data copy];
 	if(_changes) [mydata addEntriesFromDictionary: _changes];
 	[aCoder _encodeDictionaryOfObjects: mydata forKey:@"FS.objects"];
 }
@@ -81,6 +79,7 @@ PhotoDragType="PhotoDragType";
 	id	folderController;
 	id	folderContentController;
 	id	analysesController;
+	id	aggregationsController;
 
 	id	displayfilters_ac;
 	id	uploadfilters_ac;
@@ -139,7 +138,6 @@ PhotoDragType="PhotoDragType";
 	if(m) model=m[1];
 	if(model) [CPBundle loadRessourceNamed: model owner:self];
 	else [self sharedConfigController];
-
 }
 
 -(void) delete:sender
@@ -153,19 +151,5 @@ PhotoDragType="PhotoDragType";
 
 -(void) runImageBrowser:sender
 {	[ImageBrowser sharedImageBrowser];
-}
-
-/////////////////////////////////////////////////////////
--(void) __testRequest:sender
-{	var arr=['http://localhost/cellfinder_image/22234','http://localhost/cellfinder_image/22235'];
-	var json=JSON.stringify(arr);
-
-	var myurl="/IMG/import_stack/"+ [trialsController valueForKeyPath:"selection.id"];
-	myurl+="/mystack";
-
-	var myreq=[CPURLRequest requestWithURL: myurl];
-    [myreq setHTTPMethod:"POST"];
-	[myreq setHTTPBody: json ];
-	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
 }
 @end

@@ -116,6 +116,7 @@ var myFastSortFunction=function(a,b,context)
 	unsigned	_styleFlags @accessors(property=styleFlags);
 	id			_delegate @accessors(property=delegate);
 	BOOL		_sendDelegateMoves;
+	int			_lastDegrees;
 }
 
 -(void) setDelegate: someDelegate
@@ -286,8 +287,9 @@ var myFastSortFunction=function(a,b,context)
 			CGContextSelectFont(context, [CPFont systemFontOfSize:9]);
 			CGContextSetTextPosition(context, firstPoint.x-4, firstPoint.y+1)
 			var degs=Math.floor(radians*57.2957795*(-1));
-			
-			CGContextShowText(context, degs<0? (90+(degs+270)): degs);
+			degs=degs<0? (90+(degs+270)): degs
+			_lastDegrees=degs;
+			CGContextShowText(context, _lastDegrees);
 		}
 	}
 	if(_styleFlags & AIVStyleNumbers )

@@ -4,8 +4,8 @@
 
 <objects>
   <angulationController id="myangulationcontroller"/>
-  <window title="Imageangulation" x="50" y="30" width="400" height="340"  bridge="YES" delegate="myangulationcontroller">
-	<splitView vertical="YES" autosaveName="splitview_folders_angulation">
+  <window title="Angulation" x="50" y="30" width="400" height="340"  bridge="YES" delegate="myangulationcontroller">
+	<splitView vertical="YES" autosaveName="splitview_folders_manual_angulation">
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
 				<tableView autosaveName="folders_angulation" zebra="yes" valueBinding="#CPOwner.folderController" target="#CPOwner">
@@ -15,35 +15,45 @@
 		</vbox>
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
-				<tableView autosaveName="folders_angulation_content" zebra="yes" valueBinding="#CPOwner.folderContentController" target="#CPOwner">
+				<tableView autosaveName="folders_manual_angulation_content" zebra="yes" valueBinding="#CPOwner.folderContentController" target="#CPOwner">
 					<tableColumn identifier="folder_name" title="Image"/>
 	  			</tableView>
 			</scrollView>
 		</vbox>
 		<vbox>
-			<scrollView hasHorizontalScroller="NO">
-				<tableView autosaveName="folders_angulation_analyses" zebra="yes" valueBinding="#CPOwner.analysesController" target="#CPOwner">
-					<tableColumn identifier="idimage" title="Analysis"/>
-	  			</tableView>
-			</scrollView>
+			<vbox>
+				<vbox>
+					<scrollView hasHorizontalScroller="NO">
+						<tableView autosaveName="folders_angulation_analyses" zebra="yes" valueBinding="#CPOwner.analysesController" target="#CPOwner">
+							<tableColumn identifier="idimage" title="Analysis"/>
+	  					</tableView>
+					</scrollView>
+					<ButtonBar target="#CPOwner.analysesController" halign="right" width="250"  plusButtonAction="insert:" minusButtonAction="remove:"/>
+				</vbox>
+				<scrollView hasHorizontalScroller="NO">
+					<tableView autosaveName="aggregations_name" zebra="yes" valueBinding="#CPOwner.aggregationsController" target="#CPOwner">
+						<tableColumn identifier="name" title="Name"/>
+						<tableColumn identifier="value" title="Value"/>
+					</tableView>
+				</scrollView>
+			</vbox>
 		</vbox>
 		<vbox>
 			<scrollView halign="expand">
-				<annotatedImageView id="annotated_image_view" valueBinding="#CPOwner.analysesController.selection.results"/>
+				<annotatedImageView id="annotated_image_view" delegate="myangulationcontroller" valueBinding="#CPOwner.analysesController.selection.results"/>
 			</scrollView>
 			<hbox>
 				<slider continuous="NO" min="0" max="1" valueBinding="myangulationcontroller.scale" halign="right"/>
+				<hspace/>
+				<popUpButton width="100" id="compoPopup" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.analysesController.selection.idcomposition_for_editing"/>
 			</hbox>
 		</vbox>
 	 </splitView>
   </window>
-
 </objects>
 
 <connectors>
 	<outlet source="myangulationcontroller" target="annotated_image_view" label="annotatedImageView"/>
-
 </connectors>
-
 
 </gsmarkup>

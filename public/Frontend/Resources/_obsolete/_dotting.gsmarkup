@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!DOCTYPE gsmarkup>
+<gsmarkup>
+
+<objects>
+  <dottingController id="mydottingcontroller"/>
+  <window title="ImageDotting" x="50" y="30" width="400" height="340"  bridge="YES" delegate="mydottingcontroller">
+	<splitView vertical="YES" autosaveName="splitview_folders_dotting">
+		<vbox>
+			<scrollView hasHorizontalScroller="NO">
+				<tableView autosaveName="folders_dotting" zebra="yes" valueBinding="#CPOwner.folderController" target="#CPOwner">
+					<tableColumn identifier="folder_name" title="Folder"/>
+	  			</tableView>
+			</scrollView>
+		</vbox>
+		<vbox>
+			<scrollView hasHorizontalScroller="NO">
+				<tableView autosaveName="folders_dotting_content" zebra="yes" valueBinding="#CPOwner.folderContentController" target="#CPOwner">
+					<tableColumn identifier="folder_name" title="Image"/>
+	  			</tableView>
+			</scrollView>
+		</vbox>
+		<vbox>
+			<scrollView hasHorizontalScroller="NO">
+				<tableView autosaveName="folders_dotting_analyses" zebra="yes" valueBinding="#CPOwner.analysesController" target="#CPOwner">
+					<tableColumn identifier="idimage" title="Analysis"/>
+	  			</tableView>
+			</scrollView>
+		</vbox>
+		<vbox>
+			<scrollView halign="expand">
+				<annotatedImageView id="annotated_image_view" valueBinding="#CPOwner.analysesController.selection.results"/>
+			</scrollView>
+			<hbox>
+				<slider continuous="NO" min="0" max="1" valueBinding="mydottingcontroller.scale" halign="right"/>
+			</hbox>
+		</vbox>
+	 </splitView>
+  </window>
+
+</objects>
+
+<connectors>
+	<outlet source="mydottingcontroller" target="annotated_image_view" label="annotatedImageView"/>
+</connectors>
+
+
+</gsmarkup>

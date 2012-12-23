@@ -33,6 +33,7 @@
    <arrayController id="folder_controller" entity="folders" valueBinding ="trials_controller.selection.folders" sortDescriptor="by_folder_name"/>
    <arrayController id="folder_content_controller" entity="folder_content" valueBinding ="folder_controller.selection.folder_content"/>
    <arrayController id="analyses_controller" entity="analyses" valueBinding ="folder_content_controller.selection.analyses"/>
+   <arrayController id="aggregations_controller" entity="aggregations" valueBinding ="analyses_controller.selection.aggregations"/>
 
   <menu type="main">
 	<menu title="Images">
@@ -138,12 +139,20 @@
 		<relationship type="toOne" name="analysis_compo" bindingColumn="idcomposition_for_analysis" target="patch_compositions"/>
 		<relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
 		<relationship type="toMany" name="results" targetColumn="idanalysis" target="results"/>
+		<relationship type="toMany" name="aggregations" targetColumn="idanalysis" target="aggregations"/>
 	</entity>
 	<entity id="results" store="#CPOwner.store">
 		<column name="id" primaryKey="YES"/>
 		<column name="idanalysis"/>
 		<column name="row"/>
 		<column name="col"/>
+		<relationship type="toOne" name="analysis" bindingColumn="idanalysis" target="analyses"/>
+	</entity>
+	<entity id="aggregations" store="#CPOwner.store">
+		<column name="id" primaryKey="YES"/>
+		<column name="idanalysis"/>
+		<column name="name"/>
+		<column name="value"/>
 		<relationship type="toOne" name="analysis" bindingColumn="idanalysis" target="analyses"/>
 	</entity>
 	<entity id="montages" store="#CPOwner.store">
@@ -185,6 +194,7 @@
 	<outlet source="#CPOwner" target="analyses_controller" label="analysesController"/>
 	<outlet source="#CPOwner" target="stacks_controller" label="stacksController"/>
 	<outlet source="#CPOwner" target="stacks_content_controller" label="stacksContentController"/>
+	<outlet source="#CPOwner" target="aggregations_controller" label="aggregationsController"/>
 
 	<outlet source="#CPOwner" target="displayfilters_ac" label="displayfilters_ac"/>
 	<outlet source="#CPOwner" target="uploadfilters_ac" label="uploadfilters_ac"/>

@@ -43,8 +43,7 @@
 }
 
 -(void) _postInit
-{
-	var mycompo= [[CPApp delegate].trialsController valueForKeyPath: "selection.composition_for_javascript"];
+{	var mycompo= [[CPApp delegate].trialsController valueForKeyPath: "selection.composition_for_javascript"];
 	if(mycompo != CPNullMarker)
 	{	var myreq=[CPURLRequest requestWithURL: BaseURL+"0?cmp="+mycompo ];
 		var mypackage=[[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil]  rawString];
