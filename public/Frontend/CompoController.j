@@ -129,8 +129,8 @@
 	[affectedImageControllers makeObjectsPerformSelector:@selector(reload:) withObject:self];
 }
 
--(void) initWithCompo:(id) compo andAppController:(id) anAppController
-{	_myAppController=anAppController;
+-(void) initWithCompo:(id) compo
+{	_myAppController=[CPApp delegate];
 
 	var store=[_myAppController store];	// for the popUpButton entities
 	var placeholderEntity = [[FSEntity alloc] initWithName: "parameter_lists" andStore: store];	// for feeding the popUpButtons only

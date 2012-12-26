@@ -128,8 +128,8 @@ PhotoDragType="PhotoDragType";
 		if (m) [trialsController setFilterPredicate: [CPPredicate predicateWithFormat:"name=='"+m[1]+"'" ]];
 
 	}
-	if([trialsController filterPredicate])
-	{	[trialsController setSelectionIndex:0];
+	if( [trialsController filterPredicate])
+	{	[trialsController setSelectionIndex: 0];
 		var o=[trialsController selectedObject];
 		model=[o valueForKey:"editing_controller"]+".gsmarkup";
 	}

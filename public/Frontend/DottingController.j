@@ -21,6 +21,13 @@
 
 @end
 
+@implementation CPButtonBar(addObjectAddition)
+-(void) addObject:someO
+{	var b=[self buttons];
+	[b addObject: someO];
+	[self setButtons: b];
+}
+@end
 
 /////////////////////////////////////////////////////////
 
@@ -28,6 +35,7 @@
 {	id annotatedImageView;
 	id _scale @accessors(property=scale);
 	CPSize _originalSize;
+	CPSize myButtonBar;
 }
 
 // this is a hack to get the scaling right
@@ -43,8 +51,9 @@
 }
 
 -(void) _postInit
-{	var mycompo= [[CPApp delegate].trialsController valueForKeyPath: "selection.composition_for_javascript"];
-	if(mycompo != CPNullMarker)
+{	var myAppDelegate= [CPApp delegate];
+	var mycompo= [myAppDelegate.trialsController valueForKeyPath: "selection.composition_for_javascript"];
+	if(mycompo !== CPNullMarker)
 	{	var myreq=[CPURLRequest requestWithURL: BaseURL+"0?cmp="+mycompo ];
 		var mypackage=[[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil]  rawString];
 		var arr = JSON.parse( mypackage );
@@ -57,7 +66,17 @@
 			if(sel) [self performSelector:sel];
 		}
 	}
-	[annotatedImageView bind:"backgroundImage" toObject: [CPApp delegate].analysesController withKeyPath: "selection._backgroundImage" options:nil];
+	[annotatedImageView bind:"backgroundImage" toObject: myAppDelegate.analysesController withKeyPath: "selection._backgroundImage" options:nil];
+	if(myButtonBar)
+	{	var actionButton;
+		[myButtonBar addObject:actionButton=[CPButtonBar actionPopupButton] ];
+		var list=[myAppDelegate.analyticsfilters_ac arrangedObjects];
+		var i,j=[list count];
+		for(i=0; i<j; i++)
+		{	var title=[[list objectAtIndex: i] valueForKey: "name"];
+			[actionButton addItemWithTitle: title];
+		}
+	}
 }
 
 -(void) setScale:(double) someScale
@@ -65,6 +84,24 @@
 	[annotatedImageView setScale: _scale];
 	[annotatedImageView setBackgroundImage: [[[CPApp delegate].analysesController selectedObject] _backgroundImage]];	// force image update
 
+}
+
+-(void) removeAnalysis: sender
+{	[[CPApp delegate].analysesController remove:sender];
+
+}
+
+-(void) insertAnalysis: sender
+{	var myAppDelegate= [CPApp delegate];
+	[myAppDelegate.analysesController insert:sender];
+	var myidanalysis=[myAppDelegate.analysesController valueForKeyPath:"selection.id"];
+	var myidimage   =[myAppDelegate.analysesController valueForKeyPath:"selection.idimage"];
+	var mycompoID  = [myAppDelegate.trialsController valueForKeyPath: "selection.composition_for_celldetection"];
+	if(mycompoID !== CPNullMarker)
+	{	myurl= BaseURL +myidimage+"?cmp="+mycompoID+"&idanalysis="+ myidanalysis;
+		var myreq=[CPURLRequest requestWithURL: myurl];
+		[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
+	}
 }
 
 

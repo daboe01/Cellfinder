@@ -11,6 +11,7 @@
 		<string>ManualStacks</string>
 		<string>Angulation</string>
 		<string>SimpleDotting</string>
+		<string>AutoDotting</string>
 	</array>
 	<key>CPPrincipalClass</key>
 	<string>CPApplication</string>

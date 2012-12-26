@@ -51,6 +51,7 @@ ENDOFR
 ;	$RCmd=~s/<infile>/$infile/ogs;
 	$RCmd=~s/<code>/$code/ogs;
 	my $R = Statistics::R->new();
+warn $RCmd;
 	$R->run($RCmd);
 	my $out=$R->get('out');
 	return JSON::XS->new->utf8->decode($out);
@@ -118,8 +119,9 @@ sub imageForDBHAndRenderchainIDAndImage{
 	my $sql=qq/select * from patch_chains_with_parameters where idpatch_chain=?/;
 	my $sth = $dbh->prepare( $sql );
 	$sth->execute(($id));
+	my $old_p;
 	while(my $curr_patch = $sth->fetchrow_hashref())
-	{
+	{	$old_p=$p;
 ###		warn Dumper $curr_patch;
 		if($curr_patch->{params}=~/<handover>/o)
 		{	my  $analysis = getObjectFromDBHandID($dbh, 'analyses', $idanalysis);
@@ -182,7 +184,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 					my $sth = $dbh->prepare($sql);
 					for(my $i=0; $i< scalar @{$infile->{xpoint}}; $i++)
 					{	my ($x,$y)=(floor ($infile->{xpoint}->[$i]), floor ($infile->{ypoint}->[$i]));
-warn "$x,$y";
+warn "$idanalysis $x,$y";
 						$sth->execute(($idanalysis, $x, $y));
 					}
 
@@ -198,7 +200,7 @@ warn "$x,$y";
 			{	$stash=[$result];
 			}
 		}
-		elsif($curr_patch->{patch_type} == 2 )				# R or call external programm
+		elsif($curr_patch->{patch_type} == 2 )				# call external programm
 		{	next unless ref $p eq 'Image::Magick';
 			my $filename=tempFileName('/tmp/cellf');
 			$p->Write($filename.'.jpg');
