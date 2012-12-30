@@ -3,7 +3,7 @@
 <gsmarkup>
 
 <objects>
-  <stacks2Controller id="mystackscontroller"/>
+  <manualStacksController id="mystackscontroller"/>
   <window title="Stacks" id="stackswindow" closable="yes"  x="50" y="30" width="400" height="340"  bridge="YES" delegate="mystackscontroller">
 	<splitView vertical="YES" autosaveName="splitview_folders">
 		<vbox>
@@ -25,7 +25,7 @@
 				<collectionView id="stacks_collection_view" itemWidth="100" itemHeight="100" valueBinding="#CPOwner.stacksContentController.arrangedObjects" delegate="mystackscontroller" itemsClassName="ImageEditorCollectionItem" selectable="YES"/>
 			</scrollView>
 			<hbox>
-				<slider continuous="NO" min="0" max="1"  valueBinding="mystackscontroller.itemSize" halign="right"/><hspace/>
+				<slider continuous="NO" min="0" max="1"  valueBinding="mystackscontroller.scale" halign="right"/><hspace/>
 				<popUpButton width="100" id="compoPopup" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" valueBinding="mystackscontroller.viewingCompo"/>
 			</hbox>
 		</vbox>
@@ -51,8 +51,8 @@
 </objects>
 
 <connectors>
-	<outlet source="mystackscontroller" target="stacks_collection_view" label="stacksCollectionView"/>
-	<outlet source="mystackscontroller" target="stackswindow" label="stacksWindow"/>
+	<outlet source="mystackscontroller" target="stacks_collection_view" label="myCollectionView"/>
+	<outlet source="mystackscontroller" target="stackswindow" label="myWindow"/>
 	<outlet source="mystackscontroller" target="stacksettingswindow" label="stacksettingswindow"/>
 </connectors>
 

@@ -33,7 +33,7 @@
 
 @implementation OptionSlider: CPSlider
 - (void)mouseDown:(CPEvent)anEvent
-{	if([anEvent modifierFlags])
+{	if(![anEvent modifierFlags])
 		 [self setContinuous:YES];
 	else [self setContinuous: NO];
 	[super mouseDown: anEvent];
@@ -131,7 +131,7 @@
 
 -(void) initWithCompo:(id) compo
 {	_myAppController=[CPApp delegate];
-
+alert(compo)
 	var store=[_myAppController store];	// for the popUpButton entities
 	var placeholderEntity = [[FSEntity alloc] initWithName: "parameter_lists" andStore: store];	// for feeding the popUpButtons only
 	[placeholderEntity setColumns:[CPArray arrayWithObjects: "id","idpatch_parameter","value"]];
@@ -220,7 +220,7 @@
 				cip=[inputParams objectAtIndex: idx];
 				[po bind: "integerValue" toObject: cip withKeyPath: "value" options:nil];
 			}
-			if(cip) [cip addObserver: self forKeyPath:"value" options:CPKeyValueObservingOptionNew context: [compo valueForKeyPath:"trial.id"] ];
+		//	if(cip) [cip addObserver: self forKeyPath:"value" options:CPKeyValueObservingOptionNew context: [compo valueForKeyPath:"trial.id"] ];
 
 		}
 	}

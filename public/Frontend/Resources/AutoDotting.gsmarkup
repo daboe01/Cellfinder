@@ -3,7 +3,7 @@
 <gsmarkup>
 
 <objects>
-  <dottingController id="mydottingcontroller"/>
+  <autoDottingController id="mydottingcontroller"/>
   <window title="ImageDotting" x="50" y="30" width="400" height="340"  bridge="YES" delegate="mydottingcontroller">
 	<splitView vertical="YES" autosaveName="splitview_folders_manual_dotting">
 		<vbox>
@@ -25,10 +25,14 @@
 				<vbox>
 					<scrollView hasHorizontalScroller="NO">
 						<tableView autosaveName="folders_dotting_analyses" zebra="yes" valueBinding="#CPOwner.analysesController" target="#CPOwner">
-							<tableColumn identifier="idimage" title="Analysis"/>
+							<tableColumn identifier="id" title="Analysis"/>
 						</tableView>
 					</scrollView>
-					<ButtonBar id="mybuttonbar" target="#mydottingcontroller" halign="right" width="250"  plusButtonAction="insertAnalysis:" minusButtonAction="removeAnalysis:"/>
+					<ButtonBar target="#mydottingcontroller" halign="right" width="250"  plusButtonAction="insertAnalysis:" minusButtonAction="removeAnalysis:" actionsButton="YES">
+   						<popUpButtonItem title="Reload" target="#mydottingcontroller" action="reloadAnalysis:"/>
+ 						<popUpButtonItem title="Edit…" target="#mydottingcontroller" action="editAnalysis:"/>
+  						<popUpButtonItem title="Switch analysis…" target="#mydottingcontroller" action="switchAnalysis:"/>
+					</ButtonBar>
 				</vbox>
 				<scrollView hasHorizontalScroller="NO">
 					<tableView autosaveName="aggregations_name" zebra="yes" valueBinding="#CPOwner.aggregationsController" target="#CPOwner">
@@ -50,12 +54,10 @@
 		</vbox>
 	 </splitView>
   </window>
-
 </objects>
 
 <connectors>
 	<outlet source="mydottingcontroller" target="annotated_image_view" label="annotatedImageView"/>
-	<outlet source="mydottingcontroller" target="mybuttonbar" label="myButtonBar"/>
 </connectors>
 
 

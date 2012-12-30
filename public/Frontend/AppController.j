@@ -1,12 +1,8 @@
 /*
- * AppController.j
- * NewApplication
+ * Cappuccino fromtend for the New Cellfinder
  *
- * Created by You on November 16, 2011.
- * Copyright 2011, Your Company All rights reserved.
- *
- * <!> fixme
- * nothing to declare currently...
+ * Created by daboe01 on November 16, 2011.
+ * Copyright 2011, All rights reserved.
  *
  */
 
@@ -21,10 +17,7 @@ PhotoDragType="PhotoDragType";
 
 @import <Foundation/CPObject.j>
 @import <Renaissance/Renaissance.j>
-@import "CompoController.j"
-@import "StacksController.j"
-@import "Stacks2Controller.j"
-@import "ManualDottingController.j"
+@import "DottingControllers.j"
 @import "DocsCalImporter.j"
 @import "ConfigController.j"
 @import "ImageBrowser.j"
@@ -73,6 +66,7 @@ PhotoDragType="PhotoDragType";
 
 @implementation AppController : CPObject
 {	id	store @accessors;	
+
 	id	trialsController;
 	id	stacksController;
 	id	stacksContentController;
@@ -88,7 +82,9 @@ PhotoDragType="PhotoDragType";
 	id	analyticsfilters_ac;
 	id	perlfilters_ac;
 	id	javascriptfilters_ac;
+
 	id  guiClassesArrayController;
+
 	id	_sharedConfigController;
 	id	_sharedImageBrowser;
 }

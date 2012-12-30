@@ -1,9 +1,7 @@
 /*
  *
  */
-@import <Foundation/CPObject.j>
-@import <Renaissance/Renaissance.j>
-@import "AnnotatedImageView.j";
+@import "StacksController.j";
 
 
 @implementation FSObject(Archiving)
@@ -29,43 +27,25 @@
 var _sharedImageBrowser;
 
 
-@implementation ImageBrowser : CPObject
-{	id  mainWindow;
-	id	folderCollectionView;
-	id	_appDelegate;
-	unsigned _itemSize;
-	unsigned _viewingCompoID @accessors(property=viewingCompoID);
-}
+@implementation ImageBrowser : StacksController
 
 + sharedImageBrowser
 {	if(!_sharedImageBrowser)
 	{	[CPBundle loadRessourceNamed: "ImageBrowser.gsmarkup" owner: [CPApp delegate] ];
 		_sharedImageBrowser= [CPApp delegate]._sharedImageBrowser;
-		_sharedImageBrowser._appDelegate= [CPApp delegate];
-		[_sharedImageBrowser.folderCollectionView registerForDraggedTypes:[PhotoDragType]];
-		[_sharedImageBrowser setItemSize:0.1];
+		_sharedImageBrowser.myAppController= [CPApp delegate];
+		[_sharedImageBrowser.myCollectionView registerForDraggedTypes:[PhotoDragType]];
+		[_sharedImageBrowser setScale:0.1];
 	}
-	[_sharedImageBrowser.mainWindow makeKeyAndOrderFront: _sharedImageBrowser ];
+	[_sharedImageBrowser.myWindow makeKeyAndOrderFront: _sharedImageBrowser ];
 	return _sharedImageBrowser;
 }
 
--(void) setViewingCompoID:(unsigned) someCompoID
-{	_viewingCompoID=someCompoID;
-	[[folderCollectionView items] makeObjectsPerformSelector:@selector(setCompoID:) withObject:_viewingCompoID];
-}
-
--(void) setItemSize:(unsigned) someSize	//<!> should read setItemScale
-{	_itemSize=someSize;
-	[[folderCollectionView items] makeObjectsPerformSelector:@selector(setSize:) withObject:_itemSize];
-}
--(void) itemSize
-{	return _itemSize;
-}
 
 -(void) deleteImage: sender
-{	var selectedItems=[[folderCollectionView items] objectsAtIndexes: [folderCollectionView selectionIndexes] ]
+{	var selectedItems=[[myCollectionView items] objectsAtIndexes: [myCollectionView selectionIndexes] ]
 alert([[selectedItems objectAtIndex: 0] representedObject]);
-	[_appDelegate.folderContentController removeObject: [[selectedItems objectAtIndex: 0] representedObject]];
+	[myAppController.folderContentController removeObject: [[selectedItems objectAtIndex: 0] representedObject]];
 }
 
 - (CPArray)collectionView:(CPCollectionView)aCollectionView dragTypesForItemsAtIndexes:(CPIndexSet)indices
@@ -86,7 +66,7 @@ alert([[selectedItems objectAtIndex: 0] representedObject]);
 //<!> fixme: select the folder into which was imported by this drop
 
 	[[trialsController selectedObject] willChangeValueForKey:"folders"];
-	[trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
+	//[trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 	[[trialsController selectedObject] didChangeValueForKey:"folders"];
 
 	[[folderController selectedObject] willChangeValueForKey:"folder_content"];

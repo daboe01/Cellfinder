@@ -46,7 +46,6 @@
 		<button title="Done" target="#CPOwner" action="closeSheet:"/>
 	</vbox>
   </window>
-
 </objects>
 
 <entities>

@@ -1,10 +1,6 @@
-@import <Foundation/CPObject.j>
-@import <Renaissance/Renaissance.j>
-@import "DottingController.j"
+@import "AutoDottingController.j"
 
-
-
-@implementation ManualDottingController : DottingController
+@implementation ManualDottingController : AutoDottingController
 
 -(void) _saveValue: someValue forKey: someKey
 {	var myAppDelegate= [CPApp delegate];
@@ -28,8 +24,7 @@
 
 @end
 
-
-@implementation GSMarkupTagManualDottingController : GSMarkupTagDottingController
+@implementation GSMarkupTagManualDottingController : GSMarkupTagAutoDottingController
 + (CPString) tagName
 {	return @"manualDottingController";
 }

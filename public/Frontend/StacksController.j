@@ -1,18 +1,6 @@
-/*
- * AppController.j
- * NewApplication
- *
- * Created by You on November 16, 2011.
- * Copyright 2011, Your Company All rights reserved.
- *
- * <!> fixme
- * nothing to declare currently...
- *
- */
+// this controller is for generic image registration
 
-@import <Foundation/CPObject.j>
-@import <Renaissance/Renaissance.j>
-
+@import "DottingController.j"
 
 @implementation CPObject (ImageURLCV)
 
@@ -148,39 +136,27 @@
 
 /////////////////////////////////////////////////////////
 
-@implementation StacksController: CPObject
-{	var myAppController;
-	id	stacksCollectionView;
-	id	stacksWindow;
+@implementation StacksController: DottingController
+{	id	myCollectionView;
+	id	myWindow;
 	id	_viewingCompo;
 	id	stacksettingswindow;
-	unsigned _itemSize;
 
-}
-
-- init
-{	if(self=[super init])
-	{	myAppController=[CPApp delegate];
-		[[CPRunLoop currentRunLoop] performSelector:@selector(_postInit) target:self argument: nil order:0 modes:[CPDefaultRunLoopMode]];
-	} return self;
 }
 
 -(void) _postInit
-{	[self setItemSize:0.2];
-	[stacksCollectionView registerForDraggedTypes: [PhotoDragType]];
+{	[self setScale:0.2];
+	[myCollectionView registerForDraggedTypes: [PhotoDragType]];
 	var re = new RegExp("#([^&#]+)");
 	var m=re.exec(document.location);
 	if (m) [myAppController.stacksController setFilterPredicate: [CPPredicate predicateWithFormat:"name=='"+m[1]+"'" ]];
 }
--(void) setItemSize:(unsigned) someSize	//<!> should read setItemScale
-{	_itemSize=someSize;
-	[[stacksCollectionView items] makeObjectsPerformSelector:@selector(setSize:) withObject:_itemSize];
-}
--(void) itemSize
-{	return _itemSize;
+-(void) setScale:(unsigned) someSize
+{	_scale=someSize;
+	[[myCollectionView items] makeObjectsPerformSelector:@selector(setSize:) withObject:_scale];
 }
 -(void) resetItemSize
-{	[self setItemSize:_itemSize];
+{	[self setScale:_scale];
 }
 
 -(void) newStack: sender
@@ -193,12 +169,12 @@
 }
 
 -(void) runSettings:sender
-{	[CPApp beginSheet: stacksettingswindow modalForWindow: stacksWindow modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
+{	[CPApp beginSheet: stacksettingswindow modalForWindow: myWindow modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
 
 }
 -(void)setViewingCompo: someCompo
 {	_viewingCompo=someCompo;
-	[[stacksCollectionView items] makeObjectsPerformSelector:@selector(setCompoID:) withObject:_viewingCompo];
+	[[myCollectionView items] makeObjectsPerformSelector:@selector(setCompoID:) withObject:_viewingCompo];
 }
 -(unsigned)viewingCompo
 {	return _viewingCompo;
@@ -210,7 +186,7 @@
 	var handovers=[someItem valueForKey:"parameter"]
 	if(handovers) myURL+=("&affine="+handovers);
 	var imgsize=[someItem _getImageSize];
-	myURL+="&width="+parseInt( (_itemSize*imgsize.width)* (_itemSize*imgsize.height) );
+	myURL+="&width="+parseInt( (_scale*imgsize.width)* (_scale*imgsize.height) );
 	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
 	return img;
 }
@@ -280,7 +256,7 @@
 // <!>set new analysis type to value of "AnalysisHoldingThePoints"
 	[myAppController.stacksContentController addObject: newImg ];
 
-	[self setItemSize: [self itemSize]];	// <!> why the heck do we need this to get the scaling right?
+	[self resetItemSize];
 }
 
 - (void)closeSheet:(id)sender
@@ -292,7 +268,7 @@
 }
 
 -(unsigned) indexOfItem: someItem
-{	var arr=[stacksCollectionView items];
+{	var arr=[myCollectionView items];
 	var l=[arr count];
 	for(var i=0;i< l; i++)
 	{	if([arr objectAtIndex: i] === someItem) return i;

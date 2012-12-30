@@ -1,17 +1,5 @@
-/*
- * AppController.j
- * NewApplication
- *
- * Created by You on November 16, 2011.
- * Copyright 2011, Your Company All rights reserved.
- *
- * <!> fixme
- * nothing to declare currently...
- *
- */
+// this controller is for manual image registration
 
-@import <Foundation/CPObject.j>
-@import <Renaissance/Renaissance.j>
 @import "StacksController.j"
 
 @implementation ImageEditorCollectionItem: SimpleImageViewCollectionItem
@@ -72,7 +60,7 @@
 /////////////////////////////////////////////////////////
 
 
-@implementation Stacks2Controller: StacksController
+@implementation ManualStacksController: StacksController
 
 
 -(void) delete: sender	// delete a dot
@@ -83,13 +71,13 @@
 @end
 
 
-@implementation GSMarkupTagStacks2Controller:GSMarkupTagObject
+@implementation GSMarkupTagManualStacksController:GSMarkupTagObject
 + (CPString) tagName
 {
-  return @"stacks2Controller";
+  return @"manualStacksController";
 }
 + (Class) platformObjectClass
 {
-	return [Stacks2Controller class];
+	return [ManualStacksController class];
 }
 @end
