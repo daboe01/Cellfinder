@@ -131,18 +131,18 @@
 
 -(void) initWithCompo:(id) compo
 {	_myAppController=[CPApp delegate];
-alert(compo)
 	var store=[_myAppController store];	// for the popUpButton entities
 	var placeholderEntity = [[FSEntity alloc] initWithName: "parameter_lists" andStore: store];	// for feeding the popUpButtons only
 	[placeholderEntity setColumns:[CPArray arrayWithObjects: "id","idpatch_parameter","value"]];
 	[placeholderEntity setPk: "id"];
 
-	var inputParams=[compo valueForKey:"inputParams"];
+	var inputParams=[compo valueForKey:"inputParams" synchronous:YES];
 
 	_myNameTable=[CPMutableDictionary new];
 	
 // step 1: build the panel via dynamically generated markup
 	var i,l=[inputParams count];
+
 	var markup='<gsmarkup><objects><window id="panel" title="Inspector" HUD="yes" closable="yes" x="600" y="30" width="200">';
 	markup+='<vbox id="toplevel_container">';
 
