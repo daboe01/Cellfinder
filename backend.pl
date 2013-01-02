@@ -9,7 +9,7 @@ use Data::Dumper;
 use Mojo::UserAgent;
 
 plugin 'database', { 
-			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
+			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
 			username => 'root',
 			password => 'root',
 			options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
@@ -151,9 +151,9 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
 
 	my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage, $width, $nocache, $csize, $affine, $idstack);
 	my $p= $f->(0);
-	$p= cellfinder_image::imageForComposition($self->db, $preload,$f,$p)						if($preload);
+	$p= cellfinder_image::imageForComposition($self->db, $preload,$f,$p)		if($preload);
 	$p= cellfinder_image::imageForComposition($self->db, $idcomposition,$f,$p, 0, $idanalysis)	if($idcomposition);
-	$p= cellfinder_image::imageForComposition($self->db, $afterload,$f,$p,1)					if($afterload);
+	$p= cellfinder_image::imageForComposition($self->db, $afterload,$f,$p,1)	if($afterload);
 
 	if(ref $p eq 'Image::Magick')
 	{	if($spc eq 'geom')	# geom-query
@@ -184,7 +184,7 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 	my $idstack=		$self->param("idstack");
 	if($spc eq 'affine')
 	{	my $sql = SQL::Abstract->new;
-
+warn "hello $idstack";
 		my($stmt, @bind) = $sql->select('montage_images',undef, {idmontage => $idstack} );
 		my $sth = $self->db->prepare($stmt);
 		$sth->execute(@bind);
@@ -192,6 +192,7 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 		while ( my $curr = $sth->fetchrow_hashref() )
 		{	next unless $curr->{idanalysis_reference};
 			my $par= cellfinder_image::runSimpleRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis});
+ warn $par.' '. $curr->{idanalysis};
 			my $sql=SQL::Abstract->new();
 			my($stmt, @bind) = $sql->update('montage_images', {parameter=> $par}, {id=>$curr->{id} } );
 			my $sth =  $self->db->prepare($stmt);
@@ -226,6 +227,7 @@ post '/IMG/import_stack/:idtrial/:name'=> [name=>qr/.+/] => sub
 	my $name= $self->param("name");
 	my $idtrial= $self->param("idtrial");
 	my $json_decoder= Mojo::JSON->new;
+warn  $self->req->body;
 	my $jsonR   = $json_decoder->decode( $self->req->body );
 	use TempFileNames;
 	my $i=0;
@@ -240,9 +242,11 @@ post '/IMG/import_stack/:idtrial/:name'=> [name=>qr/.+/] => sub
 		$i++;
 	}
 	my $idmontage=cellfinder_image::insertObjectIntoTable($self->db, 'montages', 'id', {idtrial=> $idtrial, name=> $name} );
+	my $idref;
 	foreach my $id (@image_ids)
 	{	my $idanalysis=cellfinder_image::insertObjectIntoTable($self->db, 'analyses', 'id', { idimage=> $id } );
-		cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $id, idanalysis=> $idanalysis, idmontage=> $idmontage} );
+		$idref=$idanalysis unless $idref;
+		cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $id, idanalysis=> $idanalysis, idanalysis_reference=>$idref, idmontage=> $idmontage} );
 	}
 	$self->render_data('OK', format =>'txt' );
 };
