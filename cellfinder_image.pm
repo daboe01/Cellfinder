@@ -18,8 +18,8 @@ use Statistics::R;
 use SQL::Abstract;
 use POSIX;
 
-use constant server_root=>'/Library/WebServer/Documents/cellfinder';
-#use constant server_root=>'/srv/www/htdocs/cellfinder';
+#use constant server_root=>'/Library/WebServer/Documents/cellfinder';
+use constant server_root=>'/srv/www/htdocs/cellfinder';
 
 #<!> fixme hardcoded URL
 sub runSimpleRegistrationRCode { my ($id1,$id2)=@_;
@@ -51,7 +51,7 @@ ENDOFR
 ;	$RCmd=~s/<infile>/$infile/ogs;
 	$RCmd=~s/<code>/$code/ogs;
 	my $R = Statistics::R->new();
-warn $RCmd;
+	#warn $RCmd;
 	$R->run($RCmd);
 	my $out=$R->get('out');
 	return JSON::XS->new->utf8->decode($out);
@@ -173,7 +173,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 				$old_p->Write($filename.'.jpg');
 				my $infile=runEBImageRCode($filename.'.jpg', $p);
  use Data::Dumper;
- warn Dumper $infile;
+ # warn Dumper $infile;
 				if(exists $infile->{xpoint} && exists $infile->{ypoint}) # simple points return
 				{
 					$dbh->{AutoCommit}=0;
@@ -184,7 +184,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 					my $sth = $dbh->prepare($sql);
 					for(my $i=0; $i< scalar @{$infile->{xpoint}}; $i++)
 					{	my ($x,$y)=(floor ($infile->{xpoint}->[$i]), floor ($infile->{ypoint}->[$i]));
-warn "$idanalysis $x,$y";
+# warn "$idanalysis $x,$y";
 						$sth->execute(($idanalysis, $x, $y));
 					}
 
@@ -192,6 +192,18 @@ warn "$idanalysis $x,$y";
 					$dbh->{AutoCommit}=1;
 				} elsif(exists $infile->{xarea} && exists $infile->{yarea}) # ROI return
 				{
+				}
+				# now perform fixup if necessary
+				if($idimage)
+				{
+					my $image = getObjectFromDBHandID($dbh,'images', $idimage);
+					my $trial = getObjectFromDBHandID($dbh,'trials', $image->{idtrial});
+					if($trial->{composition_for_fixup})
+					{	cellfinder_image::imageForComposition($dbh, $trial->{composition_for_fixup}, $readImageFunction, undef, undef, $idanalysis);
+					}
+					if($trial->{composition_for_aggregation})	#<!> handle this accordingly
+					{
+					}
 				}
 			}
 			if(ref($stash) eq 'ARRAY')

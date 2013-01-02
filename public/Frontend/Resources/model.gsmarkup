@@ -60,6 +60,8 @@
 		<column name="composition_for_upload"/>
 		<column name="composition_for_editing"/>
 		<column name="composition_for_celldetection"/>
+		<column name="composition_for_fixup"/>
+		<column name="composition_for_aggregation"/>
 		<column name="composition_for_javascript"/>
 
 		<relationship name="compos" type="toMany" target="patch_compositions" targetColumn="idtrials"/>
@@ -123,6 +125,7 @@
 	<entity id="folder_content" store="#CPOwner.store">
 		<column name="idimage" primaryKey="YES"/>
 		<column name="folder_name"/>
+		<column name="name"/>
 		<column name="linkname"/>
 		<relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
 		<relationship type="toMany" name="analyses" targetColumn="idimage" target="analyses"/>

@@ -159,7 +159,7 @@
 				var maxVal=[input unpercentedValueForKey:"range2"];
 				var curVal=[input unpercentedValueForKey:"value"];
 
-				markup+='<hbox><label textColor="white" valign="center" halign="min" width="100">'+ [input valueForKey:"patch"]+'('+[input valueForKey:"name"]+')'+
+				markup+='<hbox><label textColor="white" valign="center" halign="min" width="200">'+ [input valueForKey:"patch"]+'('+[input valueForKey:"name"]+')'+
 						'</label><label textColor="white" valign="center" halign="min" width="20">'+[input valueForKey:"range1"]+'</label>'+
 						'<optionSlider continuous="NO" id="_connectme1_'+i+'" valign="center" halign="expand"  min="'+
 						 minVal+'" max="'+maxVal+'" current="'+
