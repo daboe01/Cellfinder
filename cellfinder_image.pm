@@ -18,8 +18,8 @@ use Statistics::R;
 use SQL::Abstract;
 use POSIX;
 
-#use constant server_root=>'/Library/WebServer/Documents/cellfinder';
-use constant server_root=>'/srv/www/htdocs/cellfinder';
+use constant server_root=>'/Library/WebServer/Documents/cellfinder';
+#use constant server_root=>'/srv/www/htdocs/cellfinder';
 
 #<!> fixme hardcoded URL
 sub runSimpleRegistrationRCode { my ($id1,$id2)=@_;
@@ -44,11 +44,27 @@ ENDOFR
 sub runEBImageRCode { my ($infile,$code)=@_;
 	my $RCmd=<<'ENDOFR'
 	library(EBImage)
+	library(rjson)
 	e=readImage("<infile>")
 	out=""
 	<code>
 ENDOFR
 ;	$RCmd=~s/<infile>/$infile/ogs;
+	$RCmd=~s/<code>/$code/ogs;
+	my $R = Statistics::R->new();
+	#warn $RCmd;
+	$R->run($RCmd);
+	my $out=$R->get('out');
+	return JSON::XS->new->utf8->decode($out);
+}
+sub runRJSONCode { my ($id,$code)=@_;
+	my $RCmd=<<'ENDOFR'
+	library(rjson)
+	d0=read.delim("http://localhost/cellfinder_results/<id>?mode=allpoints_lastanalysis")
+	out=""
+	<code>
+ENDOFR
+;	$RCmd=~s/<id>/$id/ogs;
 	$RCmd=~s/<code>/$code/ogs;
 	my $R = Statistics::R->new();
 	#warn $RCmd;
@@ -65,13 +81,11 @@ sub insertAggregation{
 	use SQL::Abstract;
 	my $sql = SQL::Abstract->new;
 	
-	foreach my $crow (@$result)
-	{	for(keys %$crow)
+	for(keys %$result)
 	{	next if $_ eq 'idanalysis';
 		my($stmt, @bind) = $sql->insert('aggregations', {idanalysis => $idanalysis, name=> $_, value => sprintf("%8.3f",$crow->{$_}) });
 		my $sth = $dbh->prepare($stmt);
 		$sth->execute(@bind);
-	}
 	}
 }
 
@@ -159,14 +173,12 @@ sub imageForDBHAndRenderchainIDAndImage{
 			};
 ###			warn $curr_patch->{patch};
 			warn "error: $@" if($@);
-		} elsif($curr_patch->{patch_type} ~~ [3,4,5,6])	# only parameter substitution required
+		} elsif($curr_patch->{patch_type} ~~ [3,4,5,6, 7])	# only parameter substitution required
 		{	my @arr= map {  $_->[0]=~s/"$//ogs; $_->[1]=~s/"//ogs;$_;}
 				map { [ split/=>/o ] }
 				map {s/^["\s]+//ogs;$_;}
 				split  /[^\\],/o, $curr_patch->{params};
 			$p=$curr_patch->{patch};
-#warn Dumper \@arr;
-#warn Dumper $curr_patch;
 			$p=~s/<$_->[0]>/$_->[1]/gs foreach(@arr);
 			$p=~s/<idanalysis>/$idanalysis/gs;
 			$p=~s/<idpoint>/$idpoint/gs;
@@ -183,14 +195,12 @@ sub imageForDBHAndRenderchainIDAndImage{
 			{	$p=~s/API::([^(]+)\(/$1(\$dbh, \$idimage, \$idanalysis,\$p,/ogs;
 				$result=eval($p);
 				warn "error: $@ $p" if($@);
-			} elsif ($curr_patch->{patch_type} == 3)	# R
+			} elsif ($curr_patch->{patch_type} == 3)	# R/EBImage
 			{
 				next unless ref $old_p eq 'Image::Magick';
 				my $filename=tempFileName('/tmp/cellf');
 				$old_p->Write($filename.'.jpg');
 				my $infile=runEBImageRCode($filename.'.jpg', $p);
- use Data::Dumper;
- # warn Dumper $infile;
 				if(exists $infile->{xpoint} && exists $infile->{ypoint}) # simple points return
 				{
 					$dbh->{AutoCommit}=0;
@@ -201,7 +211,6 @@ sub imageForDBHAndRenderchainIDAndImage{
 					my $sth = $dbh->prepare($sql);
 					for(my $i=0; $i< scalar @{$infile->{xpoint}}; $i++)
 					{	my ($x,$y)=(floor ($infile->{xpoint}->[$i]), floor ($infile->{ypoint}->[$i]));
-# warn "$idanalysis $x,$y";
 						$sth->execute(($idanalysis, $x, $y));
 					}
 
@@ -218,15 +227,16 @@ sub imageForDBHAndRenderchainIDAndImage{
 					if($trial->{composition_for_fixup})
 					{	cellfinder_image::imageForComposition($dbh, $trial->{composition_for_fixup}, $readImageFunction, undef, undef, $idanalysis);
 					}
-					if($trial->{composition_for_aggregation})
-					{	my $sql = 'delete from aggregations where idanalysis = ?';
-						my $sth = $dbh->prepare($sql);
-						$sth->execute(($idanalysis));
-						cellfinder_image::insertAggregation($dbh, $idanalysis,
-							cellfinder_image::imageForComposition($dbh, $trial->{composition_for_aggregation}, $readImageFunction, undef, undef, $idanalysis));
-					}
 				}
+			} elsif ($curr_patch->{patch_type} == 7)	# R/JSON
+			{	next unless $stash;
+				my $sql = 'delete from aggregations where idanalysis = ?';
+				my $sth = $dbh->prepare($sql);
+				$sth->execute(($idanalysis));
+				$result = runRJSONCode($idanalysis, $p);
+				cellfinder_image::insertAggregation($dbh, $idanalysis, $result);
 			}
+
 			if(ref($stash) eq 'ARRAY')
 			{	push(@$stash,$result); 
 			} else
@@ -253,8 +263,6 @@ sub imageForDBHAndRenderchainIDAndImage{
 
 			my $effective_fn= ((scalar @filenamelist)>1) ?  (join ' ', @filenamelist) : $filename.'.jpg';
 			my $effective_fn_out=$filename.'_out.jpg';
-# warn $curr_patch->{params};
-# warn "@arr";
 			my $args=join ' ', @arr;
 			if($curr_patch->{patch_type} == 2)
 			{	if( $call=~ /<infiles>/o)

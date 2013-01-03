@@ -85,7 +85,7 @@
 	[[myAppController.analysesController selectedObject] didChangeValueForKey:"results"];
 
 	[[myAppController.analysesController selectedObject] willChangeValueForKey:"aggregations"];
-	[[myAppController.analysesController selectedObject] didChangeValueForKey:"aggregations"];
+	[[myAppController.analysesController selectedObject] didChangeValueForKey: "aggregations"];
 }
 
 -(void) editAnalysis: sender
