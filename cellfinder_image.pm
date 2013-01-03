@@ -58,6 +58,23 @@ ENDOFR
 }
 
 
+sub insertAggregation{
+	my $dbh=shift;
+	my $idanalysis=shift;
+	my $result=shift;
+	use SQL::Abstract;
+	my $sql = SQL::Abstract->new;
+	
+	foreach my $crow (@$result)
+	{	for(keys %$crow)
+	{	next if $_ eq 'idanalysis';
+		my($stmt, @bind) = $sql->insert('aggregations', {idanalysis => $idanalysis, name=> $_, value => sprintf("%8.3f",$crow->{$_}) });
+		my $sth = $dbh->prepare($stmt);
+		$sth->execute(@bind);
+	}
+	}
+}
+
 sub imageForComposition{
 	my $dbh=shift;
 	my $idcomposition = shift;
@@ -201,8 +218,12 @@ sub imageForDBHAndRenderchainIDAndImage{
 					if($trial->{composition_for_fixup})
 					{	cellfinder_image::imageForComposition($dbh, $trial->{composition_for_fixup}, $readImageFunction, undef, undef, $idanalysis);
 					}
-					if($trial->{composition_for_aggregation})	#<!> handle this accordingly
-					{
+					if($trial->{composition_for_aggregation})
+					{	my $sql = 'delete from aggregations where idanalysis = ?';
+						my $sth = $dbh->prepare($sql);
+						$sth->execute(($idanalysis));
+						cellfinder_image::insertAggregation($dbh, $idanalysis,
+							cellfinder_image::imageForComposition($dbh, $trial->{composition_for_aggregation}, $readImageFunction, undef, undef, $idanalysis));
 					}
 				}
 			}
@@ -385,24 +406,6 @@ sub uploadImageFromData { my ($dbh, $idtrial, $name, $suffix, $data)=@_;
 	return $idimage;
 }
 
-sub addDefaultAnalysis { my ($dbh, $idimage, $p,$f, $level)=@_;
-	my ($width, $height)= $p->Get('width', 'height');
-
-	my $image = getObjectFromDBHandID($dbh,'images', $idimage);
-	my $trial = getObjectFromDBHandID($dbh,'trials', $image->{idtrial});
-	my $d={idimage=>$idimage, width=> $width, height=>$height, idcomposition_for_editing=> $trial->{composition_for_editing}};
-	$d->{idcomposition_for_analysis}=$trial->{composition_for_celldetection} if($level>0);
-	my $lastid =insertObjectIntoTable($dbh, 'analyses', 'id', $d );
-	if($d->{idcomposition_for_analysis})	# perform also analysis
-	{	my $p= imageForComposition($dbh, $trial->{composition_for_editing}, $f);
-		imageForComposition($dbh, $d->{idcomposition_for_analysis}, $f, $p, 0, $lastid);
-		insertAggregation($dbh, $lastid, imageForComposition($dbh, $trial->{composition_for_aggregation}, $f, $p, 0, $lastid)) if($trial->{composition_for_aggregation});
-		imageForComposition($dbh, $trial->{composition_for_saving}, $f, $p, 0, $lastid) if($level>1);
-	}
-	return $lastid;
-}
-		
-
 sub deleteImage { my ($dbh, $idimage)=@_;
 	my $sql = 'select * from images where id=?';
 	my $sth = $dbh->prepare($sql);
@@ -456,54 +459,4 @@ sub reapplyUploadFilter { my ($dbh, $idtrial)=@_;
 		$p->Write($dest);
 	}
 }
-					
-sub insertAggregation{
-	my $dbh=shift;
-	my $idanalysis=shift;
-	my $result=shift;
-	use SQL::Abstract;
-	my $sql = SQL::Abstract->new;
-					
-	foreach my $crow (@$result)
-	{	for(keys %$crow)
-		{	next if $_ eq 'idanalysis';
-			my($stmt, @bind) = $sql->insert('aggregations', {idanalysis => $idanalysis, name=> $_, value => sprintf("%8.3f",$crow->{$_}) });
-			my $sth = $dbh->prepare($stmt);
-			$sth->execute(@bind);
-		}
-	}
-}
-					
-###
-### and here goes the API library...
-###
-
-sub getCompoNamed { my ($dbh, $idimage, $idanalysis,$p, $name )=@_;
-	if(!$idimage)
-	{	my $anaH=getObjectFromDBHandID($dbh,'analyses', $idanalysis);
-		$idimage=$anaH->{idimage};
-	}
-	my $imgH=getObjectFromDBHandID($dbh,'images', $idimage);
-	my $sql='select * from patch_compositions where idtrials=? and name=?';
-	my $sth=$dbh->prepare($sql);
-	$sth->execute(($imgH->{idtrial}, $name));
-	return $sth->fetchrow_hashref();
-}
-
-		
-sub countBlackAndWhitePixels { my ($dbh, $idimage, $idanalysis,$p, $other_p)=@_;
-	my @histogram = $other_p -> Histogram();
-	
-	my($total_count, $black_count, $white_count) = 0;
-	
-	while (@histogram)
-	{	my ($red, $green, $blue, $opacity, $count) = splice(@histogram, 0, 5);
-	
-		$total_count+= $count;
-		$black_count+= $count unless $red;
-		$white_count+= $count if $red==0xffff;
-	}
-	return ($total_count, $black_count, $white_count);
-}
-		
 1;

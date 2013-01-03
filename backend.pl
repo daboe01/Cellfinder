@@ -192,7 +192,7 @@ warn "hello $idstack";
 		while ( my $curr = $sth->fetchrow_hashref() )
 		{	next unless $curr->{idanalysis_reference};
 			my $par= cellfinder_image::runSimpleRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis});
- warn $par.' '. $curr->{idanalysis};
+# warn $par.' '. $curr->{idanalysis};
 			my $sql=SQL::Abstract->new();
 			my($stmt, @bind) = $sql->update('montage_images', {parameter=> $par}, {id=>$curr->{id} } );
 			my $sth =  $self->db->prepare($stmt);
@@ -227,7 +227,7 @@ post '/IMG/import_stack/:idtrial/:name'=> [name=>qr/.+/] => sub
 	my $name= $self->param("name");
 	my $idtrial= $self->param("idtrial");
 	my $json_decoder= Mojo::JSON->new;
-warn  $self->req->body;
+# warn $self->req->body;
 	my $jsonR   = $json_decoder->decode( $self->req->body );
 	use TempFileNames;
 	my $i=0;
@@ -253,6 +253,21 @@ warn  $self->req->body;
 
 post '/IMG/analyze/:idtrial/:name'=> [name=>qr/.+/] => sub
 {	my $self=shift;
+	my $idtrial=	$self->param("idtrial");
+	my $name=		$self->param("name");
+	my $uri=		$self->req->body;
+	my $ua = Mojo::UserAgent->new;
+	my $data=		$ua->get($uri)->res->body;
+	my $suffix='.jpg';	# sensible default
+	$suffix=$1 if $uri =~/^.+\.(.+)$/o;
+
+	my $trial = cellfinder_image::getObjectFromDBHandID($self->db, 'trials', $idtrial);
+	my $idimage = cellfinder_image::uploadImageFromData($self->db, $idtrial, $name, $suffix, $data);
+	my $d={idimage=>$idimage, idcomposition_for_editing=> $trial->{composition_for_editing}, idcomposition_for_analysis=> $trial->{composition_for_celldetection} };
+	my $idanalysis=cellfinder_image::insertObjectIntoTable($self->db, 'analyses', 'id', $d );
+	my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage);
+	cellfinder_image::imageForComposition($self->db, $d->{idcomposition_for_analysis}, $f, $f->(0), 0, $idanalysis);
+	$self->render_data('OK', format =>'txt' );
 };
 
 

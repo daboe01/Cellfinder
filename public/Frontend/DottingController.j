@@ -83,6 +83,9 @@
 	[[myAppController.analysesController selectedObject] willChangeValueForKey:"results"];
 	[myAppController.analysesController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 	[[myAppController.analysesController selectedObject] didChangeValueForKey:"results"];
+
+	[[myAppController.analysesController selectedObject] willChangeValueForKey:"aggregations"];
+	[[myAppController.analysesController selectedObject] didChangeValueForKey:"aggregations"];
 }
 
 -(void) editAnalysis: sender
