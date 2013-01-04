@@ -150,6 +150,7 @@
 	var re = new RegExp("#([^&#]+)");
 	var m=re.exec(document.location);
 	if (m) [myAppController.stacksController setFilterPredicate: [CPPredicate predicateWithFormat:"name=='"+m[1]+"'" ]];
+	[super _postInit];
 }
 -(void) setScale:(unsigned) someSize
 {	_scale=someSize;

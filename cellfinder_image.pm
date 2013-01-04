@@ -18,14 +18,14 @@ use Statistics::R;
 use SQL::Abstract;
 use POSIX;
 
-use constant server_root=>'/Library/WebServer/Documents/cellfinder';
-#use constant server_root=>'/srv/www/htdocs/cellfinder';
+#use constant server_root=>'/Library/WebServer/Documents/cellfinder';
+use constant server_root=>'/srv/www/htdocs/cellfinder';
 
 #<!> fixme hardcoded URL
 sub runSimpleRegistrationRCode { my ($id1,$id2)=@_;
 	my $RCmd=<<'ENDOFR'
 	read.pointset=function(id){
-		d1=read.delim(paste("http://localhost/cellfinder_results/<idtrial>?mode=results&constraint=idanalysis=", id, sep=""))
+		d1=read.delim(paste("http://localhost/cellfinder_results/0?mode=results&constraint=idanalysis=", id, sep=""))
 		return (d1)
 	}
 	d0= subset(read.pointset(<id1>), select=c(row,col))
@@ -39,6 +39,25 @@ ENDOFR
 	my $R = Statistics::R->new();
 	$R->run($RCmd);
 	return '['. $R->get('out') . ']';
+}
+sub runRJSONCode { my ($id,$code)=@_;
+	my $RCmd=<<'ENDOFR'
+	library(rjson)
+	read.pointset=function(id){
+		d1=read.delim(paste("http://localhost/cellfinder_results/0?mode=results&constraint=idanalysis=", id, sep=""))
+		return (d1)
+	}
+	d0= subset(read.pointset(<id>), select=c(row,col))
+	out=""
+	<code>
+ENDOFR
+;	$RCmd=~s/<id>/$id/ogs;
+	$RCmd=~s/<code>/$code/ogs;
+	my $R = Statistics::R->new();
+	#warn $RCmd;
+	$R->run($RCmd);
+	my $out=$R->get('out');
+	return JSON::XS->new->utf8->decode($out);
 }
 
 sub runEBImageRCode { my ($infile,$code)=@_;
@@ -57,21 +76,6 @@ ENDOFR
 	my $out=$R->get('out');
 	return JSON::XS->new->utf8->decode($out);
 }
-sub runRJSONCode { my ($id,$code)=@_;
-	my $RCmd=<<'ENDOFR'
-	library(rjson)
-	d0=read.delim("http://localhost/cellfinder_results/<id>?mode=allpoints_lastanalysis")
-	out=""
-	<code>
-ENDOFR
-;	$RCmd=~s/<id>/$id/ogs;
-	$RCmd=~s/<code>/$code/ogs;
-	my $R = Statistics::R->new();
-	#warn $RCmd;
-	$R->run($RCmd);
-	my $out=$R->get('out');
-	return JSON::XS->new->utf8->decode($out);
-}
 
 
 sub insertAggregation{
@@ -80,10 +84,11 @@ sub insertAggregation{
 	my $result=shift;
 	use SQL::Abstract;
 	my $sql = SQL::Abstract->new;
-	
-	for(keys %$result)
+
+warn Dumper $result;
+	for(sort keys %$result)
 	{	next if $_ eq 'idanalysis';
-		my($stmt, @bind) = $sql->insert('aggregations', {idanalysis => $idanalysis, name=> $_, value => sprintf("%8.3f",$crow->{$_}) });
+		my($stmt, @bind) = $sql->insert('aggregations', {idanalysis => $idanalysis, name=> $_, value => sprintf("%8.0f",$result->{$_}) });
 		my $sth = $dbh->prepare($stmt);
 		$sth->execute(@bind);
 	}
@@ -219,17 +224,16 @@ sub imageForDBHAndRenderchainIDAndImage{
 				} elsif(exists $infile->{xarea} && exists $infile->{yarea}) # ROI return
 				{
 				}
-				# now perform fixup if necessary
+				# now perform fixup and aggregation if necessary
 				if($idimage)
 				{
 					my $image = getObjectFromDBHandID($dbh,'images', $idimage);
 					my $trial = getObjectFromDBHandID($dbh,'trials', $image->{idtrial});
-					if($trial->{composition_for_fixup})
-					{	cellfinder_image::imageForComposition($dbh, $trial->{composition_for_fixup}, $readImageFunction, undef, undef, $idanalysis);
-					}
+					cellfinder_image::imageForComposition($dbh, $trial->{composition_for_fixup}, $readImageFunction, undef, undef, $idanalysis) if($trial->{composition_for_fixup});
+					cellfinder_image::imageForComposition($dbh, $trial->{composition_for_aggregation}, $readImageFunction, undef, undef, $idanalysis) if($trial->{composition_for_aggregation});
 				}
 			} elsif ($curr_patch->{patch_type} == 7)	# R/JSON
-			{	next unless $stash;
+			{	next unless $idanalysis;
 				my $sql = 'delete from aggregations where idanalysis = ?';
 				my $sth = $dbh->prepare($sql);
 				$sth->execute(($idanalysis));

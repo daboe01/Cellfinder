@@ -31,7 +31,7 @@
 					<ButtonBar target="#mydottingcontroller" halign="right" width="250"  plusButtonAction="insertAnalysis:" minusButtonAction="removeAnalysis:" actionsButton="YES">
    						<popUpButtonItem title="Reload" target="#mydottingcontroller" action="reloadAnalysis:"/>
  						<popUpButtonItem title="Edit…" target="#mydottingcontroller" action="editAnalysis:"/>
-  						<popUpButtonItem title="Switch analysis…" target="#mydottingcontroller" action="switchAnalysis:"/>
+  						<popUpButtonItem title="Reaggregate" target="#mydottingcontroller" action="reaggregate:"/>
 					</ButtonBar>
 				</vbox>
 				<scrollView hasHorizontalScroller="NO">

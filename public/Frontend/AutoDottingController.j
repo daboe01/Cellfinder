@@ -6,7 +6,8 @@
 {	id annotatedImageView;
 }
 -(void) _postInit
-{	var mycompo= [myAppController.trialsController valueForKeyPath: "selection.composition_for_javascript"];
+{	[super _postInit];
+	var mycompo= [myAppController.trialsController valueForKeyPath: "selection.composition_for_javascript"];
 
 	if(mycompo !== CPNullMarker)
 	{	var myreq=[CPURLRequest requestWithURL: BaseURL+"0?cmp="+mycompo ];
@@ -22,6 +23,9 @@
 		}
 	}
 	[annotatedImageView bind:"backgroundImage" toObject: myAppController.analysesController withKeyPath: "selection._backgroundImage" options:nil];
+	var re = new RegExp("#([^&#]+)");
+	var m=re.exec(document.location);
+	if (m) [myAppController.folderController setFilterPredicate: [CPPredicate predicateWithFormat:"folder_name=='"+m[1]+"'" ]];
 }
 
 -(void) setScale:(double) someScale

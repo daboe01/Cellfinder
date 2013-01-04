@@ -64,6 +64,10 @@
 	} return self;
 }
 
+-(void) _postInit
+{
+// nothing to do here (yet)
+}
 
 -(void) removeAnalysis: sender
 {	[[CPApp delegate].analysesController remove:sender];
@@ -85,12 +89,17 @@
 	[[myAppController.analysesController selectedObject] didChangeValueForKey:"results"];
 
 	[[myAppController.analysesController selectedObject] willChangeValueForKey:"aggregations"];
-	[[myAppController.analysesController selectedObject] didChangeValueForKey: "aggregations"];
+	[[myAppController.analysesController selectedObject] didChangeValueForKey:"aggregations"];
 }
 
 -(void) editAnalysis: sender
 {	var myAnalysis=  [myAppController.analysesController selectedObject];
 	[[CompoController alloc] initWithCompo: [myAnalysis valueForKey:"analysis_compo"] ];
+}
+-(void) reaggregate: sender
+{	[[myAppController.analysesController selectedObject] willChangeValueForKey:"aggregations"];
+	[myAppController.analysesController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
+	[[myAppController.analysesController selectedObject] didChangeValueForKey:"aggregations"];
 }
 
 @end
