@@ -79,7 +79,7 @@
 	var myAnalysis=  [myAppController.analysesController selectedObject];
 	var mycompoID  = [myAppController.trialsController valueForKeyPath: "selection.composition_for_celldetection"];
 	[myAnalysis setValue: mycompoID  forKey:"idcomposition_for_analysis"];
-	[myAnalysis _replaceAnalysis];
+	[self reloadAnalysis:self];
 }
 -(void) reloadAnalysis: sender
 {	var myAnalysis=  [myAppController.analysesController selectedObject];
