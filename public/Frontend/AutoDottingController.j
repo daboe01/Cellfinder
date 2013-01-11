@@ -22,17 +22,20 @@
 			if(sel) [self performSelector:sel];
 		}
 	}
-	[annotatedImageView bind:"backgroundImage" toObject: myAppController.analysesController withKeyPath: "selection._backgroundImage" options:nil];
 	var re = new RegExp("#([^&#]+)");
 	var m=re.exec(document.location);
 	if (m) [myAppController.folderController setFilterPredicate: [CPPredicate predicateWithFormat:"folder_name=='"+m[1]+"'" ]];
+	// this is necessary to prevent the imageDidLoad event beeing eaten up sometimes in firefox (because this event takes too long to finish)
+	[[CPRunLoop currentRunLoop] performSelector:@selector(_postInit2) target:self argument: nil order:0 modes:[CPDefaultRunLoopMode]];
+}
+-(void) _postInit2
+{	[annotatedImageView bind:"backgroundImage" toObject: myAppController.analysesController withKeyPath: "selection._backgroundImage" options:nil];
 }
 
 -(void) setScale:(double) someScale
 {	_scale=someScale;
 	[annotatedImageView setScale: _scale];
-	[annotatedImageView setBackgroundImage: [[[CPApp delegate].analysesController selectedObject] _backgroundImage]];	// force image update
-
+	[annotatedImageView setBackgroundImage: [myAppController.analysesController valueForKeyPath: "selection._backgroundImage"] ];
 }
 
 

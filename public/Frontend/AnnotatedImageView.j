@@ -210,13 +210,10 @@ var myFastSortFunction=function(a,b,context)
 {	[self setBackgroundImage: image];
 }
 -(void) setBackgroundImage:(CPImage) someImage
-{	if([someImage loadStatus]!==  CPImageLoadStatusCompleted)
-	{	[someImage setDelegate: self];
-		return;
-	}
-
-	if(_backgroundImageView) [_backgroundImageView removeFromSuperview];
+{	[someImage setDelegate: self];
 	var mySize=[someImage size];
+	if(!mySize) return;
+	if(_backgroundImageView) [_backgroundImageView removeFromSuperview];
 	var myFrame=CPMakeRect(0,0, mySize.width, mySize.height);
 	[self setFrame: myFrame];
 	 _backgroundImageView=[[CPImageView alloc] initWithFrame: myFrame];
