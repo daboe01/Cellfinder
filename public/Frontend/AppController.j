@@ -89,7 +89,7 @@ PhotoDragType="PhotoDragType";
 	id	_sharedImageBrowser;
 }
 
-- sharedConfigController;
+-(id) sharedConfigController
 {
 	if(!_sharedConfigController)
 	{	[CPBundle loadRessourceNamed: "Admin.gsmarkup" owner: self ];

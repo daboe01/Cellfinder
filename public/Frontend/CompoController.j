@@ -24,7 +24,7 @@
 	return [theObject stringByReplacingOccurrencesOfString:"%" withString: ""];
 }
 
-- (id)objectValueForString:(CPString)aString error:(out CPError)theError
+- (id)objectValueForString:(CPString)aString error:(CPError)theError
 {	if(![aString isKindOfClass:[CPString class]]) aString=[aString stringValue];
 	return [aString stringByAppendingString:"%"];
 

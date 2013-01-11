@@ -129,7 +129,7 @@ var myFastSortFunction=function(a,b,context)
 	return parseInt(theObject*_scale);
 }
 
-- (id)objectValueForString:(CPString)aString error:(out CPError)theError
+- (id)objectValueForString:(CPString)aString error:(CPError)theError
 {
 	return parseInt(aString/_scale);
 }

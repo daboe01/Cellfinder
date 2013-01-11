@@ -24,7 +24,6 @@
 @import "CPTextStorage.j"
 @import "CPTextContainer.j"
 @import "CPLayoutManager.j"
-@import "CPFontManager.j"
 
 function MakeRangeFromAbs( a1, a2)
 {	if(a1< a2)	return CPMakeRange(a1,a2-a1);	
