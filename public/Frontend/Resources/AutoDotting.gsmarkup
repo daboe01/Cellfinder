@@ -17,6 +17,7 @@
 			<scrollView hasHorizontalScroller="NO">
 				<tableView autosaveName="folders_manual_dotting_content" zebra="yes" valueBinding="#CPOwner.folderContentController" target="#CPOwner">
 					<tableColumn identifier="name" title="Image"/>
+					<tableColumn identifier="idimage" title="ID"/>
 	  			</tableView>
 			</scrollView>
 		</vbox>
