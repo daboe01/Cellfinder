@@ -15,7 +15,7 @@
 		<tableColumn identifier="name" title="name"/>
 	 </tableView>
 	</scrollView>
-	<ButtonBar actionsButton="YES" target="#CPOwner" plusButtonAction="newTrial:" minusButtonAction="removeTrial:">
+	<ButtonBar actionsButton="YES" target="#myadmincontroller" plusButtonAction="newTrial:" minusButtonAction="removeTrial:">
  		<popUpButtonItem title="Settings..." target="#CPOwner" action="runSettings:" keyEquivalent="i"/>
  		<popUpButtonItem title="Stacks…" target="#CPOwner" action="runStacks:"/>
  		<popUpButtonItem title="Manual Stacks…" target="#CPOwner" action="runStacks2:"/>
@@ -33,7 +33,8 @@
 		<tableColumn identifier="name" title="name" editable="YES"/>
 	 </tableView>
 	</scrollView>
-	<ButtonBar target="#CPOwner.tagrepoController" plusButtonAction="insert:" minusButtonAction="remove:">
+	<ButtonBar target="#CPOwner.tagrepoController" plusButtonAction="insert:" minusButtonAction="remove:" actionsButton="YES">
+ 		<popUpButtonItem title="Update trial" target="#myadmincontroller" action="updateTags:"/>
 	</ButtonBar>
 	</vbox>
  </window>

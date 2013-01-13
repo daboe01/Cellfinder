@@ -177,6 +177,13 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
 		}
 	}
 };
+get '/IMG/make_tags'=> sub
+{	my $self=shift;
+	my $sql='INSERT INTO tags (idimage, idtag)  (select images.id as idimage, tag_repository.id as idtag from images join tag_repository on images.idtrial=tag_repository.idtrial left join tags on idimage=images.id and tags.idtag=tag_repository.id where tags.id is null)';
+	my $sth = $self->db->prepare($sql);
+	$sth->execute();
+	$self->render_text('OK');
+};
 
 get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 {	my $self=shift;

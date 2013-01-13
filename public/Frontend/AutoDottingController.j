@@ -54,6 +54,21 @@
 {	[annotatedImageView setStyleFlags: [annotatedImageView styleFlags] | AIVStyleAngleInfo ];
 }
 
+-(void) reaggregate: sender	// delete a dot
+{	var mycompo= [myAppController.trialsController valueForKeyPath: "selection.composition_for_aggregation"];
+	var idanalysis=[myAppController.analysesController valueForKeyPath:"selection.id"];
+	var idimage=[myAppController.analysesController valueForKeyPath:"selection.idimage"];
+
+	if(mycompo !== CPNullMarker)
+	{	var myreq=[CPURLRequest requestWithURL: BaseURL+idimage+"?idanalysis="+idanalysis+"&cmp="+mycompo];
+		[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
+		[[myAppController.analysesController selectedObject] willChangeValueForKey:"aggregations"];
+		[myAppController.analysesController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
+		[[myAppController.analysesController selectedObject] didChangeValueForKey:"aggregations"];
+	}
+}
+
+
 @end
 
 @implementation GSMarkupTagAutoDottingController : GSMarkupTagObject

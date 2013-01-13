@@ -23,14 +23,10 @@
 
 //- (void)editColumn:(CPInteger)columnIndex row:(CPInteger)rowIndex withEvent:(CPEvent)theEvent select:(BOOL)flag
 
-/*
-//<!> test whether we can remove this, since we are editable
-- (BOOL)tableView:(CPTableView)aTableView shouldEditTableColumn:(CPTableColumn)aTableColumn row:(int)rowIndex
-{
-alert("hello");
-    return YES;
+-(void) updateTags:sender
+{	var myreq=[CPURLRequest requestWithURL: BaseURL+"make_tags" ];
+	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
 }
-*/
 
 @end
 

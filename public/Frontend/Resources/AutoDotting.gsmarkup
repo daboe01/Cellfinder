@@ -23,7 +23,7 @@
 			<scrollView hasHorizontalScroller="NO">
 				<tableView autosaveName="folders_manual_dotting_tags" zebra="yes" valueBinding="#CPOwner.tagsController" target="#CPOwner">
 					<tableColumn identifier="tag.name" title="Name"/>
-					<tableColumn identifier="value" title="Wert"/>
+					<tableColumn identifier="value" title="Wert" editable="YES"/>
 	  			</tableView>
 			</scrollView>
 		</vbox>
