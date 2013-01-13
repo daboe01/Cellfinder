@@ -19,7 +19,7 @@ PhotoDragType="PhotoDragType";
 @import <Renaissance/Renaissance.j>
 @import "DottingControllers.j"
 @import "DocsCalImporter.j"
-@import "ConfigController.j"
+@import "AdminController.j"
 @import "ImageBrowser.j"
 
 
@@ -74,6 +74,8 @@ PhotoDragType="PhotoDragType";
 	id	folderContentController;
 	id	analysesController;
 	id	aggregationsController;
+	id	tagrepoController;
+	id	tagsController;
 
 	id	displayfilters_ac;
 	id	uploadfilters_ac;

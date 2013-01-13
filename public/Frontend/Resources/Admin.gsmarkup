@@ -26,6 +26,18 @@
 	</vbox>
  </window>
 
+  <window title="Tags" closable="no"  x="650" y="50" id="trialswindow" width="200" height="340">
+	<vbox>
+	<scrollView>
+	 <tableView zebra="yes" autosaveName="alltags" delegate="#myadmincontroller" valueBinding="#CPOwner.tagrepoController">
+		<tableColumn identifier="name" title="name" editable="YES"/>
+	 </tableView>
+	</scrollView>
+	<ButtonBar target="#CPOwner.tagrepoController" plusButtonAction="insert:" minusButtonAction="remove:">
+	</ButtonBar>
+	</vbox>
+ </window>
+
   <window title="Trial settings" id="trialsettingswindow" x="310" y="50" width="300" height="200" resizable="YES">
 	<vbox>
 		<tabView type="topBezel">

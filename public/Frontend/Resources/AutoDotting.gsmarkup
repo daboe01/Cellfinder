@@ -20,6 +20,12 @@
 					<tableColumn identifier="idimage" title="ID"/>
 	  			</tableView>
 			</scrollView>
+			<scrollView hasHorizontalScroller="NO">
+				<tableView autosaveName="folders_manual_dotting_tags" zebra="yes" valueBinding="#CPOwner.tagsController" target="#CPOwner">
+					<tableColumn identifier="tag.name" title="Name"/>
+					<tableColumn identifier="value" title="Wert"/>
+	  			</tableView>
+			</scrollView>
 		</vbox>
 		<vbox>
 			<vbox>
