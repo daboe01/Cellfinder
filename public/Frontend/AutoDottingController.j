@@ -4,6 +4,7 @@
 
 @implementation AutoDottingController : DottingController
 {	id annotatedImageView;
+	id trialSettingsWindow;
 }
 -(void) _postInit
 {	[super _postInit];
@@ -54,7 +55,7 @@
 {	[annotatedImageView setStyleFlags: [annotatedImageView styleFlags] | AIVStyleAngleInfo ];
 }
 
--(void) reaggregate: sender	// delete a dot
+-(void) reaggregate: sender
 {	var mycompo= [myAppController.trialsController valueForKeyPath: "selection.composition_for_aggregation"];
 	var idanalysis=[myAppController.analysesController valueForKeyPath:"selection.id"];
 	var idimage=[myAppController.analysesController valueForKeyPath:"selection.idimage"];
@@ -66,6 +67,9 @@
 		[myAppController.analysesController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 		[[myAppController.analysesController selectedObject] didChangeValueForKey:"aggregations"];
 	}
+}
+-(void) runSettings: sender
+{	[trialSettingsWindow makeKeyAndOrderFront:self];
 }
 
 

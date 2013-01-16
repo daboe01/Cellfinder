@@ -18,8 +18,8 @@ use Statistics::R;
 use SQL::Abstract;
 use POSIX;
 
-use constant server_root=>'/Library/WebServer/Documents/cellfinder';
-#use constant server_root=>'/srv/www/htdocs/cellfinder';
+#use constant server_root=>'/Library/WebServer/Documents/cellfinder';
+use constant server_root=>'/srv/www/htdocs/cellfinder';
 
 #<!> fixme hardcoded URL
 sub runSimpleRegistrationRCode { my ($id1,$id2)=@_;

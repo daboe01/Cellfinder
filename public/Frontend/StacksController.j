@@ -18,6 +18,24 @@
 
 @end
 
+@implementation CPBox (ColorFix)
+- (void)_drawLineBorderInRect:(CGRect)aRect
+{
+    var context = [[CPGraphicsContext currentContext] graphicsPort],
+        sides = [CPMinYEdge, CPMaxXEdge, CPMaxYEdge, CPMinXEdge],
+        sideGray = 190.0 / 255.0,
+        borderWidth = [self borderWidth];
+	var borderColor=[self valueForThemeAttribute:@"border-color"];
+    while (borderWidth--)
+        aRect = borderColor? CPDrawColorTiledRects(aRect, aRect, sides, [borderColor,borderColor,borderColor,borderColor]):
+							 CPDrawTiledRects(aRect, aRect, sides,			[142.0 / 255.0, sideGray, sideGray, sideGray]);
+
+    CGContextSetFillColor(context, [self fillColor]);
+    CGContextFillRect(context, aRect);
+}
+@end 
+
+
 @implementation SimpleImageViewCollectionItem: CPCollectionViewItem
 {	var			_idimage;
 	var			_handovers;
@@ -96,7 +114,7 @@
 	[self loadView];
 }
 -(void) setSelected:(BOOL) state
-{	[[self view] setBorderColor: state? [CPColor yellowColor]: [CPColor blackColor] ];
+{    [[self view] setValue:state? [CPColor yellowColor]: [CPColor colorWithWhite:(190.0 / 255.0) alpha: 1.0]  forThemeAttribute:@"border-color"];
 }
 
 @end

@@ -44,15 +44,16 @@
 		<tabView type="topBezel">
 			<tabViewItem title="General">
 				<vbox>
-				<hbox><label valign="centre" halign="min" width="100">Name</label><textField valueBinding="#CPOwner.trialsController.selection.name"/></hbox>
-				<hbox><label valign="centre" halign="min" width="100">Grouping regex</label><textField valueBinding="#CPOwner.trialsController.selection.entity_regex"/></hbox>
+				<hbox><label valign="center" halign="min" width="100">Name</label><textField valueBinding="#CPOwner.trialsController.selection.name" nextKeyView="#groupregexfield"/></hbox>
+				<hbox><label valign="center" halign="min" width="100">Grouping regex</label><textField valueBinding="#CPOwner.trialsController.selection.entity_regex" id="groupregexfield"/></hbox>
 				<popUpButton width="200" itemsBinding="guiclasses_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.editing_controller"/>
 				</vbox>
 			</tabViewItem>
 			<tabViewItem title="Filters">
 				<vbox>
-	    		<hbox><label valign="centre" halign="min" width="100">Upload</label><popUpButton width="100" itemsBinding="#CPOwner.uploadfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_upload"/></hbox>
-	    		<hbox><label valign="centre" halign="min" width="100">Editing</label><popUpButton width="100" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_editing"/></hbox>
+	    		<hbox><label valign="center" halign="min" width="130">Upload</label><popUpButton width="200" itemsBinding="#CPOwner.uploadfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_upload"/></hbox>
+	    		<hbox><label valign="center" halign="min" width="130">Editing</label><popUpButton width="200" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_editing"/></hbox>
+	    		<hbox><label valign="center" halign="min" width="130">Feature extraction</label><popUpButton width="200" itemsBinding="#CPOwner.analyticsfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_celldetection"/></hbox>
 				</vbox>
 			</tabViewItem>
 		</tabView>

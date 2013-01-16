@@ -39,6 +39,7 @@
    						<popUpButtonItem title="Reload" target="#mydottingcontroller" action="reloadAnalysis:"/>
  						<popUpButtonItem title="Edit…" target="#mydottingcontroller" action="editAnalysis:"/>
   						<popUpButtonItem title="Reaggregate" target="#mydottingcontroller" action="reaggregate:"/>
+ 						<popUpButtonItem title="Switch Extractor" target="#mydottingcontroller" action="runSettings:"/>
 					</ButtonBar>
 				</vbox>
 				<scrollView hasHorizontalScroller="NO">
@@ -61,10 +62,17 @@
 		</vbox>
 	 </splitView>
   </window>
+  <window title="Trial settings" id="trialsettingswindow" x="260" y="500" width="300" height="90" visible="NO"  resizable="NO">
+	<vbox>
+	    	<hbox><label valign="center" halign="min" width="130">Feature extraction</label><popUpButton width="200" itemsBinding="#CPOwner.analyticsfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_celldetection"/></hbox>
+	</vbox>
+  </window>
+
 </objects>
 
 <connectors>
 	<outlet source="mydottingcontroller" target="annotated_image_view" label="annotatedImageView"/>
+	<outlet source="mydottingcontroller" target="trialsettingswindow" label="trialSettingsWindow"/>
 </connectors>
 
 
