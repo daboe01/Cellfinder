@@ -72,6 +72,27 @@
 {	[trialSettingsWindow makeKeyAndOrderFront:self];
 }
 
+-(void) matchDots: sender
+{	var myarr=[CPMutableArray new];
+	var so=[myAppController.folderContentController selectedObjects];
+	var idtrial=[myAppController.trialsController valueForKeyPath:"selection.id"];
+	var i,l=[so count];
+	if(l<2)
+	{	[[CPAlert alertWithError:"Bitte mindestens zwei Zeilen auswaehlen (Shift-Taste)"] runModal];
+		return;
+	}
+	for(i=0;i<l;i++)
+	{	var ro=[so objectAtIndex: i];
+		[myarr addObject: [ro valueForKey:"idimage"]];
+	}
+	var myreq=[CPURLRequest requestWithURL: BaseURL+"makestack"+"/"+idtrial+"/"+"mystack"];
+    [myreq setHTTPMethod: "POST"];
+	[myreq setHTTPBody: JSON.stringify(myarr) ];
+	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
+
+	//Frontend/index.html?Epilens?t=ManualStacks.gsmarkup
+}
+
 
 @end
 

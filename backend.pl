@@ -189,16 +189,20 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 {	my $self=shift;
 	my $spc=			$self->param("spc");
 	my $idstack=		$self->param("idstack");
+	my $ransac=			$self->param("ransac");
+	my $thresh=			$self->param("thresh");
+	my $identityradius= $self->param("identityradius");
+
 	if($spc eq 'affine')
 	{	my $sql = SQL::Abstract->new;
-warn "hello $idstack";
 		my($stmt, @bind) = $sql->select('montage_images',undef, {idmontage => $idstack} );
 		my $sth = $self->db->prepare($stmt);
 		$sth->execute(@bind);
 
 		while ( my $curr = $sth->fetchrow_hashref() )
 		{	next unless $curr->{idanalysis_reference};
-			my $par= cellfinder_image::runSimpleRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis});
+			my $par= $ransac?	cellfinder_image::runRANSACRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis}, $thresh, $identityradius):
+								cellfinder_image::runSimpleRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis});
 # warn $par.' '. $curr->{idanalysis};
 			my $sql=SQL::Abstract->new();
 			my($stmt, @bind) = $sql->update('montage_images', {parameter=> $par}, {id=>$curr->{id} } );
@@ -230,16 +234,16 @@ get '/IMG/import/:idtrial/:name/:uri'=> [name=>qr/.+/, uri=>qr/.+/] => sub
 };
 
 post '/IMG/import_stack/:idtrial/:name'=> [name=>qr/.+/] => sub
-{	my $self=shift;
+{	use TempFileNames;
+	my $self=shift;
 	my $name= $self->param("name");
 	my $idtrial= $self->param("idtrial");
 	my $json_decoder= Mojo::JSON->new;
-# warn $self->req->body;
+	# warn $self->req->body;
 	my $jsonR   = $json_decoder->decode( $self->req->body );
-	use TempFileNames;
-	my $i=0;
 	my $suffix='.jpg';	# sensible default
 	my @image_ids;
+	my $i=0;
 	foreach my $dc_name (@$jsonR)	# import every image
 	{	my $ua = Mojo::UserAgent->new;
 		my $data=$ua->get($dc_name)->res->body;
@@ -252,6 +256,33 @@ post '/IMG/import_stack/:idtrial/:name'=> [name=>qr/.+/] => sub
 	my $idref;
 	foreach my $id (@image_ids)
 	{	my $idanalysis=cellfinder_image::insertObjectIntoTable($self->db, 'analyses', 'id', { idimage=> $id } );
+		$idref=$idanalysis unless $idref;
+		cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $id, idanalysis=> $idanalysis, idanalysis_reference=>$idref, idmontage=> $idmontage} );
+	}
+	$self->render_data('OK', format =>'txt' );
+};
+post '/IMG/makestack/:idtrial/:name'=> [name=>qr/.+/] => sub
+{	sub getLastAnalysisForImage{
+		my $dbh  = shift;
+		my $id = shift;
+		
+		my $sth = $dbh->prepare( qq/select max(id) from analyses where idimage=?/);
+		$sth->execute(($id));
+		return $sth->fetchall_arrayref()->[0]->[0];
+}
+	
+	my $self=shift;
+	my $name= $self->param("name");
+	my $idtrial= $self->param("idtrial");
+	my $json_decoder= Mojo::JSON->new;
+	# warn $self->req->body;
+	my $jsonR   = $json_decoder->decode( $self->req->body );
+	my @image_ids=@$jsonR;
+	my $idmontage=cellfinder_image::insertObjectIntoTable($self->db, 'montages', 'id', {idtrial=> $idtrial, name=> $name} );
+	my $idref;
+	foreach my $id (@image_ids)
+	{	my $idanalysis=getLastAnalysisForImage($self->db,  $id );
+warn $idanalysis;
 		$idref=$idanalysis unless $idref;
 		cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $id, idanalysis=> $idanalysis, idanalysis_reference=>$idref, idmontage=> $idmontage} );
 	}

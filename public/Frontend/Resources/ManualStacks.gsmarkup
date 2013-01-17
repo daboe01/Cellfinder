@@ -9,7 +9,7 @@
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
 				<tableView zebra="yes" valueBinding="#CPOwner.stacksController" target="#mystackscontroller">
-					<tableColumn identifier="name" title="name"/>
+					<tableColumn identifier="name" editable="YES" title="name"/>
 	  			</tableView>
 			</scrollView>
 			<ButtonBar plusButtonAction="newStack:" minusButtonAction="deleteStack:" actionsButton="YES" target="#mystackscontroller">
@@ -20,7 +20,7 @@
 			</ButtonBar>
 		</vbox>
 		<vbox>
-			<label>Drag in images; dbl-click to remove; shift for marquee.</label>
+			<label> dbl-click removes a whole image; shift-click for marquee selection.</label>
 			<scrollView hasHorizontalScroller="NO" hasVerticalScroller="YES">
 				<collectionView id="stacks_collection_view" itemWidth="100" itemHeight="100" valueBinding="#CPOwner.stacksContentController.arrangedObjects" delegate="mystackscontroller" itemsClassName="ImageEditorCollectionItem" selectable="YES"/>
 			</scrollView>

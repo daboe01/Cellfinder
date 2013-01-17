@@ -22,6 +22,7 @@ use POSIX;
 use constant server_root=>'/srv/www/htdocs/cellfinder';
 
 #<!> fixme hardcoded URL
+# is directly called from the backend
 sub runSimpleRegistrationRCode { my ($id1,$id2)=@_;
 	my $RCmd=<<'ENDOFR'
 	read.pointset=function(id){
@@ -36,6 +37,22 @@ sub runSimpleRegistrationRCode { my ($id1,$id2)=@_;
 ENDOFR
 ;	$RCmd=~s/<id1>/$id1/ogs;
 	$RCmd=~s/<id2>/$id2/ogs;
+	my $R = Statistics::R->new();
+	$R->run($RCmd);
+	return '['. $R->get('out') . ']';
+}
+sub runRANSACRegistrationRCode { my ($id1,$id2, $thresh, $identityradius)=@_;
+	my $RCmd=<<'ENDOFR'
+	source('/HHB/bin/ransac3.R')
+	d0= subset(read.pointset(<id1>), select=c(row,col))
+	d1= subset(read.pointset(<id2>), select=c(row,col))
+	out=register.pointsets.out(id1, id2, <thresh>, <identityradius>, do.rotate=F)
+ENDOFR
+;	$RCmd=~s/<id1>/$id1/ogs;
+	$RCmd=~s/<id2>/$id2/ogs;
+	$RCmd=~s/<thresh>/$thresh/ogs;
+	$RCmd=~s/<identityradius>/$identityradius/ogs;
+
 	my $R = Statistics::R->new();
 	$R->run($RCmd);
 	return '['. $R->get('out') . ']';

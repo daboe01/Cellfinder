@@ -15,11 +15,14 @@
 		</vbox>
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
-				<tableView autosaveName="folders_manual_dotting_content" zebra="yes" valueBinding="#CPOwner.folderContentController" target="#CPOwner">
+				<tableView autosaveName="folders_manual_dotting_content" zebra="yes" allowsMultipleSelection="YES" valueBinding="#CPOwner.folderContentController" target="#CPOwner">
 					<tableColumn identifier="name" title="Image"/>
 					<tableColumn identifier="idimage" title="ID"/>
 	  			</tableView>
 			</scrollView>
+			<ButtonBar target="#mydottingcontroller" halign="right" width="250" actionsButton="YES">
+   				<popUpButtonItem title="Try to match dots" target="#mydottingcontroller" action="matchDots:"/>
+			</ButtonBar>
 			<scrollView hasHorizontalScroller="NO">
 				<tableView autosaveName="folders_manual_dotting_tags" zebra="yes" valueBinding="#CPOwner.tagsController" target="#CPOwner">
 					<tableColumn identifier="tag.name" title="Name"/>
