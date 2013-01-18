@@ -47,7 +47,7 @@
 		<menuItem title="Cut" action="cut:" keyEquivalent="x"/>
 		<menuItem title="Copy" action="copy:" keyEquivalent="c"/>
 		<menuItem title="Paste" action="paste:" keyEquivalent="v"/>
-		<menuItem title="Remove" action="delete:" keyEquivalent="r"/>
+		<menuItem title="Remove" action="delete:" keyEquivalent="y"/>
 		<menuItem title="Select all" action="selectAll:" keyEquivalent="a"/>
 	</menu>
    </menu>

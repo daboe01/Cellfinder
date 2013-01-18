@@ -203,7 +203,7 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 		{	next unless $curr->{idanalysis_reference};
 			my $par= $ransac?	cellfinder_image::runRANSACRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis}, $thresh, $identityradius):
 								cellfinder_image::runSimpleRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis});
-# warn $par.' '. $curr->{idanalysis};
+warn $par.' '. $curr->{id};
 			my $sql=SQL::Abstract->new();
 			my($stmt, @bind) = $sql->update('montage_images', {parameter=> $par}, {id=>$curr->{id} } );
 			my $sth =  $self->db->prepare($stmt);
@@ -282,9 +282,8 @@ post '/IMG/makestack/:idtrial/:name'=> [name=>qr/.+/] => sub
 	my $idref;
 	foreach my $id (@image_ids)
 	{	my $idanalysis=getLastAnalysisForImage($self->db,  $id );
-warn $idanalysis;
-		$idref=$idanalysis unless $idref;
 		cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $id, idanalysis=> $idanalysis, idanalysis_reference=>$idref, idmontage=> $idmontage} );
+		$idref=$idanalysis unless $idref;
 	}
 	$self->render_data('OK', format =>'txt' );
 };

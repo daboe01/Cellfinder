@@ -90,7 +90,7 @@
 	[myreq setHTTPBody: JSON.stringify(myarr) ];
 	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
 
-	//Frontend/index.html?Epilens?t=ManualStacks.gsmarkup
+	window.open("http://auginfo:3000/Frontend/index.html?id="+idtrial+"&t=AutoStacks.gsmarkup",'autostacks');
 }
 
 

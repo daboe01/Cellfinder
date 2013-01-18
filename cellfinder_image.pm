@@ -44,9 +44,7 @@ ENDOFR
 sub runRANSACRegistrationRCode { my ($id1,$id2, $thresh, $identityradius)=@_;
 	my $RCmd=<<'ENDOFR'
 	source('/HHB/bin/ransac3.R')
-	d0= subset(read.pointset(<id1>), select=c(row,col))
-	d1= subset(read.pointset(<id2>), select=c(row,col))
-	out=register.pointsets.out(id1, id2, <thresh>, <identityradius>, do.rotate=F)
+	out=register.pointsets.out(<id1>, <id2>, <thresh>, <identityradius>, do.rotate=F)
 ENDOFR
 ;	$RCmd=~s/<id1>/$id1/ogs;
 	$RCmd=~s/<id2>/$id2/ogs;
