@@ -8,7 +8,7 @@
 
 /////////////////////////////////////////////////////////
 
-HostURL="http://auginfo:3000"
+HostURL="http://localhost:3000"
 BaseURL= HostURL+"/IMG/";
 
 PhotoDragType="PhotoDragType";
