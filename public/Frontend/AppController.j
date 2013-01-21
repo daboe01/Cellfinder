@@ -22,7 +22,6 @@ PhotoDragType="PhotoDragType";
 @import "AdminController.j"
 @import "ImageBrowser.j"
 
-
 /////////////////////////////////////////////////////////
 
 @implementation CPObject (ImageURLHack)
