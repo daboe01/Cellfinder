@@ -94,7 +94,7 @@
 
 -(void) editAnalysis: sender
 {	var myAnalysis=  [myAppController.analysesController selectedObject];
-	[[CompoController alloc] initWithCompo: [myAnalysis valueForKey:"analysis_compo"] ];
+	[[CompoController alloc] initWithCompo: [myAppController.trialsController valueForKeyPath: "selection.analysis_compo"] ];
 }
 -(void) reaggregate: sender
 {	[[myAppController.analysesController selectedObject] willChangeValueForKey:"aggregations"];

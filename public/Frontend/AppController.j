@@ -114,7 +114,7 @@ PhotoDragType="PhotoDragType";
 {	store=[[FSStore alloc] initWithBaseURL: HostURL+"/DBI"];
 	[CPBundle loadRessourceNamed: "model.gsmarkup" owner:self];
 
-	var model;
+	var model="Admin.gsmarkup";
 	var re = new RegExp("id=([0-9]+)");
 	var m = re.exec(document.location);
 	if(m)
