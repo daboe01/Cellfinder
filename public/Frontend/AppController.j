@@ -22,6 +22,7 @@ PhotoDragType="PhotoDragType";
 @import "AdminController.j"
 @import "ImageBrowser.j"
 
+
 /////////////////////////////////////////////////////////
 
 @implementation CPObject (ImageURLHack)
@@ -114,7 +115,7 @@ PhotoDragType="PhotoDragType";
 {	store=[[FSStore alloc] initWithBaseURL: HostURL+"/DBI"];
 	[CPBundle loadRessourceNamed: "model.gsmarkup" owner:self];
 
-	var model="Admin.gsmarkup";
+	var model;
 	var re = new RegExp("id=([0-9]+)");
 	var m = re.exec(document.location);
 	if(m)
