@@ -20,14 +20,14 @@
 	[img setDelegate: mycontroller];
 	return img;
 }
--(void) _replaceAnalysis
+-(void) _replaceAnalysisWithDelegate: someDelegate
 {	var mycompoID=		[self valueForKey:"idcomposition_for_analysis" ];
 	var myidimage=		[self valueForKey:"idimage" ];
 	var myidanalysis =	[self valueForKey:"id" ];
 	if(mycompoID !== CPNullMarker)
 	{	myurl= BaseURL +myidimage+"?cmp="+mycompoID+"&idanalysis="+ myidanalysis;
 		var myreq=[CPURLRequest requestWithURL: myurl];
-		[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
+		[CPURLConnection connectionWithRequest:myreq delegate: someDelegate];
 	}
 }
 
@@ -47,6 +47,7 @@
 {	id myAppController;
 	id _scale @accessors(property=scale);
 	CPSize _originalSize;
+	id progress;
 }
 
 
@@ -81,20 +82,26 @@
 	[myAnalysis setValue: mycompoID  forKey:"idcomposition_for_analysis"];
 	[self reloadAnalysis:self];
 }
--(void) reloadAnalysis: sender
-{	var myAnalysis=  [myAppController.analysesController selectedObject];
-	[myAnalysis _replaceAnalysis];
+
+-(void) connection: someConnection didReceiveData: data
+{	[progress stopAnimation:self];
 	[[myAppController.analysesController selectedObject] willChangeValueForKey:"results"];
 	[myAppController.analysesController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 	[[myAppController.analysesController selectedObject] didChangeValueForKey:"results"];
-
 	[[myAppController.analysesController selectedObject] willChangeValueForKey:"aggregations"];
 	[[myAppController.analysesController selectedObject] didChangeValueForKey:"aggregations"];
 }
 
+-(void) reloadAnalysis: sender
+{	var myAnalysis=  [myAppController.analysesController selectedObject];
+	[progress startAnimation: self];
+	[myAnalysis _replaceAnalysisWithDelegate: self];
+
+}
+
 -(void) editAnalysis: sender
 {	var myAnalysis=  [myAppController.analysesController selectedObject];
-	[[CompoController alloc] initWithCompo: [myAppController.trialsController valueForKeyPath: "selection.analysis_compo"] ];
+	[[CompoController alloc] initWithCompo: [myAnalysis valueForKey:"analysis_compo"] ];
 }
 -(void) reaggregate: sender
 {	[[myAppController.analysesController selectedObject] willChangeValueForKey:"aggregations"];

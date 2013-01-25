@@ -3,7 +3,7 @@
 <gsmarkup>
 
 <objects>
-  <window title="Flicker" id="mywindow" closable="YES"  x="10" y="250"  width="400" height="200" delegate="#CPOwner">
+  <window title="Flicker" id="mywindow" closable="YES"  x="10" y="250"  width="400" height="600" delegate="#CPOwner">
 	<vbox>
 		<scrollView>
 			<image id="imageview" halign="expand"  valign="expand"/>

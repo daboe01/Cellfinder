@@ -38,12 +38,15 @@
 							<tableColumn identifier="id" title="Analysis"/>
 						</tableView>
 					</scrollView>
+					<hbox>
 					<ButtonBar target="#mydottingcontroller" halign="right" width="250"  plusButtonAction="insertAnalysis:" minusButtonAction="removeAnalysis:" actionsButton="YES">
    						<popUpButtonItem title="Reload" target="#mydottingcontroller" action="reloadAnalysis:"/>
  						<popUpButtonItem title="Edit…" target="#mydottingcontroller" action="editAnalysis:"/>
   						<popUpButtonItem title="Reaggregate" target="#mydottingcontroller" action="reaggregate:"/>
  						<popUpButtonItem title="Switch Extractor" target="#mydottingcontroller" action="runSettings:"/>
 					</ButtonBar>
+					<progresIndicator id="progress" indeterminate="YES"/>
+					</hbox>
 				</vbox>
 				<scrollView hasHorizontalScroller="NO">
 					<tableView autosaveName="aggregations_name" zebra="yes" valueBinding="#CPOwner.aggregationsController" target="#CPOwner">
@@ -76,6 +79,7 @@
 <connectors>
 	<outlet source="mydottingcontroller" target="annotated_image_view" label="annotatedImageView"/>
 	<outlet source="mydottingcontroller" target="trialsettingswindow" label="trialSettingsWindow"/>
+	<outlet source="mydottingcontroller" target="progress" label="progress"/>
 </connectors>
 
 

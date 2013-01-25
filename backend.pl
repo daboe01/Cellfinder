@@ -9,7 +9,7 @@ use Data::Dumper;
 use Mojo::UserAgent;
 
 plugin 'database', { 
-			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
+			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
 			username => 'root',
 			password => 'root',
 			options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
@@ -209,7 +209,7 @@ warn $par.' '. $curr->{id};
 			my $sth =  $self->db->prepare($stmt);
 			$sth->execute(@bind);
 		}
-		$self->render_text('');
+		$self->render_text($idstack);
 	} elsif($spc eq 'gif')
 	{	my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, 0, undef, undef, undef, undef, $idstack);
 		my $p= $f->(0);
@@ -336,4 +336,5 @@ get '/DC/fetch/:name/:scale'=> [name =>qr/.+/] => sub
 };
 
 
+app->config(hypnotoad => {listen => ['http://*:3000'], workers => 10});
 app->start;

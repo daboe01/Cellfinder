@@ -12,10 +12,13 @@
 					<tableColumn identifier="name" editable="YES" title="name"/>
 	  			</tableView>
 			</scrollView>
+			<hbox>
 			<ButtonBar plusButtonAction="newStack:" minusButtonAction="deleteStack:" actionsButton="YES" target="#mystackscontroller">
   				<popUpButtonItem title="RANSAC trial" target="#mystackscontroller" action="runRansac:"/>
 				<popUpButtonItem title="Flickering…" target="#mystackscontroller" action="runFlicker:"/>
 			</ButtonBar>
+			<progresIndicator id="progress" indeterminate="YES"/>
+			</hbox>
 		</vbox>
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
@@ -60,6 +63,7 @@
 	<outlet source="mystackscontroller" target="stacks_collection_view" label="myCollectionView"/>
 	<outlet source="mystackscontroller" target="stackswindow" label="myWindow"/>
 	<outlet source="mystackscontroller" target="stacksettingswindow" label="stacksettingswindow"/>
+	<outlet source="mystackscontroller" target="progress" label="progress"/>
 </connectors>
 
 </gsmarkup>

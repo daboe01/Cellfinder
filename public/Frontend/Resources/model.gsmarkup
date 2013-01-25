@@ -71,8 +71,6 @@
 		<relationship name="folders" type="toMany" target="folders" targetColumn="idtrial"/>
 		<relationship name="stacks" type="toMany" target="montages" targetColumn="idtrial"/>
 		<relationship name="tagrepo" type="toMany" target="tag_repository" targetColumn="idtrial"/>
-		<relationship type="toOne" name="analysis_compo" bindingColumn="composition_for_celldetection" target="patch_compositions"/>
-
 	</entity>
 	<entity id="patch_compositions" store="#CPOwner.store">
 		<column name="id" primaryKey="YES"/>
