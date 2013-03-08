@@ -15,6 +15,7 @@
 			<hbox>
 			<ButtonBar plusButtonAction="newStack:" minusButtonAction="deleteStack:" actionsButton="YES" target="#mystackscontroller">
   				<popUpButtonItem title="RANSAC trial" target="#mystackscontroller" action="runRansac:"/>
+  				<popUpButtonItem title="RANSAC try harder" target="#mystackscontroller" action="runRansac2:"/>
 				<popUpButtonItem title="Flickering…" target="#mystackscontroller" action="runFlicker:"/>
 			</ButtonBar>
 			<progresIndicator id="progress" indeterminate="YES"/>

@@ -39,10 +39,9 @@
 	if(!_size) 	_size=0.1;
 	myURL+="&width="+parseInt( (_size*mysize.width)* (_size*mysize.height) );
 	var image=[[CPImage alloc] initWithContentsOfFile: myURL];
-
-	if([image loadStatus]!==  CPImageLoadStatusCompleted)
-	{	[image setDelegate: self];
-	} else [self setImage: image];
+	[image setDelegate: self];
+	if([image loadStatus] ===  CPImageLoadStatusCompleted)
+		[self setImage: image];
 }
 
 

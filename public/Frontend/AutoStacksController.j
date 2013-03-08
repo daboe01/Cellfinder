@@ -10,6 +10,11 @@
 	return o;
 }
 
+//prevent dot creation in other view don't call super method!!
+-(void) annotatedImageView: someView dot: someDot movedToPoint: newPoint
+{
+}
+
 @end
 
 
@@ -30,7 +35,12 @@
 	[self setScale:1];
 }
 -(void) runRansac: sender
-{	var myreq=[CPURLRequest requestWithURL: BaseURL+"STACK/"+[myAppController.stacksController valueForKeyPath: "selection.id"] +"?spc=affine&ransac=1&thresh=60&identityradius=6"];
+{	var myreq=[CPURLRequest requestWithURL: BaseURL+"STACK/"+[myAppController.stacksController valueForKeyPath: "selection.id"] +"?spc=affine&ransac=1&thresh=80&identityradius=6&iterations=15"];
+	[CPURLConnection connectionWithRequest:myreq delegate: self];
+	[progress startAnimation: self];
+}
+-(void) runRansac2: sender
+{	var myreq=[CPURLRequest requestWithURL: BaseURL+"STACK/"+[myAppController.stacksController valueForKeyPath: "selection.id"] +"?spc=affine&ransac=1&thresh=100&identityradius=8&iterations=25"];
 	[CPURLConnection connectionWithRequest:myreq delegate: self];
 	[progress startAnimation: self];
 }

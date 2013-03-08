@@ -44,6 +44,7 @@
  						<popUpButtonItem title="Edit…" target="#mydottingcontroller" action="editAnalysis:"/>
   						<popUpButtonItem title="Reaggregate" target="#mydottingcontroller" action="reaggregate:"/>
  						<popUpButtonItem title="Switch Extractor" target="#mydottingcontroller" action="runSettings:"/>
+ 						<popUpButtonItem title="Toggle Voronoi" target="#mydottingcontroller" action="toggleVoronoi:"/>
 					</ButtonBar>
 					<progresIndicator id="progress" indeterminate="YES"/>
 					</hbox>

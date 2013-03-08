@@ -39,21 +39,22 @@ ENDOFR
 	$RCmd=~s/<id2>/$id2/ogs;
 	my $R = Statistics::R->new();
 	$R->run($RCmd);
-	return '['. $R->get('out') . ']';
+	return  $R->get('out');
 }
-sub runRANSACRegistrationRCode { my ($id1,$id2, $thresh, $identityradius)=@_;
+sub runRANSACRegistrationRCode { my ($id1,$id2, $thresh, $identityradius, $iterations)=@_;
 	my $RCmd=<<'ENDOFR'
-	source('/HHB/bin/ransac3.R')
-	out=register.pointsets.out(<id1>, <id2>, <thresh>, <identityradius>, do.rotate=F)
+	source('/HHB/bin/ransac4.R')
+	out=register.pointsets.out(<id1>, <id2>, <thresh>, <identityradius>, <iterations>, do.rotate=F)
 ENDOFR
 ;	$RCmd=~s/<id1>/$id1/ogs;
 	$RCmd=~s/<id2>/$id2/ogs;
 	$RCmd=~s/<thresh>/$thresh/ogs;
 	$RCmd=~s/<identityradius>/$identityradius/ogs;
+	$RCmd=~s/<iterations>/$iterations/ogs;
 
 	my $R = Statistics::R->new();
 	$R->run($RCmd);
-	return '['. $R->get('out') . ']';
+	return  $R->get('out');
 }
 sub runRJSONCode { my ($id,$code)=@_;
 	my $RCmd=<<'ENDOFR'
@@ -72,7 +73,7 @@ ENDOFR
 	#warn $RCmd;
 	$R->run($RCmd);
 	my $out=$R->get('out');
-	return JSON::XS->new->utf8->decode($out);
+	return $out? JSON::XS->new->utf8->decode($out):undef;
 }
 
 sub runEBImageRCode { my ($infile,$code)=@_;
@@ -83,13 +84,13 @@ sub runEBImageRCode { my ($infile,$code)=@_;
 	out=""
 	<code>
 ENDOFR
-;	$RCmd=~s/<infile>/$infile/ogs;
-	$RCmd=~s/<code>/$code/ogs;
+;	$RCmd=~s/<code>/$code/ogs;
+	$RCmd=~s/<infile>/$infile/ogs;
 	my $R = Statistics::R->new();
-	#warn $RCmd;
+warn $RCmd;
 	$R->run($RCmd);
 	my $out=$R->get('out');
-	return JSON::XS->new->utf8->decode($out);
+	return $out? JSON::XS->new->utf8->decode($out):undef;
 }
 
 
@@ -116,7 +117,6 @@ sub imageForComposition{
 	my $p = shift;
 	my $cacheReadDisabled=shift;
 	my $idanalysis=shift;
-
 	my $curr_cmp = getObjectFromDBHandID($dbh,'patch_compositions', $idcomposition);
 	return imageForDBHAndRenderchainIDAndImage($dbh, $curr_cmp->{primary_chain}, $f, $p, $cacheReadDisabled, $idanalysis) if($curr_cmp->{primary_chain});
 }
@@ -153,7 +153,6 @@ sub imageForDBHAndRenderchainIDAndImage{
 	my $cacheReadDisabled = shift;
 	my $idanalysis=shift;
 	my $idpoint;
-
 	my $idimage=$readImageFunction? $readImageFunction->(1):0;
 
 	my $stash;
@@ -162,7 +161,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 	if($idimage && $id && -e  $cachename && !$cacheReadDisabled )
 	{	$p = Image::Magick->new();
 		$p->Read($cachename);
-		#		warn "cache hit for $cachename";
+		warn "cache hit for $cachename";
 		return $p;
 	}
 	$p=$readImageFunction->(0) unless $p;
@@ -221,6 +220,9 @@ sub imageForDBHAndRenderchainIDAndImage{
 				my $filename=tempFileName('/tmp/cellf');
 				$old_p->Write($filename.'.jpg');
 				my $infile=runEBImageRCode($filename.'.jpg', $p);
+				# read it back in just in case R/EBImage did some processing on it
+				$p = Image::Magick->new();
+				$p->Read($filename.'.jpg');
 				if(exists $infile->{xpoint} && exists $infile->{ypoint}) # simple points return
 				{
 					$dbh->{AutoCommit}=0;
@@ -238,6 +240,8 @@ sub imageForDBHAndRenderchainIDAndImage{
 					$dbh->{AutoCommit}=1;
 				} elsif(exists $infile->{xarea} && exists $infile->{yarea}) # ROI return
 				{
+				} else
+				{	$result=undef;
 				}
 				# now perform fixup and aggregation if necessary
 				if($idimage)
@@ -255,11 +259,12 @@ sub imageForDBHAndRenderchainIDAndImage{
 				$result = runRJSONCode($idanalysis, $p);
 				cellfinder_image::insertAggregation($dbh, $idanalysis, $result);
 			}
-
-			if(ref($stash) eq 'ARRAY')
-			{	push(@$stash,$result); 
-			} else
-			{	$stash=[$result];
+			if($result){
+				if(ref($stash) eq 'ARRAY')
+				{	push(@$stash,$result); 
+				} else
+				{	$stash=[$result];
+				}
 			}
 		}
 		elsif($curr_patch->{patch_type} == 2 )				# call external programm

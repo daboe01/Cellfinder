@@ -9,12 +9,14 @@
 @import <Foundation/CPObject.j>
 @import <Renaissance/Renaissance.j>
 @import <CoreText/CGContextText.j>
+@import "Voronoi.j"
 
 AIVStylePlain=0;
 AIVStyleNumbers=1;
 AIVStylePolygon=2;
 AIVStyleLengthInfo=4;
 AIVStyleAngleInfo=8;
+AIVStyleVoronoi=16;
 
 
 var mySortFunction=function(a,b,context)
@@ -327,6 +329,46 @@ var myFastSortFunction=function(a,b,context)
 					CGContextShowText(context, distString);
 				}
 				lastPoint=currPoint;
+			}
+		}
+	}
+	if( _styleFlags & AIVStyleVoronoi )
+	{	var bbox=[self frame];
+		var sites=[];
+		var mySubviews=[self subviews];
+		var n = [mySubviews count];
+		var currPoint;
+		for(var i = 0; i < n; i++) 
+		{	var currSubview = mySubviews[i];
+			if ( [currSubview isKindOfClass: contentClass])
+			{	currPoint=[currSubview objectValue];
+				sites.push({x: currPoint.x, y: currPoint.y})
+			}
+		}
+		var voronoi = new Voronoi();
+		var result = voronoi.compute(sites, {xl: 0, xr:  bbox.size.width, yt: 0, yb: bbox.size.height});
+
+		// var result =[v compute: sites boundingBox: {xl: 0, xr:  bbox.size.width, yt: 0, yb: bbox.size.height} ];
+		if(result.cells)
+		{
+			var n= result.cells.length;
+			for(var i = 0; i < n; i++)
+			{	var cell=result.cells[i];
+
+				if(cell.halfedges && cell.halfedges.length)
+				{	var n1= cell.halfedges.length;
+
+					CGContextBeginPath(context);
+					for(var j = 0; j < n1; j++)
+					{	var o0= cell.halfedges[j].getStartpoint();
+						var o1= cell.halfedges[j].getEndpoint();
+						CGContextMoveToPoint(context, o0.x, o0.y);
+						CGContextAddLineToPoint(context, o1.x, o1.y);
+					}
+					CGContextClosePath(context);
+					CGContextSetStrokeColor(context, [CPColor yellowColor]);
+					CGContextStrokePath(context);
+				}
 			}
 		}
 	}

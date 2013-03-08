@@ -93,6 +93,9 @@
 	window.open("http://auginfo:3000/Frontend/index.html?id="+idtrial+"&t=AutoStacks.gsmarkup",'autostacks');
 }
 
+-(void) toggleVoronoi:sender
+{	[annotatedImageView setStyleFlags: [annotatedImageView styleFlags] ^ AIVStyleVoronoi ];
+}
 
 @end
 

@@ -1,6 +1,6 @@
 #!/usr/local/ActivePerl-5.14/site/bin/morbo
 
-use lib qw {/HHB/bin/Cellfinder/ /Users/boehringer/src/daboe01_Cellfinder/Cellfinder/ /Users/daboe01/src/daboe01_Cellfinder/Cellfinder /Users/boehringer/src/privatePerl /Users/daboe01/src/privatePerl};
+use lib qw {/srv/www/Cellfinder2/ /HHB/bin/Cellfinder/ /Users/boehringer/src/daboe01_Cellfinder/Cellfinder/ /Users/daboe01/src/daboe01_Cellfinder/Cellfinder /Users/boehringer/src/privatePerl /Users/daboe01/src/privatePerl};
 use Mojolicious::Lite;
 use Mojolicious::Plugin::Database;
 use cellfinder_image;
@@ -152,7 +152,7 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
 	my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage, $width, $nocache, $csize, $affine, $idstack);
 	my $p= $f->(0);
 	$p= cellfinder_image::imageForComposition($self->db, $preload,$f,$p) if($preload);
-	$p= cellfinder_image::imageForComposition($self->db, $idcomposition,$f,$p, 0, $idanalysis)	if($idcomposition);
+	$p= cellfinder_image::imageForComposition($self->db, $idcomposition,$f,$p, 1, $idanalysis)	if($idcomposition);
 	$p= cellfinder_image::imageForComposition($self->db, $afterload,$f,$p,1) if($afterload);
 
 	if(ref $p eq 'Image::Magick')
@@ -192,6 +192,7 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 	my $ransac=			$self->param("ransac");
 	my $thresh=			$self->param("thresh");
 	my $identityradius= $self->param("identityradius");
+	my $iterations= $self->param("iterations");
 
 	if($spc eq 'affine')
 	{	my $sql = SQL::Abstract->new;
@@ -201,7 +202,7 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 
 		while ( my $curr = $sth->fetchrow_hashref() )
 		{	next unless $curr->{idanalysis_reference};
-			my $par= $ransac?	cellfinder_image::runRANSACRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis}, $thresh, $identityradius):
+			my $par= $ransac?	cellfinder_image::runRANSACRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis}, $thresh, $identityradius, $iterations):
 								cellfinder_image::runSimpleRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis});
 warn $par.' '. $curr->{id};
 			my $sql=SQL::Abstract->new();
