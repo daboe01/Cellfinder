@@ -44,7 +44,7 @@
 		<tabView type="topBezel">
 			<tabViewItem title="General">
 				<vbox>
-				<hbox><label valign="center" halign="min" width="100">Name</label><textField valueBinding="#CPOwner.trialsController.selection.name" nextKeyView="#groupregexfield"/></hbox>
+				<hbox><label valign="center" halign="min" width="100">Name</label><textField valueBinding="#CPOwner.trialsController.selection.name"/></hbox>
 				<hbox><label valign="center" halign="min" width="100">Grouping regex</label><textField valueBinding="#CPOwner.trialsController.selection.entity_regex" id="groupregexfield"/></hbox>
 				<popUpButton width="200" itemsBinding="guiclasses_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.editing_controller"/>
 				</vbox>
