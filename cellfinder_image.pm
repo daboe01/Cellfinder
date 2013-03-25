@@ -373,16 +373,11 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $csize
 				my $m=getMontageForIDImageAndIDStack($dbh, $id, $idstack);
 				my $parameter=$m->{parameter};
 				if($parameter)
-<<<<<<< HEAD
 				{	$parameter="[$parameter]" unless $parameter=~/^\[/o;
 					$i->Distort(method=>'AffineProjection', points=>eval($parameter), 'virtual-pixel'=> 'Background');  #<!>fixme replace with JSON deparser
-=======
-				{
-warn $parameter;
 					my @parameters= split /\|/o, $parameter;
 					@parameters = map {	$_="[$_]" unless $_=~/^\[/o; warn $_; $_} @parameters;
 					$i->Distort(method=>'AffineProjection', points=>eval($_), 'virtual-pixel'=> 'Background') for @parameters;  #<!>fixme replace with JSON deparser
->>>>>>> compo for viewing
 				}
 				push @$p,$i;
 			}

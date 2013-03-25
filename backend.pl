@@ -337,9 +337,5 @@ get '/DC/fetch/:name/:scale'=> [name =>qr/.+/] => sub
 };
 
 
-<<<<<<< HEAD
 app->config(hypnotoad => {listen => ['http://*:3000'], workers => 10, heartbeat_timeout=>600, inactivity_timeout=> 600});
-=======
-app->config(hypnotoad => {listen => ['http://*:3000'], workers => 10, heartbeat_timeout=>100, inactivity_timeout=> 100});
->>>>>>> compo for viewing
 app->start;

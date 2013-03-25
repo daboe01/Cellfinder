@@ -21,11 +21,7 @@
 	if(mycontroller._originalSizeArray[myidimage]) myURL+="&width="+ Math.floor(mycontroller._originalSizeArray[myidimage]	     *scale*
 																				mycontroller._originalSizeArray[myidimage].height*scale);
 	var img=[[IdStoringImage alloc] initWithContentsOfFile: myURL];
-<<<<<<< HEAD
-	img.myidimage=img;
-=======
 	img.myidimage= myidimage;
->>>>>>> compo for viewing
 	[img setDelegate: mycontroller];
 	return img;
 }
