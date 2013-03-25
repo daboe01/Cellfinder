@@ -9,7 +9,7 @@ use Data::Dumper;
 use Mojo::UserAgent;
 
 plugin 'database', { 
-			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
+			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
 			username => 'root',
 			password => 'root',
 			options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
@@ -154,7 +154,7 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
 	$p= cellfinder_image::imageForComposition($self->db, $preload,$f,$p) if($preload);
 	$p= cellfinder_image::imageForComposition($self->db, $idcomposition,$f,$p, 1, $idanalysis)	if($idcomposition);
 	$p= cellfinder_image::imageForComposition($self->db, $afterload,$f,$p,1) if($afterload);
-
+	
 	if(ref $p eq 'Image::Magick')
 	{	if($spc eq 'geom')	# geom-query
 		{	$self->render_text(join ' ', $p->Get('width', 'height') );
@@ -337,5 +337,5 @@ get '/DC/fetch/:name/:scale'=> [name =>qr/.+/] => sub
 };
 
 
-app->config(hypnotoad => {listen => ['http://*:3000'], workers => 10});
+app->config(hypnotoad => {listen => ['http://*:3000'], workers => 10, heartbeat_timeout=>600, inactivity_timeout=> 600});
 app->start;

@@ -39,6 +39,11 @@
 	[CPURLConnection connectionWithRequest:myreq delegate: self];
 	[progress startAnimation: self];
 }
+-(void) runRansac3: sender
+{	var myreq=[CPURLRequest requestWithURL: BaseURL+"STACK/"+[myAppController.stacksController valueForKeyPath: "selection.id"] +"?spc=affine&ransac=1&thresh=40&identityradius=6&iterations=15"];
+	[CPURLConnection connectionWithRequest:myreq delegate: self];
+	[progress startAnimation: self];
+}
 -(void) runRansac2: sender
 {	var myreq=[CPURLRequest requestWithURL: BaseURL+"STACK/"+[myAppController.stacksController valueForKeyPath: "selection.id"] +"?spc=affine&ransac=1&thresh=100&identityradius=8&iterations=25"];
 	[CPURLConnection connectionWithRequest:myreq delegate: self];

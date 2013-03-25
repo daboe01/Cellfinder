@@ -5,6 +5,10 @@
 @import "AnnotatedImageView.j"
 @import "CompoController.j"
 
+@implementation IdStoringImage:CPImage
+{	var myidimage @accessors;
+}
+@end
 
 @implementation CPObject (ImageURLForDottingController)
 -(CPImage) _backgroundImage
@@ -14,9 +18,10 @@
 	if(mycompoID && mycompoID!==CPNullMarker) myURL+="&cmp="+mycompoID;
 	var mycontroller= [[CPApp mainWindow] delegate];	// this is hack to get hold of the UI context from within the database context
 	var scale= mycontroller._scale;
-	if(mycontroller._originalSize) myURL+="&width="+ Math.floor(mycontroller._originalSize.width *scale*
-																mycontroller._originalSize.height*scale);
-	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
+	if(mycontroller._originalSizeArray[myidimage]) myURL+="&width="+ Math.floor(mycontroller._originalSizeArray[myidimage]	     *scale*
+																				mycontroller._originalSizeArray[myidimage].height*scale);
+	var img=[[IdStoringImage alloc] initWithContentsOfFile: myURL];
+	img.myidimage=img;
 	[img setDelegate: mycontroller];
 	return img;
 }
@@ -46,14 +51,14 @@
 @implementation DottingController : CPObject
 {	id myAppController;
 	id _scale @accessors(property=scale);
-	CPSize _originalSize;
+	id _originalSizeArray;
 	id progress;
 }
 
 
 // this is a hack to get the scaling right
 - (void)imageDidLoad:(CPImage)image
-{	if(!_originalSize) _originalSize= [image size];
+{	if(!_originalSizeArray[image.myidimage]) _originalSizeArray[image.myidimage]= [image size];
 }
 
 
@@ -61,6 +66,7 @@
 {	if(self=[super init])
 	{	_scale=1;
 		myAppController=[CPApp delegate];
+		_originalSizeArray=[];
 		[[CPRunLoop currentRunLoop] performSelector:@selector(_postInit) target:self argument: nil order:0 modes:[CPDefaultRunLoopMode]];
 	} return self;
 }

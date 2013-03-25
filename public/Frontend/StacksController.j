@@ -217,7 +217,7 @@
 
 -(void) flattenStack: sender
 {	if ([myAppController valueForKeyPath:"stacksController.selection.idpatch"] === CPNullMarker) {
-		alert("Config flattening compo first");
+		[[CPAlert alertWithError:"Config flattening compo first"] runModal];
 		return;
 	}
 	[self _triggerRegistrationMatrixGeneration];

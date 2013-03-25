@@ -18,8 +18,8 @@ use Statistics::R;
 use SQL::Abstract;
 use POSIX;
 
-use constant server_root=>'/Library/WebServer/Documents/cellfinder';
-#use constant server_root=>'/srv/www/htdocs/cellfinder';
+#use constant server_root=>'/Library/WebServer/Documents/cellfinder';
+use constant server_root=>'/srv/www/htdocs/cellfinder';
 
 #<!> fixme hardcoded URL
 # is directly called from the backend
@@ -365,13 +365,16 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $csize
 		$p = Image::Magick->new(magick=>'jpg');
 		if($idstack)
 		{	my $list=getObjectFromDBHandID($dbh,'montage_image_list',$idstack)->{list};
-			my @idarr=split/,/o, $list;
+			my @idarr=split/, /o, $list;
 			foreach my $id (@idarr)
-			{	my $i=doReadImageFile(undef, getObjectFromDBHandID($dbh,'images_name', $id));
-					$i->Extent(geometry=>$csize, gravity=>'Northwest', background=>'graya(0%, 0)') if $csize;
+			{
+				my $i=doReadImageFile(undef, getObjectFromDBHandID($dbh,'images_name', $id));
+					$i->Extent(geometry=>$csize, gravity=>'Center', background=>'graya(0%, 0)') if $csize;
 				my $m=getMontageForIDImageAndIDStack($dbh, $id, $idstack);
-				if($m->{parameter})
-				{	$i->Distort(method=>'AffineProjection', points=>eval($m->{parameter}), 'virtual-pixel'=> 'Background');  #<!>fixme replace with JSON deparser
+				my $parameter=$m->{parameter};
+				if($parameter)
+				{	$parameter="[$parameter]" unless $parameter=~/^\[/o;
+					$i->Distort(method=>'AffineProjection', points=>eval($parameter), 'virtual-pixel'=> 'Background');  #<!>fixme replace with JSON deparser
 				}
 				push @$p,$i;
 			}

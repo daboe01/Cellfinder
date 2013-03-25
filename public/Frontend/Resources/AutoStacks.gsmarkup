@@ -15,8 +15,11 @@
 			<hbox>
 			<ButtonBar plusButtonAction="newStack:" minusButtonAction="deleteStack:" actionsButton="YES" target="#mystackscontroller">
   				<popUpButtonItem title="RANSAC trial" target="#mystackscontroller" action="runRansac:"/>
+  				<popUpButtonItem title="RANSAC trial+" target="#mystackscontroller" action="runRansac3:"/>
   				<popUpButtonItem title="RANSAC try harder" target="#mystackscontroller" action="runRansac2:"/>
 				<popUpButtonItem title="Flickering…" target="#mystackscontroller" action="runFlicker:"/>
+  				<popUpButtonItem title="Settings…" target="#mystackscontroller" action="runSettings:"/>
+				<popUpButtonItem title="Flatten…" target="#mystackscontroller" action="flattenStack:"/>
 			</ButtonBar>
 			<progresIndicator id="progress" indeterminate="YES"/>
 			</hbox>
@@ -24,7 +27,7 @@
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
 				<tableView zebra="yes" autosaveName="tv_autostacks_results"  valueBinding="#CPOwner.stacksContentController" target="#mystackscontroller">
-					<tableColumn identifier="idanalysis" title="analysis"/>
+					<tableColumn identifier="idanalysis" title="analysis" editable="YES"/>
 					<tableColumn identifier="idanalysis_reference" title="ref"/>
 					<tableColumn identifier="parameter" editable="YES" title="parameter"/>
 	  			</tableView>
