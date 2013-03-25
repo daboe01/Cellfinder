@@ -15,8 +15,8 @@
 {	var mycompoID=[self valueForKey:"idcomposition_for_editing" ];
 	var myidimage=[self valueForKey:"idimage" ];
 	var myURL= [[CPApp delegate] baseImageURL]+myidimage+"?rnd=1";
-	if(mycompoID && mycompoID!==CPNullMarker) myURL+="&cmp="+mycompoID;
-	var mycontroller= [[CPApp mainWindow] delegate];	// this is hack to get hold of the UI context from within the database context
+	if(mycompoID && mycompoID !== CPNullMarker) myURL+="&cmp="+mycompoID;
+	var mycontroller= [[CPApp delegate] mainController];	// this is hack to get hold of the UI context from within the database context
 	var scale= mycontroller._scale;
 	if(mycontroller._originalSizeArray[myidimage]) myURL+="&width="+ Math.floor(mycontroller._originalSizeArray[myidimage]	     *scale*
 																				mycontroller._originalSizeArray[myidimage].height*scale);
@@ -66,6 +66,7 @@
 {	if(self=[super init])
 	{	_scale=1;
 		myAppController=[CPApp delegate];
+		[myAppController setMainController: self];
 		_originalSizeArray=[];
 		[[CPRunLoop currentRunLoop] performSelector:@selector(_postInit) target:self argument: nil order:0 modes:[CPDefaultRunLoopMode]];
 	} return self;
