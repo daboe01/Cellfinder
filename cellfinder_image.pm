@@ -373,8 +373,16 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $csize
 				my $m=getMontageForIDImageAndIDStack($dbh, $id, $idstack);
 				my $parameter=$m->{parameter};
 				if($parameter)
+<<<<<<< HEAD
 				{	$parameter="[$parameter]" unless $parameter=~/^\[/o;
 					$i->Distort(method=>'AffineProjection', points=>eval($parameter), 'virtual-pixel'=> 'Background');  #<!>fixme replace with JSON deparser
+=======
+				{
+warn $parameter;
+					my @parameters= split /\|/o, $parameter;
+					@parameters = map {	$_="[$_]" unless $_=~/^\[/o; warn $_; $_} @parameters;
+					$i->Distort(method=>'AffineProjection', points=>eval($_), 'virtual-pixel'=> 'Background') for @parameters;  #<!>fixme replace with JSON deparser
+>>>>>>> compo for viewing
 				}
 				push @$p,$i;
 			}
@@ -384,7 +392,9 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $csize
 		if($affine)
 		{	$affine="[$affine]" unless $affine=~/^\[/o;
 			warn $affine;
-			$p->Distort(method=>'AffineProjection', points=>eval($affine), 'virtual-pixel'=> 'Transparent') 	#<!>fixme replace with JSON deparser
+			my @parameters= split /\|/o, $affine;
+			@parameters = map {	$_="[$_]" unless $_=~/^\[/o; warn $_; $_} @parameters;
+			$p->Distort(method=>'AffineProjection', points=>eval($_), 'virtual-pixel'=> 'Transparent') for @parameters; 	#<!>fixme replace with JSON deparser
 		}
 		$p->Resize('@'.$width) if $width;
 		return $p;

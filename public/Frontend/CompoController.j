@@ -129,7 +129,7 @@
 	[affectedImageControllers makeObjectsPerformSelector:@selector(reload:) withObject:self];
 }
 
--(void) initWithCompo:(id) compo
+-(void) initWithCompo:(id) compo valueObserver: myObserver
 {	_myAppController=[CPApp delegate];
 	var store=[_myAppController store];	// for the popUpButton entities
 	var placeholderEntity = [[FSEntity alloc] initWithName: "parameter_lists" andStore: store];	// for feeding the popUpButtons only
@@ -220,9 +220,15 @@
 				cip=[inputParams objectAtIndex: idx];
 				[po bind: "integerValue" toObject: cip withKeyPath: "value" options:nil];
 			}
-		//	if(cip) [cip addObserver: self forKeyPath:"value" options:CPKeyValueObservingOptionNew context: [compo valueForKeyPath:"trial.id"] ];
+			if(myObserver)
+				[cip addObserver: myObserver forKeyPath:"value" options: nil context: nil ];
 
 		}
 	}
 }
+
+-(void) initWithCompo:(id) compo
+{	[self initWithCompo: compo valueObserver: nil];
+}
+
 @end

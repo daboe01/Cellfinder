@@ -31,12 +31,27 @@
 }
 -(void) _postInit2
 {	[annotatedImageView bind:"backgroundImage" toObject: myAppController.analysesController withKeyPath: "selection._backgroundImage" options:nil];
+	[myAppController.analysesController addObserver:self forKeyPath:"selection.idcomposition_for_editing" options:nil context:nil];
 }
 
+- (void)observeValueForKeyPath: keyPath ofObject: object change: change context: context
+{	if(keyPath === "selection.idcomposition_for_editing" || keyPath === "value" )
+	{
+		// reload image
+		[[CPRunLoop currentRunLoop] performSelector:@selector(reloadImage) target:self argument: nil order:0 modes:[CPDefaultRunLoopMode]];
+
+	}
+}
 -(void) setScale:(double) someScale
 {	_scale=someScale;
 	[annotatedImageView setScale: _scale];
-	[annotatedImageView setBackgroundImage: [myAppController.analysesController valueForKeyPath: "selection._backgroundImage"] ];
+	[self reloadImage];
+}
+-(void) reloadImage
+{	var img=[myAppController.analysesController valueForKeyPath: "selection._backgroundImage"];
+	if([img isKindOfClass:[CPImage class]])
+	{	[annotatedImageView setBackgroundImage: img ];
+	}
 }
 
 
@@ -95,6 +110,11 @@
 
 -(void) toggleVoronoi:sender
 {	[annotatedImageView setStyleFlags: [annotatedImageView styleFlags] ^ AIVStyleVoronoi ];
+	[annotatedImageView setNeedsDisplay:YES];
+}
+
+-(void) editViewingCompo:sender
+{	[[CompoController alloc] initWithCompo: [[myAppController.analysesController selectedObject] valueForKey:"editing_compo"] valueObserver: self];
 }
 
 @end
