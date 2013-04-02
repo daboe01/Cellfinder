@@ -5,6 +5,8 @@
 @implementation AutoDottingController : DottingController
 {	id annotatedImageView;
 	id trialSettingsWindow;
+	id inputAnalysisWindow;
+	id inputAnalysisField;
 }
 -(void) _postInit
 {	[super _postInit];
@@ -115,6 +117,25 @@
 
 -(void) editViewingCompo:sender
 {	[[CompoController alloc] initWithCompo: [[myAppController.analysesController selectedObject] valueForKey:"editing_compo"] valueObserver: self];
+}
+
+-(void) insertAnalysisFromInput:sender
+{	[inputAnalysisWindow makeKeyAndOrderFront:self];
+	[self insertEmptyAnalysis:self];
+}
+-(void) performInsertCoords:sender
+{	[inputAnalysisWindow orderOut:self];
+	var coords= [inputAnalysisField stringValue];
+	var myarr= coords.split(/[\s,]+/);
+	var i,j= myarr.length;
+	var myInsertArr=[myAppController.analysesController valueForKeyPath:"selection.results"];
+	for(i=0; i< j; i+=2)
+	{	var myDict=[CPDictionary new];
+		[myDict setObject: myarr[i] forKey:"row"];
+		[myDict setObject: myarr[i+1] forKey:"col"];
+		[myInsertArr addObject: myDict];	// saves to database in backend
+	}
+	[self _refreshResults];
 }
 
 @end

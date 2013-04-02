@@ -345,6 +345,13 @@ sub getMontageForIDImageAndIDStack{ my ($dbh, $idimage, $idstack)=@_;
 	$sth->execute(@bind);
 	return $sth->fetchrow_hashref();
 }
+sub _distortImage{ my ($i, $parameter)=@_;
+	my @parameters= split /\|/o, $parameter;
+	@parameters = map {	$_=~/^\[/o? $_ : "[$_]" } @parameters;
+	$i->Distort(method=>'AffineProjection', points=>eval($_), 'virtual-pixel'=> 'Background') for @parameters;  #<!>fixme replace with JSON deparser
+	return $i;
+}
+
 sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $csize, $affine, $idstack)=@_;
 	return sub {return undef} if(!$idimage&& !$idstack);
 	sub doReadImageFile{ my ($p, $curr_img)=@_;
@@ -369,28 +376,15 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $csize
 			foreach my $id (@idarr)
 			{
 				my $i=doReadImageFile(undef, getObjectFromDBHandID($dbh,'images_name', $id));
-					$i->Extent(geometry=>$csize, gravity=>'Center', background=>'graya(0%, 0)') if $csize;
+				$i->Extent(geometry=>$csize, gravity=>'Center', background=>'graya(0%, 0)') if $csize;
 				my $m=getMontageForIDImageAndIDStack($dbh, $id, $idstack);
-				my $parameter=$m->{parameter};
-				if($parameter)
-				{	$parameter="[$parameter]" unless $parameter=~/^\[/o;
-					$i->Distort(method=>'AffineProjection', points=>eval($parameter), 'virtual-pixel'=> 'Background');  #<!>fixme replace with JSON deparser
-					my @parameters= split /\|/o, $parameter;
-					@parameters = map {	$_="[$_]" unless $_=~/^\[/o; warn $_; $_} @parameters;
-					$i->Distort(method=>'AffineProjection', points=>eval($_), 'virtual-pixel'=> 'Background') for @parameters;  #<!>fixme replace with JSON deparser
-				}
+				_distortImage($i, $m->{parameter}) if($m->{parameter});
 				push @$p,$i;
 			}
 		} else {
 			$p=doReadImageFile($p, $curr_img);
 		}
-		if($affine)
-		{	$affine="[$affine]" unless $affine=~/^\[/o;
-			warn $affine;
-			my @parameters= split /\|/o, $affine;
-			@parameters = map {	$_="[$_]" unless $_=~/^\[/o; warn $_; $_} @parameters;
-			$p->Distort(method=>'AffineProjection', points=>eval($_), 'virtual-pixel'=> 'Transparent') for @parameters; 	#<!>fixme replace with JSON deparser
-		}
+		_distortImage($p, $affine) if($affine);
 		$p->Resize('@'.$width) if $width;
 		return $p;
 	}

@@ -2,6 +2,7 @@
 
 @import "DottingController.j"
 
+
 @implementation CPObject (ImageURLCV)
 
 -(void) _setImageSizedWithDelegate: someDelegate
@@ -121,8 +122,13 @@
 	var image= [imageArray objectAtIndex:  _imageIndex ];
 	var size=[image size];
 	var myframe=[imageView frame];
+
+// setObjectValue causes flicker in more recent WebKit browsers.
+// so here is my workaround...
+    imageView._DOMImageElement.style.visibility = "hidden";
+    imageView._DOMImageElement.src = [image filename];
 	[imageView setFrame: CPMakeRect(myframe.origin.x,myframe.origin.y, size.width, size.height)];
-	[imageView setObjectValue: image];
+    imageView._DOMImageElement.style.visibility = "visible";
 }
 -(unsigned) imageIndex
 {	return _imageIndex;

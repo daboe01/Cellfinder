@@ -81,6 +81,10 @@
 {	[[CPApp delegate].analysesController remove:sender];
 
 }
+-(void) insertEmptyAnalysis: sender
+{	[myAppController.analysesController insert:sender];
+}
+
 
 -(void) insertAnalysis: sender
 {	[myAppController.analysesController insert:sender];
@@ -89,14 +93,17 @@
 	[myAnalysis setValue: mycompoID  forKey:"idcomposition_for_analysis"];
 	[self reloadAnalysis:self];
 }
+-(void) _refreshResults
+{	[[myAppController.analysesController selectedObject] willChangeValueForKey:"results"];
+	 [myAppController.analysesController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
+	[[myAppController.analysesController selectedObject] didChangeValueForKey:"results"];
+}
 
 -(void) connection: someConnection didReceiveData: data
 {	[progress stopAnimation:self];
-	[[myAppController.analysesController selectedObject] willChangeValueForKey:"results"];
-	[myAppController.analysesController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
-	[[myAppController.analysesController selectedObject] didChangeValueForKey:"results"];
+	[self _refreshResults];
 	[[myAppController.analysesController selectedObject] willChangeValueForKey:"aggregations"];
-	[[myAppController.analysesController selectedObject] didChangeValueForKey:"aggregations"];
+	[[myAppController.analysesController selectedObject]  didChangeValueForKey:"aggregations"];
 }
 
 -(void) reloadAnalysis: sender

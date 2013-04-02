@@ -40,6 +40,8 @@
 					</scrollView>
 					<hbox>
 					<ButtonBar target="#mydottingcontroller" halign="right" width="250"  plusButtonAction="insertAnalysis:" minusButtonAction="removeAnalysis:" actionsButton="YES">
+   						<popUpButtonItem title="New empty" target="#mydottingcontroller" action="insertEmptyAnalysis:"/>
+   						<popUpButtonItem title="New input" target="#mydottingcontroller" action="insertAnalysisFromInput:"/>
    						<popUpButtonItem title="Reload" target="#mydottingcontroller" action="reloadAnalysis:"/>
  						<popUpButtonItem title="Edit…" target="#mydottingcontroller" action="editAnalysis:"/>
   						<popUpButtonItem title="Reaggregate" target="#mydottingcontroller" action="reaggregate:"/>
@@ -76,12 +78,23 @@
 	</vbox>
   </window>
 
+  <window title="Input coordinates" id="inputwindow" x="260" y="300" width="300" height="90" visible="NO"  resizable="NO">
+	<vbox>
+	<hbox><label valign="center" halign="min" width="100">Coords</label><textField id="coordsfield"/></hbox>
+	<hbox>  <button target="#mydottingcontroller" action="performInsertCoords:" title="OK"/>
+			<button target="#inputwindow" action="orderOut:" title="Cancel"/>
+	</hbox>
+	</vbox>
+  </window>
+
 </objects>
 
 <connectors>
 	<outlet source="mydottingcontroller" target="annotated_image_view" label="annotatedImageView"/>
 	<outlet source="mydottingcontroller" target="trialsettingswindow" label="trialSettingsWindow"/>
 	<outlet source="mydottingcontroller" target="progress" label="progress"/>
+	<outlet source="mydottingcontroller" target="inputwindow" label="inputAnalysisWindow"/>
+	<outlet source="mydottingcontroller" target="coordsfield" label="inputAnalysisField"/>
 </connectors>
 
 
