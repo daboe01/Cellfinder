@@ -237,6 +237,9 @@
 {	[self _triggerRegistrationMatrixGeneration];
 	window.open(BaseURL+"STACK/"+[myAppController valueForKeyPath:"stacksController.selection.id"] +"?spc=gif",'animated_gifwindow');
 }
+-(void) downloadGIF2: sender
+{	window.open(BaseURL+"STACK/"+[myAppController valueForKeyPath:"stacksController.selection.id"] +"?spc=gif",'animated_gifwindow');
+}
 
 -(unsigned) getIDOfReferenceAnalaysis
 {	var arr=[myAppController.stacksContentController arrangedObjects];
