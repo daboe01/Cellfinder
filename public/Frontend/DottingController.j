@@ -93,6 +93,23 @@
 	[myAnalysis setValue: mycompoID  forKey:"idcomposition_for_analysis"];
 	[self reloadAnalysis:self];
 }
+-(void) duplicateAnalysis: sender
+{	var mySourceAnalysis=  [myAppController.analysesController selectedObject];
+	[myAppController.analysesController insert:sender];
+	var myDestinationAnalysis=  [myAppController.analysesController selectedObject];
+	var sourceArray=[mySourceAnalysis valueForKey:"results"];
+	var destinationArray=[myDestinationAnalysis valueForKey:"results"];
+	var i,j=[sourceArray count];
+	for(i=0; i< j; i++)
+	{	var mydot=[sourceArray objectAtIndex: i];
+		var mydotCopy=[CPDictionary new];
+		[mydotCopy setValue:[mydot valueForKey:"row"] forKey:"row"];
+		[mydotCopy setValue:[mydot valueForKey:"col"] forKey:"col"];
+		[destinationArray addObject:mydotCopy];
+	}
+
+//	[self reloadAnalysis:self];
+}
 -(void) _refreshResults
 {	[[myAppController.analysesController selectedObject] willChangeValueForKey:"results"];
 	 [myAppController.analysesController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
