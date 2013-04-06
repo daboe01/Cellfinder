@@ -43,6 +43,7 @@
    						<popUpButtonItem title="New empty" target="#mydottingcontroller" action="insertEmptyAnalysis:"/>
    						<popUpButtonItem title="Duplicate" target="#mydottingcontroller" action="duplicateAnalysis:"/>
    						<popUpButtonItem title="New input" target="#mydottingcontroller" action="insertAnalysisFromInput:"/>
+   						<popUpButtonItem title="Reveal coords…" target="#mydottingcontroller" action="revealCoords:"/>
    						<popUpButtonItem title="Reload" target="#mydottingcontroller" action="reloadAnalysis:"/>
  						<popUpButtonItem title="Edit…" target="#mydottingcontroller" action="editAnalysis:"/>
   						<popUpButtonItem title="Reaggregate" target="#mydottingcontroller" action="reaggregate:"/>

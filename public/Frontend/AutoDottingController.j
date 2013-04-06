@@ -137,6 +137,21 @@
 	}
 	[self _refreshResults];
 }
+-(void) revealCoords: sender
+{	var coords="";
+	var mySourceAnalysis=  [myAppController.analysesController selectedObject];
+	var sourceArray=[mySourceAnalysis valueForKey:"results"];
+	var i,j=[sourceArray count];
+	for(i=0; i< j; i++)
+	{	var myDict=[CPDictionary new];
+		coords+=[myDict setObject: myarr[i] forKey:"row"];
+		coords+=" ";
+		coords+=[myDict setObject: myarr[i] forKey:"col"];
+		coords+=" ";
+	}
+	[inputAnalysisField setStringValue:coords]
+	[inputAnalysisWindow makeKeyAndOrderFront:self];
+}
 
 @end
 
