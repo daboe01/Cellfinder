@@ -149,12 +149,12 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
 	$nocache= 1 if(($rnd && $rnd!=1)  || $width);
 	$spc="" unless $spc;
 
-	my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage, $width, $nocache, $csize, $affine, $idstack);
+	my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage, $width, $nocache, $csize, undef, $idstack);
 	my $p= $f->(0);
 	$p= cellfinder_image::imageForComposition($self->db, $preload,$f,$p) if($preload);
 	$p= cellfinder_image::imageForComposition($self->db, $idcomposition,$f,$p, 1, $idanalysis)	if($idcomposition);
 	$p= cellfinder_image::imageForComposition($self->db, $afterload,$f,$p,1) if($afterload);
-	
+	$p= cellfinder_image::_distortImage($p, $affine) if($affine);
 	if(ref $p eq 'Image::Magick')
 	{	if($spc eq 'geom')	# geom-query
 		{	$self->render_text(join ' ', $p->Get('width', 'height') );

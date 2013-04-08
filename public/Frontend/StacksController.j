@@ -29,6 +29,10 @@
 	unsigned	_compoID @accessors(property=compoID);
 }
 
+// API for subclasses
+-(CPString) _additionalImageURLPart
+{	return "";
+}
 -(void) connection: someConnection didReceiveData: data
 {	var arr=data.split(' ');
 	var mysize=CPMakeSize(arr[0],arr[1]);
@@ -38,7 +42,8 @@
 	if(_compoID) myURL+=("&cmp="+parseInt(_compoID));
 	if(_handovers) myURL+=("&handover_params="+_handovers);
 	if(!_size) 	_size=0.1;
-	myURL+="&width="+parseInt( (_size*mysize.width)* (_size*mysize.height) );
+	myURL+=("&width="+parseInt( (_size*mysize.width)* (_size*mysize.height)));
+	myURL+=[self _additionalImageURLPart];
 	var image=[[CPImage alloc] initWithContentsOfFile: myURL];
 	[image setDelegate: self];
 	if([image loadStatus] ===  CPImageLoadStatusCompleted)
@@ -117,8 +122,7 @@
 	[slider setMaxValue: [imageArray count]-1 ];
 }
 -(void) setImageIndex:(unsigned) someIndex
-{	_imageIndex=Math.floor(someIndex);
-	_imageIndex=Math.min(_imageIndex, [imageArray count]-1 );
+{	_imageIndex=Math.min(Math.floor(someIndex), [imageArray count]-1 );
 	var image= [imageArray objectAtIndex:  _imageIndex ];
 	var size=[image size];
 	var myframe=[imageView frame];
@@ -188,12 +192,14 @@
 }
 
 -(CPImage) provideRegistratedImageForStackItem: someItem
-{	var rnd= Math.floor(Math.random()*100000);	//=1;
+{	var rnd=1;	//Math.floor(Math.random()*100000);
 	var myURL=BaseURL+[someItem valueForKey:"idimage"]+"?rnd="+rnd;
+	if(_viewingCompo) myURL+=("&cmp="+parseInt(_viewingCompo));
 	var handovers=[someItem valueForKey:"parameter"]
 	if(handovers) myURL+=("&affine="+handovers);
 	var imgsize=[someItem _getImageSize];
-	myURL+="&width="+parseInt( (_scale*imgsize.width)* (_scale*imgsize.height) );
+	myURL+=("&width="+parseInt((_scale*imgsize.width)*(_scale*imgsize.height)));
+	myURL+=("&idanalysis="+[someItem valueForKey:"idanalysis"]);
 	var img=[[CPImage alloc] initWithContentsOfFile: myURL];
 	return img;
 }

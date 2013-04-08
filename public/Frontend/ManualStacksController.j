@@ -3,6 +3,15 @@
 @import "StacksController.j"
 
 @implementation ImageEditorCollectionItem: SimpleImageViewCollectionItem
+{	var _idanalysis;
+}
+-(void) setRepresentedObject: someObject
+{	[super setRepresentedObject: someObject];
+	_idanalysis = [someObject valueForKey:"idanalysis"];
+}
+-(CPString) _additionalImageURLPart
+{	return "&idanalysis="+ _idanalysis;
+}
 
 -(void) setImage: someImage
 {	_img=someImage;
