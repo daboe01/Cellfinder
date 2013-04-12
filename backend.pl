@@ -193,6 +193,7 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 	my $thresh=			$self->param("thresh");
 	my $identityradius= $self->param("identityradius");
 	my $iterations= $self->param("iterations");
+	my $idcomposition=	$self->param('cmp');
 
 	if($spc eq 'affine')
 	{	my $sql = SQL::Abstract->new;
@@ -212,7 +213,7 @@ warn $par.' '. $curr->{id};
 		}
 		$self->render_text($idstack);
 	} elsif($spc eq 'gif')
-	{	my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, 0, undef, undef, undef, undef, $idstack);
+	{	my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, 0, undef, undef, undef, undef, $idstack, $idcomposition);
 		my $p= $f->(0);
 		$_->Set(delay=>15) for @$p;		# <!> fixme: make configurable
 		my $tempfilename=cellfinder_image::tempFileName('/tmp/cellf');

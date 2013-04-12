@@ -18,8 +18,8 @@ use Statistics::R;
 use SQL::Abstract;
 use POSIX;
 
-use constant server_root=>'/Library/WebServer/Documents/cellfinder';
-#use constant server_root=>'/srv/www/htdocs/cellfinder';
+#use constant server_root=>'/Library/WebServer/Documents/cellfinder';
+use constant server_root=>'/srv/www/htdocs/cellfinder';
 
 #<!> fixme hardcoded URL
 # is directly called from the backend
@@ -340,7 +340,7 @@ sub insertObjectIntoTable{
 					
 sub getMontageForIDImageAndIDStack{ my ($dbh, $idimage, $idstack)=@_;
 	my $sql = SQL::Abstract->new;
-	my($stmt, @bind) = $sql->select('montage_images', [qw/parameter/], {idimage=>, $idimage, idmontage=> $idstack});
+	my($stmt, @bind) = $sql->select('montage_images', [qw/parameter idanalysis/], {idimage=>, $idimage, idmontage=> $idstack});
 	my $sth = $dbh->prepare($stmt);
 	$sth->execute(@bind);
 	return $sth->fetchrow_hashref();
@@ -352,7 +352,7 @@ sub _distortImage{ my ($i, $parameter)=@_;
 	return $i;
 }
 
-sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $csize, $affine, $idstack)=@_;
+sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $csize, $affine, $idstack, $idcomposition)=@_;
 	return sub {return undef} if(!$idimage&& !$idstack);
 	sub doReadImageFile{ my ($p, $curr_img)=@_;
 		my $filename="$curr_img->{idtrial}-$curr_img->{filename}";
@@ -361,12 +361,12 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $csize
 		{	$p->BlobToImage(LWP::Simple::get($curr_img->{image_repository}.'/'.$filename));
 		} else
 		{	$p->Read(server_root."/$filename");
-## warn server_root."/$filename";
+			## warn server_root."/$filename";
 		} return $p;
 	}
-## warn $idimage;
+	## warn $idimage;
 	my $curr_img = getObjectFromDBHandID($dbh,'images_name', $idimage);
-## warn Dumper $curr_img;
+	## warn Dumper $curr_img;
 	return sub{
 		return ($nocache? 0: $idimage) if shift;
 		$p = Image::Magick->new(magick=>'jpg');
@@ -378,7 +378,9 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $csize
 				my $i=doReadImageFile(undef, getObjectFromDBHandID($dbh,'images_name', $id));
 				$i->Extent(geometry=>$csize, gravity=>'Center', background=>'graya(0%, 0)') if $csize;
 				my $m=getMontageForIDImageAndIDStack($dbh, $id, $idstack);
+				$i= imageForComposition($dbh, $idcomposition, undef, $i, 0, $m->{idanalysis}) if($idcomposition);
 				_distortImage($i, $m->{parameter}) if($m->{parameter});
+				warn Dumper $m;
 				push @$p,$i;
 			}
 		} else {

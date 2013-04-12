@@ -41,7 +41,7 @@
 	var myURL=BaseURL+_idimage+"?rnd="+rnd;
 	if(_compoID) myURL+=("&cmp="+parseInt(_compoID));
 	if(_handovers) myURL+=("&handover_params="+_handovers);
-	if(!_size) 	_size=0.1;
+	if(!_size) _size=1;		//<!> fixme make this configurable in UI trial settings (should be 0.1 when images are large)
 	myURL+=("&width="+parseInt( (_size*mysize.width)* (_size*mysize.height)));
 	myURL+=[self _additionalImageURLPart];
 	var image=[[CPImage alloc] initWithContentsOfFile: myURL];
@@ -241,10 +241,12 @@
 }
 -(void) downloadGIF: sender
 {	[self _triggerRegistrationMatrixGeneration];
-	window.open(BaseURL+"STACK/"+[myAppController valueForKeyPath:"stacksController.selection.id"] +"?spc=gif",'animated_gifwindow');
+	[self downloadGIF2: sender];
 }
 -(void) downloadGIF2: sender
-{	window.open(BaseURL+"STACK/"+[myAppController valueForKeyPath:"stacksController.selection.id"] +"?spc=gif",'animated_gifwindow');
+{	var myURL=BaseURL+"STACK/"+[myAppController valueForKeyPath:"stacksController.selection.id"] +"?spc=gif";
+	if(_viewingCompo) myURL+=("&cmp="+parseInt(_viewingCompo));
+	window.open(myURL,'animated_gifwindow');
 }
 
 -(unsigned) getIDOfReferenceAnalaysis

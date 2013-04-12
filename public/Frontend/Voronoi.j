@@ -629,6 +629,28 @@ Voronoi.prototype.Cell.prototype.getArea = function() {
 	return area;
 	};
 
+Voronoi.prototype.Cell.prototype.getCentroid = function() {
+	if (this.area === undefined) {
+		this.area=this.getArea();
+		}
+	var val_x=0,
+		val_y=0,
+		halfedges = this.halfedges,
+		iHalfedge = halfedges.length,
+		halfedge,
+		p1, p2;
+	while (iHalfedge--) {
+		halfedge = halfedges[iHalfedge];
+		p1 = halfedge.getStartpoint();
+		p2 = halfedge.getEndpoint();
+		val_x += (p1.x + p2.x)*(p1.x * p2.y - p2.x * p1.y);
+		val_y += (p1.y + p2.y)*(p1.x * p2.y - p2.x * p1.y);
+		}
+	val_x /=(this.area*6);
+	val_y /=(this.area*6);
+	return {x: val_x, y: val_y};
+	};
+
 // ---------------------------------------------------------------------------
 // Edge methods
 //

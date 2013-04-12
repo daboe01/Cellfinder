@@ -3,3 +3,4 @@
 @import "AutoStacksController.j"
 @import "AutoDottingController.j"
 @import "ManualDottingController.j"
+@import "VoronoiSimulationController.j"
