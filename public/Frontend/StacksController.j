@@ -107,44 +107,6 @@
 
 @end
 
-/////////////////////////////////////////////////////////
-@implementation FlickerController: CPObject
-{	id	imageView;
-	id	slider;
-	id	imageArray;
-	unsigned _imageIndex;
-}
-
-
--(void) setImageArray: myArray
-{	[CPBundle loadRessourceNamed: "Flicker.gsmarkup" owner:self];
-	imageArray=myArray;
-	[slider setMaxValue: [imageArray count]-1 ];
-}
--(void) setImageIndex:(unsigned) someIndex
-{	_imageIndex=Math.min(Math.floor(someIndex), [imageArray count]-1 );
-	var image= [imageArray objectAtIndex:  _imageIndex ];
-	var size=[image size];
-	var myframe=[imageView frame];
-
-// setObjectValue causes flicker in more recent WebKit browsers.
-// so here is my workaround...
-    imageView._DOMImageElement.style.visibility = "hidden";
-    imageView._DOMImageElement.src = [image filename];
-	[imageView setFrame: CPMakeRect(myframe.origin.x,myframe.origin.y, size.width, size.height)];
-    imageView._DOMImageElement.style.visibility = "visible";
-}
--(unsigned) imageIndex
-{	return _imageIndex;
-}
-- (void)imageDidLoad:(CPImage)image
-{	[self setImageIndex:0];
-}
-
-@end
-
-
-/////////////////////////////////////////////////////////
 
 @implementation StacksController: DottingController
 {	id	myCollectionView;
@@ -155,7 +117,7 @@
 }
 
 -(void) _postInit
-{	[self setScale:0.2];
+{	[self setScale:1];
 	[myCollectionView registerForDraggedTypes: [PhotoDragType]];
 	var re = new RegExp("#([^&#]+)");
 	var m=re.exec(document.location);
@@ -163,7 +125,8 @@
 	[super _postInit];
 }
 -(void) setScale:(unsigned) someSize
-{	_scale=someSize;
+{	if(someSize === _scale) return;
+	_scale=someSize;
 	[[myCollectionView items] makeObjectsPerformSelector:@selector(setSize:) withObject:_scale];
 }
 -(void) resetItemSize

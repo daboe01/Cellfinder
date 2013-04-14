@@ -65,6 +65,20 @@
 
 @end
 
+@implementation UnnumberedImageEditorCollectionItem: ImageEditorCollectionItem
+
+- _createContentView
+{	var o= [super _createContentView];
+	[o setStyleFlags: [o styleFlags] & ~AIVStyleNumbers ];
+	return o;
+}
+
+//prevent dot creation in other view don't call super method!!
+-(void) annotatedImageView: someView dot: someDot movedToPoint: newPoint
+{
+}
+
+@end
 
 /////////////////////////////////////////////////////////
 
