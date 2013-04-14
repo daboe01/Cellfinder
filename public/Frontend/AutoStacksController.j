@@ -45,7 +45,6 @@
 	[[CossvalidationController new] setAnalysisArray: myArray];
 
 }
-
 @end
 
 

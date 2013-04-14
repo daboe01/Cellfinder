@@ -101,10 +101,7 @@
 	}
 	myAnalysis =[[CossvalidationAnalysisProxy alloc] initWithObject: sourceAnalysis];
 	[CPBundle loadRessourceNamed: "Crossvalidation.gsmarkup" owner:self];
-	[[CPRunLoop currentRunLoop] performSelector:@selector(_postInit) target:self argument: nil order:0 modes:[CPDefaultRunLoopMode]];
-}
--(void) _postInit
-{	[self _configureForAnalysis: destinationAnalysis];
+	[self _configureForAnalysis: destinationAnalysis];
 }
 
 -(void) _configureForAnalysis: anAnalysis

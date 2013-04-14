@@ -87,7 +87,7 @@
 
 
 -(void) delete: sender	// delete a dot
-{	[[stacksCollectionView items] makeObjectsPerformSelector:@selector(delete:) withObject: sender];
+{	[[myCollectionView items] makeObjectsPerformSelector:@selector(delete:) withObject: sender];
 }
 
 

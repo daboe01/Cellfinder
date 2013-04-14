@@ -81,7 +81,8 @@
 	return o;
 }
 -(CPView) loadView
-{	_imgv=[self _createContentView];
+{	if(_size===null) _size=1.0;
+	_imgv=[self _createContentView];
 	var myview=[CPBox new];
 	var name=[_representedObject valueForKeyPath:"image.name"]
 	[myview setTitle: name];
@@ -117,15 +118,16 @@
 }
 
 -(void) _postInit
-{	[self setScale:1];
-	[myCollectionView registerForDraggedTypes: [PhotoDragType]];
+{	[myCollectionView registerForDraggedTypes: [PhotoDragType]];
 	var re = new RegExp("#([^&#]+)");
 	var m=re.exec(document.location);
 	if (m) [myAppController.stacksController setFilterPredicate: [CPPredicate predicateWithFormat:"name=='"+m[1]+"'" ]];
 	[super _postInit];
+	[self setScale: 1.0];
 }
 -(void) setScale:(unsigned) someSize
-{	if(someSize === _scale) return;
+{
+	if(_scale=== null || someSize === _scale) return;
 	_scale=someSize;
 	[[myCollectionView items] makeObjectsPerformSelector:@selector(setSize:) withObject:_scale];
 }
