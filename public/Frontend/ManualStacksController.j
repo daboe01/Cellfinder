@@ -82,17 +82,13 @@
 
 /////////////////////////////////////////////////////////
 
-
 @implementation ManualStacksController: StacksController
-
 
 -(void) delete: sender	// delete a dot
 {	[[myCollectionView items] makeObjectsPerformSelector:@selector(delete:) withObject: sender];
 }
 
-
 @end
-
 
 @implementation GSMarkupTagManualStacksController:GSMarkupTagObject
 + (CPString) tagName
