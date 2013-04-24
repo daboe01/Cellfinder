@@ -92,7 +92,6 @@
 	var destinationAnalysis;
 	var myAnalysis;
 	id	myCollectionView;
-	id	idField;
 }
 
 -(void) setAnalysisArray: myArray
@@ -128,6 +127,17 @@
 	var imageView=[[[[myCollectionView items]  objectAtIndex:0] view] contentView];
 	var allDots=[imageView allDots];
 	[[allDots objectAtIndex: [allDots count]-myDotID] setSelected:YES];
+}
+-(void) setTag:sender
+{	var imageView=[[[[myCollectionView items]  objectAtIndex:0] view] contentView];
+	var arr=[imageView selectedDots];
+	var i,j=[arr count];
+	var tag=[sender integerValue];
+	for(i=0; i<j;i++)
+	{	var o=arr[i];
+		[o._data setValue: tag forKey:"tag"];
+		[o setNeedsDisplay:YES];
+	}
 }
 
 -(void) delete: sender	// delete a dot

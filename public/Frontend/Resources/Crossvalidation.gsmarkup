@@ -10,7 +10,8 @@
 		</scrollView>
 		<hbox>
 			<button type="toggle" title="destination" alternateTitle="source" target="#CPOwner" action="toggleImage:"/>
-			<label valign="center">Reveal:</label><textField id="idfield" halign="min" width="100" target="#CPOwner" action="revealDot:">1</textField>
+			<label valign="center">Reveal:</label><textField halign="min" width="100" target="#CPOwner" action="revealDot:">1</textField>
+			<label valign="center">Set tag:</label><textField halign="min" width="100" target="#CPOwner" action="setTag:"></textField>
 		</hbox>
 	</vbox>
   </window>
@@ -18,7 +19,6 @@
 
 <connectors>
 	<outlet source="#CPOwner" target="my_collection_view" label="myCollectionView"/>
-	<outlet source="#CPOwner" target="idfield" label="idField"/>
 </connectors>
 
 </gsmarkup>
