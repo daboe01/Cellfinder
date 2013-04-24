@@ -17,16 +17,14 @@
 	</scrollView>
 	<ButtonBar actionsButton="YES" target="#myadmincontroller" plusButtonAction="newTrial:" minusButtonAction="removeTrial:">
  		<popUpButtonItem title="Settings..." target="#CPOwner" action="runSettings:" keyEquivalent="i"/>
- 		<popUpButtonItem title="Stacks…" target="#CPOwner" action="runStacks:"/>
- 		<popUpButtonItem title="Manual Stacks…" target="#CPOwner" action="runStacks2:"/>
- 		<popUpButtonItem title="Duplicate structure" target="#CPOwner" action="duplicate:" keyEquivalent="i"/>
- 		<popUpButtonItem title="Rebuild from repo..." target="#CPOwner" action="rebuildFromRepo:" keyEquivalent="i"/>
- 		<popUpButtonItem title="Batching..." target="#CPOwner" action="applyFilterToAll:" keyEquivalent="i"/>
+ 		<popUpButtonItem title="Reaggregate all" target="#CPOwner" action="reaggregateAll:"/>
+ 		<popUpButtonItem title="Duplicate structure" target="#CPOwner" action="duplicate:"/>
+ 		<popUpButtonItem title="Rebuild from repo..." target="#CPOwner" action="rebuildFromRepo:"/>
 	</ButtonBar>
 	</vbox>
  </window>
 
-  <window title="Tags" closable="no"  x="650" y="50" id="trialswindow" width="200" height="340">
+  <window title="Analysis Tags" closable="no"  x="650" y="50" id="trialswindow" width="200" height="340">
 	<vbox>
 	<scrollView>
 	 <tableView zebra="yes" autosaveName="alltags" delegate="#myadmincontroller" valueBinding="#CPOwner.tagrepoController">

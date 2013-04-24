@@ -264,7 +264,7 @@
 {	if(i === CPNotFound) return;
 // <!> delete only, if shift is pressed
 //	if(CPAlert("Really delete?"))	//<!>
-	[myAppController.stacksContentController removeObjectsAtArrangedObjectIndexes: [CPIndexSet indexSetWithIndex: i ]];
+//	[myAppController.stacksContentController removeObjectsAtArrangedObjectIndexes: [CPIndexSet indexSetWithIndex: i ]];
 }
 -(void) collectionView:(CPCollectionView)collectionView didDoubleClickOnItemAtIndex:(int)index
 {	[self removeImageAtIndex: index];

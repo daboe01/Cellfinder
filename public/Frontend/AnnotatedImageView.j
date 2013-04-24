@@ -18,6 +18,7 @@ AIVStyleLengthInfo=4;
 AIVStyleAngleInfo=8;
 AIVStyleVoronoi=16;
 
+AIVColorCodes=["8DD3C7","FFFFB3","BEBADA","FB8072","80B1D3","FDB462","B3DE69","FCCDE5","D9D9D9","BC80BD"]; // brewer.pal(10, "Set3") (RColorBrewer)
 
 var mySortFunction=function(a,b,context)
 {
@@ -45,13 +46,18 @@ var myFastSortFunction=function(a,b,context)
 +(double) radius
 {	return 5.0;	//<!> fixme GUI configurable
 }
-+(CPColor) color
-{	return [CPColor yellowColor];
+-(CPColor) color
+{	var peek;
+	if(_data && (peek=[_data valueForKey:"tag"]))
+	{	return [CPColor colorWithHexString: AIVColorCodes[peek-1]]
+	}
+	return [CPColor yellowColor];
 }
-+(CPColor) shadowColor
+
+-(CPColor) shadowColor
 {	return [CPColor orangeColor];
 }
-+(CPColor) textColor
+-(CPColor) textColor
 {	return [CPColor blackColor];
 }
 -(void) setSelected:(BOOL) isSel
@@ -80,10 +86,10 @@ var myFastSortFunction=function(a,b,context)
 
 - (void)drawRect:(CPRect)aRect
 {	var context = [[CPGraphicsContext currentContext] graphicsPort];
-	CGContextSetFillColor(context, [[self class] color]);
+	CGContextSetFillColor(context, [self color]);
 	var myrect=CPMakeRect(aRect.origin.x+2,aRect.origin.y+2, aRect.size.width-2, aRect.size.height-2);
 	CGContextFillEllipseInRect(context, myrect);
-	CGContextSetStrokeColor(context, [[self class] shadowColor]);
+	CGContextSetStrokeColor(context, [self shadowColor]);
 	CGContextStrokeEllipseInRect(context, myrect);
 	if(_selected)
 	{	CGContextSetFillColor(context, [CPColor whiteColor]);
@@ -293,12 +299,12 @@ var myFastSortFunction=function(a,b,context)
 	}
 	if(_styleFlags & AIVStyleNumbers )
 	{	CGContextSelectFont(context, [CPFont systemFontOfSize:8]);
-		CGContextSetFillColor(context, [contentClass textColor]);
-		CGContextSetStrokeColor(context, [contentClass textColor]);
 		var mySubviews=[self allDots];
 		var n = [mySubviews count];
 		for(var i = 0; i < n; i++) 
 		{	var currSubview = mySubviews[i];
+			CGContextSetFillColor(context, [currSubview textColor]);
+			CGContextSetStrokeColor(context, [currSubview textColor]);
 			var o=[currSubview objectValue];
 
 			CGContextSetTextPosition(context, o.x-2, o.y+1)
@@ -320,12 +326,12 @@ var myFastSortFunction=function(a,b,context)
 					var dist=Math.sqrt((lastPoint.x-currPoint.x)*(lastPoint.x-currPoint.x)+ (lastPoint.y-currPoint.y)*(lastPoint.y-currPoint.y));
 					var distString=[CPString stringWithFormat:"%3.2f", dist];
 					CGContextSetTextPosition(context, midPoint.x+2, midPoint.y+2);
-					CGContextSetFillColor(context, [CPColor blackColor]);
-					CGContextSetStrokeColor(context, [CPColor blackColor]);
+					CGContextSetFillColor(context, [currPoint textColor]);
+					CGContextSetStrokeColor(context, [currPoint textColor]);
 					CGContextShowText(context, distString);
 					CGContextSetTextPosition(context, midPoint.x+1, midPoint.y+1);
-					CGContextSetFillColor(context, [contentClass color]);
-					CGContextSetStrokeColor(context, [contentClass color]);
+					CGContextSetFillColor(context, [currPoint color]);
+					CGContextSetStrokeColor(context, [currPoint color]);
 					CGContextShowText(context, distString);
 				}
 				lastPoint=currPoint;

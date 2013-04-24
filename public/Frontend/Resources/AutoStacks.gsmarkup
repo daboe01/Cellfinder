@@ -30,7 +30,7 @@
 			<scrollView hasHorizontalScroller="NO">
 				<tableView zebra="yes" autosaveName="tv_autostacks_results"  valueBinding="#CPOwner.stacksContentController" target="#mystackscontroller">
 					<tableColumn identifier="idanalysis" title="analysis" editable="YES"/>
-					<tableColumn identifier="idanalysis_reference" title="ref"/>
+					<tableColumn identifier="idanalysis_reference" title="ref" editable="YES"/>
 					<tableColumn identifier="parameter" editable="YES" title="parameter"/>
 	  			</tableView>
 			</scrollView>

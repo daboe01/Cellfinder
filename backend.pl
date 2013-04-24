@@ -9,7 +9,7 @@ use Data::Dumper;
 use Mojo::UserAgent;
 
 plugin 'database', { 
-			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
+			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
 			username => 'root',
 			password => 'root',
 			options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
@@ -155,6 +155,11 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
 	$p= cellfinder_image::imageForComposition($self->db, $idcomposition,$f,$p, 1, $idanalysis)	if($idcomposition);
 	$p= cellfinder_image::imageForComposition($self->db, $afterload,$f,$p,1) if($afterload);
 	$p= cellfinder_image::_distortImage($p, $affine) if($affine);
+
+	if($csize && !$idstack)
+	{	$p->Extent(geometry=>$csize, gravity=>'NorthWest', background=>'graya(0%, 0)');
+	}
+
 	if(ref $p eq 'Image::Magick')
 	{	if($spc eq 'geom')	# geom-query
 		{	$self->render_text(join ' ', $p->Get('width', 'height') );
@@ -184,6 +189,93 @@ get '/IMG/make_tags'=> sub
 	$sth->execute();
 	$self->render_text('OK');
 };
+get '/IMG/reaggregate_all/:idtrial'=> [idtrial =>qr/\d+/] => sub
+{	my $self=shift;
+	my $idtrial= $self->param("idtrial");
+	my $dbh=$self->db;
+	my $trial = cellfinder_image::getObjectFromDBHandID($dbh, 'trials', $idtrial);
+	
+	$dbh->{AutoCommit}=0;
+	my $sql=qq{delete from aggregations using analyses, images where  analyses.idimage=images.id and aggregations.idanalysis=analyses.id and idtrial=?};
+	my $sth = $dbh->prepare( $sql );
+	$sth->execute(($idtrial));
+	
+	$sql=qq{select distinct analyses.id, idimage from analyses left join aggregations on  aggregations.idanalysis=analyses.id join images on analyses.idimage=images.id  join number_points on number_points.idanalysis=analyses.id where  aggregations.idanalysis is null and idtrial=?};
+	$sth = $dbh->prepare( $sql );
+	$sth->execute(($idtrial));
+	while(my $curr=$sth->fetchrow_arrayref())
+	{	my ($idanalysis,$idimage)=($curr->[0],$curr->[1]);
+		my $f= cellfinder_image::readImageFunctionForIDAndWidth($dbh, $idimage);
+		my $p= $f->(0);
+		$p= cellfinder_image::imageForComposition($self->db, $trial->{composition_for_aggregation},$f,$p, 1, $idanalysis);
+	}
+	$dbh->{AutoCommit}=1;
+	$self->render_text('OK');
+};
+get '/IMG/copy_results/:idfrom/:idto'=> [idfrom =>qr/\d+/,idto =>qr/\d+/] => sub
+{	my $self=shift;
+	my $idfrom= $self->param("idfrom");
+	my $idto  = $self->param("idto");
+	my $dbh=$self->db;
+	my $sql=qq{insert into results (row,col,tag,idanalysis) (select row,col,tag, ? as idanalysis from results where idanalysis=?)};
+	my $sth = $dbh->prepare( $sql );
+	$sth->execute(($idto,$idfrom));
+	$self->render_text('OK');
+};
+get '/ANA/results/:idanalysis'=> [idanalysis =>qr/\d+/] => sub
+{	my $self=shift;
+	my $idanalysis= $self->param("idanalysis");
+	my $dbh=$self->db;
+	my $sql=qq{select id, row,col,coalesce(tag,0) as tag,idanalysis from results where idanalysis=? order by 1};
+	my $sth = $dbh->prepare( $sql );
+	$sth->execute(($idanalysis));
+	my $result=	join("\t", qw/id row col tag idanalysis/)."\n";
+	while(my $curr=$sth->fetchrow_arrayref())
+	{	$result.=join("\t", (@$curr));
+		$result.="\n";
+	}
+	$self->render_text($result);
+};
+get '/ANA/aggregations/:idtrial'=> [idtrial =>qr/\d+/] => sub
+{	my $self=shift;
+	my $idtrial= $self->param("idtrial");
+	my $dbh=$self->db;
+	my $sql=qq{SELECT distinct aggregations.name FROM aggregations join analyses on idanalysis =analyses.id join images on idimage=images.id where idtrial=? order by 1};
+	my $sth = $dbh->prepare( $sql );
+	$sth->execute(($idtrial));
+	my $a=$sth->fetchall_arrayref();
+	my @colnames=map {'"'.$_->[0].'"' } @$a;
+	my $colnames= join " text,",@colnames;
+	$sql="SELECT * FROM crosstab( 'select idanalysis, images.name as image_name, aggregations.name as cat, value from aggregations join analyses on idanalysis=analyses.id join images on idimage=images.id where idtrial=$idtrial  order by 1,2', 'SELECT distinct aggregations.name FROM aggregations join analyses on idanalysis =analyses.id join images on idimage=images.id where idtrial=$idtrial order by 1') AS ct(idanalysis integer, image_name text, $colnames text)";
+	$sth = $dbh->prepare( $sql );
+	$sth->execute();
+	my $result=	"idanalysis\timage_name\t".join("\t", @colnames)."\n";
+	while(my $curr=$sth->fetchrow_arrayref())
+	{	$result.=join("\t", (@$curr));
+		$result.="\n";
+	}
+	$self->render_text($result);
+	
+};
+get '/ANA/:table/:idtrial'=> [table=>qr/[^"]+/, idtrial =>qr/\d+/] => sub
+{	my $self=shift;
+	my $idtrial= $self->param("idtrial");
+	my $table= $self->param("table");
+	my $dbh=$self->db;
+	my $sql="SELECT * FROM \"$table\" where idtrial=$idtrial";
+	my $sth = $dbh->prepare( $sql );
+	$sth->execute();
+	my $res = $sth->fetchall_arrayref();                    
+	my $colnames = $sth->{NAME};          
+	my $result=	join("\t", @$colnames)."\n";
+	for my $curr (@$res)
+	{	$result.=join("\t", (@$curr));
+		$result.="\n";
+	}
+	$self->render_text($result);
+	
+};
+
 
 get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 {	my $self=shift;
@@ -192,7 +284,7 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 	my $ransac=			$self->param("ransac");
 	my $thresh=			$self->param("thresh");
 	my $identityradius= $self->param("identityradius");
-	my $iterations= $self->param("iterations");
+	my $iterations=		$self->param("iterations");
 	my $idcomposition=	$self->param('cmp');
 
 	if($spc eq 'affine')
@@ -205,7 +297,6 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 		{	next unless $curr->{idanalysis_reference};
 			my $par= $ransac?	cellfinder_image::runRANSACRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis}, $thresh, $identityradius, $iterations):
 								cellfinder_image::runSimpleRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis});
-warn $par.' '. $curr->{id};
 			my $sql=SQL::Abstract->new();
 			my($stmt, @bind) = $sql->update('montage_images', {parameter=> $par}, {id=>$curr->{id} } );
 			my $sth =  $self->db->prepare($stmt);
@@ -307,34 +398,6 @@ post '/IMG/analyze/:idtrial/:name'=> [name=>qr/.+/] => sub
 	my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage);
 	cellfinder_image::imageForComposition($self->db, $d->{idcomposition_for_analysis}, $f, $f->(0), 0, $idanalysis);
 	$self->render_data('OK', format =>'txt' );
-};
-
-
-###################################################################
-# docscal interface
-
-get '/DC/dir/:piz'=> [piz =>qr/\d{8}/] => sub
-{	my $self=shift;
-	my $piz= $self->param("piz");
-	my $ua = Mojo::UserAgent->new;
-	my $data=$ua->get('http://10.250.0.33/docscaldownload/'.$piz.'?peek=1')->res->body;
-	$self->render_text( $data);
-};
-get '/DC/dir/:piz/:type' => [piz =>qr/\d{8}/] => sub
-{	my $self=shift;
-	my $piz= $self->param("piz");
-	my $type= $self->param("type");
-	my $ua = Mojo::UserAgent->new;
-	my $data=$ua->get('http://10.250.0.33/docscaldownload/'.$piz.'?dir='.$type)->res->body;
-	$self->render_text( $data);
-};
-get '/DC/fetch/:name/:scale'=> [name =>qr/.+/] => sub
-{	my $self=shift;
-	my $name= $self->param("name");
-	my $scale= $self->param("scale");
-	my $ua = Mojo::UserAgent->new;
-	my $data=$ua->get("http://10.250.0.33/docscaldownload/$name?size=$scale")->res->body;
-	$self->render_data($data , format =>'jpg' );
 };
 
 

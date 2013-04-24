@@ -153,6 +153,18 @@
 	[inputAnalysisWindow makeKeyAndOrderFront:self];
 }
 
+-(void) setTag: sender
+{	var arr=[annotatedImageView selectedDots];
+	var i,j=[arr count];
+	var tag=[sender integerValue];
+	for(i=0; i<j;i++)
+	{	var o=arr[i];
+		[o._data setValue: tag forKey:"tag"];
+		[o setNeedsDisplay:YES];
+	}
+}
+
+
 @end
 
 @implementation GSMarkupTagAutoDottingController : GSMarkupTagObject

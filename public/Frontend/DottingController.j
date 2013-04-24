@@ -94,9 +94,13 @@
 	[self reloadAnalysis:self];
 }
 -(void) duplicateAnalysis: sender
-{	var mySourceAnalysis=  [myAppController.analysesController selectedObject];
+{	var mySourceAnalysis=  [myAppController.analysesController valueForKeyPath:"selection.id"];
 	[myAppController.analysesController insert:sender];
-	var myDestinationAnalysis=  [myAppController.analysesController selectedObject];
+	var myDestinationAnalysis=  [myAppController.analysesController valueForKeyPath:"selection.id"];
+	var myreq=[CPURLRequest requestWithURL: BaseURL+'copy_results/'+mySourceAnalysis+'/'+myDestinationAnalysis];
+	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
+
+/*
 	var sourceArray=[mySourceAnalysis valueForKey:"results"];
 	var destinationArray=[myDestinationAnalysis valueForKey:"results"];
 	var i,j=[sourceArray count];
@@ -107,8 +111,8 @@
 		[mydotCopy setValue:[mydot valueForKey:"col"] forKey:"col"];
 		[destinationArray addObject:mydotCopy];
 	}
-
-//	[self reloadAnalysis:self];
+*/
+	[self _refreshResults];
 }
 -(void) _refreshResults
 {	[[myAppController.analysesController selectedObject] willChangeValueForKey:"results"];

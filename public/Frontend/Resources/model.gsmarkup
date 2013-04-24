@@ -154,6 +154,7 @@
 		<column name="idanalysis"/>
 		<column name="row"/>
 		<column name="col"/>
+		<column name="tag"/>
 		<relationship type="toOne" name="analysis" bindingColumn="idanalysis" target="analyses"/>
 	</entity>
 	<entity id="aggregations" store="#CPOwner.store">

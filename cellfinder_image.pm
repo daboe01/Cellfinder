@@ -18,8 +18,10 @@ use Statistics::R;
 use SQL::Abstract;
 use POSIX;
 
-use constant server_root=>'/Library/WebServer/Documents/cellfinder';
-#use constant server_root=>'/srv/www/htdocs/cellfinder';
+#use constant server_root=>'/Library/WebServer/Documents/cellfinder';
+use constant server_root=>'/srv/www/htdocs/cellfinder';
+
+our $R;
 
 #<!> fixme hardcoded URL
 # is directly called from the backend
@@ -37,7 +39,7 @@ sub runSimpleRegistrationRCode { my ($id1,$id2)=@_;
 ENDOFR
 ;	$RCmd=~s/<id1>/$id1/ogs;
 	$RCmd=~s/<id2>/$id2/ogs;
-	my $R = Statistics::R->new();
+	$R = Statistics::R->new() unless $R;
 	$R->run($RCmd);
 	return  $R->get('out');
 }
@@ -52,7 +54,7 @@ ENDOFR
 	$RCmd=~s/<identityradius>/$identityradius/ogs;
 	$RCmd=~s/<iterations>/$iterations/ogs;
 
-	my $R = Statistics::R->new();
+	$R = Statistics::R->new() unless $R;
 	$R->run($RCmd);
 	return  $R->get('out');
 }
@@ -69,7 +71,7 @@ sub runRJSONCode { my ($id,$code)=@_;
 ENDOFR
 ;	$RCmd=~s/<id>/$id/ogs;
 	$RCmd=~s/<code>/$code/ogs;
-	my $R = Statistics::R->new();
+	$R = Statistics::R->new() unless $R;
 	#warn $RCmd;
 	$R->run($RCmd);
 	my $out=$R->get('out');
@@ -86,7 +88,7 @@ sub runEBImageRCode { my ($infile,$code)=@_;
 ENDOFR
 ;	$RCmd=~s/<code>/$code/ogs;
 	$RCmd=~s/<infile>/$infile/ogs;
-	my $R = Statistics::R->new();
+	$R = Statistics::R->new() unless $R;
 warn $RCmd;
 	$R->run($RCmd);
 	my $out=$R->get('out');
@@ -380,7 +382,6 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $csize
 				my $m=getMontageForIDImageAndIDStack($dbh, $id, $idstack);
 				$i= imageForComposition($dbh, $idcomposition, undef, $i, 0, $m->{idanalysis}) if($idcomposition);
 				_distortImage($i, $m->{parameter}) if($m->{parameter});
-				warn Dumper $m;
 				push @$p,$i;
 			}
 		} else {

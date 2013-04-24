@@ -40,8 +40,14 @@
 /////////////////////////////////////////////////////////
 
 @implementation ProjectedImageEditorCollectionItem: UnnumberedImageEditorCollectionItem
+- _createContentView
+{	var o= [super _createContentView];
+	[o setStyleFlags: [o styleFlags] | AIVStyleNumbers ];
+	return o;
+}
 -(CPString) _additionalImageURLPart
-{	return [super _additionalImageURLPart]+"&affine="+[_representedObject valueForKey:"parameter"];
+{	var myAppController=[CPApp delegate];
+	return [super _additionalImageURLPart]+"&affine="+[_representedObject valueForKey:"parameter"]+("&csize="+[myAppController valueForKeyPath:"stacksController.selection.width"]+"x"+[myAppController valueForKeyPath:"stacksController.selection.height"]);
 }
 @end
 
@@ -86,6 +92,7 @@
 	var destinationAnalysis;
 	var myAnalysis;
 	id	myCollectionView;
+	id	idField;
 }
 
 -(void) setAnalysisArray: myArray
@@ -116,4 +123,15 @@
 		anAnalysis=sourceAnalysis;
 	[self _configureForAnalysis: anAnalysis];
 }
+-(void) revealDot:sender
+{	var myDotID=[sender integerValue];
+	var imageView=[[[[myCollectionView items]  objectAtIndex:0] view] contentView];
+	var allDots=[imageView allDots];
+	[[allDots objectAtIndex: [allDots count]-myDotID] setSelected:YES];
+}
+
+-(void) delete: sender	// delete a dot
+{	[[myCollectionView items] makeObjectsPerformSelector:@selector(delete:) withObject: sender];
+}
+
 @end

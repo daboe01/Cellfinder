@@ -67,6 +67,7 @@
 			</scrollView>
 			<hbox>
 				<slider continuous="NO" min="0" max="1" valueBinding="mydottingcontroller.scale" halign="right"/>
+				<label valign="center">Set tag:</label><textField halign="min" width="100" target="#mydottingcontroller" action="setTag:"></textField>
 				<hspace/>
 				<popUpButton width="100" id="compoPopup" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.analysesController.selection.idcomposition_for_editing"/>
 				<button image="gear" width="30" target="#mydottingcontroller" action="editViewingCompo:"/>

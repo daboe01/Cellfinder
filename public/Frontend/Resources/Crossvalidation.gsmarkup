@@ -8,13 +8,17 @@
 		<scrollView hasHorizontalScroller="NO" hasVerticalScroller="YES">
 			<collectionView id="my_collection_view" itemWidth="100" itemHeight="100" itemsClassName="ProjectedImageEditorCollectionItem" selectable="YES"/>
 		</scrollView>
-		<button type="toggle" title="destination" alternateTitle="source" target="#CPOwner" action="toggleImage:"/>
+		<hbox>
+			<button type="toggle" title="destination" alternateTitle="source" target="#CPOwner" action="toggleImage:"/>
+			<label valign="center">Reveal:</label><textField id="idfield" halign="min" width="100" target="#CPOwner" action="revealDot:">1</textField>
+		</hbox>
 	</vbox>
   </window>
 </objects>
 
 <connectors>
 	<outlet source="#CPOwner" target="my_collection_view" label="myCollectionView"/>
+	<outlet source="#CPOwner" target="idfield" label="idField"/>
 </connectors>
 
 </gsmarkup>

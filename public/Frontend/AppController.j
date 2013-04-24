@@ -8,7 +8,7 @@
 
 /////////////////////////////////////////////////////////
 
-HostURL="http://localhost:3000"
+HostURL="http://auginfo:3000"
 BaseURL= HostURL+"/IMG/";
 
 PhotoDragType="PhotoDragType";
@@ -18,7 +18,6 @@ PhotoDragType="PhotoDragType";
 @import <Foundation/CPObject.j>
 @import <Renaissance/Renaissance.j>
 @import "DottingControllers.j"
-@import "DocsCalImporter.j"
 @import "AdminController.j"
 @import "ImageBrowser.j"
 
@@ -152,4 +151,10 @@ PhotoDragType="PhotoDragType";
 -(void) runImageBrowser:sender
 {	[ImageBrowser sharedImageBrowser];
 }
+
+-(void) reaggregateAll:sender
+{	var myreq=[CPURLRequest requestWithURL: BaseURL+"reaggregate_all/"+[trialsController valueForKeyPath:"selection.id"] ];
+	[CPURLConnection connectionWithRequest: myreq delegate: nil];
+}
+
 @end
