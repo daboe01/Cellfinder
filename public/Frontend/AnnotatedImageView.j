@@ -49,7 +49,7 @@ var myFastSortFunction=function(a,b,context)
 -(CPColor) color
 {	var peek;
 	if(_data && (peek=[_data valueForKey:"tag"]))
-	{	return [CPColor colorWithHexString: AIVColorCodes[peek-1]]
+	{	return [CPColor colorWithHexString: AIVColorCodes[Math.min(peek-1, AIVColorCodes.length-1)]]
 	}
 	return [CPColor yellowColor];
 }
