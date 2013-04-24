@@ -246,10 +246,10 @@ get '/ANA/aggregations/:idtrial'=> [idtrial =>qr/\d+/] => sub
 	my $a=$sth->fetchall_arrayref();
 	my @colnames=map {'"'.$_->[0].'"' } @$a;
 	my $colnames= join " text,",@colnames;
-	$sql="SELECT * FROM crosstab( 'select idanalysis, images.name as image_name, aggregations.name as cat, value from aggregations join analyses on idanalysis=analyses.id join images on idimage=images.id where idtrial=$idtrial  order by 1,2', 'SELECT distinct aggregations.name FROM aggregations join analyses on idanalysis =analyses.id join images on idimage=images.id where idtrial=$idtrial order by 1') AS ct(idanalysis integer, image_name text, $colnames text)";
+	$sql="SELECT * FROM crosstab( 'select idanalysis, images.id as idimage, images.name as image_name, aggregations.name as cat, value from aggregations join analyses on idanalysis=analyses.id join images on idimage=images.id where idtrial=$idtrial  order by 1,2', 'SELECT distinct aggregations.name FROM aggregations join analyses on idanalysis =analyses.id join images on idimage=images.id where idtrial=$idtrial order by 1') AS ct(idanalysis integer, idimage integer, image_name text, $colnames text)";
 	$sth = $dbh->prepare( $sql );
 	$sth->execute();
-	my $result=	"idanalysis\timage_name\t".join("\t", @colnames)."\n";
+	my $result=	"idanalysis\tidimage\timage_name\t".join("\t", @colnames)."\n";
 	while(my $curr=$sth->fetchrow_arrayref())
 	{	$result.=join("\t", (@$curr));
 		$result.="\n";
