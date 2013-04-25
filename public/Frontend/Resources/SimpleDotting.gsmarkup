@@ -15,8 +15,9 @@
 		</vbox>
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
-				<tableView autosaveName="folders_manual_dotting_content" zebra="yes" valueBinding="#CPOwner.folderContentController" target="#CPOwner">
+				<tableView autosaveName="folders_man_dotting_content" zebra="yes" valueBinding="#CPOwner.folderContentController" target="#CPOwner">
 					<tableColumn identifier="folder_name" title="Image"/>
+					<tableColumn identifier="idimage" title="ID"/>
 	  			</tableView>
 			</scrollView>
 		</vbox>
@@ -44,8 +45,10 @@
 			</scrollView>
 			<hbox>
 				<slider continuous="NO" min="0" max="1" valueBinding="mydottingcontroller.scale" halign="right"/>
+				<label valign="center">Set tag:</label><textField halign="min" width="100" target="#mydottingcontroller" action="setTag:"></textField>
 				<hspace/>
 				<popUpButton width="100" id="compoPopup" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.analysesController.selection.idcomposition_for_editing"/>
+				<button image="gear" width="30" target="#mydottingcontroller" action="editViewingCompo:"/>
 			</hbox>
 		</vbox>
 	 </splitView>
