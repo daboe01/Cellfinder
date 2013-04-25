@@ -507,7 +507,7 @@ var myFastSortFunction=function(a,b,context)
 		_currentGraphic=mydot;
 		if(![event modifierFlags])
 			[self deselectAllSubviews];
-		[_currentGraphic setSelected: YES];
+		[_currentGraphic setSelected: [_currentGraphic isSelected]? NO:YES ];
 		_selOriginOffset.x=mydotframe.origin.x-mouseLocation.x;
 		_selOriginOffset.y=mydotframe.origin.y-mouseLocation.y;
 		[self moveSelectedGraphicsWithEvent: event];
