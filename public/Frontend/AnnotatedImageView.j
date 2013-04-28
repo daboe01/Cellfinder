@@ -18,7 +18,7 @@ AIVStyleLengthInfo=4;
 AIVStyleAngleInfo=8;
 AIVStyleVoronoi=16;
 
-AIVColorCodes=["8DD3C7","FFFFB3","BEBADA","FB8072","80B1D3","FDB462","B3DE69","FCCDE5","D9D9D9","BC80BD"]; // brewer.pal(10, "Set3") (RColorBrewer)
+AIVColorCodes=["8DD3C7","BEBADA","FB8072","80B1D3","FDB462","B3DE69","FCCDE5","D9D9D9","BC80BD"]; // brewer.pal(10, "Set3") (RColorBrewer)
 
 var mySortFunction=function(a,b,context)
 {
@@ -125,6 +125,7 @@ var myFastSortFunction=function(a,b,context)
 	id			_delegate @accessors(property=delegate);
 	BOOL		_sendDelegateMoves;
 	int			_lastDegrees;
+	int			_defaultTag @accessors(property=defaultTag);
 }
 
 -(void) setDelegate: someDelegate
@@ -507,7 +508,7 @@ var myFastSortFunction=function(a,b,context)
 		_currentGraphic=mydot;
 		if(![event modifierFlags])
 			[self deselectAllSubviews];
-		[_currentGraphic setSelected: [_currentGraphic isSelected]? NO:YES ];
+		[_currentGraphic setSelected: [_currentGraphic isSelected]? NO:YES ];	// toggle selection state
 		_selOriginOffset.x=mydotframe.origin.x-mouseLocation.x;
 		_selOriginOffset.y=mydotframe.origin.y-mouseLocation.y;
 		[self moveSelectedGraphicsWithEvent: event];
@@ -522,6 +523,7 @@ var myFastSortFunction=function(a,b,context)
 			var obV=[self addToModelPoint: [mydot objectValue]];	// register newly created point with backend
 			[mydot setData:obV];
 			[mydot setId: [obV valueForKey:"id"]];
+			[obV setValue: _defaultTag forKey:"tag"];
 
 			if(_sendDelegateMoves)
 				[_delegate annotatedImageView: self dot: mydot movedToPoint: mouseLocation];

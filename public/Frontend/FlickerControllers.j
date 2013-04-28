@@ -126,13 +126,16 @@
 {	var myDotID=[sender integerValue];
 	var imageView=[[[[myCollectionView items]  objectAtIndex:0] view] contentView];
 	var allDots=[imageView allDots];
+	if(myDotID<1 || myDotID>[allDots count])
+		[[CPAlert alertWithError:"This dot does not exist"] runModal];
 	[[allDots objectAtIndex: [allDots count]-myDotID] setSelected:YES];
 }
 -(void) setTag:sender
 {	var imageView=[[[[myCollectionView items]  objectAtIndex:0] view] contentView];
 	var arr=[imageView selectedDots];
-	var i,j=[arr count];
 	var tag=[sender integerValue];
+	[imageView setDefaultTag: tag];
+	var i,j=[arr count];
 	for(i=0; i<j;i++)
 	{	var o=arr[i];
 		[o._data setValue: tag forKey:"tag"];
