@@ -53,6 +53,10 @@ var myFastSortFunction=function(a,b,context)
 	}
 	return [CPColor yellowColor];
 }
+-(int) tag
+{	if(_data && (peek=[_data valueForKey:"tag"])) return peek;
+	return CPNotFound;
+}
 
 -(CPColor) shadowColor
 {	return [CPColor orangeColor];
@@ -255,7 +259,7 @@ var myFastSortFunction=function(a,b,context)
 		for(var i = 0; i < n; i++) 
 		{	var currSubview = mySubviews[i];
 			var o=[currSubview objectValue];
-			if(!o) continue;
+			if(!o || [o tag]) continue;
 			if(isFirst)
 			{	CGContextMoveToPoint(context, o.x, o.y);
 				isFirst=NO;

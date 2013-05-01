@@ -123,13 +123,20 @@
 	[self _configureForAnalysis: anAnalysis];
 }
 -(void) revealDot:sender
-{	var myDotID=[sender integerValue];
+{	var myarr= [sender stringValue].split(/[\s,]+/);
+	var i,j= myarr.length;
 	var imageView=[[[[myCollectionView items]  objectAtIndex:0] view] contentView];
 	var allDots=[imageView allDots];
-	if(myDotID<1 || myDotID>[allDots count])
-		[[CPAlert alertWithError:"This dot does not exist"] runModal];
-	[[allDots objectAtIndex: [allDots count]-myDotID] setSelected:YES];
+	for(i=0; i< j; i++)
+	{	var myDotID= parseInt(myarr[i]);
+		if (myDotID < 1 || myDotID > [allDots count])
+		{	[[CPAlert alertWithError:"Dot # "+ myDotID +" does not exist (yet)?!"] runModal];
+			continue;
+		}
+		[[allDots objectAtIndex: [allDots count]-myDotID] setSelected:YES];
+	}
 }
+
 -(void) setTag:sender
 {	var imageView=[[[[myCollectionView items]  objectAtIndex:0] view] contentView];
 	var arr=[imageView selectedDots];

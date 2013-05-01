@@ -185,12 +185,17 @@ sub imageForDBHAndRenderchainIDAndImage{
 		if($curr_patch->{patch_type} == 1)	# let do imagemagick do the magick
 		{	next unless ref $p eq 'Image::Magick';
 			$curr_patch->{params}=~s/"_anonymous_"=>//ogsi;
-			if($curr_patch->{patch} eq 'Perl') {$curr_patch->{params}=~s/"//ogs;  eval($curr_patch->{params})}
+			if($curr_patch->{patch} eq 'Perl')
+			{	$curr_patch->{params}=~s/"//ogs;
+ warn $curr_patch->{params};
+				eval($curr_patch->{params});
+				warn "error: $@" if($@);
+			}
 			else {	my $code='$p->[0]->'.$curr_patch->{patch}.'('.$curr_patch->{params}.')';
 					$code=~s/=>"\[([0-9e\., \-\]]+)"/=>[$1/ogs;
 					$code=~s/([0-9])\]"/$1]/ogs;
 				 eval($code);
-				#				warn  $code
+				warn "error: $@" if($@);
 			};
 ###			warn $curr_patch->{patch};
 			warn "error: $@" if($@);
