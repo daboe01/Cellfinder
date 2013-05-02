@@ -14,7 +14,7 @@
 -(CPImage) _backgroundImage
 {	var mycompoID=[self valueForKey:"idcomposition_for_editing" ];
 	var myidimage=[self valueForKey:"idimage" ];
-	var myURL= [[CPApp delegate] baseImageURL]+myidimage+"?rnd=1";
+	var myURL= [[CPApp delegate] baseImageURL]+myidimage+"?rnd=1&idanalysis="+[self valueForKey:"id" ];
 	if(mycompoID && mycompoID !== CPNullMarker) myURL+="&cmp="+mycompoID;
 	var mycontroller= [[CPApp delegate] mainController];	// this is hack to get hold of the UI context from within the database context
 	var scale= mycontroller._scale;
