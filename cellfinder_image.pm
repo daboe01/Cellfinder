@@ -247,8 +247,12 @@ sub imageForDBHAndRenderchainIDAndImage{
 					$dbh->{AutoCommit}=1;
 				} elsif(exists $infile->{xarea} && exists $infile->{yarea}) # ROI return
 				{
-				} else
-				{	$result=undef;
+				} else # result is (probably) an aggregation
+				{	next unless $idanalysis;
+					my $sql = 'delete from aggregations where idanalysis = ?';
+					my $sth = $dbh->prepare($sql);
+					$sth->execute(($idanalysis));
+					cellfinder_image::insertAggregation($dbh, $idanalysis, $infile);
 				}
 				# now perform fixup and aggregation if necessary
 				if($idimage)

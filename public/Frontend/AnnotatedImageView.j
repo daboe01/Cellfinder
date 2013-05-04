@@ -256,6 +256,7 @@ var myFastSortFunction=function(a,b,context)
 		var mySubviews=[self allDots];
 		var n = [mySubviews count];
 		var isFirst=YES;
+		var area;
 		for(var i = 0; i < n; i++) 
 		{	var currSubview = mySubviews[i];
 			var o=[currSubview objectValue];
@@ -265,7 +266,14 @@ var myFastSortFunction=function(a,b,context)
 				isFirst=NO;
 			}
 			else CGContextAddLineToPoint(context, o.x, o.y);
+			if(i < n-1)
+			{	var p1 = o;
+				var p2 = [mySubviews[i+1] objectValue];
+				area += p1.x * p2.y;
+				area -= p1.y * p2.x;
+			}
 		}
+		_lastDegrees=area;
 		CGContextClosePath(context);
 		CGContextSetStrokeColor(context, [CPColor yellowColor]);
 		CGContextStrokePath(context);
