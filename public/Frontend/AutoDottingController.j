@@ -81,9 +81,7 @@
 	if(mycompo !== CPNullMarker)
 	{	var myreq=[CPURLRequest requestWithURL: BaseURL+idimage+"?idanalysis="+idanalysis+"&cmp="+mycompo];
 		[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
-		[[myAppController.analysesController selectedObject] willChangeValueForKey:"aggregations"];
-		[myAppController.analysesController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
-		[[myAppController.analysesController selectedObject] didChangeValueForKey:"aggregations"];
+		[super reaggregate:sender];
 	}
 }
 -(void) runSettings: sender

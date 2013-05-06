@@ -18,8 +18,8 @@ use Statistics::R;
 use SQL::Abstract;
 use POSIX;
 
-use constant server_root=>'/Library/WebServer/Documents/cellfinder';
-#use constant server_root=>'/srv/www/htdocs/cellfinder';
+#use constant server_root=>'/Library/WebServer/Documents/cellfinder';
+use constant server_root=>'/srv/www/htdocs/cellfinder';
 
 our $R;
 
@@ -89,9 +89,9 @@ ENDOFR
 ;	$RCmd=~s/<code>/$code/ogs;
 	$RCmd=~s/<infile>/$infile/ogs;
 	$R = Statistics::R->new() unless $R;
-warn $RCmd;
 	$R->run($RCmd);
 	my $out=$R->get('out');
+ warn $out;
 	return $out? JSON::XS->new->utf8->decode($out):undef;
 }
 
@@ -168,13 +168,14 @@ sub imageForDBHAndRenderchainIDAndImage{
 	}
 	$p=$readImageFunction->(0) unless $p;
 
+# warn $id;
 	my $sql=qq/select * from patch_chains_with_parameters where idpatch_chain=?/;
 	my $sth = $dbh->prepare( $sql );
 	$sth->execute(($id));
 	my $old_p;
 	while(my $curr_patch = $sth->fetchrow_hashref())
 	{	$old_p=$p;
-###		warn Dumper $curr_patch;
+# warn Dumper $curr_patch;
 		if($curr_patch->{params}=~/<handover>/o)
 		{	my  $analysis = getObjectFromDBHandID($dbh, 'analyses', $idanalysis);
 			my  $handover_params=$analysis->{setup_params};
@@ -187,7 +188,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 			$curr_patch->{params}=~s/"_anonymous_"=>//ogsi;
 			if($curr_patch->{patch} eq 'Perl')
 			{	$curr_patch->{params}=~s/"//ogs;
- warn $curr_patch->{params};
+# warn $curr_patch->{params};
 				eval($curr_patch->{params});
 				warn "error: $@" if($@);
 			}
@@ -253,6 +254,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 					my $sth = $dbh->prepare($sql);
 					$sth->execute(($idanalysis));
 					cellfinder_image::insertAggregation($dbh, $idanalysis, $infile);
+					$idimage=0;
 				}
 				# now perform fixup and aggregation if necessary
 				if($idimage)

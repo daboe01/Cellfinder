@@ -29,7 +29,13 @@
 							<tableColumn identifier="idimage" title="Analysis"/>
 						</tableView>
 					</scrollView>
-					<ButtonBar target="#CPOwner.analysesController" halign="right" width="250"  plusButtonAction="insert:" minusButtonAction="remove:"/>
+					<ButtonBar target="#CPOwner.analysesController" halign="right" width="250"  plusButtonAction="insert:" minusButtonAction="remove:" actionsButton="YES">
+   						<popUpButtonItem title="New empty" target="#mydottingcontroller" action="insertEmptyAnalysis:"/>
+   						<popUpButtonItem title="Duplicate" target="#mydottingcontroller" action="duplicateAnalysis:"/>
+ 						<popUpButtonItem title="Edit..." target="#mydottingcontroller" action="editAnalysis:"/>
+  						<popUpButtonItem title="Analyze" target="#mydottingcontroller" action="reaggregate:"/>
+ 						<popUpButtonItem title="Switch Extractor" target="#mydottingcontroller" action="runSettings:"/>
+					</ButtonBar>
 				</vbox>
 				<scrollView hasHorizontalScroller="NO">
 					<tableView autosaveName="aggregations_name" zebra="yes" valueBinding="#CPOwner.aggregationsController" target="#CPOwner">
