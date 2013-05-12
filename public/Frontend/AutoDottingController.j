@@ -142,13 +142,12 @@
 	var sourceArray=[mySourceAnalysis valueForKey:"results"];
 	var i,j=[sourceArray count];
 	for(i=0; i< j; i++)
-	{	var myDict=[CPDictionary new];
-		coords+=[myDict setObject: sourceArray[i] forKey:"row"];
+	{	coords+=[[sourceArray objectAtIndex:i] valueForKey:"row"];
 		coords+=" ";
-		coords+=[myDict setObject: sourceArray[i] forKey:"col"];
-		coords+=" (";
-		coords+=[myDict setObject: sourceArray[i] forKey:"tag"];
-		coords+=")";
+		coords+=[[sourceArray objectAtIndex:i] valueForKey:"col"];
+		coords+="(";
+		coords+=[[sourceArray objectAtIndex:i] valueForKey:"tag"];
+		coords+=") ";
 	}
 	[inputAnalysisField setStringValue:coords]
 	[inputAnalysisWindow makeKeyAndOrderFront:self];
