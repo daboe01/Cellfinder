@@ -7,6 +7,8 @@
 	id trialSettingsWindow;
 	id inputAnalysisWindow;
 	id inputAnalysisField;
+	id outputAnalysisWindow;
+	id outputAnalysisField;
 }
 
 -(void) _postInit
@@ -120,22 +122,15 @@
 
 -(void) insertAnalysisFromInput:sender
 {	[inputAnalysisWindow makeKeyAndOrderFront:self];
-	[self insertEmptyAnalysis:self];
 }
--(void) performInsertCoords:sender
-{	[inputAnalysisWindow orderOut:self];
-	var coords= [inputAnalysisField stringValue];
-	var myarr= coords.split(/[\s,]+/);
-	var i,j= myarr.length;
-	var myInsertArr=[myAppController.analysesController valueForKeyPath:"selection.results"];
-	for(i=0; i< j; i+=2)
-	{	var myDict=[CPDictionary new];
-		[myDict setObject: myarr[i] forKey:"row"];
-		[myDict setObject: myarr[i+1] forKey:"col"];
-		[myInsertArr addObject: myDict];	// saves to database in backend
-	}
+-(void) performUploadCoords:sender
+{	var myIdSourceAnalysis=  [myAppController.analysesController valueForKeyPath:"selection.id"];
+	var mystuff=[inputAnalysisField stringValue];
+	var myreq=[CPURLRequest requestWithURL: BaseURL+"input_results/"+myIdSourceAnalysis+"/"+mystuff];
+	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
 	[self _refreshResults];
 }
+
 -(void) revealCoords: sender
 {	var coords="";
 	var mySourceAnalysis=  [myAppController.analysesController selectedObject];
@@ -145,12 +140,16 @@
 	{	coords+=[[sourceArray objectAtIndex:i] valueForKey:"row"];
 		coords+=" ";
 		coords+=[[sourceArray objectAtIndex:i] valueForKey:"col"];
-		coords+="(";
-		coords+=[[sourceArray objectAtIndex:i] valueForKey:"tag"];
-		coords+=") ";
+		var peekTag=[[sourceArray objectAtIndex:i] valueForKey:"tag"];
+		if(peekTag)
+		{	coords+="(";
+			coords+=[[sourceArray objectAtIndex:i] valueForKey:"tag"];
+			coords+=")";
+		}
+		coords+=" ";
 	}
-	[inputAnalysisField setStringValue:coords]
-	[inputAnalysisWindow makeKeyAndOrderFront:self];
+	[outputAnalysisField setStringValue:coords]
+	[outputAnalysisWindow makeKeyAndOrderFront:self];
 }
 
 -(void) setTag: sender

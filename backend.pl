@@ -7,6 +7,7 @@ use cellfinder_image;
 use SQL::Abstract;
 use Data::Dumper;
 use Mojo::UserAgent;
+use POSIX;
 
 plugin 'database', { 
 			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
@@ -212,6 +213,32 @@ get '/IMG/reaggregate_all/:idtrial'=> [idtrial =>qr/\d+/] => sub
 	$dbh->{AutoCommit}=1;
 	$self->render_text('OK');
 };
+get '/IMG/input_results/:idto/:results'=> [idto =>qr/\d+/,results =>qr/.+/] => sub
+{	my $self=shift;
+	my $results		= $self->param("results");
+	my $idanalysis  = $self->param("idto");
+	my $dbh=$self->db;
+
+	$dbh->{AutoCommit}=0;
+	my $sql = 'delete from results where idanalysis = ?';
+	my $sth = $dbh->prepare($sql);
+	$sth->execute(($idanalysis));
+	my $sql = 'insert into results (idanalysis, row, col, tag) values (?, ?, ?, ?)';
+	my $sth = $dbh->prepare($sql);
+	my @result_arr=split/\s+/o, $results;
+	my ($x,$y);
+	while(($x,$y)= splice @result_arr,0,2)
+	{	my $tag;
+		$tag=$1 if $y=~s/\(([0-9]+)\)//ogs;
+		($x,$y)=(floor ($x), floor ($y));
+		$sth->execute(($idanalysis, $x, $y, $tag));
+	}
+	$dbh->commit;
+	$dbh->{AutoCommit}=1;
+	
+	$self->render_text('OK');
+};
+
 get '/IMG/copy_results/:idfrom/:idto'=> [idfrom =>qr/\d+/,idto =>qr/\d+/] => sub
 {	my $self=shift;
 	my $idfrom= $self->param("idfrom");
