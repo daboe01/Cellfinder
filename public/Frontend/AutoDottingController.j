@@ -9,6 +9,7 @@
 	id inputAnalysisField;
 	id outputAnalysisWindow;
 	id outputAnalysisField;
+	id tagField;
 }
 
 -(void) _postInit
@@ -74,15 +75,20 @@
 -(void) setDrawingAngle
 {	[annotatedImageView setStyleFlags: [annotatedImageView styleFlags] | AIVStyleAngleInfo ];
 }
+-(void) setClosingPolygons
+{	[annotatedImageView setStyleFlags: [annotatedImageView styleFlags] | AIVStylePolygonClose ];
+}
+
 
 -(void) reaggregate: sender
 {	var mycompo= [myAppController.trialsController valueForKeyPath: "selection.composition_for_aggregation"];
 	var idanalysis=[myAppController.analysesController valueForKeyPath:"selection.id"];
 	var idimage=[myAppController.analysesController valueForKeyPath:"selection.idimage"];
-
 	if(mycompo !== CPNullMarker)
-	{	var myreq=[CPURLRequest requestWithURL: BaseURL+idimage+"?idanalysis="+idanalysis+"&cmp="+mycompo];
-		[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
+	{
+		var myreq=[CPURLRequest requestWithURL: BaseURL+idimage+"?idanalysis="+idanalysis+"&cmp="+mycompo];
+		var res=[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
+//alert([res rawString])
 		[super reaggregate:sender];
 	}
 }

@@ -17,6 +17,7 @@ AIVStylePolygon=2;
 AIVStyleLengthInfo=4;
 AIVStyleAngleInfo=8;
 AIVStyleVoronoi=16;
+AIVStylePolygonClose=32;
 
 AIVColorCodes=["8DD3C7","BEBADA","FB8072","80B1D3","FDB462","B3DE69","FCCDE5","D9D9D9","BC80BD"]; // brewer.pal(10, "Set3") (RColorBrewer)
 
@@ -110,7 +111,10 @@ var myFastSortFunction=function(a,b,context)
 -(CPPoint) objectValue
 {	var myRect=[self frame];
 	var radius=[[self class] radius];
-	var r=CPMakePoint(myRect.origin.x+1+radius, myRect.origin.y+1+radius)
+	var r=CPMakePoint(myRect.origin.x+1+radius, myRect.origin.y+1+radius);
+	var peek;
+	if(_data && (peek=[_data valueForKey:"tag"])) r.tag=peek;
+	else  r.tag=0;
 	return r;
 }
 
@@ -128,6 +132,7 @@ var myFastSortFunction=function(a,b,context)
 	unsigned	_styleFlags @accessors(property=styleFlags);
 	id			_delegate @accessors(property=delegate);
 	BOOL		_sendDelegateMoves;
+	BOOL		_sendDelegateSelected;
 	int			_lastDegrees;
 	int			_defaultTag @accessors(property=defaultTag);
 }
@@ -135,6 +140,7 @@ var myFastSortFunction=function(a,b,context)
 -(void) setDelegate: someDelegate
 {	_delegate=someDelegate;
 	_sendDelegateMoves= _delegate && [_delegate respondsToSelector:@selector(annotatedImageView:dot:movedToPoint:)];
+	_sendDelegateSelected= _delegate && [_delegate respondsToSelector:@selector(annotatedImageView:dotWasSelected:)];
 }
 
 - (CPString)stringForObjectValue:(id)theObject	// factor out GUI scaling 
@@ -251,32 +257,40 @@ var myFastSortFunction=function(a,b,context)
 	{	CGContextSetStrokeColor(context, [CPColor lightGrayColor]);
 		CGContextStrokeRect(context, _marqueeSelectionBounds);
 	}
-	if( _styleFlags & AIVStylePolygon)
-	{	CGContextBeginPath(context);
-		var mySubviews=[self allDots];
-		var n = [mySubviews count];
-		var isFirst=YES;
+	if(_styleFlags & AIVStylePolygon)
+	{	var mySubviews=[self allDots];
+		var n =  [mySubviews count];
 		var area;
-		for(var i = 0; i < n; i++) 
-		{	var currSubview = mySubviews[i];
-			var o=[currSubview objectValue];
-			if(!o || [o tag]) continue;
-			if(isFirst)
-			{	CGContextMoveToPoint(context, o.x, o.y);
-				isFirst=NO;
+		var tag=0;
+		var hasNextTag;
+		for (hasNextTag=YES; hasNextTag; tag++)
+		{	hasNextTag=NO;
+			var first=YES;
+			for(var i = 0; i < n; i++) 
+			{	var currSubview = mySubviews[i];
+				var o=[currSubview objectValue];
+				if(!o ) continue;
+				if(o.tag == tag)
+				{	if(first)
+					{	first=NO;
+						CGContextBeginPath(context);
+						CGContextMoveToPoint(context, o.x, o.y);
+					} else	CGContextAddLineToPoint(context, o.x, o.y);
+				} else if(o.tag > tag) hasNextTag=YES;
+								
+				if((_styleFlags & AIVStylePolygonClose) && i < n-1 && o.tag==0)
+				{	var p1 = o;
+					var p2 = [mySubviews[i+1] objectValue];
+					area += p1.x * p2.y;
+					area -= p1.y * p2.x;
+				}
+
 			}
-			else CGContextAddLineToPoint(context, o.x, o.y);
-			if(i < n-1)
-			{	var p1 = o;
-				var p2 = [mySubviews[i+1] objectValue];
-				area += p1.x * p2.y;
-				area -= p1.y * p2.x;
-			}
+			//if(_styleFlags & AIVStylePolygonClose) CGContextClosePath(context);
+			CGContextSetStrokeColor(context, [CPColor yellowColor]);
+			CGContextStrokePath(context);
 		}
 		_lastDegrees=area;
-		CGContextClosePath(context);
-		CGContextSetStrokeColor(context, [CPColor yellowColor]);
-		CGContextStrokePath(context);
 	}	// else?!
 	if( _styleFlags & AIVStyleAngleInfo)
 	{	CGContextBeginPath(context);
@@ -524,6 +538,8 @@ var myFastSortFunction=function(a,b,context)
 		_selOriginOffset.x=mydotframe.origin.x-mouseLocation.x;
 		_selOriginOffset.y=mydotframe.origin.y-mouseLocation.y;
 		[self moveSelectedGraphicsWithEvent: event];
+		if(_sendDelegateSelected) [_delegate annotatedImageView: self dotWasSelected: mydot];
+
 	} else
 	{	if([event modifierFlags])	// build the marqueeRect
 		{	if(CPRectEqualToRect (_marqueeSelectionBounds, CPRectMakeZero() ))	// anchor a new one

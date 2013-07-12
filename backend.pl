@@ -1,5 +1,8 @@
 #!/usr/local/ActivePerl-5.14/site/bin/morbo
 
+#<!> fixme render_json( -> render(json=>
+
+
 use lib qw {/srv/www/Cellfinder2/ /HHB/bin/Cellfinder/ /Users/boehringer/src/daboe01_Cellfinder/Cellfinder/ /Users/daboe01/src/daboe01_Cellfinder/Cellfinder /Users/boehringer/src/privatePerl /Users/daboe01/src/privatePerl};
 use Mojolicious::Lite;
 use Mojolicious::Plugin::Database;

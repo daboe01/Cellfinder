@@ -18,8 +18,8 @@ use Statistics::R;
 use SQL::Abstract;
 use POSIX;
 
-use constant server_root=>'/Library/WebServer/Documents/cellfinder';
-#use constant server_root=>'/srv/www/htdocs/cellfinder';
+#use constant server_root=>'/Library/WebServer/Documents/cellfinder';
+use constant server_root=>'/srv/www/htdocs/cellfinder';
 
 our $R;
 
@@ -65,7 +65,7 @@ sub runRJSONCode { my ($id,$code)=@_;
 		d1=read.delim(paste("http://localhost:3000/ANA/results/", id, sep=""))
 		return (d1)
 	}
-	d0= subset(read.pointset(<id>), select=c(row,col))
+	d0= subset(read.pointset(<id>), select=c(row,col,tag))
 	out=""
 	<code>
 ENDOFR
@@ -91,8 +91,8 @@ ENDOFR
 	$R = Statistics::R->new() unless $R;
 	$R->run($RCmd);
 	my $out=$R->get('out');
- warn $out;
-	return $out? JSON::XS->new->utf8->decode($out):undef;
+
+	return (length $out)? JSON::XS->new->utf8->decode($out):undef;
 }
 
 
@@ -168,7 +168,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 	}
 	$p=$readImageFunction->(0) unless $p;
 
-# warn $id;
+	# warn $id;
 	my $sql=qq/select * from patch_chains_with_parameters where idpatch_chain=?/;
 	my $sth = $dbh->prepare( $sql );
 	$sth->execute(($id));
@@ -227,11 +227,13 @@ sub imageForDBHAndRenderchainIDAndImage{
 				next unless ref $old_p eq 'Image::Magick';
 				my $filename=tempFileName('/tmp/cellf');
 				$old_p->Write($filename.'.jpg');
+				chmod 0777, $filename.'.jpg';   
 				my $infile=runEBImageRCode($filename.'.jpg', $p);
-				# read it back in just in case R/EBImage did some processing on it
 				$p = Image::Magick->new();
-				$p->Read($filename.'.jpg');
-				if(exists $infile->{xpoint} && exists $infile->{ypoint}) # simple points return
+				if(!$infile)
+				{	$p->Read($filename.'.jpg');				# read it back in just in case R/EBImage did some processing on it
+					$idimage=$result=0;
+				} elsif(exists $infile->{xpoint} && exists $infile->{ypoint}) # simple points return
 				{
 					$dbh->{AutoCommit}=0;
 					my $sql = 'delete from results where idanalysis = ?';
@@ -249,7 +251,8 @@ sub imageForDBHAndRenderchainIDAndImage{
 				} elsif(exists $infile->{xarea} && exists $infile->{yarea}) # ROI return
 				{
 				} else # result is (probably) an aggregation
-				{	next unless $idanalysis;
+				{
+					next unless $idanalysis;
 					my $sql = 'delete from aggregations where idanalysis = ?';
 					my $sth = $dbh->prepare($sql);
 					$sth->execute(($idanalysis));
@@ -389,7 +392,7 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $csize
 			foreach my $id (@idarr)
 			{
 				my $i=doReadImageFile(undef, getObjectFromDBHandID($dbh,'images_name', $id));
-				$i->Extent(geometry=>$csize, gravity=>'Center', background=>'graya(0%, 0)') if $csize;
+				$i->Extent(geometry=>$csize, gravity=>'NorthWest', background=>'graya(0%, 0)') if $csize;
 				my $m=getMontageForIDImageAndIDStack($dbh, $id, $idstack);
 				$i= imageForComposition($dbh, $idcomposition, undef, $i, 0, $m->{idanalysis}) if($idcomposition);
 				_distortImage($i, $m->{parameter}) if($m->{parameter});
