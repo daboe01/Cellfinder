@@ -237,7 +237,11 @@ get '/IMG/input_results/:idto/:results'=> [idto =>qr/\d+/,results =>qr/.+/] => s
 	$dbh->commit;
 	$dbh->{AutoCommit}=1;
 	
+<<<<<<< HEAD
 	$self->render(text=> 'OK');
+=======
+	$self->render_text('OK');
+>>>>>>> d0919409dea6862d79c00df7e3fa2be887eb4768
 };
 
 get '/IMG/copy_results/:idfrom/:idto'=> [idfrom =>qr/\d+/,idto =>qr/\d+/] => sub
