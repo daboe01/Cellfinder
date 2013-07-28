@@ -17,6 +17,12 @@
 
 }
 
+-(void) annotatedImageView: someView dotWasSelected: someDot
+{	[tagField setIntegerValue: [someDot objectValue].tag];
+	[self setTag: tagField];
+}
+
+
 -(void) annotatedImageView: someView dot: someDot movedToPoint: newPoint
 {	var count=[[someView allDots] count];
 	[self _saveValue: count forKey: "count"];
@@ -40,7 +46,6 @@
 {	var angle=someView._lastDegrees;
 	[self _saveValue: angle forKey: "angle"];
 }
-
 -(void) _postInit
 {	[super _postInit];
 	[self setDrawingAngle];

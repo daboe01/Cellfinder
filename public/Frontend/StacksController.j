@@ -198,12 +198,33 @@
 		return;
 	}
 	[self _triggerRegistrationMatrixGeneration];
-	
+
 	var myurl = BaseURL+"0?idstack="+[myAppController  valueForKeyPath:"stacksController.selection.id"] +"&cmp="+[myAppController valueForKeyPath:"stacksController.selection.idpatch"];
 	if([myAppController valueForKeyPath:"stacksController.selection.width"]!==CPNullMarker && [myAppController valueForKeyPath:"stacksController.selection.height"]!==CPNullMarker)
 		myurl+=("&csize="+[myAppController valueForKeyPath:"stacksController.selection.width"]+"x"+[myAppController valueForKeyPath:"stacksController.selection.height"]);
 	window.open(myurl,'flattened_stackwindow');
 }
+-(void) runSwap:sender
+{
+	var anas=[myAppController valueForKeyPath:"stacksController.selection.analyses"];
+	var l=[anas count];
+	var new_ref;
+	for(var i=0; i<l; i++)
+	{	var curr_ana=[anas objectAtIndex:i];
+		if([curr_ana valueForKey:"idanalysis"] != [curr_ana valueForKey:"idanalysis_reference"])
+		{	new_ref=[curr_ana valueForKey:"idanalysis"];
+		}
+	}
+	for(var i=0; i<l; i++)
+	{	var curr_ana=[anas objectAtIndex:i];
+		[curr_ana setValue:new_ref forKey:"idanalysis_reference"];
+		[curr_ana setValue:"" forKey:"parameter"];
+	}
+	[self _triggerRegistrationMatrixGeneration];
+
+}
+
+
 -(void) downloadGIF: sender
 {	[self _triggerRegistrationMatrixGeneration];
 	[self downloadGIF2: sender];

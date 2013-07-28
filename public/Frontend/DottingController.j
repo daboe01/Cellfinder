@@ -87,7 +87,7 @@
 
 
 -(void) insertAnalysis: sender
-{	[myAppController.analysesController insert:sender];
+{	[myAppController.analysesController add:sender];
 	var myAnalysis=  [myAppController.analysesController selectedObject];
 	var mycompoID  = [myAppController.trialsController valueForKeyPath: "selection.composition_for_celldetection"];
 	[myAnalysis setValue: mycompoID  forKey:"idcomposition_for_analysis"];

@@ -42,10 +42,10 @@
 					<ButtonBar target="#mydottingcontroller" halign="right" width="250"  plusButtonAction="insertAnalysis:" minusButtonAction="removeAnalysis:" actionsButton="YES">
    						<popUpButtonItem title="New empty" target="#mydottingcontroller" action="insertEmptyAnalysis:"/>
    						<popUpButtonItem title="Duplicate" target="#mydottingcontroller" action="duplicateAnalysis:"/>
-   						<popUpButtonItem title="New input" target="#mydottingcontroller" action="insertAnalysisFromInput:"/>
-   						<popUpButtonItem title="Reveal coords…" target="#mydottingcontroller" action="revealCoords:"/>
-   						<popUpButtonItem title="Reload" target="#mydottingcontroller" action="reloadAnalysis:"/>
- 						<popUpButtonItem title="Edit…" target="#mydottingcontroller" action="editAnalysis:"/>
+   						<popUpButtonItem title="Reveal coords..." target="#mydottingcontroller" action="revealCoords:"/>
+   						<popUpButtonItem title="Replace with input..." target="#mydottingcontroller" action="insertAnalysisFromInput:"/>
+   						<popUpButtonItem title="Reload dots" target="#mydottingcontroller" action="reloadAnalysis:"/>
+ 						<popUpButtonItem title="Edit composition..." target="#mydottingcontroller" action="editAnalysis:"/>
   						<popUpButtonItem title="Reaggregate" target="#mydottingcontroller" action="reaggregate:"/>
  						<popUpButtonItem title="Switch Extractor" target="#mydottingcontroller" action="runSettings:"/>
  						<popUpButtonItem title="Toggle Voronoi" target="#mydottingcontroller" action="toggleVoronoi:"/>
@@ -81,11 +81,17 @@
 	</vbox>
   </window>
 
-  <window title="Input coordinates" id="inputwindow" x="260" y="300" width="300" height="90" visible="NO"  resizable="NO">
+  <window title="Coordinates" id="outputwindow" x="260" y="300" width="300" height="90" visible="NO"  resizable="NO">
 	<vbox>
-	<hbox><label valign="center" halign="min" width="100">Coords</label><textField id="coordsfield"/></hbox>
-	<hbox>  <button target="#mydottingcontroller" action="performInsertCoords:" title="OK"/>
-			<button target="#inputwindow" action="orderOut:" title="Cancel"/>
+	<hbox><label valign="center" halign="min" width="100">Coords</label><textField id="outcoordsfield"/></hbox>
+	<button target="#outputwindow" action="orderOut:" title="OK"/>
+	</vbox>
+  </window>
+  <window title="Upload coordinates" id="inputwindow" x="260" y="300" width="300" height="90" visible="NO"  resizable="NO">
+	<vbox>
+	<hbox><label valign="center" halign="min" width="100">Coords</label><textField id="incoordsfield"/></hbox>
+	<hbox>  <button target="#mydottingcontroller" action="performUploadCoords:" title="OK"/>
+		<button target="#outputwindow" action="orderOut:" title="Cancel"/>
 	</hbox>
 	</vbox>
   </window>
@@ -97,7 +103,9 @@
 	<outlet source="mydottingcontroller" target="trialsettingswindow" label="trialSettingsWindow"/>
 	<outlet source="mydottingcontroller" target="progress" label="progress"/>
 	<outlet source="mydottingcontroller" target="inputwindow" label="inputAnalysisWindow"/>
-	<outlet source="mydottingcontroller" target="coordsfield" label="inputAnalysisField"/>
+	<outlet source="mydottingcontroller" target="incoordsfield" label="inputAnalysisField"/>
+	<outlet source="mydottingcontroller" target="outputwindow" label="outputAnalysisWindow"/>
+	<outlet source="mydottingcontroller" target="outcoordsfield" label="outputAnalysisField"/>
 </connectors>
 
 

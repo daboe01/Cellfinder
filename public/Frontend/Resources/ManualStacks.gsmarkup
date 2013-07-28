@@ -10,10 +10,12 @@
 			<scrollView hasHorizontalScroller="NO">
 				<tableView zebra="yes" valueBinding="#CPOwner.stacksController" target="#mystackscontroller">
 					<tableColumn identifier="name" editable="YES" title="name"/>
+					<tableColumn identifier="id" title="id"/>
 	  			</tableView>
 			</scrollView>
 			<ButtonBar plusButtonAction="newStack:" minusButtonAction="deleteStack:" actionsButton="YES" target="#mystackscontroller">
   				<popUpButtonItem title="Settings…" target="#mystackscontroller" action="runSettings:"/>
+  				<popUpButtonItem title="Swap" target="#mystackscontroller" action="runSwap:"/>
 				<popUpButtonItem title="Flickering…" target="#mystackscontroller" action="runFlicker:"/>
  				<popUpButtonItem title="Flatten…" target="#mystackscontroller" action="flattenStack:"/>
  				<popUpButtonItem title="GIF" target="#mystackscontroller" action="downloadGIF:"/>

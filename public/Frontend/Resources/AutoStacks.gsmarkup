@@ -20,6 +20,7 @@
   				<popUpButtonItem title="RANSAC trial-" target="#mystackscontroller" action="runRansac2:"/>
 				<popUpButtonItem title="Flickering…" target="#mystackscontroller" action="runFlicker:"/>
 				<popUpButtonItem title="Crossvalidation…" target="#mystackscontroller" action="runCrossvalidation:"/>
+  				<popUpButtonItem title="Swap" target="#mystackscontroller" action="runSwap:"/>
 				<popUpButtonItem title="Flatten" target="#mystackscontroller" action="flattenStack:"/>
 				<popUpButtonItem title="FlickerGIF" target="#mystackscontroller" action="downloadGIF2:"/>
 			</ButtonBar>

@@ -1,5 +1,6 @@
 #!/usr/local/ActivePerl-5.14/site/bin/morbo
 
+
 use lib qw {/srv/www/Cellfinder2/ /HHB/bin/Cellfinder/ /Users/boehringer/src/daboe01_Cellfinder/Cellfinder/ /Users/daboe01/src/daboe01_Cellfinder/Cellfinder /Users/boehringer/src/privatePerl /Users/daboe01/src/privatePerl};
 use Mojolicious::Lite;
 use Mojolicious::Plugin::Database;
@@ -7,6 +8,7 @@ use cellfinder_image;
 use SQL::Abstract;
 use Data::Dumper;
 use Mojo::UserAgent;
+use POSIX;
 
 plugin 'database', { 
 			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
@@ -32,7 +34,7 @@ get '/DBI/:table'=> sub
 	while(my $c=$sth->fetchrow_hashref())
 	{	push @a,$c;
 	}
-	$self->render_json( \@a );
+	$self->render( json=> \@a );
 };
 
 # fetch entities by (foreign) key
@@ -51,7 +53,7 @@ get '/DBI/:table/:col/:pk' => [col=>qr/.+/, pk=>qr/.+/] => sub
 	while(my $c=$sth->fetchrow_hashref())
 	{	push @a,$c;
 	}
-	$self-> render_json( \@a );
+	$self-> render( json => \@a );
 };
 
 # update
@@ -68,7 +70,7 @@ put '/DBI/:table/:pk/:key'=> [key=>qr/\d+/] => sub
 	my $sth = $self->db->prepare($stmt);
 	$sth->execute(@bind);
 	app->log->debug("err: ".$DBI::errstr ) if $DBI::errstr;
-	$self->render_json( {err=> $DBI::errstr} );
+	$self->render( json=> {err=> $DBI::errstr} );
 };
 
 # insert
@@ -85,7 +87,7 @@ app->log->debug($self->req->body);
 	$sth->execute(@bind);
 	app->log->debug("err: ".$DBI::errstr ) if $DBI::errstr;
 	my $valpk= $self->db->last_insert_id(undef, undef, $table, $pk);
-	$self->render_json( {err=> $DBI::errstr, pk => $valpk} );
+	$self->render( json=>{err=> $DBI::errstr, pk => $valpk} );
 };
 
 # delete
@@ -100,7 +102,7 @@ del '/DBI/:table/:pk/:key'=> [key=>qr/\d+/] => sub
 	my $sth = $self->db->prepare($stmt);
 	$sth->execute(@bind);
 	app->log->debug("err: ".$DBI::errstr ) if $DBI::errstr;
-	$self->render_json( {err=> $DBI::errstr} );
+	$self->render( json=>{err=> $DBI::errstr} );
 };
 
 #<!> experimental
@@ -162,12 +164,12 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
 
 	if(ref $p eq 'Image::Magick')
 	{	if($spc eq 'geom')	# geom-query
-		{	$self->render_text(join ' ', $p->Get('width', 'height') );
+		{	$self->render(text => join ' ', $p->Get('width', 'height') );
 		} elsif(length $spc)
-		{	$self->render_text($p->Get($spc) );
+		{	$self->render(text=> $p->Get($spc) );
 		}
 		else
-		{	$self->render_data(($p->ImageToBlob(magick=>'jpg'))[0], format =>'jpg' );
+		{	$self->render(data => ($p->ImageToBlob(magick=>'jpg'))[0], format =>'jpg' );
 		}
 	} elsif($p)
 	{	if(ref $p eq 'ARRAY')
@@ -178,7 +180,7 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
 				$self->render(json=>$p, format =>'json' );
 			}
 		} else
-		{	$self->render_text($p);
+		{	$self->render(text => $p);
 		}
 	}
 };
@@ -187,7 +189,7 @@ get '/IMG/make_tags'=> sub
 	my $sql='INSERT INTO tags (idimage, idtag)  (select images.id as idimage, tag_repository.id as idtag from images join tag_repository on images.idtrial=tag_repository.idtrial left join tags on idimage=images.id and tags.idtag=tag_repository.id where tags.id is null)';
 	my $sth = $self->db->prepare($sql);
 	$sth->execute();
-	$self->render_text('OK');
+	$self->render(text=>'OK');
 };
 get '/IMG/reaggregate_all/:idtrial'=> [idtrial =>qr/\d+/] => sub
 {	my $self=shift;
@@ -210,8 +212,34 @@ get '/IMG/reaggregate_all/:idtrial'=> [idtrial =>qr/\d+/] => sub
 		$p= cellfinder_image::imageForComposition($self->db, $trial->{composition_for_aggregation},$f,$p, 1, $idanalysis);
 	}
 	$dbh->{AutoCommit}=1;
-	$self->render_text('OK');
+	$self->render(text => 'OK');
 };
+get '/IMG/input_results/:idto/:results'=> [idto =>qr/\d+/,results =>qr/.+/] => sub
+{	my $self=shift;
+	my $results		= $self->param("results");
+	my $idanalysis  = $self->param("idto");
+	my $dbh=$self->db;
+
+	$dbh->{AutoCommit}=0;
+	my $sql = 'delete from results where idanalysis = ?';
+	my $sth = $dbh->prepare($sql);
+	$sth->execute(($idanalysis));
+	my $sql = 'insert into results (idanalysis, row, col, tag) values (?, ?, ?, ?)';
+	my $sth = $dbh->prepare($sql);
+	my @result_arr=split/\s+/o, $results;
+	my ($x,$y);
+	while(($x,$y)= splice @result_arr,0,2)
+	{	my $tag;
+		$tag=$1 if $y=~s/\(([0-9]+)\)//ogs;
+		($x,$y)=(floor ($x), floor ($y));
+		$sth->execute(($idanalysis, $x, $y, $tag));
+	}
+	$dbh->commit;
+	$dbh->{AutoCommit}=1;
+	
+	$self->render(text=> 'OK');
+};
+
 get '/IMG/copy_results/:idfrom/:idto'=> [idfrom =>qr/\d+/,idto =>qr/\d+/] => sub
 {	my $self=shift;
 	my $idfrom= $self->param("idfrom");
@@ -220,7 +248,7 @@ get '/IMG/copy_results/:idfrom/:idto'=> [idfrom =>qr/\d+/,idto =>qr/\d+/] => sub
 	my $sql=qq{insert into results (row,col,tag,idanalysis) (select row,col,tag, ? as idanalysis from results where idanalysis=?)};
 	my $sth = $dbh->prepare( $sql );
 	$sth->execute(($idto,$idfrom));
-	$self->render_text('OK');
+	$self->render(text =>'OK');
 };
 get '/ANA/results/:idanalysis'=> [idanalysis =>qr/\d+/] => sub
 {	my $self=shift;
@@ -234,7 +262,7 @@ get '/ANA/results/:idanalysis'=> [idanalysis =>qr/\d+/] => sub
 	{	$result.=join("\t", (@$curr));
 		$result.="\n";
 	}
-	$self->render_text($result);
+	$self->render(text=> $result);
 };
 get '/ANA/aggregations/:idtrial'=> [idtrial =>qr/\d+/] => sub
 {	my $self=shift;
@@ -254,7 +282,7 @@ get '/ANA/aggregations/:idtrial'=> [idtrial =>qr/\d+/] => sub
 	{	$result.=join("\t", (@$curr));
 		$result.="\n";
 	}
-	$self->render_text($result);
+	$self->render(text=>$result);
 	
 };
 get '/ANA/:table/:idtrial'=> [table=>qr/[^"]+/, idtrial =>qr/\d+/] => sub
@@ -272,7 +300,7 @@ get '/ANA/:table/:idtrial'=> [table=>qr/[^"]+/, idtrial =>qr/\d+/] => sub
 	{	$result.=join("\t", (@$curr));
 		$result.="\n";
 	}
-	$self->render_text($result);
+	$self->render(text=> $result);
 	
 };
 
@@ -302,14 +330,14 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 			my $sth =  $self->db->prepare($stmt);
 			$sth->execute(@bind);
 		}
-		$self->render_text($idstack);
+		$self->render(text => $idstack);
 	} elsif($spc eq 'gif')
 	{	my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, 0, undef, undef, undef, undef, $idstack, $idcomposition);
 		my $p= $f->(0);
 		$_->Set(delay=>15) for @$p;		# <!> fixme: make configurable
 		my $tempfilename=cellfinder_image::tempFileName('/tmp/cellf');
 		$p->Write($tempfilename.'.gif');
-		$self->render_data(cellfinder_image::readFile($tempfilename.'.gif'), format=>'gif');
+		$self->render(data=>cellfinder_image::readFile($tempfilename.'.gif'), format=>'gif');
 	}
 };
 
@@ -323,7 +351,7 @@ get '/IMG/import/:idtrial/:name/:uri'=> [name=>qr/.+/, uri=>qr/.+/] => sub
 	my $suffix='.jpg';	# sensible default
 	$suffix=$1 if $uri =~/^.+\.(.+)$/o;
 	my $idimage= cellfinder_image::uploadImageFromData($self->db, $idtrial, $name, $suffix, $data);
-	$self->render_text($idimage);
+	$self->render(text=>$idimage);
 };
 
 post '/IMG/import_stack/:idtrial/:name'=> [name=>qr/.+/] => sub
@@ -352,7 +380,7 @@ post '/IMG/import_stack/:idtrial/:name'=> [name=>qr/.+/] => sub
 		$idref=$idanalysis unless $idref;
 		cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $id, idanalysis=> $idanalysis, idanalysis_reference=>$idref, idmontage=> $idmontage} );
 	}
-	$self->render_data('OK', format =>'txt' );
+	$self->render(data=>'OK', format =>'txt' );
 };
 post '/IMG/makestack/:idtrial/:name'=> [name=>qr/.+/] => sub
 {	sub getLastAnalysisForImage{
@@ -378,7 +406,7 @@ post '/IMG/makestack/:idtrial/:name'=> [name=>qr/.+/] => sub
 		cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $id, idanalysis=> $idanalysis, idanalysis_reference=>$idref, idmontage=> $idmontage} );
 		$idref=$idanalysis unless $idref;
 	}
-	$self->render_data('OK', format =>'txt' );
+	$self->render(data=>'OK', format =>'txt' );
 };
 
 post '/IMG/analyze/:idtrial/:name'=> [name=>qr/.+/] => sub
@@ -397,7 +425,7 @@ post '/IMG/analyze/:idtrial/:name'=> [name=>qr/.+/] => sub
 	my $idanalysis=cellfinder_image::insertObjectIntoTable($self->db, 'analyses', 'id', $d );
 	my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage);
 	cellfinder_image::imageForComposition($self->db, $d->{idcomposition_for_analysis}, $f, $f->(0), 0, $idanalysis);
-	$self->render_data('OK', format =>'txt' );
+	$self->render(data=>'OK', format =>'txt' );
 };
 
 
