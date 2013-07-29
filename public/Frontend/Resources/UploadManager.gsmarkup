@@ -3,17 +3,27 @@
 <gsmarkup>
 
 <objects>
-  <window title="Import" id="mywindow">
-	<hbox>
-	<label id="statusdisplay"/>
-	<uploadButton id="mybutton" url="/IMG/import/:idtrial/:name"/>
-	</hbox>
+  <window id="mywindow" x="10" y="30" width="500"  height="400">
+   <vbox>
+	 <hbox><label valign="center" halign="min" width="90">Upload composition</label><popUpButton width="200" itemsBinding="#CPOwner.appController.uploadfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.appController.trialsController.selection.composition_for_upload"/>
+     </hbox>
+	 <hbox>
+		<button title="Add" target="#CPOwner.myCuploader" action="addFiles:"/>
+		<progresIndicator id="my_progress" style="Bar" valueBinding="#CPOwner.myCuploader.progress.percentComplete"/>
+	 </hbox>
+	<scrollView hasHorizontalScroller="NO">
+	    <tableView id="my_tv" valueBinding="#CPOwner.queueController">
+		 <tableColumn identifier="name" title="name"/>
+		 <tableColumn identifier="size" title="size"/>
+		 <tableColumn identifier="percentComplete" title="progress"/>
+	  </tableView>
+	</scrollView>
+   </vbox>
   </window>
 </objects>
 
 <connectors>
-	<outlet source="#CPOwner" target="mybutton" label="uploadButton"/>
-	<outlet source="#CPOwner" target="statusdisplay" label="statusDisplay"/>
+	<outlet source="#CPOwner" target="my_tv" label="tableView"/>
 	<outlet source="#CPOwner" target="mywindow" label="uploadWindow"/>
 </connectors>
 

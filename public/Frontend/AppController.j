@@ -8,7 +8,7 @@
 
 /////////////////////////////////////////////////////////
 
-HostURL="http://auginfo:3000"
+HostURL="http://localhost:3000"
 BaseURL= HostURL+"/IMG/";
 
 PhotoDragType="PhotoDragType";
@@ -20,6 +20,7 @@ PhotoDragType="PhotoDragType";
 @import "DottingControllers.j"
 @import "AdminController.j"
 @import "ImageBrowser.j"
+@import "UploadManager.j"
 
 
 /////////////////////////////////////////////////////////
@@ -144,8 +145,8 @@ PhotoDragType="PhotoDragType";
 }
 
 
--(void) docsCalImport:sender
-{	[DocsCalImporter sharedDocsCalImporter];
+-(void) uploadImage: sender
+{	[UploadManager sharedUploadManager];
 }
 
 -(void) runImageBrowser:sender

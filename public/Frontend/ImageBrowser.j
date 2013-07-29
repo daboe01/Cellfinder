@@ -87,11 +87,6 @@ alert([[selectedItems objectAtIndex: 0] representedObject]);
 {	[[[CPApp keyWindow] delegate] delete:sender];
 }
 
-
--(void) docsCalImport:sender
-{	[DocsCalImporter sharedDocsCalImporter];
-}
-
 @end
 
 @implementation GSMarkupTagImageBrowser:GSMarkupTagObject

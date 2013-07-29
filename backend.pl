@@ -9,6 +9,10 @@ use SQL::Abstract;
 use Data::Dumper;
 use Mojo::UserAgent;
 use POSIX;
+use Try::Tiny;
+
+# enable receiving uploads up to 1GB
+$ENV{MOJO_MAX_MESSAGE_SIZE} = 1_073_741_824;
 
 plugin 'database', { 
 			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
@@ -29,7 +33,7 @@ get '/DBI/:table'=> sub
     my($stmt, @bind) = $sql->select($table);
     my $sth = $self->db->prepare($stmt);
     $sth->execute(@bind);
-
+warn "Hello";
 	my @a;
 	while(my $c=$sth->fetchrow_hashref())
 	{	push @a,$c;
@@ -224,8 +228,8 @@ get '/IMG/input_results/:idto/:results'=> [idto =>qr/\d+/,results =>qr/.+/] => s
 	my $sql = 'delete from results where idanalysis = ?';
 	my $sth = $dbh->prepare($sql);
 	$sth->execute(($idanalysis));
-	my $sql = 'insert into results (idanalysis, row, col, tag) values (?, ?, ?, ?)';
-	my $sth = $dbh->prepare($sql);
+	   $sql = 'insert into results (idanalysis, row, col, tag) values (?, ?, ?, ?)';
+	   $sth = $dbh->prepare($sql);
 	my @result_arr=split/\s+/o, $results;
 	my ($x,$y);
 	while(($x,$y)= splice @result_arr,0,2)
@@ -237,11 +241,7 @@ get '/IMG/input_results/:idto/:results'=> [idto =>qr/\d+/,results =>qr/.+/] => s
 	$dbh->commit;
 	$dbh->{AutoCommit}=1;
 	
-<<<<<<< HEAD
 	$self->render(text=> 'OK');
-=======
-	$self->render_text('OK');
->>>>>>> d0919409dea6862d79c00df7e3fa2be887eb4768
 };
 
 get '/IMG/copy_results/:idfrom/:idto'=> [idfrom =>qr/\d+/,idto =>qr/\d+/] => sub
@@ -413,7 +413,7 @@ post '/IMG/makestack/:idtrial/:name'=> [name=>qr/.+/] => sub
 	$self->render(data=>'OK', format =>'txt' );
 };
 
-post '/IMG/analyze/:idtrial/:name'=> [name=>qr/.+/] => sub
+post '/IMG/analyze/:idtrial/:name'=> [idtrial=>qr/[0-9]+/, name=>qr/.+/] => sub
 {	my $self=shift;
 	my $idtrial=	$self->param("idtrial");
 	my $name=		$self->param("name");
@@ -431,6 +431,24 @@ post '/IMG/analyze/:idtrial/:name'=> [name=>qr/.+/] => sub
 	cellfinder_image::imageForComposition($self->db, $d->{idcomposition_for_analysis}, $f, $f->(0), 0, $idanalysis);
 	$self->render(data=>'OK', format =>'txt' );
 };
+
+
+# POST /upload (push one or more files to app)
+post '/upload/:idtrial' => [idtrial=>qr/[0-9]+/] => sub {
+    my $self    = shift;
+	my $idtrial=	$self->param("idtrial");
+    my @uploads = $self->req->upload('files[]');
+    for my $curr_upload (@uploads) {
+		my $upload  = Mojo::Upload->new($curr_upload);
+		my $bytes = $upload->slurp;
+		my ($filename, $suffix)=$upload->filename =~/^(.+)\.([^\.]+)$/;
+		cellfinder_image::uploadImageFromData($self->db, $idtrial, $filename, $suffix, $bytes);
+
+    }
+    $self->render( json => \@uploads );
+};
+
+
 
 
 app->config(hypnotoad => {listen => ['http://*:3000'], workers => 10, heartbeat_timeout=>600, inactivity_timeout=> 600});

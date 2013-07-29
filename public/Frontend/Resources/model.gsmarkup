@@ -39,7 +39,6 @@
 
   <menu type="main">
 	<menu title="Images">
-		<menuItem title="Import from DocsCal" action="docsCalImport:"/>
 		<menuItem title="Upload File" action="uploadImage:"/>
 		<menuItem title="ImageBrowser" action="runImageBrowser:"/>
 	</menu>

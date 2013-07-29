@@ -1,70 +1,38 @@
-@import <AppKit/AppKit.j>
+@import <Foundation/CPObject.j>
+@import <AppKit/CPAlert.j>
+@import <AppKit/CPUserDefaultsController.j>
 @import <Renaissance/Renaissance.j>
-@import "FileUpload.j"
+
+@import <Cup/Cup.j>
+@import <Cup/CupByteCountTransformer.j>
 
 var _sharedUploadManager;
 
 
 @implementation UploadManager : CPObject
-{	id	uploadWindow;
-	id	uploadButton;
-	id	statusDisplay;
-
+{	id					queueController @accessors;
+	id					myCuploader @accessors;
+	id					tableView;
+	id					uploadWindow;
+	var					appController @accessors;
 }
 
 + sharedUploadManager
 {	if(!_sharedUploadManager)
 	{	_sharedUploadManager=[self new];
 	}
+	_sharedUploadManager.appController= [CPApp delegate];
+	var idtrial= [_sharedUploadManager.appController.trialsController valueForKeyPath:"selection.id"]
+
+	_sharedUploadManager.myCuploader=[[Cup alloc] initWithURL: HostURL+"/upload/"+ idtrial];
+	_sharedUploadManager.queueController=[_sharedUploadManager.myCuploader queueController]
 	[CPBundle loadRessourceNamed: "UploadManager.gsmarkup" owner: _sharedUploadManager];
-	[uploadButton setURL: BaseURL];
-	[uploadWindow makeKeyAndOrderFront:self];
+	[_sharedUploadManager.myCuploader setDropTarget: _sharedUploadManager.tableView];
+	[_sharedUploadManager.myCuploader setRemoveCompletedFiles: YES];
+	[_sharedUploadManager.myCuploader setAutoUpload: YES];
+
+	[_sharedUploadManager.uploadWindow makeKeyAndOrderFront:self];
+	return _sharedUploadManager;
 }
 
--(void) uploadButton:(UploadButton)button didChangeSelection:(CPArray)selection
-{
-    [statusDisplay setStringValue:"Selection has been made: " + selection];
-
-    [button submit];
-}
-
--(void) uploadButton:(UploadButton)button didFailWithError:(CPString)anError
-{
-    [statusDisplay setStringValue: anError];
-}
-
--(void) uploadButton:(UploadButton)button didFinishUploadWithData:(CPString)response
-{
-    [statusDisplay setStringValue: response];
-    [button resetSelection];
-	[self performSelector:@selector(reload:) withObject:self afterDelay: 2000];
-}
-
--(void) uploadButtonDidBeginUpload:(UploadButton)button
-{
-    [statusDisplay setStringValue:"Upload: " + [button selection]];
-}
-
-@end
-
-@implementation GSMarkupUploadButton : GSMarkupTagButton
-+ (CPString) tagName
-{
-  return @"uploadButton";
-}
-
-+ (Class) platformObjectClass
-{
-  return [UploadButton class];
-}
-
-- (id) initPlatformObject: (id)platformObject
-{	platformObject = [super initPlatformObject: platformObject];
-
-	[platformObject allowsMultipleFiles:  [self boolValueForAttribute: @"allowsMultipleFiles"]==1 ];
-	[platformObject setURL:  [self stringValueForAttribute: @"URL"] ];
-    [platformObject setBordered:YES];
-
-	return platformObject;
-}
 @end
