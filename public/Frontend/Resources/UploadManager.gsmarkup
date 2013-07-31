@@ -3,7 +3,7 @@
 <gsmarkup>
 
 <objects>
-  <window id="mywindow" x="10" y="30" width="500"  height="400">
+  <window title="Upload: drag files into the table" id="mywindow" x="10" y="30" width="500"  height="400">
    <vbox>
 	 <hbox>
 		<label valign="center" halign="min" width="90">Upload composition</label><popUpButton width="90" itemsBinding="#CPOwner.appController.uploadfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.appController.trialsController.selection.composition_for_upload"/>

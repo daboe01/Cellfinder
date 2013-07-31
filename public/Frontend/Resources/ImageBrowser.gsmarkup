@@ -12,6 +12,7 @@
 					<tableColumn identifier="folder_name" title="name"/>
 	  			</tableView>
 			</scrollView>
+			<ButtonBar target="#myimagebrowser" plusButtonAction="uploadImage:" minusButtonAction="deleteImagesOfSelectedFolder:"/>
 		</vbox>
 		<vbox>
 			<scrollView hasHorizontalScroller="NO" hasVerticalScroller="YES">
@@ -21,7 +22,6 @@
 				<slider continuous="NO" min="0" max="1"  valueBinding="myimagebrowser.scale" halign="right"/><hspace/>
 				<popUpButton width="100" id="compoPopup" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" target="#CPOwner" valueBinding="myimagebrowser.viewingCompo"/>
 			</hbox>
-			<ButtonBar target="#myimagebrowser" minusButtonAction="deleteImage:"/>
 		</vbox>
 	 </splitView>
   </window>

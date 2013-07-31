@@ -2,6 +2,7 @@
  *
  */
 @import "StacksController.j";
+@import "UploadManager.j"
 
 
 @implementation FSObject(Archiving)
@@ -42,11 +43,21 @@ var _sharedImageBrowser;
 }
 
 
--(void) deleteImage: sender
+-(void) deleteImagesOfSelectedFolder: sender
 {	var selectedItems=[[myCollectionView items] objectsAtIndexes: [myCollectionView selectionIndexes] ]
+	var folder_name=[[[selectedItems objectAtIndex: 0] representedObject] valueForKey:"folder_name"];
+	var idtrial= [[CPApp delegate].trialsController valueForKeyPath:"selection.id"]
+	var myurl=BaseURL+"delete_images_in_folder/"+idtrial+"/"+ folder_name;
+	var myreq=[CPURLRequest requestWithURL: myurl];
+	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
 
-alert([[selectedItems objectAtIndex: 0] representedObject]);
-//	[myAppController.folderContentController removeObject: [[selectedItems objectAtIndex: 0] representedObject]];
+	[[folderController selectedObject] willChangeValueForKey:"folder_content"];
+	[folderController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
+	[[folderController selectedObject] didChangeValueForKey:"folder_content"];
+}
+
+-(void) uploadImage: sender
+{	[UploadManager sharedUploadManager];
 }
 
 - (CPArray)collectionView:(CPCollectionView)aCollectionView dragTypesForItemsAtIndexes:(CPIndexSet)indices

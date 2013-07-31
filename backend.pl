@@ -254,6 +254,24 @@ get '/IMG/copy_results/:idfrom/:idto'=> [idfrom =>qr/\d+/,idto =>qr/\d+/] => sub
 	$sth->execute(($idto,$idfrom));
 	$self->render(text =>'OK');
 };
+
+get '/IMG/delete_images_in_folder/:idtrial/:folder_name'=> [idtrial =>qr/\d+/, folder_name =>qr/.+/] => sub
+{	my $self=shift;
+	my $idtrial = $self->param("idtrial");
+	my $folder_name = $self->param("folder_name");
+	my $linkname= $idtrial.$folder_name;
+	my $dbh=$self->db;
+	my $sql=qq{select idimage from  folder_content where linkname=?)};
+	my $sth = $dbh->prepare( $sql );
+	$sth->execute(($linkname));
+	while(my $curr=$sth->fetchrow_arrayref())
+	{	my $idimage=$curr->[0];
+		cellfinder_image::deleteImage($dbh, $idimage);
+	}
+
+	$self->render(text =>'OK');
+};
+
 get '/ANA/results/:idanalysis'=> [idanalysis =>qr/\d+/] => sub
 {	my $self=shift;
 	my $idanalysis= $self->param("idanalysis");
