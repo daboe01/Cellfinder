@@ -44,8 +44,9 @@ var _sharedImageBrowser;
 
 -(void) deleteImage: sender
 {	var selectedItems=[[myCollectionView items] objectsAtIndexes: [myCollectionView selectionIndexes] ]
+
 alert([[selectedItems objectAtIndex: 0] representedObject]);
-	[myAppController.folderContentController removeObject: [[selectedItems objectAtIndex: 0] representedObject]];
+//	[myAppController.folderContentController removeObject: [[selectedItems objectAtIndex: 0] representedObject]];
 }
 
 - (CPArray)collectionView:(CPCollectionView)aCollectionView dragTypesForItemsAtIndexes:(CPIndexSet)indices

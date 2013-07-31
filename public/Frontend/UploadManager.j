@@ -14,6 +14,7 @@ var _sharedUploadManager;
 	id					myCuploader @accessors;
 	id					tableView;
 	id					uploadWindow;
+	id					prefixField;
 	var					appController @accessors;
 }
 
@@ -30,9 +31,22 @@ var _sharedUploadManager;
 	[_sharedUploadManager.myCuploader setDropTarget: _sharedUploadManager.tableView];
 	[_sharedUploadManager.myCuploader setRemoveCompletedFiles: YES];
 	[_sharedUploadManager.myCuploader setAutoUpload: YES];
-
+	[_sharedUploadManager.myCuploader setDelegate: _sharedUploadManager];
 	[_sharedUploadManager.uploadWindow makeKeyAndOrderFront:self];
 	return _sharedUploadManager;
+}
+
+- (void)cup:(Cup)aCup uploadDidCompleteForFile:(CupFile)aFile
+{
+	[[appController.trialsController selectedObject] willChangeValueForKey:"folders"];
+	 [appController.trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
+	 [appController.folderController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
+	[[appController.trialsController selectedObject] didChangeValueForKey:"folders"];
+
+	[[appController.folderContentController selectedObject] willChangeValueForKey:"images"];
+	 [appController.folderContentController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
+	[[appController.folderContentController selectedObject] didChangeValueForKey:"images"];
+
 }
 
 @end

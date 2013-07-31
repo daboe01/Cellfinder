@@ -5,12 +5,11 @@
 <objects>
   <window id="mywindow" x="10" y="30" width="500"  height="400">
    <vbox>
-	 <hbox><label valign="center" halign="min" width="90">Upload composition</label><popUpButton width="200" itemsBinding="#CPOwner.appController.uploadfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.appController.trialsController.selection.composition_for_upload"/>
-     </hbox>
 	 <hbox>
-		<button title="Add" target="#CPOwner.myCuploader" action="addFiles:"/>
-		<progresIndicator id="my_progress" style="Bar" valueBinding="#CPOwner.myCuploader.progress.percentComplete"/>
-	 </hbox>
+		<label valign="center" halign="min" width="90">Upload composition</label><popUpButton width="90" itemsBinding="#CPOwner.appController.uploadfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.appController.trialsController.selection.composition_for_upload"/>
+		<label valign="center" halign="min" width="30">Prefix</label>
+		<textField id="myprefix"/>
+     </hbox>
 	<scrollView hasHorizontalScroller="NO">
 	    <tableView id="my_tv" valueBinding="#CPOwner.queueController">
 		 <tableColumn identifier="name" title="name"/>
@@ -18,6 +17,10 @@
 		 <tableColumn identifier="percentComplete" title="progress"/>
 	  </tableView>
 	</scrollView>
+	 <hbox>
+		<button title="Add" target="#CPOwner.myCuploader" action="addFiles:"/>
+		<progresIndicator id="my_progress" style="Bar" valueBinding="#CPOwner.myCuploader.progress.percentComplete"/>
+	 </hbox>
    </vbox>
   </window>
 </objects>
@@ -25,6 +28,7 @@
 <connectors>
 	<outlet source="#CPOwner" target="my_tv" label="tableView"/>
 	<outlet source="#CPOwner" target="mywindow" label="uploadWindow"/>
+	<outlet source="#CPOwner" target="myprefix" label="prefixField"/>
 </connectors>
 
 </gsmarkup>
