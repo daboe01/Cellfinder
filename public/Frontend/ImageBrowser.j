@@ -51,9 +51,10 @@ var _sharedImageBrowser;
 	var myreq=[CPURLRequest requestWithURL: myurl];
 	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
 
-	[[folderController selectedObject] willChangeValueForKey:"folder_content"];
-	[folderController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
-	[[folderController selectedObject] didChangeValueForKey:"folder_content"];
+	var trialsController=[CPApp delegate].trialsController;
+	[[trialsController selectedObject] willChangeValueForKey:"folders"];
+	[trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
+	[[trialsController selectedObject] didChangeValueForKey:"folders"];
 }
 
 -(void) uploadImage: sender
@@ -76,9 +77,10 @@ var _sharedImageBrowser;
 
 //<!> fixme: call this only, if import will result in new folder
 //<!> fixme: select the folder into which was imported by this drop
-
+	var trialsController=[CPApp delegate].trialsController;
+	var folderController=[CPApp delegate].folderController;
 	[[trialsController selectedObject] willChangeValueForKey:"folders"];
-	//[trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
+	[trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 	[[trialsController selectedObject] didChangeValueForKey:"folders"];
 
 	[[folderController selectedObject] willChangeValueForKey:"folder_content"];

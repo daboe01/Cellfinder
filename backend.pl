@@ -261,7 +261,7 @@ get '/IMG/delete_images_in_folder/:idtrial/:folder_name'=> [idtrial =>qr/\d+/, f
 	my $folder_name = $self->param("folder_name");
 	my $linkname= $idtrial.$folder_name;
 	my $dbh=$self->db;
-	my $sql=qq{select idimage from  folder_content where linkname=?)};
+	my $sql=qq{select idimage from  folder_content where linkname=?};
 	my $sth = $dbh->prepare( $sql );
 	$sth->execute(($linkname));
 	while(my $curr=$sth->fetchrow_arrayref())
@@ -447,6 +447,28 @@ post '/IMG/analyze/:idtrial/:name'=> [idtrial=>qr/[0-9]+/, name=>qr/.+/] => sub
 	my $idanalysis=cellfinder_image::insertObjectIntoTable($self->db, 'analyses', 'id', $d );
 	my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage);
 	cellfinder_image::imageForComposition($self->db, $d->{idcomposition_for_analysis}, $f, $f->(0), 0, $idanalysis);
+	$self->render(data=>'OK', format =>'txt' );
+};
+
+post '/IMG/analyze_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, folder_name =>qr/.+/] => sub
+{	my $self=shift;
+	my $idtrial=	$self->param("idtrial");
+	my $folder_name = $self->param("folder_name");
+	my $linkname= $idtrial.$folder_name;
+	my $dbh=$self->db;
+
+	my $trial = cellfinder_image::getObjectFromDBHandID($dbh, 'trials', $idtrial);
+
+	my $sql=qq{select idimage from  folder_content where linkname=?};
+	my $sth = $dbh->prepare( $sql );
+	$sth->execute(($linkname));
+	while(my $curr=$sth->fetchrow_arrayref())
+	{	my $idimage=$curr->[0];
+		my $d={idimage=>$idimage, idcomposition_for_editing=> $trial->{composition_for_editing}, idcomposition_for_analysis=> $trial->{composition_for_celldetection} };
+		my $idanalysis=cellfinder_image::insertObjectIntoTable($self->db, 'analyses', 'id', $d );
+		my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage);
+		cellfinder_image::imageForComposition($self->db, $d->{idcomposition_for_analysis}, $f, $f->(0), 0, $idanalysis);
+	}
 	$self->render(data=>'OK', format =>'txt' );
 };
 
