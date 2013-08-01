@@ -39,9 +39,7 @@ PhotoDragType="PhotoDragType";
 	return [[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil]  rawString];
 
 }
--(CPImage) _cellfinderGeom
-{	return [self _cellfinderSpc: "geom" forID: [self valueForKey:"id"] ];
-}
+
 @end
 
 @implementation FSObject(Archiving)

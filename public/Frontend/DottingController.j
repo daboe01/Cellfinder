@@ -18,8 +18,13 @@
 	if(mycompoID && mycompoID !== CPNullMarker) myURL+="&cmp="+mycompoID;
 	var mycontroller= [[CPApp delegate] mainController];	// this is hack to get hold of the UI context from within the database context
 	var scale= mycontroller._scale;
-	if(mycontroller._originalSizeArray[myidimage]) myURL+="&width="+ Math.floor(mycontroller._originalSizeArray[myidimage].width *scale*
-																				mycontroller._originalSizeArray[myidimage].height*scale);
+	var origSize=mycontroller._originalSizeArray[myidimage];
+	if(!origSize)
+	{	var geom=[self _cellfinderSpc: "geom" forID: myidimage];
+		var arr= geom.split(' ');
+		origSize= mycontroller._originalSizeArray[myidimage]= CPMakeSize(arr[0],arr[1]);
+	}
+	myURL+="&width="+ Math.floor(origSize.width *scale* origSize.height*scale);
 	var img=[[IdStoringImage alloc] initWithContentsOfFile: myURL];
 	img.myidimage= myidimage;
 	[img setDelegate: mycontroller];
