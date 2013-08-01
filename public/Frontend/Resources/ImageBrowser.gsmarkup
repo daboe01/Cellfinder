@@ -12,7 +12,9 @@
 					<tableColumn identifier="folder_name" title="name"/>
 	  			</tableView>
 			</scrollView>
-			<ButtonBar target="#myimagebrowser" plusButtonAction="uploadImage:" minusButtonAction="deleteImagesOfSelectedFolder:"/>
+			<ButtonBar target="#myimagebrowser" plusButtonAction="uploadImage:" minusButtonAction="deleteImagesOfSelectedFolder:" actionsButton="YES">
+				<popUpButtonItem title="Add default analyses" action="addDefaultAnalyses:"/>
+			</ButtonBar>
 		</vbox>
 		<vbox>
 			<scrollView hasHorizontalScroller="NO" hasVerticalScroller="YES">

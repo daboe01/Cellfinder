@@ -61,6 +61,14 @@ var _sharedImageBrowser;
 {	[UploadManager sharedUploadManager];
 }
 
+-(void) addDefaultAnalyses: sender
+{	var folder_name=[[[selectedItems objectAtIndex: 0] representedObject] valueForKey:"folder_name"];
+	var idtrial= [[CPApp delegate].trialsController valueForKeyPath:"selection.id"]
+	var myurl=BaseURL+"analyze_folder/"+idtrial+"/"+ folder_name;
+	var myreq=[CPURLRequest requestWithURL: myurl];
+	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
+}
+
 - (CPArray)collectionView:(CPCollectionView)aCollectionView dragTypesForItemsAtIndexes:(CPIndexSet)indices
 {
 	return [PhotoDragType];
@@ -80,11 +88,11 @@ var _sharedImageBrowser;
 	var trialsController=[CPApp delegate].trialsController;
 	var folderController=[CPApp delegate].folderController;
 	[[trialsController selectedObject] willChangeValueForKey:"folders"];
-	[trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
+	 [trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 	[[trialsController selectedObject] didChangeValueForKey:"folders"];
 
 	[[folderController selectedObject] willChangeValueForKey:"folder_content"];
-	[folderController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
+	 [folderController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 	[[folderController selectedObject] didChangeValueForKey:"folder_content"];
 }
 
