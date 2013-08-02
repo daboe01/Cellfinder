@@ -42,7 +42,7 @@ ENDOFR
 	my $R= Statistics::R->new();
 ;
 	my $out=$R->run($RCmd);
-	$out=$1 if $out=~/\n\[1\]\s+"(.+)"/os;
+	$out=$1 if $out=~/\[1\]\s+"(.+)"/os;
 	$out=~s/\\"/"/ogs;
 	return  $out;
 }
@@ -62,7 +62,7 @@ ENDOFR
 ;
 	$R->run($RCmd);
 	my $out=$R->run($RCmd);
-	$out=$1 if $out=~/\n\[1\]\s+"(.+)"/os;
+	$out=$1 if $out=~/\[1\]\s+"(.+)"/os;
 	$out=~s/\\"/"/ogs;
 	return  $out;
 	}
@@ -85,7 +85,7 @@ ENDOFR
 ;
 warn $RCmd;
 	my $out=$R->run($RCmd);
-	$out=$1 if $out=~/\n\[1\]\s+"(.+)"/os;
+	$out=$1 if $out=~/\[1\]\s+"(.+)"$/os;
 	$out=~s/\\"/"/ogs;
 	return $out? JSON::XS->new->utf8->decode($out):undef;
 }
@@ -104,10 +104,9 @@ ENDOFR
 	my $R= Statistics::R->new();
 ;
 	my $out=$R->run($RCmd);
-	$out=$1 if $out=~/\n\[1\]\s+"(.+)"/os;
+	$out=$1 if $out=~/\[1\]\s+"(.+)"/os;
 	$out=~s/\\"/"/ogs;
-#	my $out=$R->get('out');
-warn $out;
+	warn "out: ".$out;
 	return (length $out)? JSON::XS->new->utf8->decode($out):undef;
 }
 
@@ -200,8 +199,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 			$idimage=0;	# dont write to cache
 		}
 		if($curr_patch->{patch_type} == 1)	# let do imagemagick do the magick
-		{	next unless $R;
-ef $p eq 'Image::Magick';
+		{	next unless ref $p eq 'Image::Magick';
 			$curr_patch->{params}=~s/"_anonymous_"=>//ogsi;
 			if($curr_patch->{patch} eq 'Perl')
 			{	$curr_patch->{params}=~s/"//ogs;
@@ -301,8 +299,7 @@ ef $p eq 'Image::Magick';
 			}
 		}
 		elsif($curr_patch->{patch_type} == 2 )				# call external programm
-		{	next unless $R;
-ef $p eq 'Image::Magick';
+		{	next unless ref $p eq 'Image::Magick';
 			my $filename=tempFileName('/tmp/cellf');
 			$p->Write($filename.'.jpg');
 
