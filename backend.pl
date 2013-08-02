@@ -485,12 +485,13 @@ warn $idimage;
 post '/upload/:idtrial' => [idtrial=>qr/[0-9]+/] => sub {
     my $self    = shift;
 	my $idtrial=	$self->param("idtrial");
+	my $prefix=		$self->param("prefix") || '';
     my @uploads = $self->req->upload('files[]');
     for my $curr_upload (@uploads) {
 		my $upload  = Mojo::Upload->new($curr_upload);
 		my $bytes = $upload->slurp;
 		my ($filename, $suffix)=$upload->filename =~/^(.+)\.([^\.]+)$/;
-		cellfinder_image::uploadImageFromData($self->db, $idtrial, $filename, $suffix, $bytes);
+		cellfinder_image::uploadImageFromData($self->db, $idtrial, $prefix.$filename, $suffix, $bytes);
 
     }
     $self->render( json => \@uploads );

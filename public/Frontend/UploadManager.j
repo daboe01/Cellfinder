@@ -35,6 +35,10 @@ var _sharedUploadManager;
 	[_sharedUploadManager.uploadWindow makeKeyAndOrderFront:self];
 	return _sharedUploadManager;
 }
+- (void) changePrefix: sender
+{	var idtrial= [appController.trialsController valueForKeyPath:"selection.id"]
+	[myCuploader setURL: HostURL+"/upload/"+ idtrial+"?prefix="+[sender stringValue]];
+}
 
 - (void)cup:(Cup)aCup uploadDidCompleteForFile:(CupFile)aFile
 {
