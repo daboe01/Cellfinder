@@ -173,7 +173,8 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
 		{	$self->render(text=> $p->Get($spc) );
 		}
 		else
-		{	$self->render(data => ($p->ImageToBlob(magick=>'jpg'))[0], format =>'jpg' );
+		{
+			$self->render(data => ($p->ImageToBlob(magick=>'jpg'))[0], format =>'jpg' );
 		}
 	} elsif($p)
 	{	if(ref $p eq 'ARRAY')
@@ -450,7 +451,8 @@ post '/IMG/analyze/:idtrial/:name'=> [idtrial=>qr/[0-9]+/, name=>qr/.+/] => sub
 	$self->render(data=>'OK', format =>'txt' );
 };
 
-post '/IMG/analyze_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, folder_name =>qr/.+/] => sub
+# <!> fixme: support "replace" option+ supply id of analysis
+get '/IMG/analyze_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, folder_name =>qr/.+/] => sub
 {	my $self=shift;
 	my $idtrial=	$self->param("idtrial");
 	my $folder_name = $self->param("folder_name");
@@ -464,7 +466,13 @@ post '/IMG/analyze_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, folder_
 	$sth->execute(($linkname));
 	while(my $curr=$sth->fetchrow_arrayref())
 	{	my $idimage=$curr->[0];
+warn $idimage;
 		my $d={idimage=>$idimage, idcomposition_for_editing=> $trial->{composition_for_editing}, idcomposition_for_analysis=> $trial->{composition_for_celldetection} };
+		my $sqldel = SQL::Abstract->new;
+		my($stmt, @bind) = $sqldel->delete('analyses', $d);
+		my $sthdel = $self->db->prepare($stmt);
+		$sthdel->execute(@bind);
+
 		my $idanalysis=cellfinder_image::insertObjectIntoTable($self->db, 'analyses', 'id', $d );
 		my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage);
 		cellfinder_image::imageForComposition($self->db, $d->{idcomposition_for_analysis}, $f, $f->(0), 0, $idanalysis);

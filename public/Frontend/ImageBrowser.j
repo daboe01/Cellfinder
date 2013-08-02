@@ -53,7 +53,7 @@ var _sharedImageBrowser;
 
 	var trialsController=[CPApp delegate].trialsController;
 	[[trialsController selectedObject] willChangeValueForKey:"folders"];
-	[trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
+	 [trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 	[[trialsController selectedObject] didChangeValueForKey:"folders"];
 }
 
@@ -62,11 +62,12 @@ var _sharedImageBrowser;
 }
 
 -(void) addDefaultAnalyses: sender
-{	var folder_name=[[[selectedItems objectAtIndex: 0] representedObject] valueForKey:"folder_name"];
+{	var selectedItems=[[myCollectionView items] objectsAtIndexes: [myCollectionView selectionIndexes] ]
+	var folder_name=[[[selectedItems objectAtIndex: 0] representedObject] valueForKey:"folder_name"];
 	var idtrial= [[CPApp delegate].trialsController valueForKeyPath:"selection.id"]
 	var myurl=BaseURL+"analyze_folder/"+idtrial+"/"+ folder_name;
 	var myreq=[CPURLRequest requestWithURL: myurl];
-	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
+	[CPURLConnection connectionWithRequest: myreq delegate: self];	//<!> fixme implement feedback spinner
 }
 
 - (CPArray)collectionView:(CPCollectionView)aCollectionView dragTypesForItemsAtIndexes:(CPIndexSet)indices

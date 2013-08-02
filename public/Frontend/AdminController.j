@@ -27,6 +27,15 @@
 {	var myreq=[CPURLRequest requestWithURL: BaseURL+"make_tags" ];
 	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
 }
+-(void) newTrial: sender
+{	[[CPApp delegate].trialsController insert: self]
+//<!> fixme
+}
+-(void) removeTrial: sender
+{
+//<!> fixme
+//	[[CPApp delegate].trialsController delete: self]
+}
 
 @end
 

@@ -8,7 +8,7 @@
 
 /////////////////////////////////////////////////////////
 
-HostURL="http://localhost:3000"
+HostURL="http://auginfo:3000"
 BaseURL= HostURL+"/IMG/";
 
 PhotoDragType="PhotoDragType";
@@ -86,7 +86,7 @@ PhotoDragType="PhotoDragType";
 	id  guiClassesArrayController;
 
 	id	_sharedConfigController;
-	id	_sharedImageBrowser;
+	id	_sharedImageBrowser @accessors(property=sharedImageBrowser);
 
 	id mainController @accessors;
 }

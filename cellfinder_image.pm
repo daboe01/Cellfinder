@@ -35,18 +35,22 @@ sub runSimpleRegistrationRCode { my ($id1,$id2)=@_;
 	pre.post=data.frame(cbind(row.x=d1$row, col.x=d1$col, row.y=d0$row, col.y=d0$col))
 	l= lm(cbind(row.y,col.y) ~ row.x + col.x, data= pre.post)
 	out=paste( round(c(t(coef(l)))[c(3:6,1:2)], digits=4), collapse=",")
+	out
 ENDOFR
 ;	$RCmd=~s/<id1>/$id1/ogs;
 	$RCmd=~s/<id2>/$id2/ogs;
 	my $R= Statistics::R->new();
 ;
-	$R->run($RCmd);
-	return  $R->get('out');
+	my $out=$R->run($RCmd);
+	$out=$1 if $out=~/\n\[1\]\s+"(.+)"/os;
+	$out=~s/\\"/"/ogs;
+	return  $out;
 }
 sub runRANSACRegistrationRCode { my ($id1,$id2, $thresh, $identityradius, $iterations)=@_;
 	my $RCmd=<<'ENDOFR'
 	source('/HHB/bin/ransac4.R')
 	out=register.pointsets.out(<id1>, <id2>, <thresh>, <identityradius>, <iterations>, do.rotate=F)
+	out
 ENDOFR
 ;	$RCmd=~s/<id1>/$id1/ogs;
 	$RCmd=~s/<id2>/$id2/ogs;
@@ -57,8 +61,11 @@ ENDOFR
 	my $R= Statistics::R->new();
 ;
 	$R->run($RCmd);
-	return  $R->get('out');
-}
+	my $out=$R->run($RCmd);
+	$out=$1 if $out=~/\n\[1\]\s+"(.+)"/os;
+	$out=~s/\\"/"/ogs;
+	return  $out;
+	}
 sub runRJSONCode { my ($id,$code)=@_;
 	my $RCmd=<<'ENDOFR'
 	library(rjson)
@@ -77,13 +84,9 @@ ENDOFR
 	my $R= Statistics::R->new();
 ;
 warn $RCmd;
-	$R->run($RCmd);
-# my $out=$R->run($RCmd);
-# $out=$1 if $out=~/\n\[1\]\s+"(.+)"/os;
-# $out=~s/\\"/"/ogs;
-
-	my $out=$R->get('out');
-
+	my $out=$R->run($RCmd);
+	$out=$1 if $out=~/\n\[1\]\s+"(.+)"/os;
+	$out=~s/\\"/"/ogs;
 	return $out? JSON::XS->new->utf8->decode($out):undef;
 }
 
@@ -94,14 +97,17 @@ sub runEBImageRCode { my ($infile,$code)=@_;
 	e=readImage("<infile>")
 	out=""
 	<code>
+	out
 ENDOFR
 ;	$RCmd=~s/<code>/$code/ogs;
 	$RCmd=~s/<infile>/$infile/ogs;
 	my $R= Statistics::R->new();
 ;
-	$R->run($RCmd);
-	my $out=$R->get('out');
-
+	my $out=$R->run($RCmd);
+	$out=$1 if $out=~/\n\[1\]\s+"(.+)"/os;
+	$out=~s/\\"/"/ogs;
+#	my $out=$R->get('out');
+warn $out;
 	return (length $out)? JSON::XS->new->utf8->decode($out):undef;
 }
 
@@ -235,8 +241,7 @@ ef $p eq 'Image::Magick';
 				warn "error: $@ $p" if($@);
 			} elsif ($curr_patch->{patch_type} == 3)	# R/EBImage
 			{
-				next unless $R;
-ef $old_p eq 'Image::Magick';
+				next unless ref $old_p eq 'Image::Magick';
 				my $filename=tempFileName('/tmp/cellf');
 				$old_p->Write($filename.'.jpg');
 				chmod 0777, $filename.'.jpg';   
@@ -348,7 +353,7 @@ sub getObjectFromDBHandID{
 	my $dbh  = shift;
 	my $table = shift;
 	my $id = shift;
-
+	return undef if $id eq 'null';
 	my $sth = $dbh->prepare( qq/select * from "/.$table.qq/" where id=?/);
 	$sth->execute(($id));
 	return $sth->fetchrow_hashref();
