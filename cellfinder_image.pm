@@ -18,8 +18,9 @@ use Statistics::R;
 use SQL::Abstract;
 use POSIX;
 
-use constant server_root=>'/Library/WebServer/Documents/cellfinder';
-#use constant server_root=>'/srv/www/htdocs/cellfinder';
+
+#use constant server_root=>'/Library/WebServer/Documents/cellfinder';
+use constant server_root=>'/srv/www/htdocs/cellfinder';
 
 #<!> fixme hardcoded URL
 # is directly called from the backend
@@ -37,7 +38,8 @@ sub runSimpleRegistrationRCode { my ($id1,$id2)=@_;
 ENDOFR
 ;	$RCmd=~s/<id1>/$id1/ogs;
 	$RCmd=~s/<id2>/$id2/ogs;
-	state $R= Statistics::R->new();
+	my $R= Statistics::R->new();
+;
 	$R->run($RCmd);
 	return  $R->get('out');
 }
@@ -52,7 +54,8 @@ ENDOFR
 	$RCmd=~s/<identityradius>/$identityradius/ogs;
 	$RCmd=~s/<iterations>/$iterations/ogs;
 
-	state $R= Statistics::R->new();
+	my $R= Statistics::R->new();
+;
 	$R->run($RCmd);
 	return  $R->get('out');
 }
@@ -60,19 +63,27 @@ sub runRJSONCode { my ($id,$code)=@_;
 	my $RCmd=<<'ENDOFR'
 	library(rjson)
 	read.pointset=function(id){
-		d1=read.delim(paste("http://localhost:3000/ANA/results/", id, sep=""))
+		d1=read.delim(paste("http://localhost/cellfinder_results/0?mode=results&constraint=idanalysis=", id, sep=""))
+	#	d1=read.delim(paste("http://localhost:3000/ANA/results/", id, sep=""))
 		return (d1)
 	}
 	d0= subset(read.pointset(<id>), select=c(row,col,tag))
 	out=""
 	<code>
+	out
 ENDOFR
 ;	$RCmd=~s/<id>/$id/ogs;
 	$RCmd=~s/<code>/$code/ogs;
-	state $R= Statistics::R->new();
-	#warn $RCmd;
+	my $R= Statistics::R->new();
+;
+warn $RCmd;
 	$R->run($RCmd);
+# my $out=$R->run($RCmd);
+# $out=$1 if $out=~/\n\[1\]\s+"(.+)"/os;
+# $out=~s/\\"/"/ogs;
+
 	my $out=$R->get('out');
+
 	return $out? JSON::XS->new->utf8->decode($out):undef;
 }
 
@@ -86,7 +97,8 @@ sub runEBImageRCode { my ($infile,$code)=@_;
 ENDOFR
 ;	$RCmd=~s/<code>/$code/ogs;
 	$RCmd=~s/<infile>/$infile/ogs;
-	state $R= Statistics::R->new();
+	my $R= Statistics::R->new();
+;
 	$R->run($RCmd);
 	my $out=$R->get('out');
 
@@ -182,7 +194,8 @@ sub imageForDBHAndRenderchainIDAndImage{
 			$idimage=0;	# dont write to cache
 		}
 		if($curr_patch->{patch_type} == 1)	# let do imagemagick do the magick
-		{	next unless ref $p eq 'Image::Magick';
+		{	next unless $R;
+ef $p eq 'Image::Magick';
 			$curr_patch->{params}=~s/"_anonymous_"=>//ogsi;
 			if($curr_patch->{patch} eq 'Perl')
 			{	$curr_patch->{params}=~s/"//ogs;
@@ -222,7 +235,8 @@ sub imageForDBHAndRenderchainIDAndImage{
 				warn "error: $@ $p" if($@);
 			} elsif ($curr_patch->{patch_type} == 3)	# R/EBImage
 			{
-				next unless ref $old_p eq 'Image::Magick';
+				next unless $R;
+ef $old_p eq 'Image::Magick';
 				my $filename=tempFileName('/tmp/cellf');
 				$old_p->Write($filename.'.jpg');
 				chmod 0777, $filename.'.jpg';   
@@ -282,7 +296,8 @@ sub imageForDBHAndRenderchainIDAndImage{
 			}
 		}
 		elsif($curr_patch->{patch_type} == 2 )				# call external programm
-		{	next unless ref $p eq 'Image::Magick';
+		{	next unless $R;
+ef $p eq 'Image::Magick';
 			my $filename=tempFileName('/tmp/cellf');
 			$p->Write($filename.'.jpg');
 
