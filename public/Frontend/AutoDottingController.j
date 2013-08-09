@@ -117,6 +117,13 @@
 	window.open("http://auginfo:3000/Frontend/index.html?id="+idtrial+"&t=AutoStacks.gsmarkup",'autostacks');
 }
 
+-(void) matchDotsAll: sender	//<!> fixme GUI feedback usw.
+{	var idtrial=[myAppController.trialsController valueForKeyPath:"selection.id"];
+	var myreq=[CPURLRequest requestWithURL: BaseURL+"automatch_folder/"+idtrial+"/"+[myAppController.folderController valueForKeyPath:"selection.folder_name"] +"?thresh=900&identityradius=9&iterations=25&aiterations=1&cfunc=evaluate.agreement4"]; // <!> fixme: put these params into trial config
+	[CPURLConnection connectionWithRequest:myreq delegate: self];
+}
+
+
 -(void) toggleVoronoi:sender
 {	[annotatedImageView setStyleFlags: [annotatedImageView styleFlags] ^ AIVStyleVoronoi ];
 	[annotatedImageView setNeedsDisplay:YES];

@@ -33,7 +33,7 @@ get '/DBI/:table'=> sub
     my($stmt, @bind) = $sql->select($table);
     my $sth = $self->db->prepare($stmt);
     $sth->execute(@bind);
-warn "Hello";
+
 	my @a;
 	while(my $c=$sth->fetchrow_hashref())
 	{	push @a,$c;
@@ -134,7 +134,7 @@ get '/DBI/:table/:col/like/:pk' => [pk=>qr/.+/] => sub
 };
 
 ###################################################################
-# imaging part
+# cellfinder specific part
 
 get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
 {	my $self=shift;
@@ -336,6 +336,8 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 	my $thresh=			$self->param("thresh");
 	my $identityradius= $self->param("identityradius");
 	my $iterations=		$self->param("iterations");
+	my $aiterations=	$self->param("aiterations");
+	my $cfunc=			$self->param("cfunc");
 	my $idcomposition=	$self->param('cmp');
 
 	if($spc eq 'affine')
@@ -346,7 +348,7 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 
 		while ( my $curr = $sth->fetchrow_hashref() )
 		{	next unless $curr->{idanalysis_reference};
-			my $par= $ransac?	cellfinder_image::runRANSACRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis}, $thresh, $identityradius, $iterations):
+			my $par= $ransac?	cellfinder_image::runRANSACRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis}, $thresh, $identityradius, $iterations, $aiterations, $cfunc):
 								cellfinder_image::runSimpleRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis});
 			my $sql=SQL::Abstract->new();
 			my($stmt, @bind) = $sql->update('montage_images', {parameter=> $par}, {id=>$curr->{id} } );
@@ -405,17 +407,16 @@ post '/IMG/import_stack/:idtrial/:name'=> [name=>qr/.+/] => sub
 	}
 	$self->render(data=>'OK', format =>'txt' );
 };
+helper getLastAnaOfImageID => sub { my ($self, $idimage)=@_;
+	my $query=qq/select max(id) from analyses where idimage=?/;
+	my $sth = $self->db->prepare($query);
+	$sth->execute(($idimage));
+	my $a=$sth->fetchall_arrayref();
+	return $a->[0]->[0] if $a;
+	return undef;
+};
 post '/IMG/makestack/:idtrial/:name'=> [name=>qr/.+/] => sub
-{	sub getLastAnalysisForImage{
-		my $dbh  = shift;
-		my $id = shift;
-		
-		my $sth = $dbh->prepare( qq/select max(id) from analyses where idimage=?/);
-		$sth->execute(($id));
-		return $sth->fetchall_arrayref()->[0]->[0];
-}
-	
-	my $self=shift;
+{	my $self=shift;
 	my $name= $self->param("name");
 	my $idtrial= $self->param("idtrial");
 	my $json_decoder= Mojo::JSON->new;
@@ -425,7 +426,7 @@ post '/IMG/makestack/:idtrial/:name'=> [name=>qr/.+/] => sub
 	my $idmontage=cellfinder_image::insertObjectIntoTable($self->db, 'montages', 'id', {idtrial=> $idtrial, name=> $name} );
 	my $idref;
 	foreach my $id (@image_ids)
-	{	my $idanalysis=getLastAnalysisForImage($self->db,  $id );
+	{	my $idanalysis=getLastAnaOfImageID( $id );
 		cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $id, idanalysis=> $idanalysis, idanalysis_reference=>$idref, idmontage=> $idmontage} );
 		$idref=$idanalysis unless $idref;
 	}
@@ -461,12 +462,11 @@ get '/IMG/analyze_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, folder_n
 
 	my $trial = cellfinder_image::getObjectFromDBHandID($dbh, 'trials', $idtrial);
 
-	my $sql=qq{select idimage from  folder_content where linkname=?};
+	my $sql=qq{select idimage, name from  folder_content where linkname=? order by 2};
 	my $sth = $dbh->prepare( $sql );
 	$sth->execute(($linkname));
 	while(my $curr=$sth->fetchrow_arrayref())
 	{	my $idimage=$curr->[0];
-warn $idimage;
 		my $d={idimage=>$idimage, idcomposition_for_editing=> $trial->{composition_for_editing}, idcomposition_for_analysis=> $trial->{composition_for_celldetection} };
 		my $sqldel = SQL::Abstract->new;
 		my($stmt, @bind) = $sqldel->delete('analyses', $d);
@@ -479,6 +479,49 @@ warn $idimage;
 	}
 	$self->render(data=>'OK', format =>'txt' );
 };
+
+
+get '/IMG/automatch_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, folder_name =>qr/.+/] => sub
+{	my $self=shift;
+	my $idtrial=		$self->param("idtrial");
+	my $folder_name =	$self->param("folder_name");
+	my $thresh=			$self->param("thresh");
+	my $identityradius= $self->param("identityradius");
+	my $iterations=		$self->param("iterations");
+	my $aiterations=	$self->param("aiterations");
+	my $cfunc=			$self->param("cfunc");
+
+	my $linkname= $idtrial.$folder_name;
+	my $dbh=$self->db;
+
+	my $sql=qq{select idimage, name from  folder_content where linkname=? order by 2};
+	my $sth = $dbh->prepare( $sql );
+	$sth->execute(($linkname));
+	my ($idimage1, $idimage2, $next_idimage);
+	while( my $curr=$sth->fetchrow_arrayref() )
+	{	$next_idimage=$curr->[0];
+		$idimage1=$next_idimage unless $idimage1;
+		my ($idana1, $idana2)=($self->getLastAnaOfImageID($idimage1), $self->getLastAnaOfImageID($next_idimage));
+		if(!$idana1)
+		{	$idimage1=undef;
+			next;
+		}
+		next unless $idana2;
+		$idimage2=$next_idimage;
+		if($idana1 && $idana2 &&  $idana1 != $idana2)
+		{	my $par=cellfinder_image::runRANSACRegistrationRCode($idana1, $idana2, $thresh, $identityradius, $iterations, $aiterations, $cfunc);
+			if($par)
+			{	my $name="$idana1 $idana2";
+				my $idmontage=cellfinder_image::insertObjectIntoTable($self->db, 'montages', 'id', {idtrial=> $idtrial, name=> $name} );
+				cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $idimage1, idanalysis=> $idana1, idanalysis_reference=>undef,   idmontage=> $idmontage} );
+				cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $idimage2, idanalysis=> $idana2, idanalysis_reference=>$idana1, idmontage=> $idmontage, parameter=> $par} );
+			}
+		}
+		($idimage1, $idimage2)=($idimage2, $next_idimage);
+	}
+	$self->render(data=>'OK', format =>'txt' );
+};
+
 
 
 # POST /upload (push one or more files to app)

@@ -14,7 +14,7 @@ var _sharedUploadManager;
 	id					myCuploader @accessors;
 	id					tableView;
 	id					uploadWindow;
-	id					prefixField;
+	var					uploadPrefix @accessors;
 	var					appController @accessors;
 }
 
@@ -35,9 +35,10 @@ var _sharedUploadManager;
 	[_sharedUploadManager.uploadWindow makeKeyAndOrderFront:self];
 	return _sharedUploadManager;
 }
-- (void) changePrefix: sender
-{	var idtrial= [appController.trialsController valueForKeyPath:"selection.id"]
-	[myCuploader setURL: HostURL+"/upload/"+ idtrial+"?prefix="+[sender stringValue]];
+- (void) setUploadPrefix: somePrefix
+{	var idtrial= [appController.trialsController valueForKeyPath:"selection.id"];
+	uploadPrefix=somePrefix;
+	[myCuploader setURL: HostURL+"/upload/"+ idtrial+"?prefix="+somePrefix];
 }
 
 - (void)cup:(Cup)aCup uploadDidCompleteForFile:(CupFile)aFile

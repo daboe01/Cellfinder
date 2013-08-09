@@ -22,6 +22,16 @@ use POSIX;
 #use constant server_root=>'/Library/WebServer/Documents/cellfinder';
 use constant server_root=>'/srv/www/htdocs/cellfinder';
 
+sub runRCode { my ($RCmd)=@_;
+	my $R= Statistics::R->new(shared=>1);
+	$R->startR;
+	$R->send($RCmd);
+	my $out=$R->get('out');
+	$R->stopR;
+	return  $out;
+}
+
+
 #<!> fixme hardcoded URL
 # is directly called from the backend
 sub runSimpleRegistrationRCode { my ($id1,$id2)=@_;
@@ -35,37 +45,30 @@ sub runSimpleRegistrationRCode { my ($id1,$id2)=@_;
 	pre.post=data.frame(cbind(row.x=d1$row, col.x=d1$col, row.y=d0$row, col.y=d0$col))
 	l= lm(cbind(row.y,col.y) ~ row.x + col.x, data= pre.post)
 	out=paste( round(c(t(coef(l)))[c(3:6,1:2)], digits=4), collapse=",")
-	out
 ENDOFR
 ;	$RCmd=~s/<id1>/$id1/ogs;
 	$RCmd=~s/<id2>/$id2/ogs;
-	my $R= Statistics::R->new();
-;
-	my $out=$R->run($RCmd);
-	$out=$1 if $out=~/\[1\]\s+"(.+)"/os;
-	$out=~s/\\"/"/ogs;
-	return  $out;
+	return  runRCode($RCmd);
 }
-sub runRANSACRegistrationRCode { my ($id1,$id2, $thresh, $identityradius, $iterations)=@_;
+sub runRANSACRegistrationRCode { my ($id1,$id2, $thresh, $identityradius, $iterations, $aiterations, $cfunc)=@_;
 	my $RCmd=<<'ENDOFR'
 	source('/HHB/bin/ransac4.R')
-	out=register.pointsets.out(<id1>, <id2>, <thresh>, <identityradius>, <iterations>, do.rotate=F)
-	out
+	out=register.pointsets.out(<id1>, <id2>, <thresh>, <identityradius>, <iterations>, do.rotate=F <extrapars>)
 ENDOFR
-;	$RCmd=~s/<id1>/$id1/ogs;
+;
+	my $extrapars;
+	$extrapars.=", evaluate.agreement.FUN=$cfunc" if($cfunc);
+	$extrapars.=", anova.iterations=$aiterations" if($aiterations);
+
+	$RCmd=~s/<id1>/$id1/ogs;
 	$RCmd=~s/<id2>/$id2/ogs;
 	$RCmd=~s/<thresh>/$thresh/ogs;
 	$RCmd=~s/<identityradius>/$identityradius/ogs;
 	$RCmd=~s/<iterations>/$iterations/ogs;
-
-	my $R= Statistics::R->new();
-;
-	$R->run($RCmd);
-	my $out=$R->run($RCmd);
-	$out=$1 if $out=~/\[1\]\s+"(.+)"/os;
-	$out=~s/\\"/"/ogs;
-	return  $out;
-	}
+	$RCmd=~s/<extrapars>/$extrapars/ogs;
+	warn $RCmd;
+	return runRCode($RCmd);
+}
 sub runRJSONCode { my ($id,$code)=@_;
 	my $RCmd=<<'ENDOFR'
 	library(rjson)
@@ -77,16 +80,10 @@ sub runRJSONCode { my ($id,$code)=@_;
 	d0= subset(read.pointset(<id>), select=c(row,col,tag))
 	out=""
 	<code>
-	out
 ENDOFR
 ;	$RCmd=~s/<id>/$id/ogs;
 	$RCmd=~s/<code>/$code/ogs;
-	my $R= Statistics::R->new();
-;
-warn $RCmd;
-	my $out=$R->run($RCmd);
-	$out=$1 if $out=~/\[1\]\s+"(.+)"$/os;
-	$out=~s/\\"/"/ogs;
+	my $out=runRCode($RCmd);
 	return $out? JSON::XS->new->utf8->decode($out):undef;
 }
 
@@ -97,16 +94,10 @@ sub runEBImageRCode { my ($infile,$code)=@_;
 	e=readImage("<infile>")
 	out=""
 	<code>
-	out
 ENDOFR
 ;	$RCmd=~s/<code>/$code/ogs;
 	$RCmd=~s/<infile>/$infile/ogs;
-	my $R= Statistics::R->new();
-;
-	my $out=$R->run($RCmd);
-	$out=$1 if $out=~/\[1\]\s+"(.+)"/os;
-	$out=~s/\\"/"/ogs;
-	warn "out: ".$out;
+	my $out=runRCode($RCmd);
 	return (length $out)? JSON::XS->new->utf8->decode($out):undef;
 }
 

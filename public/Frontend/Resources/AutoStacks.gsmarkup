@@ -16,8 +16,9 @@
 			<ButtonBar plusButtonAction="newStack:" minusButtonAction="deleteStack:" actionsButton="YES" target="#mystackscontroller">
   				<popUpButtonItem title="Settings…" target="#mystackscontroller" action="runSettings:"/>
   				<popUpButtonItem title="RANSAC trial" target="#mystackscontroller" action="runRansac:"/>
-  				<popUpButtonItem title="RANSAC trial+" target="#mystackscontroller" action="runRansac3:"/>
-  				<popUpButtonItem title="RANSAC trial-" target="#mystackscontroller" action="runRansac2:"/>
+  				<popUpButtonItem title="RANSAC trial tolerant" target="#mystackscontroller" action="runRansac3:"/>
+  				<popUpButtonItem title="RANSAC trial stiff" target="#mystackscontroller" action="runRansac4:"/>
+  				<popUpButtonItem title="RANSAC trial strict" target="#mystackscontroller" action="runRansac2:"/>
 				<popUpButtonItem title="Flickering…" target="#mystackscontroller" action="runFlicker:"/>
 				<popUpButtonItem title="Crossvalidation…" target="#mystackscontroller" action="runCrossvalidation:"/>
   				<popUpButtonItem title="Swap" target="#mystackscontroller" action="runSwap:"/>

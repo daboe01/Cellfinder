@@ -8,7 +8,7 @@
 	 <hbox>
 		<label valign="center" halign="min" width="90">Upload composition</label><popUpButton width="90" itemsBinding="#CPOwner.appController.uploadfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.appController.trialsController.selection.composition_for_upload"/>
 		<label valign="center" halign="min" width="30">Prefix</label>
-		<textField id="myprefix" target="#CPOwner" action="changePrefix:"/>
+		<textField valueBinding="#CPOwner.uploadPrefix"/>
      </hbox>
 	<scrollView hasHorizontalScroller="NO">
 	    <tableView id="my_tv" valueBinding="#CPOwner.queueController">
@@ -28,7 +28,6 @@
 <connectors>
 	<outlet source="#CPOwner" target="my_tv" label="tableView"/>
 	<outlet source="#CPOwner" target="mywindow" label="uploadWindow"/>
-	<outlet source="#CPOwner" target="myprefix" label="prefixField"/>
 </connectors>
 
 </gsmarkup>
