@@ -19,8 +19,8 @@ use SQL::Abstract;
 use POSIX;
 
 
-#use constant server_root=>'/Library/WebServer/Documents/cellfinder';
-use constant server_root=>'/srv/www/htdocs/cellfinder';
+use constant server_root=>'/Library/WebServer/Documents/cellfinder';
+#use constant server_root=>'/srv/www/htdocs/cellfinder';
 
 sub runRCode { my ($RCmd)=@_;
 	my $R= Statistics::R->new(shared=>1);
@@ -412,6 +412,24 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $csize
 		return $p;
 	}
 }
+
+sub multplyAffineMatrixes { my ($m1, $m2)=@_;
+	use Math::Matrix;
+
+	my @ac=split /,/, $m1;
+	my $ma = new Math::Matrix (	[$ac[0], $ac[1],0],
+								[$ac[2], $ac[3],0],
+								[$ac[4], $ac[5],1]);
+	my @bc=split /,/, $m2;
+	my $mb = new Math::Matrix (	[$bc[0], $bc[1],0],
+								[$bc[2], $bc[3],0],
+								[$bc[4], $bc[5],1]);
+	my $mc= $ma->multiply($mb);
+	return join ',', ($mc->[0]->[0], $mc->[0]->[1],$mc->[1]->[0],$mc->[1]->[1], $mc->[2]->[0],$mc->[2]->[1]) ;
+}
+
+
+
 sub createImageFromUpload { my ($dbh, $idtrial, $local_filename, $filedataname, $replace_idimage, $timestamp)=@_;
 	sub getFilename{ my ($idtrial, $local_filename)=@_;
 		my ($filename, $suffix)=$local_filename =~/^([^\.]+)\.(.+)$/;

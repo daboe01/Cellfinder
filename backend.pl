@@ -522,6 +522,31 @@ get '/IMG/automatch_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, folder
 	$self->render(data=>'OK', format =>'txt' );
 };
 
+get '/IMG/autostitch/:idtrial'=> [idtrial=>qr/[0-9]+/] => sub
+{	my $self=shift;
+	my $idtrial= $self->param("idtrial");
+	my $dbh=$self->db;
+
+	my $sql=qq{select idanalysis, idanalysis_reference,idimage,parameter from montages join montage_images on idmontage=montages.id where idtrial=? order by 1,2};
+	my $sth = $dbh->prepare( $sql );
+	$sth->execute(($idtrial));
+	my $current_matrix;
+	my $idmontage;
+	while( my $curr=$sth->fetchrow_hashref() )
+	{
+		if(!$current_matrix)
+		{	$current_matrix=$curr->{parameter};
+			$idmontage=$curr->{idmontage};
+		}
+		elsif($curr->{parameter})
+		{	$current_matrix=multplyAffineMatrixes($current_matrix, $curr->{parameter});
+			cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $id, idanalysis=> $idanalysis, idanalysis_reference=>$idref, idmontage=> $idmontage} );
+
+		}
+	}
+	$self->render(data=>'OK', format =>'txt' );
+};
+
 
 
 # POST /upload (push one or more files to app)
