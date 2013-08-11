@@ -522,28 +522,35 @@ get '/IMG/automatch_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, folder
 	$self->render(data=>'OK', format =>'txt' );
 };
 
-get '/IMG/autostitch/:idtrial'=> [idtrial=>qr/[0-9]+/] => sub
-{	my $self=shift;
-	my $idtrial= $self->param("idtrial");
-	my $dbh=$self->db;
+helper getAnalysesIDsForAnchorID => sub { my ($self, $idanalysis)=@_;
+	my $query=qq/select idanalysis, idanalysis_reference, parameter, id from montage_images where idanalysis=? or idanalysis_reference=?/;
+	my $sth = $self->db->prepare($query);
+	$sth->execute(($idanalysis, $idanalysis));
+	return $sth->fetchall_arrayref();
+};
 
-	my $sql=qq{select idanalysis, idanalysis_reference,idimage,parameter from montages join montage_images on idmontage=montages.id where idtrial=? order by 1,2};
-	my $sth = $dbh->prepare( $sql );
-	$sth->execute(($idtrial));
-	my $current_matrix;
-	my $idmontage;
-	while( my $curr=$sth->fetchrow_hashref() )
-	{
-		if(!$current_matrix)
-		{	$current_matrix=$curr->{parameter};
-			$idmontage=$curr->{idmontage};
-		}
-		elsif($curr->{parameter})
-		{	$current_matrix=multplyAffineMatrixes($current_matrix, $curr->{parameter});
-			cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $id, idanalysis=> $idanalysis, idanalysis_reference=>$idref, idmontage=> $idmontage} );
+helper interateAnalysesOfMontageIDAndMatrix => sub { my ($self, $idmontage, $current_matrix)=@_;
+	my $query=qq/select idanalysis, idanalysis_reference, parameter, id from montage_images where idmontage=?/;	# and idanalysis_reference is not null
+	my $sth = $self->db->prepare($query);
+	$sth->execute(($idmontage));
+	my $anchors= $sth->fetchall_arrayref();
 
+	foreach my $curr_anchor (@$anchors)
+	{	my $analyses_to_append=$self-> getAnalysesIDsForAnchorID($curr_anchor->[0]);
+		$current_matrix=$curr_anchor->[2];
+		foreach my $curr_append (@$analyses_to_append)
+		{	my $concrete_matrix=multplyAffineMatrixes($current_matrix, $curr_append->[2]);
+		#	cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $id, idanalysis=> $idanalysis, idanalysis_reference=>$idref, idmontage=> $idmontage} );
 		}
 	}
+};
+
+get '/IMG/autostitch/:idmontage'=> [idmontage =>qr/[0-9]+/] => sub
+{	my $self=shift;
+	my $idmontage= $self->param('idmontage');
+	my $dbh=$self->db;
+
+	$self->interateAnalysesOfMontageID($idmontage);
 	$self->render(data=>'OK', format =>'txt' );
 };
 
