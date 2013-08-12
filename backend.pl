@@ -544,12 +544,12 @@ warn $idmontage;
 				}
  warn $current_matrix;
 				cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $curr_anchor->[4], idanalysis=> $curr_anchor->[2], idmontage=> $idmontage_orig} );
-				interateAnalysesOfMontageIDAndMatrix($idmontage_orig, $current_matrix, $curr_anchor->[3] );
+				iterateAnalysesOfMontageIDAndMatrix($idmontage_orig, $current_matrix, $curr_anchor->[3] );
 			}
 		}
 	}
 
-	iterateAnalysesOfMontageID($dbh,$idmontage);
+	iterateAnalysesOfMontageIDAndMatrix($dbh,$idmontage);
 	$self->render(data=>'OK', format =>'txt' );
 };
 
