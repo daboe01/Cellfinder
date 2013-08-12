@@ -33,6 +33,13 @@
 	[progress startAnimation: self];
 }
 
+-(void) autoStitching: sender
+{	var myreq=[CPURLRequest requestWithURL: BaseURL+"autostitch/"+[myAppController.stacksController valueForKeyPath: "selection.id"]];
+alert(BaseURL+"autostitch/"+[myAppController.stacksController valueForKeyPath: "selection.id"])
+	[CPURLConnection connectionWithRequest:myreq delegate: self];
+}
+
+
 // refresh gui after finishing async stuff
 -(void) connection: someConnection didReceiveData: data
 {	var myid =  data;

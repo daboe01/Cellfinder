@@ -522,35 +522,34 @@ get '/IMG/automatch_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, folder
 	$self->render(data=>'OK', format =>'txt' );
 };
 
-helper getAnalysesIDsForAnchorID => sub { my ($self, $idanalysis)=@_;
-	my $query=qq/select idanalysis, idanalysis_reference, parameter, id from montage_images where idanalysis=? or idanalysis_reference=?/;
-	my $sth = $self->db->prepare($query);
-	$sth->execute(($idanalysis, $idanalysis));
-	return $sth->fetchall_arrayref();
-};
-
-helper interateAnalysesOfMontageIDAndMatrix => sub { my ($self, $idmontage, $current_matrix)=@_;
-	my $query=qq/select idanalysis, idanalysis_reference, parameter, id from montage_images where idmontage=?/;	# and idanalysis_reference is not null
-	my $sth = $self->db->prepare($query);
-	$sth->execute(($idmontage));
-	my $anchors= $sth->fetchall_arrayref();
-
-	foreach my $curr_anchor (@$anchors)
-	{	my $analyses_to_append=$self-> getAnalysesIDsForAnchorID($curr_anchor->[0]);
-		$current_matrix=$curr_anchor->[2];
-		foreach my $curr_append (@$analyses_to_append)
-		{	my $concrete_matrix=multplyAffineMatrixes($current_matrix, $curr_append->[2]);
-		#	cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $id, idanalysis=> $idanalysis, idanalysis_reference=>$idref, idmontage=> $idmontage} );
-		}
-	}
-};
-
 get '/IMG/autostitch/:idmontage'=> [idmontage =>qr/[0-9]+/] => sub
 {	my $self=shift;
 	my $idmontage= $self->param('idmontage');
 	my $dbh=$self->db;
 
-	$self->interateAnalysesOfMontageID($idmontage);
+warn $idmontage;
+	sub iterateAnalysesOfMontageIDAndMatrix { my ($dbh, $idmontage_orig, $current_matrix, $idmontage)=@_;
+		my $query=qq/select idanalysis, idanalysis_reference, parameter, id, idimage from montage_images where idmontage=?/;	# and idanalysis_reference is not null
+		my $sth = $dbh->prepare($query);
+		$idmontage=$idmontage_orig unless $idmontage;
+		$sth->execute(($idmontage));
+		my $anchors= $sth->fetchall_arrayref();
+	
+		foreach my $curr_anchor (@$anchors)
+		{	if( $curr_anchor->[2] )
+			{	if($current_matrix) {
+					$current_matrix =multiplyAffineMatrixes($current_matrix, $curr_anchor->[2]);
+				} else {
+					$current_matrix = $curr_anchor->[2];
+				}
+ warn $current_matrix;
+				cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $curr_anchor->[4], idanalysis=> $curr_anchor->[2], idmontage=> $idmontage_orig} );
+				interateAnalysesOfMontageIDAndMatrix($idmontage_orig, $current_matrix, $curr_anchor->[3] );
+			}
+		}
+	}
+
+	iterateAnalysesOfMontageID($dbh,$idmontage);
 	$self->render(data=>'OK', format =>'txt' );
 };
 

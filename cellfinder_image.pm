@@ -413,7 +413,7 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $csize
 	}
 }
 
-sub multplyAffineMatrixes { my ($m1, $m2)=@_;
+sub multiplyAffineMatrixes { my ($m1, $m2)=@_;
 	use Math::Matrix;
 
 	my @ac=split /,/, $m1;

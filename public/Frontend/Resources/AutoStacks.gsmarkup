@@ -24,6 +24,7 @@
   				<popUpButtonItem title="Swap" target="#mystackscontroller" action="runSwap:"/>
 				<popUpButtonItem title="Flatten" target="#mystackscontroller" action="flattenStack:"/>
 				<popUpButtonItem title="FlickerGIF" target="#mystackscontroller" action="downloadGIF2:"/>
+				<popUpButtonItem title="AutoStitching" target="#mystackscontroller" action="autoStitching:"/>
 			</ButtonBar>
 			<progresIndicator id="progress" indeterminate="YES"/>
 			</hbox>
