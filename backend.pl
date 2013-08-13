@@ -525,31 +525,36 @@ get '/IMG/automatch_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, folder
 get '/IMG/autostitch/:idmontage'=> [idmontage =>qr/[0-9]+/] => sub
 {	my $self=shift;
 	my $idmontage= $self->param('idmontage');
-	my $dbh=$self->db;
 
-warn $idmontage;
-	sub iterateAnalysesOfMontageIDAndMatrix { my ($dbh, $idmontage_orig, $current_matrix, $idmontage)=@_;
-		my $query=qq/select idanalysis, idanalysis_reference, parameter, id, idimage from montage_images where idmontage=?/;	# and idanalysis_reference is not null
+	sub iterateAnalysesOfMontageIDAndMatrix { my ($dbh, $idmontage_orig, $current_matrix, $idanalysis_orig, $idanalysis, $idmontage, $idimage)=@_;
+		my $query=qq/select idanalysis, idanalysis_reference, parameter, idmontage, idimage from montage_images where (idanalysis =? or idanalysis_reference=?) and idmontage > ?/;
 		my $sth = $dbh->prepare($query);
-		$idmontage=$idmontage_orig unless $idmontage;
-		$sth->execute(($idmontage));
+		$idmontage = $idmontage_orig  unless $idmontage;
+		$idanalysis =$idanalysis_orig unless $idanalysis;
+
+		$sth->execute(($idanalysis, $idanalysis, $idmontage));
 		my $anchors= $sth->fetchall_arrayref();
 	
 		foreach my $curr_anchor (@$anchors)
 		{	if( $curr_anchor->[2] )
 			{	if($current_matrix) {
-					$current_matrix =multiplyAffineMatrixes($current_matrix, $curr_anchor->[2]);
+					$current_matrix = cellfinder_image::multiplyAffineMatrixes($current_matrix, $curr_anchor->[2]);
 				} else {
 					$current_matrix = $curr_anchor->[2];
 				}
- warn $current_matrix;
-				cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $curr_anchor->[4], idanalysis=> $curr_anchor->[2], idmontage=> $idmontage_orig} );
-				iterateAnalysesOfMontageIDAndMatrix($idmontage_orig, $current_matrix, $curr_anchor->[3] );
+				cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $curr_anchor->[4], idanalysis=> $curr_anchor->[0], idanalysis=> $curr_anchor->[0], idmontage=> $idmontage_orig, parameter=> $current_matrix} );
+				iterateAnalysesOfMontageIDAndMatrix($dbh, $idmontage_orig, $current_matrix, $idanalysis_orig, $curr_anchor->[0], $curr_anchor->[3], $curr_anchor->[4] );
 			}
 		}
 	}
 
-	iterateAnalysesOfMontageIDAndMatrix($dbh,$idmontage);
+	my $query=qq/select idanalysis, idanalysis_reference, parameter, idmontage, idimage from montage_images where idmontage = ? and idanalysis_reference is not null/;
+	my $sth = $self->db->prepare($query);
+	$sth->execute(($idmontage));
+	my $anchor= $sth->fetchrow_hashref();
+
+	iterateAnalysesOfMontageIDAndMatrix($self->db, $idmontage, $anchor->{parameter},  $anchor->{idanalysis} );
+
 	$self->render(data=>'OK', format =>'txt' );
 };
 

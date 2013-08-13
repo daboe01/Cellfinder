@@ -35,8 +35,8 @@
 
 -(void) autoStitching: sender
 {	var myreq=[CPURLRequest requestWithURL: BaseURL+"autostitch/"+[myAppController.stacksController valueForKeyPath: "selection.id"]];
-alert(BaseURL+"autostitch/"+[myAppController.stacksController valueForKeyPath: "selection.id"])
-	[CPURLConnection connectionWithRequest:myreq delegate: self];
+// alert(BaseURL+"autostitch/"+[myAppController.stacksController valueForKeyPath: "selection.id"])
+	[CPURLConnection connectionWithRequest:myreq delegate: nil];
 }
 
 
