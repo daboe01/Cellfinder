@@ -367,10 +367,14 @@ sub getMontageForIDImageAndIDStack{ my ($dbh, $idimage, $idstack)=@_;
 	$sth->execute(@bind);
 	return $sth->fetchrow_hashref();
 }
-sub _distortImage{ my ($i, $parameter)=@_;
+sub _pointArrayRForMatrixStringAndOffset{ my ($parameter, $offsetX, $offsetY)=@_;
+	my $pointR=eval($_);
+	return $pointR;
+}
+sub _distortImage{ my ($i, $parameter, $offsetX, $offsetY)=@_;
 	my @parameters= split /\|/o, $parameter;
 	@parameters = map {	$_=~/^\[/o? $_ : "[$_]" } @parameters;
-	$i->Distort(method=>'AffineProjection', points=>eval($_), 'virtual-pixel'=> 'Background') for @parameters;  #<!>fixme replace with JSON deparser
+	$i->Distort(method=>'AffineProjection', points=> _pointArrayRForMatrixStringAndOffset($_, $offsetX, $offsetY) , 'virtual-pixel'=> 'Background') for @parameters;  #<!>fixme replace with JSON deparser
 	return $i;
 }
 
