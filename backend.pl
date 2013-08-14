@@ -426,7 +426,7 @@ post '/IMG/makestack/:idtrial/:name'=> [name=>qr/.+/] => sub
 	my $idmontage=cellfinder_image::insertObjectIntoTable($self->db, 'montages', 'id', {idtrial=> $idtrial, name=> $name} );
 	my $idref;
 	foreach my $id (@image_ids)
-	{	my $idanalysis=getLastAnaOfImageID( $id );
+	{	my $idanalysis=$self->getLastAnaOfImageID( $id );
 		cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $id, idanalysis=> $idanalysis, idanalysis_reference=>$idref, idmontage=> $idmontage} );
 		$idref=$idanalysis unless $idref;
 	}
@@ -526,11 +526,10 @@ get '/IMG/autostitch/:idmontage'=> [idmontage =>qr/[0-9]+/] => sub
 {	my $self=shift;
 	my $idmontage= $self->param('idmontage');
 
-	sub iterateAnalysesOfMontageIDAndMatrix { my ($dbh, $idmontage_orig, $current_matrix, $idanalysis_orig, $idanalysis, $idmontage, $idimage)=@_;
+	sub iterateAnalysesOfMontageIDAndMatrix { my ($dbh, $idmontage_orig, $current_matrix, $idanalysis_ref, $idanalysis, $idmontage, $idimage)=@_;
 		my $query=qq/select idanalysis, idanalysis_reference, parameter, idmontage, idimage from montage_images where (idanalysis =? or idanalysis_reference=?) and idmontage > ?/;
 		my $sth = $dbh->prepare($query);
 		$idmontage = $idmontage_orig  unless $idmontage;
-		$idanalysis =$idanalysis_orig unless $idanalysis;
 
 		$sth->execute(($idanalysis, $idanalysis, $idmontage));
 		my $anchors= $sth->fetchall_arrayref();
@@ -542,8 +541,14 @@ get '/IMG/autostitch/:idmontage'=> [idmontage =>qr/[0-9]+/] => sub
 				} else {
 					$current_matrix = $curr_anchor->[2];
 				}
-				cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $curr_anchor->[4], idanalysis=> $curr_anchor->[0], idanalysis_reference => $idanalysis_orig, idmontage=> $idmontage_orig, parameter=> $current_matrix} );
-				iterateAnalysesOfMontageIDAndMatrix($dbh, $idmontage_orig, $current_matrix, $idanalysis_orig, $curr_anchor->[0], $curr_anchor->[3], $curr_anchor->[4] );
+				my $sqla_search = SQL::Abstract->new;
+				my($stmt, @bind) = $sqla_search->select('montage_images' ,undef, {idimage=> $curr_anchor->[4], idanalysis=> $curr_anchor->[0], idanalysis_reference => $idanalysis_ref, idmontage=> $idmontage_orig} );
+				my $stha = $dbh->prepare($stmt);
+				$stha->execute(@bind);
+				if(!$stha->fetchrow_arrayref())	# do not insert duplicates
+				{	cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $curr_anchor->[4], idanalysis=> $curr_anchor->[0], idanalysis_reference => $idanalysis_ref, idmontage=> $idmontage_orig, parameter=> $current_matrix} );
+				}
+				iterateAnalysesOfMontageIDAndMatrix($dbh, $idmontage_orig, $current_matrix, $idanalysis_ref, $curr_anchor->[0], $curr_anchor->[3], $curr_anchor->[4] );
 			}
 		}
 	}
@@ -553,9 +558,9 @@ get '/IMG/autostitch/:idmontage'=> [idmontage =>qr/[0-9]+/] => sub
 	$sth->execute(($idmontage));
 	my $anchor= $sth->fetchrow_hashref();
 
-	iterateAnalysesOfMontageIDAndMatrix($self->db, $idmontage, $anchor->{parameter},  $anchor->{idanalysis} );
+	iterateAnalysesOfMontageIDAndMatrix($self->db, $idmontage, $anchor->{parameter},  $anchor->{idanalysis_reference}, $anchor->{idanalysis} );
 
-	$self->render(data=>'OK', format =>'txt' );
+	$self->render(data=>$idmontage, format =>'txt' );
 };
 
 

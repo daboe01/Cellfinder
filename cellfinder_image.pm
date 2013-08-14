@@ -19,13 +19,13 @@ use SQL::Abstract;
 use POSIX;
 
 
-use constant server_root=>'/Library/WebServer/Documents/cellfinder';
-#use constant server_root=>'/srv/www/htdocs/cellfinder';
+#use constant server_root=>'/Library/WebServer/Documents/cellfinder';
+use constant server_root=>'/srv/www/htdocs/cellfinder';
 
 sub runRCode { my ($RCmd)=@_;
 	my $R= Statistics::R->new(shared=>1);
 	$R->startR;
-	$R->send($RCmd);
+	$R->send($RCmd."\n 1");
 	my $out=$R->get('out');
 	$R->stopR;
 	return  $out;
@@ -368,18 +368,27 @@ sub getMontageForIDImageAndIDStack{ my ($dbh, $idimage, $idstack)=@_;
 	return $sth->fetchrow_hashref();
 }
 sub _pointArrayRForMatrixStringAndOffset{ my ($parameter, $offsetX, $offsetY)=@_;
-	my $pointR=eval($_);
+	my $pointR=eval($parameter);  #<!>fixme replace with JSON deparser
+ warn Dumper $pointR;
+	$pointR->[4]+=$offsetX;
+	$pointR->[5]+=$offsetY;
+ warn Dumper $pointR;
 	return $pointR;
 }
 sub _distortImage{ my ($i, $parameter, $offsetX, $offsetY)=@_;
 	my @parameters= split /\|/o, $parameter;
 	@parameters = map {	$_=~/^\[/o? $_ : "[$_]" } @parameters;
-	$i->Distort(method=>'AffineProjection', points=> _pointArrayRForMatrixStringAndOffset($_, $offsetX, $offsetY) , 'virtual-pixel'=> 'Background') for @parameters;  #<!>fixme replace with JSON deparser
+	$i->Distort(method=>'AffineProjection', points=> _pointArrayRForMatrixStringAndOffset($_, $offsetX, $offsetY) , 'virtual-pixel'=> 'Background') for @parameters;
 	return $i;
 }
 
-sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $csize, $affine, $idstack, $idcomposition)=@_;
+sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsize, $affine, $idstack, $idcomposition)=@_;
 	return sub {return undef} if(!$idimage&& !$idstack);
+	my $csize=$ocsize;
+	$csize=$1 if $ocsize=~/([0-9]+x[0-9]+)/o;
+	my ($offX,$offY);
+	($offX,$offY)=($1,$2) if $ocsize=~/([-+][0-9]+)([-+][0-9]+)/o;
+	warn "$ocsize $offX,$offY";
 	sub doReadImageFile{ my ($p, $curr_img)=@_;
 		my $filename="$curr_img->{idtrial}-$curr_img->{filename}";
 		$p = Image::Magick->new(magick=>'jpg') unless $p;
@@ -405,7 +414,8 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $csize
 				$i->Extent(geometry=>$csize, gravity=>'NorthWest', background=>'graya(0%, 0)') if $csize;
 				my $m=getMontageForIDImageAndIDStack($dbh, $id, $idstack);
 				$i= imageForComposition($dbh, $idcomposition, undef, $i, 0, $m->{idanalysis}) if($idcomposition);
-				_distortImage($i, $m->{parameter}) if($m->{parameter});
+				my $parameter=$m->{parameter} || '[1,0,0,1,0,0]';
+				_distortImage($i, $parameter, $offX,$offY);
 				push @$p,$i;
 			}
 		} else {
