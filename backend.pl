@@ -541,13 +541,7 @@ get '/IMG/autostitch/:idmontage'=> [idmontage =>qr/[0-9]+/] => sub
 				} else {
 					$current_matrix = $curr_anchor->[2];
 				}
-				my $sqla_search = SQL::Abstract->new;
-				my($stmt, @bind) = $sqla_search->select('montage_images' ,undef, {idimage=> $curr_anchor->[4], idanalysis=> $curr_anchor->[0], idanalysis_reference => $idanalysis_ref, idmontage=> $idmontage_orig} );
-				my $stha = $dbh->prepare($stmt);
-				$stha->execute(@bind);
-				if(!$stha->fetchrow_arrayref())	# do not insert duplicates
-				{	cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $curr_anchor->[4], idanalysis=> $curr_anchor->[0], idanalysis_reference => $idanalysis_ref, idmontage=> $idmontage_orig, parameter=> $current_matrix} );
-				}
+				cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $curr_anchor->[4], idanalysis=> $curr_anchor->[0], idanalysis_reference => $idanalysis_ref, idmontage=> $idmontage_orig, parameter=> $current_matrix} );
 				iterateAnalysesOfMontageIDAndMatrix($dbh, $idmontage_orig, $current_matrix, $idanalysis_ref, $curr_anchor->[0], $curr_anchor->[3], $curr_anchor->[4] );
 			}
 		}
