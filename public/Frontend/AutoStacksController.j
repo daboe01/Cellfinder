@@ -14,22 +14,8 @@
 }
 
 -(void) runRansac: sender
-{	var myreq=[CPURLRequest requestWithURL: BaseURL+"STACK/"+[myAppController.stacksController valueForKeyPath: "selection.id"] +"?spc=affine&ransac=1&thresh=80&identityradius=6&iterations=15"];
-	mystacksconnection=[CPURLConnection connectionWithRequest:myreq delegate: self];
-	[progress startAnimation: self];
-}
--(void) runRansac3: sender	// more strict
-{	var myreq=[CPURLRequest requestWithURL: BaseURL+"STACK/"+[myAppController.stacksController valueForKeyPath: "selection.id"] +"?spc=affine&ransac=1&thresh=40&identityradius=6&iterations=15"];
-	mystacksconnection=[CPURLConnection connectionWithRequest:myreq delegate: self];
-	[progress startAnimation: self];
-}
--(void) runRansac2: sender	// more tolerant
-{	var myreq=[CPURLRequest requestWithURL: BaseURL+"STACK/"+[myAppController.stacksController valueForKeyPath: "selection.id"] +"?spc=affine&ransac=1&thresh=100&identityradius=8&iterations=25"];
-	mystacksconnection=[CPURLConnection connectionWithRequest:myreq delegate: self];
-	[progress startAnimation: self];
-}
--(void) runRansac4: sender	// stiff
-{	var myreq=[CPURLRequest requestWithURL: BaseURL+"STACK/"+[myAppController.stacksController valueForKeyPath: "selection.id"] +"?spc=affine&ransac=1&thresh=900&identityradius=9&iterations=25&aiterations=1&cfunc=evaluate.agreement4"];
+{	var idransac=[myAppController.trialsController valueForKeyPath: "selection.composition_for_ransac"]
+	var myreq=[CPURLRequest requestWithURL: BaseURL+"STACK/"+[myAppController.stacksController valueForKeyPath: "selection.id"] +"?spc=affine&ransac="+idransac];
 	mystacksconnection=[CPURLConnection connectionWithRequest:myreq delegate: self];
 	[progress startAnimation: self];
 }

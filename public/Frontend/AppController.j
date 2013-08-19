@@ -8,7 +8,7 @@
 
 /////////////////////////////////////////////////////////
 
-HostURL="http://localhost:3000"
+HostURL="http://augimageserver:3000"
 BaseURL= HostURL+"/IMG/";
 
 PhotoDragType="PhotoDragType";
@@ -82,6 +82,7 @@ PhotoDragType="PhotoDragType";
 	id	analyticsfilters_ac;
 	id	perlfilters_ac;
 	id	javascriptfilters_ac;
+	id	cfifilters_ac;
 
 	id  guiClassesArrayController;
 

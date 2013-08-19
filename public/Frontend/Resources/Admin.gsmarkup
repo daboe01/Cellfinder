@@ -52,6 +52,7 @@
 	    		<hbox><label valign="center" halign="min" width="130">Upload</label><popUpButton width="200" itemsBinding="#CPOwner.uploadfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_upload"/></hbox>
 	    		<hbox><label valign="center" halign="min" width="130">Editing</label><popUpButton width="200" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_editing"/></hbox>
 	    		<hbox><label valign="center" halign="min" width="130">Feature extraction</label><popUpButton width="200" itemsBinding="#CPOwner.analyticsfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_celldetection"/></hbox>
+	    		<hbox><label valign="center" halign="min" width="130">RANSAC parameters</label><popUpButton width="200" itemsBinding="#CPOwner.cfifilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_ransac"/></hbox>
 				</vbox>
 			</tabViewItem>
 		</tabView>

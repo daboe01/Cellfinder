@@ -1,7 +1,7 @@
 #!/usr/local/ActivePerl-5.14/site/bin/morbo
 
 
-use lib qw {/srv/www/Cellfinder2/ /HHB/bin/Cellfinder/ /Users/boehringer/src/daboe01_Cellfinder/Cellfinder/ /Users/daboe01/src/daboe01_Cellfinder/Cellfinder /Users/boehringer/src/privatePerl /Users/daboe01/src/privatePerl};
+use lib qw {/Users/Shared/bin /Users/Shared/bin/Cellfinder2 /srv/www/Cellfinder2/ /HHB/bin/Cellfinder/ /Users/boehringer/src/daboe01_Cellfinder/Cellfinder/ /Users/daboe01/src/daboe01_Cellfinder/Cellfinder /Users/boehringer/src/privatePerl /Users/daboe01/src/privatePerl};
 use Mojolicious::Lite;
 use Mojolicious::Plugin::Database;
 use cellfinder_image;
@@ -15,7 +15,7 @@ use Try::Tiny;
 $ENV{MOJO_MAX_MESSAGE_SIZE} = 1_073_741_824;
 
 plugin 'database', { 
-			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
+			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
 			username => 'root',
 			password => 'root',
 			options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
@@ -333,11 +333,6 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 	my $spc=			$self->param("spc");
 	my $idstack=		$self->param("idstack");
 	my $ransac=			$self->param("ransac");
-	my $thresh=			$self->param("thresh");
-	my $identityradius= $self->param("identityradius");
-	my $iterations=		$self->param("iterations");
-	my $aiterations=	$self->param("aiterations");
-	my $cfunc=			$self->param("cfunc");
 	my $idcomposition=	$self->param('cmp');
 
 	if($spc eq 'affine')
@@ -348,8 +343,15 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 
 		while ( my $curr = $sth->fetchrow_hashref() )
 		{	next unless $curr->{idanalysis_reference};
-			my $par= $ransac?	cellfinder_image::runRANSACRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis}, $thresh, $identityradius, $iterations, $aiterations, $cfunc):
-								cellfinder_image::runSimpleRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis});
+			my $par;
+			if($ransac)
+			{	my $compo=cellfinder_image::getObjectFromDBHandID($self->db, 'patch_compositions', $ransac);
+				my $paramstr = '{'.cellfinder_image::getObjectFromDBHandID($self->db, 'patch_chains_with_parameters', $compo->{primary_chain}).'}';
+				my $params=eval($paramstr);	#<!> fixme: use real parser
+				$par= cellfinder_image::runRANSACRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis}, $params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc}):
+			} else
+			{	$par=cellfinder_image::runSimpleRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis});
+			}
 			my $sql=SQL::Abstract->new();
 			my($stmt, @bind) = $sql->update('montage_images', {parameter=> $par}, {id=>$curr->{id} } );
 			my $sth =  $self->db->prepare($stmt);
@@ -481,15 +483,15 @@ get '/IMG/analyze_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, folder_n
 };
 
 
-get '/IMG/automatch_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, folder_name =>qr/.+/] => sub
+get '/IMG/automatch_folder/:idtrial/:idransac/:folder_name'=> [idtrial=>qr/[0-9]+/, idransac=>qr/[0-9]+/, folder_name =>qr/.+/] => sub
 {	my $self=shift;
 	my $idtrial=		$self->param("idtrial");
+	my $idransac=		$self->param("idransac");
 	my $folder_name =	$self->param("folder_name");
-	my $thresh=			$self->param("thresh");
-	my $identityradius= $self->param("identityradius");
-	my $iterations=		$self->param("iterations");
-	my $aiterations=	$self->param("aiterations");
-	my $cfunc=			$self->param("cfunc");
+
+	my $compo=cellfinder_image::getObjectFromDBHandID($self->db, 'patch_compositions', $idransac);
+	my $paramstr = '{'.cellfinder_image::getObjectFromDBHandID($self->db, 'patch_chains_with_parameters', $compo->{primary_chain}).'}';
+	my $params=eval($paramstr);	#<!> fixme: use real parser
 
 	my $linkname= $idtrial.$folder_name;
 	my $dbh=$self->db;
@@ -502,6 +504,7 @@ get '/IMG/automatch_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, folder
 	{	$next_idimage=$curr->[0];
 		$idimage1=$next_idimage unless $idimage1;
 		my ($idana1, $idana2)=($self->getLastAnaOfImageID($idimage1), $self->getLastAnaOfImageID($next_idimage));
+warn "$idimage1 $next_idimage: $idana1, $idana2; $idimage2";
 		if(!$idana1)
 		{	$idimage1=undef;
 			next;
@@ -509,7 +512,8 @@ get '/IMG/automatch_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, folder
 		next unless $idana2;
 		$idimage2=$next_idimage;
 		if($idana1 && $idana2 &&  $idana1 != $idana2)
-		{	my $par=cellfinder_image::runRANSACRegistrationRCode($idana1, $idana2, $thresh, $identityradius, $iterations, $aiterations, $cfunc);
+		{	my $par= cellfinder_image::runRANSACRegistrationRCode($idana1, $idana2,$params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc});
+warn $par;
 			if($par)
 			{	my $name="$idana1 $idana2";
 				my $idmontage=cellfinder_image::insertObjectIntoTable($self->db, 'montages', 'id', {idtrial=> $idtrial, name=> $name} );
@@ -526,8 +530,11 @@ get '/IMG/autostitch/:idmontage'=> [idmontage =>qr/[0-9]+/] => sub
 {	my $self=shift;
 	my $idmontage= $self->param('idmontage');
 
-	sub iterateAnalysesOfMontageIDAndMatrix { my ($dbh, $idmontage_orig, $current_matrix, $idanalysis_ref, $idanalysis, $idmontage, $idimage)=@_;
-		my $query=qq/select idanalysis, idanalysis_reference, parameter, idmontage, idimage from montage_images where (idanalysis =? or idanalysis_reference=?) and idmontage > ?/;
+	sub iterateAnalysesOfMontageIDAndMatrix { my ($dbh, $idmontage_orig, $current_matrix, $idanalysis_ref, $idanalysis, $idmontage, $idimage, $seenR)=@_;
+        $seenR=[] unless $seenR;
+        return if $idmontage ~~ @$seenR;
+        push @$seenR, $idmontage;
+		my $query=qq/select idanalysis, idanalysis_reference, parameter, idmontage, idimage from montage_images where (idanalysis =? or idanalysis_reference=?) and idmontage!=?/;
 		my $sth = $dbh->prepare($query);
 		$idmontage = $idmontage_orig  unless $idmontage;
 
@@ -542,7 +549,7 @@ get '/IMG/autostitch/:idmontage'=> [idmontage =>qr/[0-9]+/] => sub
 					$current_matrix = $curr_anchor->[2];
 				}
 				cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $curr_anchor->[4], idanalysis=> $curr_anchor->[0], idanalysis_reference => $idanalysis_ref, idmontage=> $idmontage_orig, parameter=> $current_matrix} );
-				iterateAnalysesOfMontageIDAndMatrix($dbh, $idmontage_orig, $current_matrix, $idanalysis_ref, $curr_anchor->[0], $curr_anchor->[3], $curr_anchor->[4] );
+				iterateAnalysesOfMontageIDAndMatrix($dbh, $idmontage_orig, $current_matrix, $idanalysis_ref, $curr_anchor->[0], $curr_anchor->[3], $curr_anchor->[4], $seenR );
 			}
 		}
 	}
@@ -578,5 +585,5 @@ post '/upload/:idtrial' => [idtrial=>qr/[0-9]+/] => sub {
 
 
 
-app->config(hypnotoad => {listen => ['http://*:3000'], workers => 10, heartbeat_timeout=>600, inactivity_timeout=> 600});
+app->config(hypnotoad => {listen => ['http://*:3000'], workers => 10, heartbeat_timeout=>60000, inactivity_timeout=> 60000});
 app->start;
