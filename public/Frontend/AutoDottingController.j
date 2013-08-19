@@ -121,7 +121,7 @@
 {	var idtrial =[myAppController.trialsController valueForKeyPath: "selection.id"];
 	var idransac=[myAppController.trialsController valueForKeyPath: "selection.composition_for_ransac"]
 
-	var myreq=[CPURLRequest requestWithURL: BaseURL+"automatch_folder/"+idtrial+"/"+idransac+"/"+[myAppController.folderController valueForKeyPath:"selection.folder_name"];
+	var myreq=[CPURLRequest requestWithURL: BaseURL+"automatch_folder/"+idtrial+"/"+idransac+"/"+[myAppController.folderController valueForKeyPath:"selection.folder_name"]];
 	[CPURLConnection connectionWithRequest:myreq delegate: self];
 }
 

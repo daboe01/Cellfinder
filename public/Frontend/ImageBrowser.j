@@ -29,6 +29,8 @@ var _sharedImageBrowser;
 
 
 @implementation ImageBrowser : StacksController
+{	id myalert;
+}
 
 + sharedImageBrowser
 {	if(!_sharedImageBrowser)
@@ -42,19 +44,30 @@ var _sharedImageBrowser;
 	return _sharedImageBrowser;
 }
 
+- (void)deleteWarningDidEnd:(CPAlert)anAlert code:(id)code context:(id)context
+{
+    if(code)
+	{	var selectedItems=[[myCollectionView items] objectsAtIndexes: [myCollectionView selectionIndexes] ]
+		var folder_name=[[[selectedItems objectAtIndex: 0] representedObject] valueForKey:"folder_name"];
+		var idtrial= [[CPApp delegate].trialsController valueForKeyPath:"selection.id"]
+		var myurl=BaseURL+"delete_images_in_folder/"+idtrial+"/"+ folder_name;
+		var myreq=[CPURLRequest requestWithURL: myurl];
+		[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
+
+		var trialsController=[CPApp delegate].trialsController;
+		[[trialsController selectedObject] willChangeValueForKey:"folders"];
+		 [trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
+		[[trialsController selectedObject] didChangeValueForKey:"folders"];
+	}
+}
 
 -(void) deleteImagesOfSelectedFolder: sender
-{	var selectedItems=[[myCollectionView items] objectsAtIndexes: [myCollectionView selectionIndexes] ]
-	var folder_name=[[[selectedItems objectAtIndex: 0] representedObject] valueForKey:"folder_name"];
-	var idtrial= [[CPApp delegate].trialsController valueForKeyPath:"selection.id"]
-	var myurl=BaseURL+"delete_images_in_folder/"+idtrial+"/"+ folder_name;
-	var myreq=[CPURLRequest requestWithURL: myurl];
-	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
-
-	var trialsController=[CPApp delegate].trialsController;
-	[[trialsController selectedObject] willChangeValueForKey:"folders"];
-	 [trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
-	[[trialsController selectedObject] didChangeValueForKey:"folders"];
+{
+	myalert = [CPAlert new];
+    [myalert setMessageText: "Are you sure you want to delete all images of this folder?"];
+	[myalert addButtonWithTitle:"Cancel"];
+	[myalert addButtonWithTitle:"Delete"];
+	[myalert beginSheetModalForWindow:myWindow modalDelegate:self didEndSelector:@selector(deleteWarningDidEnd:code:context:) contextInfo: nil];
 }
 
 -(void) uploadImage: sender

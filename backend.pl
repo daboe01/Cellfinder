@@ -15,7 +15,7 @@ use Try::Tiny;
 $ENV{MOJO_MAX_MESSAGE_SIZE} = 1_073_741_824;
 
 plugin 'database', { 
-			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
+			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
 			username => 'root',
 			password => 'root',
 			options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
@@ -348,7 +348,7 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 			{	my $compo=cellfinder_image::getObjectFromDBHandID($self->db, 'patch_compositions', $ransac);
 				my $paramstr = '{'.cellfinder_image::getObjectFromDBHandID($self->db, 'patch_chains_with_parameters', $compo->{primary_chain}).'}';
 				my $params=eval($paramstr);	#<!> fixme: use real parser
-				$par= cellfinder_image::runRANSACRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis}, $params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc}):
+				$par= cellfinder_image::runRANSACRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis}, $params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc});
 			} else
 			{	$par=cellfinder_image::runSimpleRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis});
 			}

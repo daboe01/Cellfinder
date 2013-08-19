@@ -19,8 +19,8 @@ use SQL::Abstract;
 use POSIX;
 
 
-#use constant server_root=>'/Library/WebServer/Documents/cellfinder';
-use constant server_root=>'/srv/www/htdocs/cellfinder';
+use constant server_root=>'/Library/WebServer/Documents/cellfinder';
+#use constant server_root=>'/srv/www/htdocs/cellfinder';
 
 sub runRCode { my ($RCmd)=@_;
 	my $R= Statistics::R->new(shared=>1);
@@ -502,10 +502,11 @@ sub deleteImage { my ($dbh, $idimage)=@_;
 	my $image=$sth->fetchrow_hashref();
 	if($image)
 	{	my $dest=server_root.'/'.$image->{idtrial}.'-'.$image->{filename};
-		unlink $dest;
 		my $sql = 'delete from images where id=?';
 		my $sth = $dbh->prepare($sql);
-		$sth->execute(($idimage));		
+		$sth->execute(($idimage));
+		unlink $dest unless $sth->err;
+	
 	}
 }
 
