@@ -200,8 +200,8 @@
 	[self _triggerRegistrationMatrixGeneration];
 
 	var myurl = BaseURL+"0?idstack="+[myAppController  valueForKeyPath:"stacksController.selection.id"] +"&cmp="+[myAppController valueForKeyPath:"stacksController.selection.idpatch"];
-	if([myAppController valueForKeyPath:"stacksController.selection.width"]!==CPNullMarker && [myAppController valueForKeyPath:"stacksController.selection.height"]!==CPNullMarker)
-		myurl+=("&csize="+[myAppController valueForKeyPath:"stacksController.selection.width"]+"x"+[myAppController valueForKeyPath:"stacksController.selection.height"]);
+	if([myAppController valueForKeyPath:"stacksController.selection.geometry"]!==CPNullMarker)
+		myurl+=("&csize="+encodeURIComponent([myAppController valueForKeyPath:"stacksController.selection.geometry"]));
 	window.open(myurl,'flattened_stackwindow');
 }
 -(void) runSwap:sender

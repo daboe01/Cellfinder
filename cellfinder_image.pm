@@ -359,7 +359,31 @@ sub insertObjectIntoTable{
 	warn "err: ".$DBI::errstr if $DBI::errstr;
 	return $dbh->last_insert_id(undef, undef, $table, $pk);
 }
-					
+sub uniquelyInsertObjectIntoTable{
+	my $dbh  = shift;
+	my $table = shift;
+	my $pk = shift;
+	my $o = shift;
+	
+	my $sql = SQL::Abstract->new;
+	my($stmt, @bind) = $sql->select($table, undef, $o);
+	my $sth = $dbh->prepare($stmt);
+	$sth->execute(@bind);
+	return insertObjectIntoTable($dbh,$table,$pk,$o) unless $sth->fetchrow_hashref();
+	return undef;
+}
+sub deleteObjectFromTable{
+	my $dbh  = shift;
+	my $table = shift;
+	my $o = shift;
+	
+	my $sql = SQL::Abstract->new;
+	my($stmt, @bind) = $sql->delete($table, $o);
+	my $sth = $dbh->prepare($stmt);
+	$sth->execute(@bind);
+}
+
+
 sub getMontageForIDImageAndIDStack{ my ($dbh, $idimage, $idstack)=@_;
 	my $sql = SQL::Abstract->new;
 	my($stmt, @bind) = $sql->select('montage_images', [qw/parameter idanalysis/], {idimage=>, $idimage, idmontage=> $idstack});

@@ -15,7 +15,7 @@ use Try::Tiny;
 $ENV{MOJO_MAX_MESSAGE_SIZE} = 1_073_741_824;
 
 plugin 'database', { 
-			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
+			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
 			username => 'root',
 			password => 'root',
 			options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
@@ -346,7 +346,7 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 			my $par;
 			if($ransac)
 			{	my $compo=cellfinder_image::getObjectFromDBHandID($self->db, 'patch_compositions', $ransac);
-				my $paramstr = '{'.cellfinder_image::getObjectFromDBHandID($self->db, 'patch_chains_with_parameters', $compo->{primary_chain}).'}';
+				my $paramstr = '{'.cellfinder_image::getObjectFromDBHandID($self->db, 'patch_chains_with_parameters', $compo->{primary_chain})->{params}.'}';
 				my $params=eval($paramstr);	#<!> fixme: use real parser
 				$par= cellfinder_image::runRANSACRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis}, $params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc});
 			} else
@@ -534,11 +534,11 @@ get '/IMG/autostitch/:idmontage'=> [idmontage =>qr/[0-9]+/] => sub
         $seenR=[] unless $seenR;
         return if $idmontage ~~ @$seenR;
         push @$seenR, $idmontage;
-		my $query=qq/select idanalysis, idanalysis_reference, parameter, idmontage, idimage from montage_images where (idanalysis =? or idanalysis_reference=?) and idmontage!=?/;
+		my $query=qq/select idanalysis, idanalysis_reference, parameter, idmontage, idimage, id from montage_images where (idanalysis =? or idanalysis_reference=?) and idmontage not in (?,?)/;
 		my $sth = $dbh->prepare($query);
 		$idmontage = $idmontage_orig  unless $idmontage;
 
-		$sth->execute(($idanalysis, $idanalysis, $idmontage));
+		$sth->execute(($idanalysis, $idanalysis, $idmontage, $idmontage_orig));
 		my $anchors= $sth->fetchall_arrayref();
 	
 		foreach my $curr_anchor (@$anchors)
@@ -548,7 +548,8 @@ get '/IMG/autostitch/:idmontage'=> [idmontage =>qr/[0-9]+/] => sub
 				} else {
 					$current_matrix = $curr_anchor->[2];
 				}
-				cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $curr_anchor->[4], idanalysis=> $curr_anchor->[0], idanalysis_reference => $idanalysis_ref, idmontage=> $idmontage_orig, parameter=> $current_matrix} );
+				cellfinder_image::uniquelyInsertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $curr_anchor->[4], idanalysis=> $curr_anchor->[0], idanalysis_reference => $idanalysis_ref, idmontage=> $idmontage_orig, parameter=> $current_matrix} );
+				cellfinder_image::deleteObjectFromTable($dbh, 'montage_images', {id=> $curr_anchor->[5]});
 				iterateAnalysesOfMontageIDAndMatrix($dbh, $idmontage_orig, $current_matrix, $idanalysis_ref, $curr_anchor->[0], $curr_anchor->[3], $curr_anchor->[4], $seenR );
 			}
 		}

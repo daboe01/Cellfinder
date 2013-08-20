@@ -170,8 +170,7 @@
 		<column name="id" primaryKey="YES"/>
 		<column name="idtrial"/>
 		<column name="name"/>
-		<column name="width"/>
-		<column name="height"/>
+		<column name="geometry"/>
 		<column name="idpatch"/>
 		<column name="idcompo_with_points"/>
 		<relationship type="toOne" name="trial" bindingColumn="idtrial" target="trials"/>
