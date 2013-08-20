@@ -489,9 +489,7 @@ get '/IMG/automatch_folder/:idtrial/:idransac/:folder_name'=> [idtrial=>qr/[0-9]
 	my $idransac=		$self->param("idransac");
 	my $folder_name =	$self->param("folder_name");
 
-	my $compo=cellfinder_image::getObjectFromDBHandID($self->db, 'patch_compositions', $idransac);
-	my $paramstr = '{'.cellfinder_image::getObjectFromDBHandID($self->db, 'patch_chains_with_parameters', $compo->{primary_chain}).'}';
-	my $params=eval($paramstr);	#<!> fixme: use real parser
+	my $params=$self-> getRANSACParams();
 
 	my $linkname= $idtrial.$folder_name;
 	my $dbh=$self->db;
@@ -529,8 +527,9 @@ warn $par;
 get '/IMG/autostitch/:idmontage'=> [idmontage =>qr/[0-9]+/] => sub
 {	my $self=shift;
 	my $idmontage= $self->param('idmontage');
+	my $move=1;
 
-	sub iterateAnalysesOfMontageIDAndMatrix { my ($dbh, $idmontage_orig, $current_matrix, $idanalysis_ref, $idanalysis, $idmontage, $idimage, $seenR)=@_;
+	sub iterateAnalysesOfMontageIDAndMatrix { my ($dbh, $move, $idmontage_orig, $current_matrix, $idanalysis_ref, $idanalysis, $idmontage, $idimage, $seenR)=@_;
         $seenR=[] unless $seenR;
         return if $idmontage ~~ @$seenR;
         push @$seenR, $idmontage;
@@ -549,8 +548,8 @@ get '/IMG/autostitch/:idmontage'=> [idmontage =>qr/[0-9]+/] => sub
 					$current_matrix = $curr_anchor->[2];
 				}
 				cellfinder_image::uniquelyInsertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $curr_anchor->[4], idanalysis=> $curr_anchor->[0], idanalysis_reference => $idanalysis_ref, idmontage=> $idmontage_orig, parameter=> $current_matrix} );
-				cellfinder_image::deleteObjectFromTable($dbh, 'montage_images', {id=> $curr_anchor->[5]});
-				iterateAnalysesOfMontageIDAndMatrix($dbh, $idmontage_orig, $current_matrix, $idanalysis_ref, $curr_anchor->[0], $curr_anchor->[3], $curr_anchor->[4], $seenR );
+				cellfinder_image::deleteObjectFromTable($dbh, 'montage_images', {id=> $curr_anchor->[5]}) if($move);
+				iterateAnalysesOfMontageIDAndMatrix($dbh, $move, $idmontage_orig, $current_matrix, $idanalysis_ref, $curr_anchor->[0], $curr_anchor->[3], $curr_anchor->[4], $seenR );
 			}
 		}
 	}
@@ -560,15 +559,48 @@ get '/IMG/autostitch/:idmontage'=> [idmontage =>qr/[0-9]+/] => sub
 	$sth->execute(($idmontage));
 	my $anchor= $sth->fetchrow_hashref();
 
-	iterateAnalysesOfMontageIDAndMatrix($self->db, $idmontage, $anchor->{parameter},  $anchor->{idanalysis_reference}, $anchor->{idanalysis} );
-	my $sql=qq{delete from montages where id in (select idmontage from  (select count(*), idmontage from montage_images group by idmontage) a where count<2)};
-	$sth = $self->db->prepare( $sql );
-	$sth->execute();	# delete all orphaned montages <!> fixme should be constrained to current trial
-
-	$self->render(data=>$idmontage, format =>'txt' );
+	iterateAnalysesOfMontageIDAndMatrix($self->db, $move, $idmontage, $anchor->{parameter},  $anchor->{idanalysis_reference}, $anchor->{idanalysis} );
+	if($move)
+	{	my $sql=qq{delete from montages where id in (select idmontage from  (select count(*), idmontage from montage_images group by idmontage) a where count<2)};
+		$sth = $self->db->prepare( $sql );
+		$sth->execute();	# delete all orphaned montages <!> fixme should be constrained to current trial
+		$self->render(data=>'0', format =>'txt' );
+	} else
+	{	$self->render(data=>$idmontage, format =>'txt' );
+	}
 };
 
+helper getRANSACParams => sub { my ($self, $idransac)=@_;
+	my $compo=cellfinder_image::getObjectFromDBHandID($self->db, 'patch_compositions', $idransac);
+	my $paramstr = '{'.cellfinder_image::getObjectFromDBHandID($self->db, 'patch_chains_with_parameters', $compo->{primary_chain}).'}';
+	return eval($paramstr);	#<!> fixme: use real parser
+};
 
+get '/IMG/bridgestitch/:idtrial/:idransac/:idmontage1/:idmontage2'=> [idtrial => qr/[0-9]+/, idransac => qr/[0-9]+/, idmontage1 => qr/[0-9]+/, idmontage2 => qr/[0-9]+/] => sub
+{	my $self=shift;
+	my $idtrial=	$self->param("idtrial");
+	my $idransac=	$self->param("idransac");
+	my $idmontage1= $self->param('idmontage1');
+	my $idmontage2= $self->param('idmontage2');
+
+	my $params=$self->getRANSACParams();
+
+	my $query=qq/select a.idanalysis as ida_a, b.idanalysis as ida_b, a.idimage as idm_a, b.idimage as idm_b from montage_images a, montage_images b where a.idmontage!= b.idmontage/;
+	my $sth = $self->db->prepare($query);
+	$sth->execute();
+	while( my $curr=$sth->fetchrow_arrayref() )
+	{	my($idana1, $idana2, $idimage1, $idimage2)=($curr->[0], $curr->[1], $curr->[2], $curr->[3]);
+		my $par= cellfinder_image::runRANSACRegistrationRCode($idana1, $idana2,$params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc});
+		if($par)
+		{	my $name="B$idana1 $idana2";
+			my $idmontage=cellfinder_image::insertObjectIntoTable($self->db, 'montages', 'id', {idtrial=> $idtrial, name=> $name} );
+			cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $idimage1, idanalysis=> $idana1, idanalysis_reference=>undef,   idmontage=> $idmontage} );
+			cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $idimage2, idanalysis=> $idana2, idanalysis_reference=>$idana1, idmontage=> $idmontage, parameter=> $par} );
+			last;
+		}
+	}
+	$self->render(data=>'0', format =>'txt' );
+};
 
 # POST /upload (push one or more files to app)
 post '/upload/:idtrial' => [idtrial=>qr/[0-9]+/] => sub {
