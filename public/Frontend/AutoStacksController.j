@@ -37,6 +37,11 @@
 			[mystack willChangeValueForKey:"analyses"];
 			[mystack._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 			[mystack didChangeValueForKey:"analyses"];
+		} else
+		{	var mytrial=[myAppController.trialsController selectedObject];
+			[mytrial willChangeValueForKey:"stacks"];
+			[mytrial._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
+			[mytrial didChangeValueForKey:"stacks"];
 		}
 		mystacksconnection=nil;
 	} else

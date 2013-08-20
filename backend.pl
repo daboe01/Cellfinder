@@ -561,6 +561,9 @@ get '/IMG/autostitch/:idmontage'=> [idmontage =>qr/[0-9]+/] => sub
 	my $anchor= $sth->fetchrow_hashref();
 
 	iterateAnalysesOfMontageIDAndMatrix($self->db, $idmontage, $anchor->{parameter},  $anchor->{idanalysis_reference}, $anchor->{idanalysis} );
+	my $sql=qq{delete from montages where id in (select idmontage from  (select count(*), idmontage from montage_images group by idmontage) a where count<2)};
+	$sth = $self->db->prepare( $sql );
+	$sth->execute();	# delete all orphaned montages <!> fixme should be constrained to current trial
 
 	$self->render(data=>$idmontage, format =>'txt' );
 };
