@@ -31,14 +31,17 @@
 -(void) connection: someConnection didReceiveData: data
 {	if(someConnection === mystacksconnection){
 		var myid =  data;
+
 		[progress stopAnimation:self];
-		if(myid)
+		if(myid > 0)
 		{	var mystack=[myAppController.stacksController._entity objectWithPK: myid];
 			[mystack willChangeValueForKey:"analyses"];
 			[mystack._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 			[mystack didChangeValueForKey:"analyses"];
-		} else
-		{	var mytrial=[myAppController.trialsController selectedObject];
+		} else if(myid == 0)
+		{
+
+			var mytrial=[myAppController.trialsController selectedObject];
 			[mytrial willChangeValueForKey:"stacks"];
 			[mytrial._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 			[mytrial didChangeValueForKey:"stacks"];
