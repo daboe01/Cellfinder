@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<!DOCTYPE gsmarkup>
+<gsmarkup>
+
+<objects>
+  <autoStacksController id="mystackscontroller"/>
+  <window title="Stacks" id="stackswindow" closable="yes"  x="50" y="30" width="400" height="340"  bridge="YES" delegate="mystackscontroller">
+	<splitView vertical="YES" autosaveName="splitview_autostacks_ng">
+		<vbox>
+			<scrollView hasHorizontalScroller="NO">
+				<tableView autosaveName="tv_autostacks_ng" zebra="yes" valueBinding="#CPOwner.stacksController" target="#mystackscontroller">
+					<tableColumn identifier="id"  title="id"/>
+					<tableColumn identifier="name" editable="YES" title="name"/>
+	  			</tableView>
+			</scrollView>
+			<hbox>
+			<ButtonBar plusButtonAction="newStack:" minusButtonAction="deleteStack:" actionsButton="YES" target="#mystackscontroller">
+  				<popUpButtonItem title="Settings…" target="#mystackscontroller" action="runSettings:"/>
+				<popUpButtonItem title="AutoStitching downstream selection" target="#mystackscontroller" action="autoStitching:"/>
+				<popUpButtonItem title="Flickering…" target="#mystackscontroller" action="runFlicker:"/>
+				<popUpButtonItem title="Flatten" target="#mystackscontroller" action="flattenStack:"/>
+				<popUpButtonItem title="FlickerGIF" target="#mystackscontroller" action="downloadGIF2:"/>
+			</ButtonBar>
+			<progresIndicator id="progress" indeterminate="YES"/>
+			</hbox>
+		</vbox>
+		<vbox>
+			<scrollView hasHorizontalScroller="NO">
+				<tableView zebra="yes" autosaveName="tv_autostacks_results"  valueBinding="#CPOwner.stacksContentController" target="#mystackscontroller" allowsMultipleSelection="YES">
+					<tableColumn identifier="idanalysis" title="analysis" editable="YES"/>
+					<tableColumn identifier="idanalysis_reference" title="ref" editable="YES"/>
+					<tableColumn identifier="idimage" title="idimg"/>
+					<tableColumn identifier="parameter" editable="YES" title="parameter"/>
+	  			</tableView>
+			</scrollView>
+            <ButtonBar  minusButtonAction="remove:"  target="#CPOwner.stacksContentController">
+			</ButtonBar>
+
+		</vbox>
+	 </splitView>
+  </window>
+
+
+  <window title="Stack settings" id="stacksettingswindow" modal="YES" visible="NO" width="300" height="200" resizable="YES">
+	<vbox>
+				<vbox>
+				<hbox><label valign="center" halign="min" width="100">Name</label><textField valueBinding="#CPOwner.stacksController.selection.name"/></hbox>
+				<hbox><label valign="center" halign="min" width="100">Name</label>
+					<popUpButton width="100" id="flattenCompoPopup" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.stacksController.selection.idpatch"/>
+				</hbox>
+				<hbox><label valign="center" halign="min" width="100">Geom</label><textField valueBinding="#CPOwner.stacksController.selection.geometry"/></hbox>
+
+				</vbox>
+		<button title="Done" target="#mystackscontroller" action="closeSheet:"/>
+	</vbox>
+  </window>
+</objects>
+
+<connectors>
+	<outlet source="mystackscontroller" target="stacks_collection_view" label="myCollectionView"/>
+	<outlet source="mystackscontroller" target="stackswindow" label="myWindow"/>
+	<outlet source="mystackscontroller" target="stacksettingswindow" label="stacksettingswindow"/>
+	<outlet source="mystackscontroller" target="progress" label="progress"/>
+</connectors>
+
+</gsmarkup>
