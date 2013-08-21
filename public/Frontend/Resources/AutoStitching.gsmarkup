@@ -8,7 +8,7 @@
 	<splitView vertical="YES" autosaveName="splitview_autostacks_ng">
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
-				<tableView autosaveName="tv_autostacks_ng" zebra="yes" valueBinding="#CPOwner.stacksController" target="#mystackscontroller">
+				<tableView autosaveName="tv_autostacks_ng" zebra="yes" allowsMultipleSelection="YES" valueBinding="#CPOwner.stacksController" target="#mystackscontroller">
 					<tableColumn identifier="id"  title="id"/>
 					<tableColumn identifier="name" editable="YES" title="name"/>
 	  			</tableView>
