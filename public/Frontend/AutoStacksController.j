@@ -31,7 +31,7 @@
 
 	var selectedItems=[myAppController.stacksController selectedObjects ]
 	var j=[selectedItems count];
-	if(j != 2)
+	if (j != 2)
 	{	[[CPAlert alertWithError:"Please select exactly two stacks"] runModal];
 		return;
 	}

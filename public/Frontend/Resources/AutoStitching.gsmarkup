@@ -16,7 +16,8 @@
 			<hbox>
 			<ButtonBar plusButtonAction="newStack:" minusButtonAction="deleteStack:" actionsButton="YES" target="#mystackscontroller">
   				<popUpButtonItem title="Settings…" target="#mystackscontroller" action="runSettings:"/>
-				<popUpButtonItem title="AutoStitching downstream selection" target="#mystackscontroller" action="autoStitching:"/>
+				<popUpButtonItem title="AutoStitch from selection" target="#mystackscontroller" action="autoStitching:"/>
+				<popUpButtonItem title="Bridge two" target="#mystackscontroller" action="bridgeStitching:"/>
 				<popUpButtonItem title="Flickering…" target="#mystackscontroller" action="runFlicker:"/>
 				<popUpButtonItem title="Flatten" target="#mystackscontroller" action="flattenStack:"/>
 				<popUpButtonItem title="FlickerGIF" target="#mystackscontroller" action="downloadGIF2:"/>
