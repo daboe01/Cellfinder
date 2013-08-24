@@ -603,6 +603,27 @@ warn Dumper $curr;
 	$self->render(data=>'0', format =>'txt' );
 };
 
+
+
+get '/IMG/reransac/:idransac/:idmontage/:idanalysis1/:idanalysis2'=> [idransac => qr/[0-9]+/, idmontage => qr/[0-9]+/, idanalysis1 => qr/[0-9]+/, idanalysis2 => qr/[0-9]+/] => sub
+{	my $self=shift;
+	my $idransac=	$self->param("idransac");
+	my $idmontage = $self->param('idmontage');
+	my $idanalysis1 = $self->param('idanalysis1');
+	my $idanalysis2 = $self->param('idanalysis2');
+
+	my $params=$self->getRANSACParams($idransac);
+	my $par= cellfinder_image::runRANSACRegistrationRCode($idanalysis1, $idanalysis2,$params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc});
+	if($par)
+	{	my($stmt, @bind) = $sql->update('montage_images', { parameter=> $par }, {idanalysis=> $idanalysis1, idanalysis_reference=> $idanalysis2, idmontage=> $idmontage });
+		my $sth = $self->db->prepare($stmt);
+		$sth->execute(@bind);
+	}
+	$self->render(data=> $idmontage, format =>'txt' );
+};
+
+
+
 # POST /upload (push one or more files to app)
 post '/upload/:idtrial' => [idtrial=>qr/[0-9]+/] => sub {
     my $self    = shift;

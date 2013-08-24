@@ -34,7 +34,8 @@
 					<tableColumn identifier="parameter" editable="YES" title="parameter"/>
 	  			</tableView>
 			</scrollView>
-            <ButtonBar  minusButtonAction="remove:"  target="#CPOwner.stacksContentController">
+            <ButtonBar  minusButtonAction="remove:" actionsButton="YES" target="#CPOwner.stacksContentController">
+				<popUpButtonItem title="Re-Ransac" target="#mystackscontroller" action="reRansac:"/>
 			</ButtonBar>
 
 		</vbox>

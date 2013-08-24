@@ -19,6 +19,15 @@
 	mystacksconnection=[CPURLConnection connectionWithRequest:myreq delegate: self];
 	[progress startAnimation: self];
 }
+-(void) reRansac: sender
+{	var idransac=[myAppController.trialsController valueForKeyPath: "selection.composition_for_ransac"];
+	var idmontage=[myAppController.stacksController valueForKeyPath: "selection.id"];
+	var idanalysis1 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis"];
+	var idanalysis2 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis_reference"];
+	var myreq=[CPURLRequest requestWithURL: BaseURL+"reransac/" + idransac + "/" + idmontage + "/" + idanalysis1 + "/" + idanalysis2];
+	mystacksconnection=[CPURLConnection connectionWithRequest:myreq delegate: self];
+	[progress startAnimation: self];
+}
 
 -(void) autoStitching: sender
 {	var myreq=[CPURLRequest requestWithURL: BaseURL+"autostitch/"+[myAppController.stacksController valueForKeyPath: "selection.id"]];
