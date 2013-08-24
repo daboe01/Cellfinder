@@ -489,7 +489,7 @@ get '/IMG/automatch_folder/:idtrial/:idransac/:folder_name'=> [idtrial=>qr/[0-9]
 	my $idransac=		$self->param("idransac");
 	my $folder_name =	$self->param("folder_name");
 
-	my $params=$self-> getRANSACParams();
+	my $params=$self-> getRANSACParams($idransac);
 
 	my $linkname= $idtrial.$folder_name;
 	my $dbh=$self->db;
@@ -572,7 +572,7 @@ get '/IMG/autostitch/:idmontage'=> [idmontage =>qr/[0-9]+/] => sub
 
 helper getRANSACParams => sub { my ($self, $idransac)=@_;
 	my $compo=cellfinder_image::getObjectFromDBHandID($self->db, 'patch_compositions', $idransac);
-	my $paramstr = '{'.cellfinder_image::getObjectFromDBHandID($self->db, 'patch_chains_with_parameters', $compo->{primary_chain}).'}';
+	my $paramstr = '{'.cellfinder_image::getObjectFromDBHandID($self->db, 'patch_chains_with_parameters', $compo->{primary_chain})->{params}.'}';
 	return eval($paramstr);	#<!> fixme: use real parser
 };
 
@@ -583,13 +583,14 @@ get '/IMG/bridgestitch/:idtrial/:idransac/:idmontage1/:idmontage2'=> [idtrial =>
 	my $idmontage1= $self->param('idmontage1');
 	my $idmontage2= $self->param('idmontage2');
 
-	my $params=$self->getRANSACParams();
+	my $params=$self->getRANSACParams($idransac);
 
-	my $query=qq/select a.idanalysis as ida_a, b.idanalysis as ida_b, a.idimage as idm_a, b.idimage as idm_b from montage_images a, montage_images b where a.idmontage!= b.idmontage/;
+	my $query=qq/select a.idanalysis as ida_a, b.idanalysis as ida_b, a.idimage as idm_a, b.idimage as idm_b from montage_images a, montage_images b where a.idmontage=? and b.idmontage=?/;
 	my $sth = $self->db->prepare($query);
-	$sth->execute();
+	$sth->execute(($idmontage1, $idmontage2));
 	while( my $curr=$sth->fetchrow_arrayref() )
 	{	my($idana1, $idana2, $idimage1, $idimage2)=($curr->[0], $curr->[1], $curr->[2], $curr->[3]);
+warn Dumper $curr;
 		my $par= cellfinder_image::runRANSACRegistrationRCode($idana1, $idana2,$params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc});
 		if($par)
 		{	my $name="B$idana1 $idana2";

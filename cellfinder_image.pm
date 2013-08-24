@@ -52,7 +52,7 @@ ENDOFR
 }
 sub runRANSACRegistrationRCode { my ($id1,$id2, $thresh, $identityradius, $iterations, $aiterations, $cfunc)=@_;
 	my $RCmd=<<'ENDOFR'
-	source('/HHB/bin/ransac4.R')
+	source('/Users/daboe01/src/daboe01_Cellfinder/Cellfinder/ransac4.R')
 	out=register.pointsets.out(<id1>, <id2>, <thresh>, <identityradius>, <iterations>, do.rotate=F <extrapars>)
 ENDOFR
 ;
