@@ -533,16 +533,16 @@ get '/IMG/autostitch/:idmontage'=> [idmontage =>qr/[0-9]+/] => sub
         $seenR=[] unless $seenR;
         return if $idmontage ~~ @$seenR;
         push @$seenR, $idmontage;
-		my $query=qq/select idanalysis, idanalysis_reference, parameter, idmontage, idimage, id from montage_images where (idanalysis =? or idanalysis_reference=?) and idmontage not in (?,?)/;
+		my $query=qq/select idanalysis, idanalysis_reference, parameter, idmontage, idimage, id from montage_images where (idanalysis_reference=?) and idmontage not in (?,?)/;
 		my $sth = $dbh->prepare($query);
 		$idmontage = $idmontage_orig  unless $idmontage;
 
-		$sth->execute(($idanalysis, $idanalysis, $idmontage, $idmontage_orig));
+		$sth->execute(($idanalysis, $idmontage, $idmontage_orig));
 		my $anchors= $sth->fetchall_arrayref();
 	
 		foreach my $curr_anchor (@$anchors)
 		{	if( $curr_anchor->[2] )
-			{	if($current_matrix) {
+			{	if ($current_matrix) {
 					$current_matrix = cellfinder_image::multiplyAffineMatrixes($current_matrix, $curr_anchor->[2]);
 				} else {
 					$current_matrix = $curr_anchor->[2];
@@ -595,7 +595,6 @@ warn Dumper $curr;
 		if($par)
 		{	my $name="B$idana1 $idana2";
 			my $idmontage=cellfinder_image::insertObjectIntoTable($self->db, 'montages', 'id', {idtrial=> $idtrial, name=> $name} );
-			cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $idimage1, idanalysis=> $idana1, idanalysis_reference=>undef,   idmontage=> $idmontage} );
 			cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $idimage2, idanalysis=> $idana2, idanalysis_reference=>$idana1, idmontage=> $idmontage, parameter=> $par} );
 			last;
 		}
@@ -605,21 +604,38 @@ warn Dumper $curr;
 
 
 
-get '/IMG/reransac/:idransac/:idmontage/:idanalysis1/:idanalysis2'=> [idransac => qr/[0-9]+/, idmontage => qr/[0-9]+/, idanalysis1 => qr/[0-9]+/, idanalysis2 => qr/[0-9]+/] => sub
+get '/IMG/ransac_debug/:idransac/:idmontage/:idanalysis1/:idanalysis2'=> [idransac => qr/[0-9]+/, idmontage => qr/[0-9]+/, idanalysis1 => qr/[0-9]+/, idanalysis2 => qr/[0-9]+/] => sub
 {	my $self=shift;
 	my $idransac=	$self->param("idransac");
 	my $idmontage = $self->param('idmontage');
 	my $idanalysis1 = $self->param('idanalysis1');
 	my $idanalysis2 = $self->param('idanalysis2');
 
-	my $params=$self->getRANSACParams($idransac);
-	my $par= cellfinder_image::runRANSACRegistrationRCode($idanalysis1, $idanalysis2,$params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc});
-	if($par)
-	{	my($stmt, @bind) = $sql->update('montage_images', { parameter=> $par }, {idanalysis=> $idanalysis1, idanalysis_reference=> $idanalysis2, idmontage=> $idmontage });
-		my $sth = $self->db->prepare($stmt);
-		$sth->execute(@bind);
+	if(!$idransac)	# make flicker gif of exactly 2 images
+	{	my $query=qq/select a.idimage, b.idimage, parameter from montage_images join analyses a on a.id= montage_images.idanalysis join analyses b on b.id= montage_images.idanalysis_reference where idmontage=? and montage_images.idanalysis=? and montage_images.idanalysis_reference=?/;
+		my $sth = $self->db->prepare($query);
+		$sth->execute(($idmontage,$idanalysis1, $idanalysis2));
+		my $a= $sth->fetchall_arrayref();
+		my ($idimage1, $idimage2, $affine)=($a->[0][0], $a->[0][1], $a->[0][2]);
+		my $p = cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage1)->(0);
+		my $p1= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage2)->(0);
+		$p1= cellfinder_image::_distortImage($p1, $affine);
+		push @$p,$p1;
+		$_->Set(delay=>15) for @$p;		# <!> fixme: make configurable
+		my $tempfilename=cellfinder_image::tempFileName('/tmp/cellf');
+		$p->Write($tempfilename.'.gif');
+		$self->render(data=>cellfinder_image::readFile($tempfilename.'.gif'), format=>'gif');
+	} else		# run ransac for exactly 2 images
+	{	my $params=$self->getRANSACParams($idransac);
+		my $par= cellfinder_image::runRANSACRegistrationRCode($idanalysis1, $idanalysis2,$params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc});
+		if($par)
+		{	my $sql = SQL::Abstract->new;
+			my($stmt, @bind) = $sql->update('montage_images', { parameter=> $par }, {idanalysis=> $idanalysis1, idanalysis_reference=> $idanalysis2, idmontage=> $idmontage });
+			my $sth = $self->db->prepare($stmt);
+			$sth->execute(@bind);
+		}
+		$self->render(data=> $idmontage, format =>'txt' );
 	}
-	$self->render(data=> $idmontage, format =>'txt' );
 };
 
 
@@ -639,8 +655,6 @@ post '/upload/:idtrial' => [idtrial=>qr/[0-9]+/] => sub {
     }
     $self->render( json => \@uploads );
 };
-
-
 
 
 app->config(hypnotoad => {listen => ['http://*:3000'], workers => 10, heartbeat_timeout=>60000, inactivity_timeout=> 60000});

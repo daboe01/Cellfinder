@@ -24,9 +24,17 @@
 	var idmontage=[myAppController.stacksController valueForKeyPath: "selection.id"];
 	var idanalysis1 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis"];
 	var idanalysis2 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis_reference"];
-	var myreq=[CPURLRequest requestWithURL: BaseURL+"reransac/" + idransac + "/" + idmontage + "/" + idanalysis1 + "/" + idanalysis2];
+	var myreq=[CPURLRequest requestWithURL: BaseURL+"ransac_debug/" + idransac + "/" + idmontage + "/" + idanalysis1 + "/" + idanalysis2];
 	mystacksconnection=[CPURLConnection connectionWithRequest:myreq delegate: self];
 	[progress startAnimation: self];
+}
+-(void) downloadGIFSingle: sender
+{	var idmontage=[myAppController.stacksController valueForKeyPath: "selection.id"];
+	var idanalysis1 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis"];
+	var idanalysis2 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis_reference"];
+	var myURL=BaseURL+"ransac_debug/0/" + idmontage + "/" + idanalysis1 + "/" + idanalysis2;
+	if(_viewingCompo) myURL+=("&cmp="+parseInt(_viewingCompo));	#<!> fixme unimplemented in backend
+	window.open(myURL,'animated_gifwindow');
 }
 
 -(void) autoStitching: sender
