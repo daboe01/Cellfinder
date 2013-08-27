@@ -18,6 +18,7 @@
   				<popUpButtonItem title="Settings…" target="#mystackscontroller" action="runSettings:"/>
 				<popUpButtonItem title="AutoStitch from selection" target="#mystackscontroller" action="autoStitching:"/>
 				<popUpButtonItem title="Bridge two" target="#mystackscontroller" action="bridgeStitching:"/>
+				<popUpButtonItem title="Collect same base" target="#mystackscontroller" action="collectSamebase:"/>
 				<popUpButtonItem title="Flickering…" target="#mystackscontroller" action="runFlicker:"/>
 				<popUpButtonItem title="Flatten" target="#mystackscontroller" action="flattenStack:"/>
 				<popUpButtonItem title="FlickerGIF" target="#mystackscontroller" action="downloadGIF2:"/>
@@ -31,12 +32,14 @@
 					<tableColumn identifier="idanalysis" title="analysis" editable="YES"/>
 					<tableColumn identifier="idanalysis_reference" title="ref" editable="YES"/>
 					<tableColumn identifier="idimage" title="idimg"/>
+					<tableColumn identifier="idmontage" title="idmontage" editable="YES"/>
 					<tableColumn identifier="parameter" editable="YES" title="parameter"/>
 	  			</tableView>
 			</scrollView>
             <ButtonBar  minusButtonAction="remove:" actionsButton="YES" target="#CPOwner.stacksContentController">
 				<popUpButtonItem title="Re-Ransac" target="#mystackscontroller" action="reRansac:"/>
 				<popUpButtonItem title="FlickerGIF" target="#mystackscontroller" action="downloadGIFSingle:"/>
+				<popUpButtonItem title="Rebase to selection" target="#mystackscontroller" action="rebase:"/>
 			</ButtonBar>
 
 		</vbox>

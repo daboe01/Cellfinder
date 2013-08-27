@@ -466,6 +466,18 @@ sub multiplyAffineMatrixes { my ($m1, $m2)=@_;
 	return join ',', ($mc->[0]->[0], $mc->[0]->[1],$mc->[1]->[0],$mc->[1]->[1], $mc->[2]->[0],$mc->[2]->[1]) ;
 }
 
+sub reverseAffineMatrix { my ($m1)=@_;
+	my ($sx, $rx, $ry, $sy, $tx, $ty) =split /,/, $m1;
+	my $det= $sx*$sy - $rx*$ry;
+warn "$sx, $rx, $ry, $sy, $tx, $ty : $det";
+	my $inverse_sx= 	 $sy/$det;
+	my $inverse_rx= (-1)*$rx/$det;
+	my $inverse_ry= (-1)*$ry/$det;
+	my $inverse_sy=		 $sx/$det;
+	my $inverse_tx=	(-1)*$tx*$inverse_sx - $ty*$inverse_ry;
+	my $inverse_ty=	(-1)*$tx*$inverse_rx - $ty*$inverse_sy;
+	return join ',', ( $inverse_sx, $inverse_rx , $inverse_ry, $inverse_sy, $inverse_tx, $inverse_ty) ;
+}
 
 
 sub createImageFromUpload { my ($dbh, $idtrial, $local_filename, $filedataname, $replace_idimage, $timestamp)=@_;

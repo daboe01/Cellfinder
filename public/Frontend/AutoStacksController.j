@@ -28,6 +28,18 @@
 	mystacksconnection=[CPURLConnection connectionWithRequest:myreq delegate: self];
 	[progress startAnimation: self];
 }
+-(void) rebase: sender
+{	var id = [myAppController.stacksContentController valueForKeyPath: "selection.id"];
+	var myreq=[CPURLRequest requestWithURL: BaseURL+"rebase/" + id];
+	mystacksconnection=[CPURLConnection connectionWithRequest: myreq delegate: self];
+	[progress startAnimation: self];
+}
+-(void) collectSamebase: sender
+{	var id = [myAppController.stacksContentController valueForKeyPath: "selection.id"];
+	var myreq=[CPURLRequest requestWithURL: BaseURL+"collect_samebase/" + id];
+	mystacksconnection=[CPURLConnection connectionWithRequest: myreq delegate: self];
+	[progress startAnimation: self];
+}
 -(void) downloadGIFSingle: sender
 {	var idmontage=[myAppController.stacksController valueForKeyPath: "selection.id"];
 	var idanalysis1 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis"];
