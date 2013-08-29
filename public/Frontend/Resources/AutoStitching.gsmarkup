@@ -47,7 +47,7 @@
   </window>
 
 
-  <window title="Stack settings" id="stacksettingswindow" modal="YES" visible="NO" width="300" height="200" resizable="YES">
+  <window title="Stack settings" id="stacksettingswindow" modal="YES" visible="NO" width="300" height="150" resizable="YES">
 	<vbox>
 				<vbox>
 				<hbox><label valign="center" halign="min" width="100">Name</label><textField valueBinding="#CPOwner.stacksController.selection.name"/></hbox>
