@@ -238,8 +238,9 @@
 -(unsigned) getIDOfReferenceAnalaysis
 {	var arr=[myAppController.stacksContentController arrangedObjects];
 	var i,l=[arr count];
+	var peek;
 	for(i=0; i<l; i++)
-	{	if(![arr[i] valueForKey:"idanalysis_reference"]) return [arr[i] valueForKey:"idanalysis"];
+	{	if(peek=[arr[i] valueForKey:"idanalysis_reference"]) return peek;
 	}
 	return CPNotFound;
 }

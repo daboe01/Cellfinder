@@ -602,21 +602,16 @@ get '/IMG/bridgestitch/:idtrial/:idransac/:idmontage1/:idmontage2'=> [idtrial =>
 	$self->render(data=>'0', format =>'txt' );
 };
 
-get '/IMG/collect_samebase/:idmontageimage'=> [idmontageimage => qr/[0-9]+/] => sub
+get '/IMG/collect/:samebase/:idmontage'=> [samebase => qr/[0-9]+/, idmontage => qr/[0-9]+/] => sub
 {	my $self=shift;
-	my $idmontageimage = $self->param('idmontageimage');
 
-	my $montage_image=cellfinder_image::getObjectFromDBHandID($self->db, 'montage_images', $idmontageimage);
-warn Dumper $montage_image;
-	my ($idbase, $idstack)=( $montage_image->{idanalysis_reference}, $montage_image->{idmontage} );
+	my $idbase = $self->param('samebase');
+	my $idmontage = $self->param('idmontage');
 
 	my $sql=qq{update montage_images set idmontage = ? where idanalysis_reference = ?};
 	my $sth = $self->db->prepare( $sql );
-	$sth->execute( ($idstack, $idbase) );
+	$sth->execute( ($idmontage, $idbase) );
 
-	$sql=qq{delete from montages where id in (select idmontage from  (select count(*), idmontage from montage_images group by idmontage) a where count<2)};
-	$sth = $self->db->prepare( $sql );
-	$sth->execute();	# delete all orphaned montages <!> fixme should be constrained to current trial
 	$self->render(data=>'0', format =>'txt' );
 };
 

@@ -35,8 +35,9 @@
 	[progress startAnimation: self];
 }
 -(void) collectSamebase: sender
-{	var id = [myAppController.stacksContentController valueForKeyPath: "selection.id"];
-	var myreq=[CPURLRequest requestWithURL: BaseURL+"collect_samebase/" + id];
+{	var samebase=[self getIDOfReferenceAnalaysis];
+	var idmontage=[myAppController.stacksController valueForKeyPath: "selection.id"];
+	var myreq=[CPURLRequest requestWithURL: BaseURL+"collect"+"/"+samebase+"/" + idmontage];
 	mystacksconnection=[CPURLConnection connectionWithRequest: myreq delegate: self];
 	[progress startAnimation: self];
 }
@@ -45,7 +46,7 @@
 	var idanalysis1 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis"];
 	var idanalysis2 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis_reference"];
 	var myURL=BaseURL+"ransac_debug/0/" + idmontage + "/" + idanalysis1 + "/" + idanalysis2;
-	if(_viewingCompo) myURL+=("&cmp="+parseInt(_viewingCompo));	#<!> fixme unimplemented in backend
+	if(_viewingCompo) myURL+=("&cmp="+parseInt(_viewingCompo));	#<!> fixme still unimplemented in backend
 	window.open(myURL,'animated_gifwindow');
 }
 
