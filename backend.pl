@@ -524,6 +524,13 @@ warn $par;
 	$self->render(data=>'OK', format =>'txt' );
 };
 
+helper deleteOrphanedMIsInTrial => sub { my ($self, $idtrial)=@_;
+	my $sql=qq{delete from montages where id in ( select id from (select  montages.id, coalesce(count,0) as count from montages left join  (select count(*), idmontage from montage_images group by idmontage)   a on a.idmontage=montages.id where idtrial=?) a where count<2)};
+	my $sth = $self->db->prepare( $sql );
+	$sth->execute(($idtrial));
+};
+
+
 get '/IMG/autostitch/:idmontage'=> [idmontage =>qr/[0-9]+/] => sub
 {	my $self=shift;
 	my $idmontage= $self->param('idmontage');
@@ -555,16 +562,15 @@ warn "$idanalysis, $idmontage, $idmontage_orig";
 		}
 	}
 
-	my $query=qq/select idanalysis, idanalysis_reference, parameter, idmontage, idimage from montage_images where idmontage = ? and idanalysis_reference is not null/;
+	my $query=qq/select idanalysis, idanalysis_reference, parameter, idmontage, idimage, idtrial from montage_images join montages on idmontage=montages.id where idmontage = ? and idanalysis_reference is not null/;
 	my $sth = $self->db->prepare($query);
 	$sth->execute(($idmontage));
 	my $anchor= $sth->fetchrow_hashref();
 
 	iterateAnalysesOfMontageIDAndMatrix($self->db, $move, $idmontage, $anchor->{parameter},  $anchor->{idanalysis_reference}, $anchor->{idanalysis} );
 	if($move)
-	{	my $sql=qq{delete from montages where id in (select idmontage from  (select count(*), idmontage from montage_images group by idmontage) a where count<2)};
-		$sth = $self->db->prepare( $sql );
-		$sth->execute();	# delete all orphaned montages <!> fixme should be constrained to current trial
+	{
+		$self-> deleteOrphanedMIsInTrial($anchor->{idtrial});
 		$self->render(data=>'0', format =>'txt' );
 	} else
 	{	$self->render(data=>$idmontage, format =>'txt' );
@@ -602,27 +608,12 @@ get '/IMG/bridgestitch/:idtrial/:idransac/:idmontage1/:idmontage2'=> [idtrial =>
 	$self->render(data=>'0', format =>'txt' );
 };
 
-get '/IMG/collect/:samebase/:idmontage'=> [samebase => qr/[0-9]+/, idmontage => qr/[0-9]+/] => sub
-{	my $self=shift;
-
-	my $idbase = $self->param('samebase');
-	my $idmontage = $self->param('idmontage');
-
-	my $sql=qq{update montage_images set idmontage = ? where idanalysis_reference = ?};
-	my $sth = $self->db->prepare( $sql );
-	$sth->execute( ($idmontage, $idbase) );
-
-	$self->render(data=>'0', format =>'txt' );
-};
-
-get '/IMG/rebase/:idmontageimage'=> [idmontageimage => qr/[0-9]+/] => sub
-{	my $self=shift;
-	my $idmontageimage = $self->param('idmontageimage');
-
+helper rebaseMontageID => sub { my ($self, $idmontageimage)=@_;
 	my $montage_image=cellfinder_image::getObjectFromDBHandID($self->db, 'montage_images', $idmontageimage);
 	my ($oldbase, $newbase, $orig_matrix, $idstack)=(	$montage_image->{idanalysis_reference}, $montage_image->{idanalysis},
 														$montage_image->{parameter}, $montage_image->{idmontage} );
-	my $inverted_matrix= cellfinder_image::reverseAffineMatrix($orig_matrix);
+warn Dumper $montage_image;
+	my $inverted_matrix= $orig_matrix? cellfinder_image::reverseAffineMatrix($orig_matrix):'1,0,0,1,0,0';
 
 	my $sql=SQL::Abstract->new();
 
@@ -643,7 +634,54 @@ get '/IMG/rebase/:idmontageimage'=> [idmontageimage => qr/[0-9]+/] => sub
 		my $sth =  $self->db->prepare($stmt);
 		$sth->execute(@bind);
 	}
+	return $idstack;
+};
+
+
+
+get '/IMG/rebase/:idmontageimage'=> [idmontageimage => qr/[0-9]+/] => sub
+{	my $self=shift;
+	my $idmontageimage = $self->param('idmontageimage');
+	my $idstack=$self->rebaseMontageID($idmontageimage);
 	$self->render(data=> $idstack, format =>'txt' );
+};
+
+helper getFirstObjectInTableForDict => sub { my ($self, $table, $dict)=@_;
+	my $sql=SQL::Abstract->new();
+	my($stmt, @bind) = $sql->select($table, undef, $dict );
+	my $sth = $self->db->prepare($stmt);
+	$sth->execute(@bind);
+	return $sth->fetchrow_hashref();
+};
+
+get '/IMG/rebase_merge/:idmontage'=> [idmontage => qr/[0-9]+/] => sub
+{	my $self=shift;
+	my $idmontage = $self->param('idmontage');
+
+	my $query=qq/select * from (select a.idmontage as a, b.idmontage as b, c.idmontage as c, a.idanalysis as aa, a.idanalysis_reference as ab, a.parameter from montage_images a join  montage_images b on a.idanalysis=b.idanalysis join montage_images c on a.idanalysis_reference=c.idanalysis where  a.idmontage=?) a where a!=b and a!=c/;
+	my $sth = $self->db->prepare($query);
+	$sth->execute(($idmontage));
+	my $a= $sth->fetchall_arrayref()->[0];
+	my ($idmontage_a, $idmontage_b, $idanalysis_a, $idanalysis_b, $parameter)=($a->[1], $a->[2], $a->[3], $a->[4], $a->[5]);
+
+	my $montagea= $self->getFirstObjectInTableForDict('montage_images', {idmontage => $idmontage_a, idanalysis => $idanalysis_a});
+	my $montageb= $self->getFirstObjectInTableForDict('montage_images', {idmontage => $idmontage_b, idanalysis => $idanalysis_b});
+	if($montageb && $montagea)
+	{	my ($idmontageimagea , $idmontageimageb)=($montagea->{id}, $montageb->{id});
+
+		$self->rebaseMontageID($idmontageimageb);
+		my $idmontageimagec= cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $montagea->{idimage}, idanalysis=> $idanalysis_a, idanalysis_reference=> $idanalysis_b, idmontage=> $idmontage_b, parameter => $parameter} );
+		$self->rebaseMontageID($idmontageimagec);
+		$self->rebaseMontageID($idmontageimagea);
+
+		my $query=qq{update montage_images set idmontage = ? where idanalysis_reference = ?};
+		my $sth = $self->db->prepare( $query );
+		$sth->execute( ($montagea->{idmontage}, $idanalysis_a ) );
+		my $montage = cellfinder_image::getObjectFromDBHandID($self->db, 'montages', $idmontage);
+		$self-> deleteOrphanedMIsInTrial($montage->{idtrial});
+	}
+
+	$self->render(data=>  '0', format =>'txt' );
 };
 
 get '/IMG/ransac_debug/:idransac/:idmontage/:idanalysis1/:idanalysis2'=> [idransac => qr/[0-9]+/, idmontage => qr/[0-9]+/, idanalysis1 => qr/[0-9]+/, idanalysis2 => qr/[0-9]+/] => sub
@@ -663,7 +701,7 @@ get '/IMG/ransac_debug/:idransac/:idmontage/:idanalysis1/:idanalysis2'=> [idrans
 		my $p1= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage2)->(0);
 		$p1= cellfinder_image::_distortImage($p1, $affine);
 		push @$p,$p1;
-		$_->Set(delay=>15) for @$p;		# <!> fixme: make configurable
+		$_->Set(delay=>25) for @$p;		# <!> fixme: make configurable
 		my $tempfilename=cellfinder_image::tempFileName('/tmp/cellf');
 		$p->Write($tempfilename.'.gif');
 		$self->render(data=>cellfinder_image::readFile($tempfilename.'.gif'), format=>'gif');

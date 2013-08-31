@@ -34,13 +34,7 @@
 	mystacksconnection=[CPURLConnection connectionWithRequest: myreq delegate: self];
 	[progress startAnimation: self];
 }
--(void) collectSamebase: sender
-{	var samebase=[self getIDOfReferenceAnalaysis];
-	var idmontage=[myAppController.stacksController valueForKeyPath: "selection.id"];
-	var myreq=[CPURLRequest requestWithURL: BaseURL+"collect"+"/"+samebase+"/" + idmontage];
-	mystacksconnection=[CPURLConnection connectionWithRequest: myreq delegate: self];
-	[progress startAnimation: self];
-}
+
 -(void) downloadGIFSingle: sender
 {	var idmontage=[myAppController.stacksController valueForKeyPath: "selection.id"];
 	var idanalysis1 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis"];
@@ -55,6 +49,7 @@
 	mystacksconnection=[CPURLConnection connectionWithRequest:myreq delegate: self];
 	[progress startAnimation: self];
 }
+
 -(void) bridgeStitching: sender
 {	var idransac=[myAppController.trialsController valueForKeyPath: "selection.composition_for_ransac"]
 	var idtrial=[myAppController.trialsController valueForKeyPath: "selection.id"]
@@ -68,6 +63,13 @@
 	var idmontage1=[[selectedItems objectAtIndex:0] valueForKey:"id"];
 	var idmontage2=[[selectedItems objectAtIndex:1] valueForKey:"id"];
 	var myreq=[CPURLRequest requestWithURL: BaseURL+"bridgestitch/"+idtrial+"/"+idransac+"/"+idmontage1+"/"+idmontage2];
+	mystacksconnection=[CPURLConnection connectionWithRequest:myreq delegate: self];
+	[progress startAnimation: self];
+}
+
+-(void) mergeBridged: sender
+{	var idmontage=[myAppController.stacksController valueForKeyPath: "selection.id"];
+	var myreq=[CPURLRequest requestWithURL: BaseURL+"rebase_merge/"+idmontage];
 	mystacksconnection=[CPURLConnection connectionWithRequest:myreq delegate: self];
 	[progress startAnimation: self];
 }
