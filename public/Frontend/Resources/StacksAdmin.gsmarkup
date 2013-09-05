@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE gsmarkup>
+<gsmarkup>
+
+<objects>
+  <window title="Stack settings" id="stacksettingswindow" modal="YES" visible="NO" width="300" height="150" resizable="YES">
+	<vbox>
+				<vbox>
+				<hbox><label valign="center" halign="min" width="100">Name</label><textField valueBinding="#CPOwner.myAppController.stacksController.selection.name"/></hbox>
+				<hbox><label valign="center" halign="min" width="100">Name</label><hspace/>
+					<popUpButton width="100" id="flattenCompoPopup" itemsBinding="#CPOwner.myAppController.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.myAppController.stacksController.selection.idpatch"/>
+				</hbox>
+				<hbox><label valign="center" halign="min" width="100">Geom</label><textField valueBinding="#CPOwner.myAppController.stacksController.selection.geometry"/></hbox>
+
+				</vbox>
+		<button title="Done" target="#CPOwner" action="closeSheet:"/>
+	</vbox>
+  </window>
+</objects>
+
+<connectors>
+	<outlet source="#CPOwner" target="stacksettingswindow" label="stacksettingswindow"/>
+</connectors>
+
+</gsmarkup>

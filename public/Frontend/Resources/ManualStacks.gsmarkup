@@ -15,7 +15,6 @@
 			</scrollView>
 			<ButtonBar plusButtonAction="newStack:" minusButtonAction="deleteStack:" actionsButton="YES" target="#mystackscontroller">
   				<popUpButtonItem title="Settings…" target="#mystackscontroller" action="runSettings:"/>
-  				<popUpButtonItem title="Swap" target="#mystackscontroller" action="runSwap:"/>
 				<popUpButtonItem title="Flickering…" target="#mystackscontroller" action="runFlicker:"/>
  				<popUpButtonItem title="Flatten…" target="#mystackscontroller" action="flattenStack:"/>
  				<popUpButtonItem title="GIF" target="#mystackscontroller" action="downloadGIF:"/>
@@ -33,29 +32,11 @@
 		</vbox>
 	 </splitView>
   </window>
-
-
-  <window title="Stack settings" id="stacksettingswindow" modal="YES" visible="NO" width="300" height="200" resizable="YES">
-	<vbox>
-				<vbox>
-				<hbox><label valign="center" halign="min" width="100">Name</label><textField valueBinding="#CPOwner.stacksController.selection.name"/></hbox>
-				<hbox><label valign="center" halign="min" width="100">Name</label>
-					<popUpButton width="100" id="flattenCompoPopup" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.stacksController.selection.idpatch"/>
-				</hbox>
-				<hbox><label valign="center" halign="min" width="100">Width</label><textField valueBinding="#CPOwner.stacksController.selection.width"/></hbox>
-				<hbox><label valign="center" halign="min" width="100">Height</label><textField valueBinding="#CPOwner.stacksController.selection.height"/></hbox>
-
-				</vbox>
-		<button title="Done" target="#mystackscontroller" action="closeSheet:"/>
-	</vbox>
-  </window>
-
 </objects>
 
 <connectors>
 	<outlet source="mystackscontroller" target="stacks_collection_view" label="myCollectionView"/>
 	<outlet source="mystackscontroller" target="stackswindow" label="myWindow"/>
-	<outlet source="mystackscontroller" target="stacksettingswindow" label="stacksettingswindow"/>
 </connectors>
 
 </gsmarkup>
