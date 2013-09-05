@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!DOCTYPE gsmarkup>
+<gsmarkup>
+
+<objects>
+  <compoBrowser id="mycompobrowser"/>
+  <window title="Compositions" closable="yes" id="mainwindow" x="30" y="30" width="800" height="640" autosaveName="coposColumnSizes">
+	<splitView vertical="YES" autosaveName="compos1">
+		<vbox>
+			<scrollView hasHorizontalScroller="NO">
+				<tableView autosaveName="compos" zebra="yes" valueBinding="#CPOwner.compoController" target="#CPOwner">
+					<tableColumn identifier="name" title="name" editable="YES"/>
+	  			</tableView>
+			</scrollView>
+			<ButtonBar plusButtonAction="newCompo:" minusButtonAction="deleteCompo:" actionsButton="YES" target="#mycompobrowser">
+				<popUpButtonItem title="CopyCompo" target="#mycompobrowser" action="copyCompo:"/>
+				<popUpButtonItem title="Move to other trial..." target="#mycompobrowser" action="moveToTrial:"/>
+			</ButtonBar>
+		</vbox>
+		<vbox>
+			<scrollView hasHorizontalScroller="NO">
+				<tableView autosaveName="chains" zebra="yes" valueBinding="#CPOwner.chainsController" target="#CPOwner">
+					<tableColumn identifier="name" title="name" editable="YES"/>
+					<tableColumn identifier="ordering" title="sort" editable="YES"/>
+	  			</tableView>
+			</scrollView>
+			<ButtonBar plusButtonAction="newChain:" minusButtonAction="deleteChain:" actionsButton="YES" target="#mycompobrowser">
+				<popUpButtonItem title="Set primary" target="#mycompobrowser" action="setPrimaryChain:"/>
+				<popUpButtonItem title="Duplicate" target="#mycompobrowser" action="duplicateChain:"/>
+				<popUpButtonItem title="Move to other trial..." target="#mycompobrowser" action="moveToTrial:"/>
+			</ButtonBar>
+		</vbox>
+		<vbox>
+			<scrollView hasHorizontalScroller="NO">
+				<tableView autosaveName="patches" zebra="yes" valueBinding="#CPOwner.patchesController" target="#CPOwner">
+					<tableColumn identifier="patch.name" title="name" editable="YES"/>
+					<tableColumn identifier="ordering" title="sort" editable="YES"/>
+	  			</tableView>
+			</scrollView>
+			<ButtonBar plusButtonAction="newPatch:" minusButtonAction="deletePatch:" actionsButton="YES" target="#mycompobrowser">
+				<popUpButtonItem title="Duplicate" target="#mycompobrowser" action="duplicateChain:"/>
+			</ButtonBar>
+		</vbox>
+		<vbox>
+			<scrollView hasHorizontalScroller="NO">
+				<tableView autosaveName="inputvals" zebra="yes" valueBinding="#CPOwner.inputValController" target="#CPOwner">
+					<tableColumn identifier="parameter.name" title="name" editable="YES"/>
+					<tableColumn identifier="value" title="value" editable="YES"/>
+	  			</tableView>
+			</scrollView>
+		</vbox>
+	 </splitView>
+  </window>
+</objects>
+
+<connectors>
+	<outlet source="#CPOwner" target="mycompobrowser" label="_sharedCompoBrowser"/>
+</connectors>
+
+</gsmarkup>

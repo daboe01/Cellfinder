@@ -15,6 +15,7 @@
   <sortDescriptor id="by_id" key="id" ascending="YES"/>
   <sortDescriptor id="by_reverse_id" key="id" ascending="NO"/>
   <sortDescriptor id="by_name" key="name"/>
+  <sortDescriptor id="by_ordering" key="ordering"/>
   <sortDescriptor id="by_folder_name" key="folder_name"/>
 
 
@@ -30,6 +31,10 @@
 
 	<arrayController id="trials_controller" entity="trials" autoFetch="YES" sortDescriptor="by_name"/>
 	<arrayController id="compos_controller" entity="patch_compositions" valueBinding ="trials_controller.selection.compos"/>
+	<arrayController id="chains_controller" entity="patch_chains" valueBinding ="compos_controller.selection.chains" sortDescriptor="by_ordering"/>
+	<arrayController id="patches_controller" entity="patches" valueBinding ="chains_controller.selection.patches" sortDescriptor="by_ordering"/>
+	<arrayController id="inputval_controller" entity="patches" valueBinding ="patches_controller.selection.input_values"/>
+
 	<arrayController id="stacks_controller" entity="montages" valueBinding ="trials_controller.selection.stacks" sortDescriptor="by_name"/>
 	<arrayController id="stacks_content_controller" entity="montage_images" valueBinding ="stacks_controller.selection.analyses"/>
 	<arrayController id="folder_controller" entity="folders" valueBinding ="trials_controller.selection.folders" sortDescriptor="by_folder_name"/>
@@ -43,6 +48,7 @@
 	<menu title="Images">
 		<menuItem title="Upload File" action="uploadImage:"/>
 		<menuItem title="ImageBrowser" action="runImageBrowser:"/>
+		<menuItem title="Compositions..." action="runCompoBrowser:"/>
 	</menu>
 	<menu title="Edit">
 		<menuItem title="Cut" action="cut:" keyEquivalent="x"/>
@@ -86,6 +92,7 @@
 	<entity id="patch_chains" store="#CPOwner.store">
 		<column name="id" primaryKey="YES"/>
 		<column name="idpatch_composition"/>
+		<column name="ordering"/>
 		<column name="name"/>
 		<relationship name="patches" type="toMany" target="patches" targetColumn="idpatch_chain"/>
 	</entity>
@@ -93,12 +100,34 @@
 		<column name="id" primaryKey="YES"/>
 		<column name="idpatch_chain"/>
 		<column name="idpatch"/>
+		<column name="ordering"/>
 		<relationship type="toOne" name="patch" bindingColumn="idpatch" target="patch_repository"/>
+		<relationship type="toMany" name="input_values" targetColumn="idpatch" target="patch_input_values"/>
 	</entity>
 	<entity id="patch_repository" store="#CPOwner.store">
 		<column name="id" primaryKey="YES"/>
 		<column name="type"/>
 		<column name="name"/>
+	</entity>
+	<entity id="patch_input_values" store="#CPOwner.store">
+		<column name="id" primaryKey="YES"/>
+		<column name="idparameter"/>
+		<column name="idpatch"/>
+		<column name="value"/>
+		<column name="interactive"/>
+		<column name="disable"/>
+		<relationship type="toOne" name="parameter" bindingColumn="idparameter" target="patch_parameters"/>
+	</entity>
+	<entity id="patch_parameters" store="#CPOwner.store">
+		<column name="id" primaryKey="YES"/>
+		<column name="name"/>
+		<column name="default_value"/>
+		<column name="type"/>
+		<column name="range1"/>
+		<column name="range2"/>
+		<column name="idpatch"/>
+		<column name="cmd_name"/>
+		<column name="description"/>
 	</entity>
 	<entity id="composition_interactive_parameters" store="#CPOwner.store">
 		<column name="idinput" primaryKey="YES"/>
@@ -228,6 +257,10 @@
 	<outlet source="#CPOwner" target="aggregations_controller" label="aggregationsController"/>
 	<outlet source="#CPOwner" target="tag_repository_controller" label="tagrepoController"/>
 	<outlet source="#CPOwner" target="tags_controller" label="tagsController"/>
+	<outlet source="#CPOwner" target="compos_controller" label="compoController"/>
+	<outlet source="#CPOwner" target="chains_controller" label="chainsController"/>
+	<outlet source="#CPOwner" target="patches_controller" label="patchesController"/>
+	<outlet source="#CPOwner" target="inputval_controller" label="inputValController"/>
 
 	<outlet source="#CPOwner" target="displayfilters_ac" label="displayfilters_ac"/>
 	<outlet source="#CPOwner" target="uploadfilters_ac" label="uploadfilters_ac"/>

@@ -146,7 +146,7 @@
 
 -(void) runSettings:sender
 {	if(! stacksettingswindow)
-		[CPBundle loadRessourceNamed: "Admin.gsmarkup" owner: self ];
+		[CPBundle loadRessourceNamed: "StacksAdmin.gsmarkup" owner: self ];
 
 	[CPApp beginSheet: stacksettingswindow modalForWindow: myWindow modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
 
@@ -239,10 +239,12 @@
 	var idReferenceAnalysis=[self getIDOfReferenceAnalaysis];
 	var newAnalysis=[analysesEntity insertObject:
 		[CPDictionary dictionaryWithObjects: [ idimage ] forKeys: [ "idimage" ] ] ];
-	if(idReferenceAnalysis!= CPNotFound)
-		[newImg setValue: idReferenceAnalysis forKey:"idanalysis_reference" ];
+	if(idReferenceAnalysis === CPNotFound)
+	{	idReferenceAnalysis=[newAnalysis valueForKey:"id"]
+	}
+	[newImg setValue: idReferenceAnalysis forKey:"idanalysis_reference" ];
+
 	[newImg setValue: [newAnalysis valueForKey:"id"] forKey:"idanalysis" ];
-// <!>set new analysis type to value of "AnalysisHoldingThePoints"
 	[myAppController.stacksContentController addObject: newImg ];
 
 	[self resetItemSize];
@@ -275,5 +277,8 @@
 -(void) collectionView:(CPCollectionView)collectionView didDoubleClickOnItemAtIndex:(int)index
 {	[self removeImageAtIndex: index];
 }
-
+-(BOOL) collectionView: someView acceptDrop: draggingInfo index:dropIndex dropOperation: someOP
+{	[self performDragOperation: draggingInfo];
+	return YES;
+}
 @end

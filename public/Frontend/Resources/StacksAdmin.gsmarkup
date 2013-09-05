@@ -10,7 +10,8 @@
 				<hbox><label valign="center" halign="min" width="100">Name</label><hspace/>
 					<popUpButton width="100" id="flattenCompoPopup" itemsBinding="#CPOwner.myAppController.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.myAppController.stacksController.selection.idpatch"/>
 				</hbox>
-				<hbox><label valign="center" halign="min" width="100">Geom</label><textField valueBinding="#CPOwner.myAppController.stacksController.selection.geometry"/></hbox>
+				<hbox><label valign="center" halign="min" width="100">Geom</label><textField placeholder="1000x1000+0+0" valueBinding="#CPOwner.myAppController.stacksController.selection.geometry"/></hbox>
+			<label>Use IM-style geometry for 'windowing'</label>
 
 				</vbox>
 		<button title="Done" target="#CPOwner" action="closeSheet:"/>

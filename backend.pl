@@ -342,7 +342,9 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 		$sth->execute(@bind);
 
 		while ( my $curr = $sth->fetchrow_hashref() )
-		{	next unless $curr->{idanalysis_reference};
+		{
+			next unless $curr->{idanalysis_reference};
+			next if $curr->{id} == $curr->{idanalysis_reference};
 			my $par;
 			if($ransac)
 			{	my $compo=cellfinder_image::getObjectFromDBHandID($self->db, 'patch_compositions', $ransac);

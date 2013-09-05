@@ -37,7 +37,8 @@ sub runRCode { my ($RCmd)=@_;
 sub runSimpleRegistrationRCode { my ($id1,$id2)=@_;
 	my $RCmd=<<'ENDOFR'
 	read.pointset=function(id){
-		d1=read.delim(paste("http://localhost:3000/ANA/results/", id, sep=""))
+		d1=read.delim(paste("http://localhost/cellfinder_results/0?mode=results&constraint=idanalysis=", id, sep=""))
+	#	d1=read.delim(paste("http://localhost:3000/ANA/results/", id, sep=""))
 		return (d1)
 	}
 	d0= subset(read.pointset(<id1>), select=c(row,col))
