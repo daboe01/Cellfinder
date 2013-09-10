@@ -38,7 +38,6 @@
             <ButtonBar  minusButtonAction="remove:" actionsButton="YES" target="#CPOwner.stacksContentController">
 				<popUpButtonItem title="Re-Ransac" target="#mystackscontroller" action="reRansac:"/>
 				<popUpButtonItem title="FlickerGIF" target="#mystackscontroller" action="downloadGIFSingle:"/>
-				<popUpButtonItem title="Rebase to selection" target="#mystackscontroller" action="rebase:"/>
 			</ButtonBar>
 
 		</vbox>

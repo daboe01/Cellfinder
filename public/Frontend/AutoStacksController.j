@@ -39,6 +39,10 @@
 {	var idmontage=[myAppController.stacksController valueForKeyPath: "selection.id"];
 	var idanalysis1 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis"];
 	var idanalysis2 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis_reference"];
+	if(idanalysis2 === CPNullMarker)
+	{	[[CPAlert alertWithError:"Please select entry with a reference"] runModal];
+		return;
+	}
 	var myURL=BaseURL+"ransac_debug/0/" + idmontage + "/" + idanalysis1 + "/" + idanalysis2;
 	if(_viewingCompo) myURL+=("&cmp="+parseInt(_viewingCompo));	#<!> fixme still unimplemented in backend
 	window.open(myURL,'animated_gifwindow');

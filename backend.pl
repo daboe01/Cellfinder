@@ -582,6 +582,7 @@ warn "$idanalysis, $idmontage, $idmontage_orig";
 helper getRANSACParams => sub { my ($self, $idransac)=@_;
 	my $compo=cellfinder_image::getObjectFromDBHandID($self->db, 'patch_compositions', $idransac);
 	my $paramstr = '{'.cellfinder_image::getObjectFromDBHandID($self->db, 'patch_chains_with_parameters', $compo->{primary_chain})->{params}.'}';
+warn "$idransac : $paramstr";
 	return eval($paramstr);	#<!> fixme: use real parser
 };
 
@@ -603,7 +604,7 @@ get '/IMG/bridgestitch/:idtrial/:idransac/:idmontage1/:idmontage2'=> [idtrial =>
 		if($par)
 		{	my $name="B$idana1 $idana2";
 			my $idmontage=cellfinder_image::insertObjectIntoTable($self->db, 'montages', 'id', {idtrial=> $idtrial, name=> $name} );
-			cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $idimage2, idanalysis=> $idana2, idanalysis_reference=>$idana1, idmontage=> $idmontage, parameter=> $par} );
+			cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $idimage1, idanalysis=> $idana1, idanalysis_reference=>$idana2, idmontage=> $idmontage, parameter=> $par} );
 			last;
 		}
 	}

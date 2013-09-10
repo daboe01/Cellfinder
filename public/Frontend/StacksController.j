@@ -42,7 +42,7 @@
 	if(_compoID) myURL+=("&cmp="+parseInt(_compoID));
 	if(_handovers) myURL+=("&handover_params="+_handovers);
 	if(!_size) _size=1;		//<!> fixme make this configurable in UI trial settings (should be 0.1 when images are large)
-	myURL+=("&width="+parseInt( (_size*mysize.width)* (_size*mysize.height)));
+	myURL+=("&width="+parseInt( (_size*mysize.width) * (_size*mysize.height)));
 	myURL+=[self _additionalImageURLPart];
 	var image=[[CPImage alloc] initWithContentsOfFile: myURL];
 	[image setDelegate: self];
