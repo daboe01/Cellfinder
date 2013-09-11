@@ -42,7 +42,7 @@
 	if(_compoID) myURL+=("&cmp="+parseInt(_compoID));
 	if(_handovers) myURL+=("&handover_params="+_handovers);
 	if(!_size) _size=1;		//<!> fixme make this configurable in UI trial settings (should be 0.1 when images are large)
-	myURL+=("&width="+parseInt( (_size*mysize.width)* (_size*mysize.height)));
+	myURL+=("&width="+parseInt( (_size*mysize.width) * (_size*mysize.height)));
 	myURL+=[self _additionalImageURLPart];
 	var image=[[CPImage alloc] initWithContentsOfFile: myURL];
 	[image setDelegate: self];
@@ -145,7 +145,10 @@
 }
 
 -(void) runSettings:sender
-{	[CPApp beginSheet: stacksettingswindow modalForWindow: myWindow modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
+{	if(! stacksettingswindow)
+		[CPBundle loadRessourceNamed: "StacksAdmin.gsmarkup" owner: self ];
+
+	[CPApp beginSheet: stacksettingswindow modalForWindow: myWindow modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
 
 }
 -(void)setViewingCompo: someCompo
@@ -204,25 +207,6 @@
 		myurl+=("&csize="+encodeURIComponent([myAppController valueForKeyPath:"stacksController.selection.geometry"]));
 	window.open(myurl,'flattened_stackwindow');
 }
--(void) runSwap:sender
-{
-	var anas=[myAppController valueForKeyPath:"stacksController.selection.analyses"];
-	var l=[anas count];
-	var new_ref;
-	for(var i=0; i<l; i++)
-	{	var curr_ana=[anas objectAtIndex:i];
-		if([curr_ana valueForKey:"idanalysis"] != [curr_ana valueForKey:"idanalysis_reference"])
-		{	new_ref=[curr_ana valueForKey:"idanalysis"];
-		}
-	}
-	for(var i=0; i<l; i++)
-	{	var curr_ana=[anas objectAtIndex:i];
-		[curr_ana setValue:new_ref forKey:"idanalysis_reference"];
-		[curr_ana setValue:"" forKey:"parameter"];
-	}
-	[self _triggerRegistrationMatrixGeneration];
-
-}
 
 
 -(void) downloadGIF: sender
@@ -238,8 +222,9 @@
 -(unsigned) getIDOfReferenceAnalaysis
 {	var arr=[myAppController.stacksContentController arrangedObjects];
 	var i,l=[arr count];
+	var peek;
 	for(i=0; i<l; i++)
-	{	if(![arr[i] valueForKey:"idanalysis_reference"]) return [arr[i] valueForKey:"idanalysis"];
+	{	if(peek=[arr[i] valueForKey:"idanalysis_reference"]) return peek;
 	}
 	return CPNotFound;
 }
@@ -254,10 +239,12 @@
 	var idReferenceAnalysis=[self getIDOfReferenceAnalaysis];
 	var newAnalysis=[analysesEntity insertObject:
 		[CPDictionary dictionaryWithObjects: [ idimage ] forKeys: [ "idimage" ] ] ];
-	if(idReferenceAnalysis!= CPNotFound)
-		[newImg setValue: idReferenceAnalysis forKey:"idanalysis_reference" ];
+	if(idReferenceAnalysis === CPNotFound)
+	{	idReferenceAnalysis=[newAnalysis valueForKey:"id"]
+	}
+	[newImg setValue: idReferenceAnalysis forKey:"idanalysis_reference" ];
+
 	[newImg setValue: [newAnalysis valueForKey:"id"] forKey:"idanalysis" ];
-// <!>set new analysis type to value of "AnalysisHoldingThePoints"
 	[myAppController.stacksContentController addObject: newImg ];
 
 	[self resetItemSize];
@@ -290,5 +277,8 @@
 -(void) collectionView:(CPCollectionView)collectionView didDoubleClickOnItemAtIndex:(int)index
 {	[self removeImageAtIndex: index];
 }
-
+-(BOOL) collectionView: someView acceptDrop: draggingInfo index:dropIndex dropOperation: someOP
+{	[self performDragOperation: draggingInfo];
+	return YES;
+}
 @end

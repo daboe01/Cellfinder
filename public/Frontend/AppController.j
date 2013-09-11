@@ -20,6 +20,7 @@ PhotoDragType="PhotoDragType";
 @import "DottingControllers.j"
 @import "AdminController.j"
 @import "ImageBrowser.j"
+@import "CompoBrowser.j"
 @import "UploadManager.j"
 
 
@@ -74,6 +75,10 @@ PhotoDragType="PhotoDragType";
 	id	aggregationsController;
 	id	tagrepoController;
 	id	tagsController;
+	id	compoController;
+	id	chainsController;
+	id	patchesController;
+	id	inputValController;
 
 	id	displayfilters_ac;
 	id	uploadfilters_ac;
@@ -88,6 +93,7 @@ PhotoDragType="PhotoDragType";
 
 	id	_sharedConfigController;
 	id	_sharedImageBrowser @accessors(property=sharedImageBrowser);
+	id	_sharedCompoBrowser @accessors(property=sharedCompoBrowser);
 
 	id mainController @accessors;
 }
@@ -150,6 +156,9 @@ PhotoDragType="PhotoDragType";
 
 -(void) runImageBrowser:sender
 {	[ImageBrowser sharedImageBrowser];
+}
+-(void) runCompoBrowser:sender
+{	[CompoBrowser sharedImageBrowser];
 }
 
 -(void) reaggregateAll:sender

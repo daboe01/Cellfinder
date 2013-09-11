@@ -19,12 +19,41 @@
 	mystacksconnection=[CPURLConnection connectionWithRequest:myreq delegate: self];
 	[progress startAnimation: self];
 }
+-(void) reRansac: sender
+{	var idransac=[myAppController.trialsController valueForKeyPath: "selection.composition_for_ransac"];
+	var idmontage=[myAppController.stacksController valueForKeyPath: "selection.id"];
+	var idanalysis1 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis"];
+	var idanalysis2 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis_reference"];
+	var myreq=[CPURLRequest requestWithURL: BaseURL+"ransac_debug/" + idransac + "/" + idmontage + "/" + idanalysis1 + "/" + idanalysis2];
+	mystacksconnection=[CPURLConnection connectionWithRequest:myreq delegate: self];
+	[progress startAnimation: self];
+}
+-(void) rebase: sender
+{	var id = [myAppController.stacksContentController valueForKeyPath: "selection.id"];
+	var myreq=[CPURLRequest requestWithURL: BaseURL+"rebase/" + id];
+	mystacksconnection=[CPURLConnection connectionWithRequest: myreq delegate: self];
+	[progress startAnimation: self];
+}
+
+-(void) downloadGIFSingle: sender
+{	var idmontage=[myAppController.stacksController valueForKeyPath: "selection.id"];
+	var idanalysis1 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis"];
+	var idanalysis2 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis_reference"];
+	if(idanalysis2 === CPNullMarker)
+	{	[[CPAlert alertWithError:"Please select entry with a reference"] runModal];
+		return;
+	}
+	var myURL=BaseURL+"ransac_debug/0/" + idmontage + "/" + idanalysis1 + "/" + idanalysis2;
+	if(_viewingCompo) myURL+=("&cmp="+parseInt(_viewingCompo));	#<!> fixme still unimplemented in backend
+	window.open(myURL,'animated_gifwindow');
+}
 
 -(void) autoStitching: sender
 {	var myreq=[CPURLRequest requestWithURL: BaseURL+"autostitch/"+[myAppController.stacksController valueForKeyPath: "selection.id"]];
 	mystacksconnection=[CPURLConnection connectionWithRequest:myreq delegate: self];
 	[progress startAnimation: self];
 }
+
 -(void) bridgeStitching: sender
 {	var idransac=[myAppController.trialsController valueForKeyPath: "selection.composition_for_ransac"]
 	var idtrial=[myAppController.trialsController valueForKeyPath: "selection.id"]
@@ -38,6 +67,13 @@
 	var idmontage1=[[selectedItems objectAtIndex:0] valueForKey:"id"];
 	var idmontage2=[[selectedItems objectAtIndex:1] valueForKey:"id"];
 	var myreq=[CPURLRequest requestWithURL: BaseURL+"bridgestitch/"+idtrial+"/"+idransac+"/"+idmontage1+"/"+idmontage2];
+	mystacksconnection=[CPURLConnection connectionWithRequest:myreq delegate: self];
+	[progress startAnimation: self];
+}
+
+-(void) mergeBridged: sender
+{	var idmontage=[myAppController.stacksController valueForKeyPath: "selection.id"];
+	var myreq=[CPURLRequest requestWithURL: BaseURL+"rebase_merge/"+idmontage];
 	mystacksconnection=[CPURLConnection connectionWithRequest:myreq delegate: self];
 	[progress startAnimation: self];
 }
