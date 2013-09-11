@@ -44,7 +44,7 @@
 		return;
 	}
 	var myURL=BaseURL+"ransac_debug/0/" + idmontage + "/" + idanalysis1 + "/" + idanalysis2;
-	if(_viewingCompo) myURL+=("&cmp="+parseInt(_viewingCompo));	#<!> fixme still unimplemented in backend
+	if(_viewingCompo) myURL+=("&cmp="+parseInt(_viewingCompo));	//<!> fixme still unimplemented in backend
 	window.open(myURL,'animated_gifwindow');
 }
 
