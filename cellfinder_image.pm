@@ -198,7 +198,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 				eval($curr_patch->{params});
 				warn "error: $@" if($@);
 			}
-			else {	my $code='$p->[0]->'.$curr_patch->{patch}.'('.$curr_patch->{params}.')';
+			else {	my $code='$p->'.$curr_patch->{patch}.'('.$curr_patch->{params}.')';
 					$code=~s/=>"\[([0-9e\., \-\]]+)"/=>[$1/ogs;
 					$code=~s/([0-9])\]"/$1]/ogs;
 				 eval($code);
