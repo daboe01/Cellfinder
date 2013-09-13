@@ -504,7 +504,6 @@ get '/IMG/automatch_folder/:idtrial/:idransac/:folder_name'=> [idtrial=>qr/[0-9]
 	{	$next_idimage=$curr->[0];
 		$idimage1=$next_idimage unless $idimage1;
 		my ($idana1, $idana2)=($self->getLastAnaOfImageID($idimage1), $self->getLastAnaOfImageID($next_idimage));
-warn "$idimage1 $next_idimage: $idana1, $idana2; $idimage2";
 		if(!$idana1)
 		{	$idimage1=undef;
 			next;
@@ -512,8 +511,7 @@ warn "$idimage1 $next_idimage: $idana1, $idana2; $idimage2";
 		next unless $idana2;
 		$idimage2=$next_idimage;
 		if($idana1 && $idana2 &&  $idana1 != $idana2)
-		{	my $par= cellfinder_image::runRANSACRegistrationRCode($idana1, $idana2,$params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc});
-warn $par;
+		{	my $par= cellfinder_image::runRANSACRegistrationRCode($idana2, $idana1,$params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc});
 			if($par)
 			{	my $name="$idana1 $idana2";
 				my $idmontage=cellfinder_image::insertObjectIntoTable($self->db, 'montages', 'id', {idtrial=> $idtrial, name=> $name} );
