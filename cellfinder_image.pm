@@ -468,6 +468,7 @@ sub multiplyAffineMatrixes { my ($m1, $m2)=@_;
 }
 
 sub reverseAffineMatrix { my ($m1)=@_;
+	$m1=$1 if $m1=~/^\[(.+)\]$/;
 	my ($sx, $rx, $ry, $sy, $tx, $ty) =split /,/, $m1;
 	my $det= $sx*$sy - $rx*$ry;
 warn "$sx, $rx, $ry, $sy, $tx, $ty : $det";

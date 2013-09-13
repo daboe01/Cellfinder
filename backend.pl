@@ -511,7 +511,7 @@ get '/IMG/automatch_folder/:idtrial/:idransac/:folder_name'=> [idtrial=>qr/[0-9]
 		next unless $idana2;
 		$idimage2=$next_idimage;
 		if($idana1 && $idana2 &&  $idana1 != $idana2)
-		{	my $par= cellfinder_image::runRANSACRegistrationRCode($idana2, $idana1,$params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc});
+		{	my $par= cellfinder_image::runRANSACRegistrationRCode($idana1, $idana2,$params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc});
 			if($par)
 			{	my $name="$idana1 $idana2";
 				my $idmontage=cellfinder_image::insertObjectIntoTable($self->db, 'montages', 'id', {idtrial=> $idtrial, name=> $name} );
@@ -598,7 +598,7 @@ get '/IMG/bridgestitch/:idtrial/:idransac/:idmontage1/:idmontage2'=> [idtrial =>
 	$sth->execute(($idmontage1, $idmontage2));
 	while( my $curr=$sth->fetchrow_arrayref() )
 	{	my($idana1, $idana2, $idimage1, $idimage2)=($curr->[0], $curr->[1], $curr->[2], $curr->[3]);
-		my $par= cellfinder_image::runRANSACRegistrationRCode($idana1, $idana2,$params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc});
+		my $par= cellfinder_image::runRANSACRegistrationRCode($idana2, $idana1,$params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc});
 		if($par)
 		{	my $name="B$idana1 $idana2";
 			my $idmontage=cellfinder_image::insertObjectIntoTable($self->db, 'montages', 'id', {idtrial=> $idtrial, name=> $name} );
@@ -700,7 +700,7 @@ get '/IMG/ransac_debug/:idransac/:idmontage/:idanalysis1/:idanalysis2'=> [idrans
 		my ($idimage1, $idimage2, $affine)=($a->[0][0], $a->[0][1], $a->[0][2]);
 		my $p = cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage1)->(0);
 		my $p1= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage2)->(0);
-		$p1= cellfinder_image::_distortImage($p1, $affine);
+		$p= cellfinder_image::_distortImage($p, $affine);
 		push @$p,$p1;
 		$_->Set(delay=>25) for @$p;		# <!> fixme: make configurable
 		my $tempfilename=cellfinder_image::tempFileName('/tmp/cellf');
