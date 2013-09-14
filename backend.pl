@@ -590,6 +590,7 @@ get '/IMG/bridgestitch/:idtrial/:idransac/:idmontage1/:idmontage2'=> [idtrial =>
 	my $idransac=	$self->param("idransac");
 	my $idmontage1= $self->param('idmontage1');
 	my $idmontage2= $self->param('idmontage2');
+	my $all=		$self->param('all');
 
 	my $params=$self->getRANSACParams($idransac);
 
@@ -603,7 +604,7 @@ get '/IMG/bridgestitch/:idtrial/:idransac/:idmontage1/:idmontage2'=> [idtrial =>
 		{	my $name="B$idana1 $idana2";
 			my $idmontage=cellfinder_image::insertObjectIntoTable($self->db, 'montages', 'id', {idtrial=> $idtrial, name=> $name} );
 			cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $idimage1, idanalysis=> $idana1, idanalysis_reference=>$idana2, idmontage=> $idmontage, parameter=> $par} );
-			last;
+			last unless $all;
 		}
 	}
 	$self->render(data=>'0', format =>'txt' );
@@ -708,7 +709,7 @@ get '/IMG/ransac_debug/:idransac/:idmontage/:idanalysis1/:idanalysis2'=> [idrans
 		$self->render(data=>cellfinder_image::readFile($tempfilename.'.gif'), format=>'gif');
 	} else		# run ransac for exactly 2 images
 	{	my $params=$self->getRANSACParams($idransac);
-		my $par= cellfinder_image::runRANSACRegistrationRCode($idanalysis1, $idanalysis2,$params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc});
+		my $par= cellfinder_image::runRANSACRegistrationRCode($idanalysis2, $idanalysis1, $params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc});
 		if($par)
 		{	my $sql = SQL::Abstract->new;
 			my($stmt, @bind) = $sql->update('montage_images', { parameter=> $par }, {idanalysis=> $idanalysis1, idanalysis_reference=> $idanalysis2, idmontage=> $idmontage });

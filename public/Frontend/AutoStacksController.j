@@ -4,8 +4,9 @@
 
 
 @implementation AutoStacksController: ManualStacksController
-{	id progress;
-	var mystacksconnection
+{	id		progress;
+	BOOL	_bridgeStitchingAll;
+	var		mystacksconnection
 }
 
 //prevent our RANSAC matrix from beeing destroyed. don't call super method!!
@@ -66,9 +67,16 @@
 	}
 	var idmontage1=[[selectedItems objectAtIndex:0] valueForKey:"id"];
 	var idmontage2=[[selectedItems objectAtIndex:1] valueForKey:"id"];
-	var myreq=[CPURLRequest requestWithURL: BaseURL+"bridgestitch/"+idtrial+"/"+idransac+"/"+idmontage1+"/"+idmontage2];
+	var url= BaseURL+"bridgestitch/"+idtrial+"/"+idransac+"/"+idmontage1+"/"+idmontage2;
+	if(_bridgeStitchingAll) url+="?all=1";
+	var myreq=[CPURLRequest requestWithURL: url];
 	mystacksconnection=[CPURLConnection connectionWithRequest:myreq delegate: self];
 	[progress startAnimation: self];
+}
+-(void) bridgeStitchingAll: sender
+{	_bridgeStitchingAll=YES;
+	[self bridgeStitching: sender]
+	_bridgeStitchingAll=NO;
 }
 
 -(void) mergeBridged: sender
