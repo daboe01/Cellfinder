@@ -7,7 +7,7 @@
 
   <arrayController id="guiclasses_ac" entity="gui_classes"/>
 
-  <window title="All trials" closable="no"  x="10" y="50" id="trialswindow" width="300" height="640">
+  <window title="All trials" closable="no"  x="10" y="50" id="trialswindow" width="300" height="640" delegate="myadmincontroller">
 	<vbox>
 	<scrollView>
 	 <tableView zebra="yes" autosaveName="alltrials" valueBinding="#CPOwner.trialsController" target="#CPOwner" doubleAction="runSettings:">

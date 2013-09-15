@@ -24,6 +24,7 @@
 		var arr= geom.split(' ');
 		origSize= mycontroller._originalSizeArray[myidimage]= CPMakeSize(arr[0],arr[1]);
 	}
+
 	myURL+="&width="+ Math.floor(origSize.width *scale* origSize.height*scale);
 	var img=[[IdStoringImage alloc] initWithContentsOfFile: myURL];
 	img.myidimage= myidimage;

@@ -97,7 +97,10 @@ PhotoDragType="PhotoDragType";
 
 	id mainController @accessors;
 }
-
+// this is to make the currently GUI controller globally available (to get access to e.g. scale)
+- mainController
+{	return [[CPApp mainWindow] delegate] || mainController;
+}
 -(id) sharedConfigController
 {
 	if(!_sharedConfigController)
