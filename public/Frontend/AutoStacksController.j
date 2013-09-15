@@ -35,6 +35,13 @@
 	mystacksconnection=[CPURLConnection connectionWithRequest: myreq delegate: self];
 	[progress startAnimation: self];
 }
+-(void) collectSamebase: sender
+{	var samebase=[self getIDOfReferenceAnalaysis];
+	var idmontage=[myAppController.stacksController valueForKeyPath: "selection.id"];
+	var myreq=[CPURLRequest requestWithURL: BaseURL+"collect"+"/"+samebase+"/" + idmontage];
+	mystacksconnection=[CPURLConnection connectionWithRequest: myreq delegate: self];
+	[progress startAnimation: self];
+}
 
 -(void) downloadGIFSingle: sender
 {	var idmontage=[myAppController.stacksController valueForKeyPath: "selection.id"];

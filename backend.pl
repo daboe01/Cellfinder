@@ -530,6 +530,17 @@ helper deleteOrphanedMIsInTrial => sub { my ($self, $idtrial)=@_;
 	$sth->execute(($idtrial));
 };
 
+get '/IMG/collect/:samebase/:idmontage'=> [samebase => qr/[0-9]+/, idmontage => qr/[0-9]+/] => sub
+{	my $self=shift;
+
+	my $idbase = $self->param('samebase');
+	my $idmontage = $self->param('idmontage');
+
+	my $sql=qq{update montage_images set idmontage = ? where idanalysis_reference = ?};
+	my $sth = $self->db->prepare( $sql );
+	$sth->execute( ($idmontage, $idbase) );
+	$self->render(data=>'0', format =>'txt' );
+};
 
 get '/IMG/autostitch/:idmontage'=> [idmontage =>qr/[0-9]+/] => sub
 {	my $self=shift;

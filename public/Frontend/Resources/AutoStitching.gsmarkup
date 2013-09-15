@@ -21,6 +21,7 @@
 				<popUpButtonItem title="Bridge: first" target="#mystackscontroller" action="bridgeStitching:"/>
 				<popUpButtonItem title="Bridge: all" target="#mystackscontroller" action="bridgeStitchingAll:"/>
 				<popUpButtonItem title="Merge bridged" target="#mystackscontroller" action="mergeBridged:"/>
+				<popUpButtonItem title="Collect samebase" target="#mystackscontroller" action="collectSamebase:"/>
 				<popUpButtonItem title="Flickering…" target="#mystackscontroller" action="runFlicker:"/>
 			</ButtonBar>
 			<progresIndicator id="progress" indeterminate="YES"/>
@@ -37,6 +38,7 @@
 	  			</tableView>
 			</scrollView>
             <ButtonBar  minusButtonAction="remove:" actionsButton="YES" target="#CPOwner.stacksContentController">
+				<popUpButtonItem title="Rebase" target="#mystackscontroller" action="rebase:"/>
 				<popUpButtonItem title="Re-Ransac" target="#mystackscontroller" action="reRansac:"/>
 				<popUpButtonItem title="FlickerGIF" target="#mystackscontroller" action="downloadGIFSingle:"/>
 			</ButtonBar>
