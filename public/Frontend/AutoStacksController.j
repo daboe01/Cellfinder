@@ -87,7 +87,14 @@
 }
 
 -(void) mergeBridged: sender
-{	var idmontage=[myAppController.stacksController valueForKeyPath: "selection.id"];
+{
+	var selectedItems=[myAppController.stacksController selectedObjects ]
+	if ([selectedItems count] != 1)
+	{	[[CPAlert alertWithError:"Please select only bridged stack"] runModal];
+		return;
+	}
+
+	var idmontage=[myAppController.stacksController valueForKeyPath: "selection.id"];
 	var myreq=[CPURLRequest requestWithURL: BaseURL+"rebase_merge/"+idmontage];
 	mystacksconnection=[CPURLConnection connectionWithRequest:myreq delegate: self];
 	[progress startAnimation: self];
