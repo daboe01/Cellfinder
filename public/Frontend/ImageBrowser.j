@@ -30,6 +30,7 @@ var _sharedImageBrowser;
 
 @implementation ImageBrowser : StacksController
 {	id myalert;
+	id	renameWindow;
 }
 
 + sharedImageBrowser
@@ -70,6 +71,17 @@ var _sharedImageBrowser;
 	[myalert beginSheetModalForWindow:myWindow modalDelegate:self didEndSelector:@selector(deleteWarningDidEnd:code:context:) contextInfo: nil];
 }
 
+-(void) deleteSelectedImage: sender
+{
+}
+-(void) renameSelectedImage: sender
+{	[renameWindow makeKeyAndOrderFront:self];
+}
+-(void) renameSelectedImageOrderOut: sender
+{	[self _refreshFoldersList];
+	[renameWindow orderOut:self];
+}
+
 -(void) uploadImage: sender
 {	[UploadManager sharedUploadManager];
 }
@@ -88,16 +100,8 @@ var _sharedImageBrowser;
 	return [PhotoDragType];
 }
 
-- (void)performDragOperation:(CPDraggingInfo)aSender
-{	var data = [[aSender draggingPasteboard] dataForType:PhotoDragType];
-    var o=[CPKeyedUnarchiver unarchiveObjectWithData: data];
-	var myurl=BaseURL+"import/"+ [trialsController valueForKeyPath:"selection.id"];
-	myurl+="/"+[o objectForKey:"filename" ]+"/"+ [o objectForKey:"uri" ];
-
-	var myreq=[CPURLRequest requestWithURL: myurl];
-	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
-
-//<!> fixme: call this only, if import will result in new folder
+- (void)_refreshFoldersList
+{//<!> fixme: call this only, if import will result in new folder
 //<!> fixme: select the folder into which was imported by this drop
 	var trialsController=[CPApp delegate].trialsController;
 	var folderController=[CPApp delegate].folderController;
@@ -108,6 +112,19 @@ var _sharedImageBrowser;
 	[[folderController selectedObject] willChangeValueForKey:"folder_content"];
 	 [folderController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 	[[folderController selectedObject] didChangeValueForKey:"folder_content"];
+
+}
+
+
+- (void)performDragOperation:(CPDraggingInfo)aSender
+{	var data = [[aSender draggingPasteboard] dataForType:PhotoDragType];
+    var o=[CPKeyedUnarchiver unarchiveObjectWithData: data];
+	var myurl=BaseURL+"import/"+ [trialsController valueForKeyPath:"selection.id"];
+	myurl+="/"+[o objectForKey:"filename" ]+"/"+ [o objectForKey:"uri" ];
+
+	var myreq=[CPURLRequest requestWithURL: myurl];
+	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
+	[self _refreshFoldersList];
 }
 
 - (CPData)collectionView:(CPCollectionView)aCollectionView

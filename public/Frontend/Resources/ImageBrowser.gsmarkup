@@ -14,6 +14,7 @@
 			</scrollView>
 			<ButtonBar target="#myimagebrowser" plusButtonAction="uploadImage:" minusButtonAction="deleteImagesOfSelectedFolder:" actionsButton="YES">
 				<popUpButtonItem target="#myimagebrowser" title="Add default analyses" action="addDefaultAnalyses:"/>
+				<popUpButtonItem target="#myimagebrowser" title="Rename selected image" action="renameSelectedImage:"/>
 				<popUpButtonItem target="#myimagebrowser" title="Delete selected image" action="deleteSelectedImage:"/>
 			</ButtonBar>
 		</vbox>
@@ -28,6 +29,13 @@
 		</vbox>
 	 </splitView>
   </window>
+  <window title="Rename image" id="renamewindow" x="260" y="300" width="300" height="90" visible="NO"  resizable="NO">
+	<vbox>
+	<hbox><label valign="center" halign="min" width="60">Name</label><textField width="300" valueBinding="#CPOwner.folderContentController.selection.image.name"/></hbox>
+	<button target="#myimagebrowser" action="renameSelectedImageOrderOut:" title="OK"/>
+	</vbox>
+  </window>
+
 </objects>
 
 
@@ -35,6 +43,7 @@
 	<outlet source="myimagebrowser" target="folder_collection_view" label="myCollectionView"/>
 	<outlet source="myimagebrowser" target="mainwindow" label="myWindow"/>
 	<outlet source="#CPOwner" target="myimagebrowser" label="_sharedImageBrowser"/>
+	<outlet source="myimagebrowser" target="renamewindow" label="renameWindow"/>
 </connectors>
 
 
