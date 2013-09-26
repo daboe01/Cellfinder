@@ -109,7 +109,6 @@ var _sharedImageBrowser;
 //<!> fixme: causes flicker and loss of selection
 - (void)_refreshFoldersList
 {	var trialsController=[CPApp delegate].trialsController;
-	var folderController=[CPApp delegate].folderController;
 	[[trialsController selectedObject] willChangeValueForKey:"folders"];
 	 [trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 	[[trialsController selectedObject] didChangeValueForKey:"folders"];
@@ -117,6 +116,7 @@ var _sharedImageBrowser;
 - (void)_refreshFoldersContentList
 {
 
+	var folderController=[CPApp delegate].folderController;
 	[[folderController selectedObject] willChangeValueForKey:"folder_content"];
 	 [folderController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 	[[folderController selectedObject] didChangeValueForKey:"folder_content"];
