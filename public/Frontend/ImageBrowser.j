@@ -55,10 +55,7 @@ var _sharedImageBrowser;
 		var myreq=[CPURLRequest requestWithURL: myurl];
 		[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
 
-		var trialsController=[CPApp delegate].trialsController;
-		[[trialsController selectedObject] willChangeValueForKey:"folders"];
-		 [trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
-		[[trialsController selectedObject] didChangeValueForKey:"folders"];
+		[self _refreshFoldersList];
 	}
 }
 
@@ -72,7 +69,8 @@ var _sharedImageBrowser;
 }
 
 -(void) deleteSelectedImage: sender
-{
+{	[[CPApp delegate].folderContentController remove: self];
+	[self _refreshFoldersList];
 }
 -(void) renameSelectedImage: sender
 {	[renameWindow makeKeyAndOrderFront:self];
