@@ -56,6 +56,7 @@ var _sharedImageBrowser;
 		[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
 
 		[self _refreshFoldersList];
+		[self _refreshFoldersContentList];
 	}
 }
 
@@ -74,13 +75,16 @@ var _sharedImageBrowser;
 	var myreq=[CPURLRequest requestWithURL: myurl];
 	[myreq setHTTPMethod:"delete"];
 	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
-	[self _refreshFoldersList];
+	if([[[CPApp delegate].folderContentController arrangedObjects]  count] ==1)
+		[self _refreshFoldersList];
+	[self _refreshFoldersContentList];
 }
 -(void) renameSelectedImage: sender
 {	[renameWindow makeKeyAndOrderFront:self];
 }
 -(void) renameSelectedImageOrderOut: sender
 {	[self _refreshFoldersList];
+	[self _refreshFoldersContentList];
 	[renameWindow orderOut:self];
 }
 
@@ -102,20 +106,21 @@ var _sharedImageBrowser;
 	return [PhotoDragType];
 }
 
+//<!> fixme: causes flicker and loss of selection
 - (void)_refreshFoldersList
-{
-	var trialsController=[CPApp delegate].trialsController;
+{	var trialsController=[CPApp delegate].trialsController;
 	var folderController=[CPApp delegate].folderController;
-	var pk=[folderController valueForKeyPath:"selection.linkname"];
 	[[trialsController selectedObject] willChangeValueForKey:"folders"];
 	 [trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 	[[trialsController selectedObject] didChangeValueForKey:"folders"];
+}
+- (void)_refreshFoldersContentList
+{
 
 	[[folderController selectedObject] willChangeValueForKey:"folder_content"];
 	 [folderController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 	[[folderController selectedObject] didChangeValueForKey:"folder_content"];
 
-	[[CPRunLoop currentRunLoop] performSelector:@selector(selectObjectWithPK:) target: folderController argument: pk order:1000 modes:[CPDefaultRunLoopMode]];
 }
 
 
@@ -128,6 +133,8 @@ var _sharedImageBrowser;
 	var myreq=[CPURLRequest requestWithURL: myurl];
 	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
 	[self _refreshFoldersList];
+	[self _refreshFoldersContentList];
+
 }
 
 - (CPData)collectionView:(CPCollectionView)aCollectionView
