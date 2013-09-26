@@ -69,7 +69,11 @@ var _sharedImageBrowser;
 }
 
 -(void) deleteSelectedImage: sender
-{	[[CPApp delegate].folderContentController remove: self];
+{	var idimage=[[CPApp delegate].folderContentController valueForKeyPath: "selection.idimage"];
+	var myurl= HostURL +"/DBI/images/id/"+ idimage;
+	var myreq=[CPURLRequest requestWithURL: myurl];
+	[myreq setHTTPMethod:"delete"];
+	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
 	[self _refreshFoldersList];
 }
 -(void) renameSelectedImage: sender
@@ -99,10 +103,10 @@ var _sharedImageBrowser;
 }
 
 - (void)_refreshFoldersList
-{//<!> fixme: call this only, if import will result in new folder
-//<!> fixme: select the folder into which was imported by this drop
+{
 	var trialsController=[CPApp delegate].trialsController;
 	var folderController=[CPApp delegate].folderController;
+	var pk=[folderController valueForKeyPath:"selection.linkname"];
 	[[trialsController selectedObject] willChangeValueForKey:"folders"];
 	 [trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 	[[trialsController selectedObject] didChangeValueForKey:"folders"];
@@ -111,6 +115,7 @@ var _sharedImageBrowser;
 	 [folderController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 	[[folderController selectedObject] didChangeValueForKey:"folder_content"];
 
+	[[CPRunLoop currentRunLoop] performSelector:@selector(selectObjectWithPK:) target: folderController argument: pk order:1000 modes:[CPDefaultRunLoopMode]];
 }
 
 
