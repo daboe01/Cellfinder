@@ -406,6 +406,21 @@ sub _distortImage{ my ($i, $parameter, $offsetX, $offsetY)=@_;
 	$i->Distort(method=>'AffineProjection', points=> _pointArrayRForMatrixStringAndOffset($_, $offsetX, $offsetY) , 'virtual-pixel'=> 'Background') for @parameters;
 	return $i;
 }
+sub resizeImage{ my ($p, $pixels)=@_;
+	my ($w,$h)=$p->Get('width', 'height');
+	if ($w*$h > 5000000 && -e '/usr/bin/sips')
+	{	my $filename=tempFileName('/tmp/cellf', '.jpg');
+		$p->Write($filename);
+		my $max1= floor($w*sqrt($pixels/($w*$h)));
+		system('/usr/bin/sips --resampleWidth '. $max1 . ' '. $filename);
+		$p = Image::Magick->new();
+		$p->Read($filename);
+	} else
+	{	$p->Resize('@'.$pixels);
+	}
+	return $p;
+}
+
 
 sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsize, $affine, $idstack, $idcomposition)=@_;
 	return sub {return undef} if(!$idimage&& !$idstack);
@@ -446,8 +461,8 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsiz
 		} else {
 			$p=doReadImageFile($p, $curr_img);
 		}
-		_distortImage($p, $affine) if($affine);
-		$p->Resize('@'.$width) if $width;
+		_distortImage($p, $affine) if $affine;
+		$p=resizeImage($p, $width) if $width;
 		return $p;
 	}
 }
