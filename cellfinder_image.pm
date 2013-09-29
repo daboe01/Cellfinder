@@ -408,7 +408,7 @@ sub _distortImage{ my ($i, $parameter, $offsetX, $offsetY)=@_;
 }
 sub resizeImage{ my ($p, $pixels)=@_;
 	my ($w,$h)=$p->Get('width', 'height');
-	if ($w*$h > 5000000 && -e '/usr/bin/sips')
+	if ($w*$h > 5000000 && -e '/usr/bin/sips')	# use sips on large images whenever poosible
 	{	my $filename=tempFileName('/tmp/cellf', '.jpg');
 		$p->Write($filename);
 		my $max1= floor($w*sqrt($pixels/($w*$h)));
