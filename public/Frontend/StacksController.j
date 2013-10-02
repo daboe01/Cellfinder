@@ -151,12 +151,15 @@
 
 -(void) deleteStack: sender
 {	var analyses=[myAppController.stacksController valueForKeyPath:"selection.analyses"];
-	if(analyses && [analyses count] ) return;
-	var myalert = [CPAlert new];
-    [myalert setMessageText: "Are you sure you want to delete the full stack?"];
-	[myalert addButtonWithTitle:"Cancel"];
-	[myalert addButtonWithTitle:"Delete"];
-	[myalert beginSheetModalForWindow:myWindow modalDelegate:self didEndSelector:@selector(deleteStackWarningDidEnd:code:context:) contextInfo: nil];
+	if(analyses && [analyses count] >2 )
+	{	var myalert = [CPAlert new];
+		[myalert setMessageText: "Are you sure you want to delete the full stack?"];
+		[myalert addButtonWithTitle:"Cancel"];
+		[myalert addButtonWithTitle:"Delete"];
+		[myalert beginSheetModalForWindow: myWindow modalDelegate:self didEndSelector:@selector(deleteStackWarningDidEnd:code:context:) contextInfo: nil];
+	} else
+	{	[self deleteStackWarningDidEnd: nil code:1 context: nil];
+	}
 }
 
 
