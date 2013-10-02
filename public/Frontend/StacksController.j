@@ -140,9 +140,25 @@
 
 	[self runSettings:self];
 }
--(void) deleteStack: sender
-{	[myAppController.stacksController removeObjectsAtArrangedObjectIndexes: [myAppController.stacksController selectionIndexes] ];
+
+- (void)deleteStackWarningDidEnd:(CPAlert)anAlert code:(id)code context:(id)context
+{
+    if(code)
+	{
+		[myAppController.stacksController removeObjectsAtArrangedObjectIndexes: [myAppController.stacksController selectionIndexes] ];
+	}
 }
+
+-(void) deleteStack: sender
+{	var analyses=[myAppController.stacksController valueForKeyPath:"selection.analyses"];
+	if(analyses && [analyses count] ) return;
+	var myalert = [CPAlert new];
+    [myalert setMessageText: "Are you sure you want to delete the full stack?"];
+	[myalert addButtonWithTitle:"Cancel"];
+	[myalert addButtonWithTitle:"Delete"];
+	[myalert beginSheetModalForWindow:myWindow modalDelegate:self didEndSelector:@selector(deleteStackWarningDidEnd:code:context:) contextInfo: nil];
+}
+
 
 -(void) runSettings:sender
 {	if(! stacksettingswindow)
