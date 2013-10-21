@@ -23,9 +23,9 @@
 	<arrayController id="uploadfilters_ac" entity="patch_compositions"		valueBinding="trials_controller.selection.compos" filterPredicate="uploadfilters_pred"/>
 	<arrayController id="fixupfilters_ac" entity="patch_compositions"		valueBinding="trials_controller.selection.compos" filterPredicate="fixupfilters_pred"/>
 	<arrayController id="overlayfilters_ac" entity="patch_compositions"		valueBinding="trials_controller.selection.compos" filterPredicate="overlayfilters_pred"/>
-	<arrayController id="analyticsfilters_ac" entity="patch_compositions"		valueBinding="trials_controller.selection.compos" filterPredicate="analyticsfilters_pred"/>
+	<arrayController id="analyticsfilters_ac" entity="patch_compositions"	valueBinding="trials_controller.selection.compos" filterPredicate="analyticsfilters_pred"/>
 	<arrayController id="perlfilters_ac" entity="patch_compositions"		valueBinding="trials_controller.selection.compos" filterPredicate="perlfilters_pred"/>
-	<arrayController id="javascriptfilters_ac" entity="patch_compositions"		valueBinding="trials_controller.selection.compos" filterPredicate="javascriptfilters_pred"/>
+	<arrayController id="javascriptfilters_ac" entity="patch_compositions"	valueBinding="trials_controller.selection.compos" filterPredicate="javascriptfilters_pred"/>
 	<arrayController id="cfifilters_ac" entity="patch_compositions"			valueBinding="trials_controller.selection.compos" filterPredicate="cfifilters_pred"/>
 
 
@@ -223,6 +223,12 @@
 		<column name="name"/>
 		<column name="type"/>
 		<relationship type="toOne" name="trial" bindingColumn="idtrial" target="trials"/>
+	</entity>
+	<entity id="taglist_repository" store="#CPOwner.store">
+		<column name="id" primaryKey="YES"/>
+		<column name="idtag"/>
+		<column name="ordering"/>
+		<column name="name"/>
 	</entity>
 	<entity id="tags" store="#CPOwner.store">
 		<column name="id" primaryKey="YES"/>
