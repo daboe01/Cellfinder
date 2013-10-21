@@ -29,6 +29,7 @@
 	<scrollView>
 	 <tableView zebra="yes" autosaveName="alltags" delegate="#myadmincontroller" valueBinding="#CPOwner.tagrepoController">
 		<tableColumn identifier="name" title="name" editable="YES"/>
+		<tableColumn identifier="type" title="type" editable="YES"/>
 	 </tableView>
 	</scrollView>
 	<ButtonBar target="#CPOwner.tagrepoController" plusButtonAction="insert:" minusButtonAction="remove:" actionsButton="YES">
