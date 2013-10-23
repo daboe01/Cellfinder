@@ -28,6 +28,7 @@
 				<tableView autosaveName="folders_manual_dotting_tags" zebra="yes" valueBinding="#CPOwner.tagsController" target="#CPOwner">
 					<tableColumn identifier="tag.name" title="Name"/>
 					<tableColumn identifier="value" title="Wert" editable="YES"/>
+					<tableColumn identifier="value" title="Wert" dataView="#popupdataview"/>
 	  			</tableView>
 			</scrollView>
 		</vbox>
@@ -96,6 +97,10 @@
 	</hbox>
 	</vbox>
   </window>
+
+<window visible="NO">
+  <popUpButton width="200" id="popupdataview"  itemsBinding="#CPOwner.taglistController.arrangedObjects.name" itemsPredicateLHS="idtag" itemsPredicateRHS="objectValue.value"/>
+</window>
 
 </objects>
 

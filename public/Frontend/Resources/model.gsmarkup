@@ -42,8 +42,8 @@
 	<arrayController id="analyses_controller" entity="analyses" valueBinding ="folder_content_controller.selection.analyses"/>
 	<arrayController id="aggregations_controller" entity="aggregations" valueBinding ="analyses_controller.selection.aggregations"/>
 	<arrayController id="tag_repository_controller" entity="tag_repository" valueBinding ="trials_controller.selection.tagrepo"/>
-	<arrayController id="tags_controller" entity="tag_repository" valueBinding ="folder_content_controller.selection.tags"/>
-
+	<arrayController id="tags_controller" entity="tags" valueBinding ="folder_content_controller.selection.tags"/>
+	<arrayController id="taglist_controller" entity="taglist_repository" autoFetch="YES"/>
   <menu type="main">
 	<menu title="Images">
 		<menuItem title="Upload File" action="uploadImage:"/>
@@ -223,6 +223,7 @@
 		<column name="name"/>
 		<column name="type"/>
 		<relationship type="toOne" name="trial" bindingColumn="idtrial" target="trials"/>
+		<relationship type="toMany" name="items" targetColumn="idtag" target="taglist_repository"/>
 	</entity>
 	<entity id="taglist_repository" store="#CPOwner.store">
 		<column name="id" primaryKey="YES"/>
@@ -238,6 +239,7 @@
 		<relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
 		<relationship type="toOne" name="tag" bindingColumn="idtag" target="tag_repository"/>
 		<relationship type="toOne" name="list_value" bindingColumn="value" target="tag_lists"/>
+		<relationship type="toMany" name="items" bindingColumn="value" targetColumn="idtag" target="taglist_repository"/>
 	</entity>
 	<entity id="tag_lists" store="#CPOwner.store">
 		<column name="id" primaryKey="YES"/>
@@ -267,6 +269,8 @@
 	<outlet source="#CPOwner" target="chains_controller" label="chainsController"/>
 	<outlet source="#CPOwner" target="patches_controller" label="patchesController"/>
 	<outlet source="#CPOwner" target="inputval_controller" label="inputValController"/>
+	<outlet source="#CPOwner" target="taglist_controller" label="taglistController"/>
+
 
 	<outlet source="#CPOwner" target="displayfilters_ac" label="displayfilters_ac"/>
 	<outlet source="#CPOwner" target="uploadfilters_ac" label="uploadfilters_ac"/>

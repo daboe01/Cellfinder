@@ -79,6 +79,7 @@ PhotoDragType="PhotoDragType";
 	id	chainsController;
 	id	patchesController;
 	id	inputValController;
+	id	taglistController;
 
 	id	displayfilters_ac;
 	id	uploadfilters_ac;

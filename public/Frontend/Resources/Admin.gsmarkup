@@ -28,6 +28,7 @@
 	<vbox>
 	<scrollView>
 	 <tableView zebra="yes" autosaveName="alltags" delegate="#myadmincontroller" valueBinding="#CPOwner.tagrepoController">
+		<tableColumn identifier="id" title="id" editable="NO"/>
 		<tableColumn identifier="name" title="name" editable="YES"/>
 		<tableColumn identifier="type" title="type" editable="YES"/>
 	 </tableView>
