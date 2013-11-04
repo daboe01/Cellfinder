@@ -4,6 +4,11 @@
 
 <objects>
   <autoDottingController id="mydottingcontroller"/>
+  <window visible="NO">
+    <tableViewControl width="100" height="23" id="namedataview" editable="YES" face="tag.name"/>
+    <tableViewPopup width="100" height="23"  id="popupdataview" itemsController="#CPOwner.taglistController" itemsValue="arrangedObjects.id" itemsFace="arrangedObjects.name" face="value" itemsPredicateFormat="idtag == $idtag"/>
+
+  </window>
   <window title="ImageDotting" x="50" y="30" width="400" height="340"  bridge="YES" delegate="mydottingcontroller">
 	<splitView vertical="YES" autosaveName="splitview_folders_manual_dotting">
 		<vbox>
@@ -25,9 +30,8 @@
    				<popUpButtonItem title="Try to match all" target="#mydottingcontroller" action="matchDotsAll:"/>
 			</ButtonBar>
 			<scrollView hasHorizontalScroller="NO">
-				<tableView autosaveName="folders_manual_dotting_tags" zebra="yes" valueBinding="#CPOwner.tagsController" target="#CPOwner">
-					<tableColumn identifier="tag.name" title="Name"/>
-					<tableColumn identifier="value" title="Wert" editable="YES"/>
+				<tableView autosaveName="folders_manual_dotting_tags" zebra="yes" valueBinding="#CPOwner.tagsController" viewBasedBidndings="YES">
+					<tableColumn identifier="tag.name" title="Name" dataView="#namedataview"/>
 					<tableColumn identifier="value" title="Wert" dataView="#popupdataview"/>
 	  			</tableView>
 			</scrollView>
@@ -98,9 +102,6 @@
 	</vbox>
   </window>
 
-<window visible="NO">
-  <popUpButton width="200" id="popupdataview"  itemsBinding="#CPOwner.taglistController.arrangedObjects.name" itemsPredicateLHS="idtag" itemsPredicateRHS="objectValue.value"/>
-</window>
 
 </objects>
 

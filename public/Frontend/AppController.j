@@ -22,6 +22,7 @@ PhotoDragType="PhotoDragType";
 @import "ImageBrowser.j"
 @import "CompoBrowser.j"
 @import "UploadManager.j"
+@import "TableViewControl.j"
 
 
 /////////////////////////////////////////////////////////
