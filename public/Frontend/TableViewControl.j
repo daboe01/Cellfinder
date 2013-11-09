@@ -188,11 +188,14 @@ var TableViewJanusControl_typeArray;
 
 -(void) setObjectValue: myVal
 {	_value=myVal;
+	[[self subviews] makeObjectsPerformSelector: @selector(removeFromSuperview)];
 	if(myVal)
 	{	_typeIndex= [myVal valueForKeyPath: _type];
-		_myView =[[[self viewClass] alloc] initWithFrame: [self frame]];
-		[self _installJanusView];
+	} else
+	{	_typeIndex=0;
 	}
+	_myView = [[[self viewClass] alloc] initWithFrame: [self frame]];
+	[self _installJanusView];
 	[_myView setObjectValue: myVal];
 }
 

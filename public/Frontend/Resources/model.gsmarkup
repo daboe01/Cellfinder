@@ -238,14 +238,7 @@
 		<column name="value"/>
 		<relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
 		<relationship type="toOne" name="tag" bindingColumn="idtag" target="tag_repository"/>
-		<relationship type="toOne" name="list_value" bindingColumn="value" target="tag_lists"/>
 		<relationship type="toMany" name="items" bindingColumn="value" targetColumn="idtag" target="taglist_repository"/>
-	</entity>
-	<entity id="tag_lists" store="#CPOwner.store">
-		<column name="id" primaryKey="YES"/>
-		<column name="idtag"/>
-		<column name="name"/>
-		<relationship type="toOne" name="tag" bindingColumn="idtag" target="tag_repository"/>
 	</entity>
 	<entity id="rois" store="#CPOwner.store">
 		<column name="id" primaryKey="YES"/>
