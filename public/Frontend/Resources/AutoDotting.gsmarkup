@@ -6,7 +6,7 @@
   <autoDottingController id="mydottingcontroller"/>
   <window visible="NO">
     <tableViewControl width="100" height="23" id="namedataview" editable="YES" face="tag.name"/>
-    <tableViewPopup width="100" height="23"  id="popupdataview" itemsController="#CPOwner.taglistController" itemsValue="arrangedObjects.id" itemsFace="arrangedObjects.name" face="value" itemsPredicateFormat="idtag == $idtag"/>
+    <tableViewJanusControl width="100" height="23" type="tag.type" id="popupdataview" itemsController="#CPOwner.taglistController" itemsValue="arrangedObjects.id" itemsFace="arrangedObjects.name" editable="YES" face="value" itemsPredicateFormat="idtag == $idtag"/>
 
   </window>
   <window title="ImageDotting" x="50" y="30" width="400" height="340"  bridge="YES" delegate="mydottingcontroller">

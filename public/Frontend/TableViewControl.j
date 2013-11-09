@@ -1,16 +1,16 @@
 @import <AppKit/CPControl.j>
 
 @implementation TableViewControl : CPControl
-{	id	_myView;
-	CPString _face @accessors(property=face);
-	BOOL	_editable  @accessors(property=editable);
+{	id			_myView;
+	CPString 	_face @accessors(property=face);
+	BOOL		_editable  @accessors(property=editable);
 }
-+ viewClass
+- viewClass
 {	return CPTextField;
 }
 - initWithFrame:(CGRect) myFrame
 {	self=[super initWithFrame: myFrame];
-	_myView =[[[[self class] viewClass] alloc] initWithFrame: myFrame];
+	_myView =[[[self viewClass] alloc] initWithFrame: myFrame];
 	return self;
 }
 
@@ -41,8 +41,10 @@
 		_myView =[aCoder decodeObjectForKey:"_myView"];
 		_face=[aCoder decodeObjectForKey:"_face"];
 		_editable=[aCoder decodeObjectForKey:"_editable"];
-		if(_editable) [self setEditable:YES];
-        [self _installView];
+		if(![self isKindOfClass: TableViewJanusControl])
+		{	if(_editable) [self setEditable:YES];
+        	[self _installView];
+		}
 		
     }
     return self;
@@ -92,21 +94,16 @@ var _itemsControllerHash;
 	CPString _itemsIDs @accessors(property=itemsIDs);
 	CPString _itemsPredicateFormat @accessors(property=itemsPredicateFormat);
 }
-+ initialize
-{	self=[super initialize];
++(void) initialize
+{	[super initialize];
 	_itemsControllerHash=[CPMutableArray new];
-	return self;
 }
 -(void) setItemsController: aController
 {	_itemsControllerHash[[self hash]]= aController
+	_itemsController=aController;
 }
-+ viewClass
-{	return FSPopUpButton;
-}
-- initWithFrame:(CGRect) myFrame
-{	self=[super initWithFrame: myFrame];
-
-	return self;
+- viewClass
+{	return CPPopUpButton;
 }
 
 - (void) viewChanged: sender
@@ -151,17 +148,92 @@ var _itemsControllerHash;
 }
 
 -(void) setObjectValue: myVal
-{
-	_value= myVal;
+{	_value= myVal;
 	[self _setupView];
 	var v=[myVal valueForKeyPath: _face];
 	[_myView setSelectedTag: v || -1];
-
-
 }
 
 @end
 
+var TableViewJanusControl_typeArray;
+
+@implementation TableViewJanusControl : TableViewPopup
+{	CPString	_type @accessors(property=type);
+	unsigned	_typeIndex;
+}
+
+- initWithFrame:(CGRect) myFrame
+{	self=[super initWithFrame: myFrame];
+	return self;
+}
+-(void) _installJanusView
+{	if(_myView) [_myView removeFromSuperview];
+	[self addSubview: _myView];
+	var mybounds= [self bounds];
+	[_myView setFrame:mybounds];
+	[_myView setFace: _face];
+	[_myView setThemeState: _themeState];
+	[_myView _installView];
+	if( [_myView isKindOfClass: TableViewPopup])
+	{	[_myView setItemsFace: _itemsFace];
+		[_myView setItemsValue: _itemsValue];
+		[_myView setItemsIDs: _itemsIDs]
+		[_myView setItemsPredicateFormat: _itemsPredicateFormat];
+		[_myView setItemsController: _itemsController];
+	} else
+	{	[_myView setEditable:_editable];
+	}
+}
+
+-(void) setObjectValue: myVal
+{	_value=myVal;
+	if(myVal)
+	{	_typeIndex= [myVal valueForKeyPath: _type];
+		_myView =[[[self viewClass] alloc] initWithFrame: [self frame]];
+		[self _installJanusView];
+	}
+	[_myView setObjectValue: myVal];
+}
+
+
++(void) initialize
+{	[super initialize];
+	TableViewJanusControl_typeArray=[TableViewControl, TableViewPopup];
+}
+
+// 0: textfield
+// 1: popup
+
+-(void) setType:(unsigned) aType
+{	_type=aType;
+}
+- viewClass
+{	return TableViewJanusControl_typeArray[_typeIndex];
+}
+- (id)initWithCoder:(id)aCoder
+{
+    self=[super initWithCoder:aCoder];
+    if (self != nil)
+    {	[self setType: [aCoder decodeObjectForKey:"_type"]];
+    }
+    return self;
+}
+- (void)encodeWithCoder:(id)aCoder
+{	[super encodeWithCoder:aCoder];
+    [aCoder encodeObject: _type forKey:"_type"];
+}
+
+- itemsController
+{	return [_myView itemsController];
+}
+- (void)setEditable:(BOOL)isEditable
+{	_editable=isEditable;
+}
+- (void)mouseDown:(CPEvent)  theEvent {
+	[[self nextResponder] mouseDown:theEvent];
+}
+@end
 
 @implementation GSMarkupTagTableViewControl:GSMarkupTagControl
 + (CPString) tagName
@@ -210,6 +282,28 @@ var _itemsControllerHash;
 	if (itemsIDs != nil) [platformObject setItemsIDs: itemsIDs];
 	var itemsPredicateFormat = [self stringValueForAttribute: @"itemsPredicateFormat"];
 	if (itemsPredicateFormat != nil) [platformObject setItemsPredicateFormat: itemsPredicateFormat];
+
+	return platformObject;
+}
+
+@end
+
+@implementation GSMarkupTagTableViewJanusControl: GSMarkupTagTableViewPopup
++ (CPString) tagName
+{
+  return @"tableViewJanusView";
+}
+
++ (Class) platformObjectClass
+{
+	return [TableViewJanusControl class];
+}
+
+- (id) initPlatformObject: (id)platformObject
+{	platformObject = [super initPlatformObject: platformObject];
+  
+	var type = [self stringValueForAttribute: @"type"];
+	[platformObject setType: type];
 
 	return platformObject;
 }
