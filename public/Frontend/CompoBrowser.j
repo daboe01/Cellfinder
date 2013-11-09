@@ -23,7 +23,8 @@ var CompoJanusControl_typeArray;
 	CompoJanusControl_typeArray=[TableViewControl, TableViewControl, TableViewControl, TableViewControl, nil, TableViewPopup];
 }
 - viewClass
-{	return CompoJanusControl_typeArray[_typeIndex];
+{
+	return CompoJanusControl_typeArray[_typeIndex];
 }
 
 @end

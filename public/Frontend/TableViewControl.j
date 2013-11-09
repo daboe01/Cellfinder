@@ -169,6 +169,7 @@ var TableViewJanusControl_typeArray;
 }
 -(void) _installJanusView
 {	if(_myView) [_myView removeFromSuperview];
+	else return;
 	[self addSubview: _myView];
 	var mybounds= [self bounds];
 	[_myView setFrame:mybounds];
