@@ -1,5 +1,8 @@
 @import <AppKit/CPControl.j>
 
+// fixme: janus-controls do not adjust width when the user rearranges table colums
+
+
 @implementation TableViewControl : CPControl
 {	id			_myView;
 	CPString 	_face @accessors(property=face);
