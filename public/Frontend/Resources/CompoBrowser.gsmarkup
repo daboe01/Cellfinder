@@ -43,15 +43,20 @@
 		</vbox>
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
-				<tableView autosaveName="inputvals" zebra="yes" valueBinding="#CPOwner.inputValController" target="#CPOwner">
-					<tableColumn identifier="parameter.name" title="name" editable="YES"/>
-					<tableColumn identifier="value" title="value" editable="YES"/>
+				<tableView autosaveName="inputvals" zebra="yes" valueBinding="#CPOwner.inputValController" viewBasedBidndings="YES">
+					<tableColumn identifier="parameter.name" title="name" dataView="#column_nameview"/>
+					<tableColumn identifier="value" title="value" dataView="#column_valueview"/>
 	  			</tableView>
 			</scrollView>
 		</vbox>
 	 </splitView>
   </window>
+  <window visible="NO">
+    <tableViewControl width="100" height="23" id="column_nameview" editable="YES" face="parameter.name"/>
+    <tableViewJanusControl width="100" height="23" type="parameter.type" id="column_valueview" itemsController="#CPOwner.parameterlistsController" itemsValue="arrangedObjects.id" itemsFace="arrangedObjects.value" editable="YES" face="value" itemsPredicateFormat="idpatch_parameter == $parameter.id"/>
+  </window>
 </objects>
+
 
 <connectors>
 	<outlet source="#CPOwner" target="mycompobrowser" label="_sharedCompoBrowser"/>

@@ -33,7 +33,7 @@
 	<arrayController id="compos_controller" entity="patch_compositions" valueBinding ="trials_controller.selection.compos"/>
 	<arrayController id="chains_controller" entity="patch_chains" valueBinding ="compos_controller.selection.chains" sortDescriptor="by_ordering"/>
 	<arrayController id="patches_controller" entity="patches" valueBinding ="chains_controller.selection.patches" sortDescriptor="by_ordering"/>
-	<arrayController id="inputval_controller" entity="patches" valueBinding ="patches_controller.selection.input_values"/>
+	<arrayController id="inputval_controller" entity="patch_input_values" valueBinding ="patches_controller.selection.input_values"/>
 
 	<arrayController id="stacks_controller" entity="montages" valueBinding ="trials_controller.selection.stacks" sortDescriptor="by_name"/>
 	<arrayController id="stacks_content_controller" entity="montage_images" valueBinding ="stacks_controller.selection.analyses"/>
@@ -44,6 +44,8 @@
 	<arrayController id="tag_repository_controller" entity="tag_repository" valueBinding ="trials_controller.selection.tagrepo"/>
 	<arrayController id="tags_controller" entity="tags" valueBinding ="folder_content_controller.selection.tags"/>
 	<arrayController id="taglist_controller" entity="taglist_repository" autoFetch="YES"/>
+	<arrayController id="parameter_lists_controller" entity="parameter_lists" autoFetch="YES"/>
+
   <menu type="main">
 	<menu title="Images">
 		<menuItem title="Upload File" action="uploadImage:"/>
@@ -140,6 +142,11 @@
 		<column name="range2"/>
 		<column name="disabled"/>
 		<column name="idparameter"/>
+	</entity>
+	<entity id="parameter_lists" store="#CPOwner.store">
+		<column name="id" primaryKey="YES"/>
+		<column name="value"/>
+		<column name="idpatch_parameter"/>
 	</entity>
 	<entity id="images" store="#CPOwner.store">
 		<column name="id" primaryKey="YES"/>
@@ -263,7 +270,7 @@
 	<outlet source="#CPOwner" target="patches_controller" label="patchesController"/>
 	<outlet source="#CPOwner" target="inputval_controller" label="inputValController"/>
 	<outlet source="#CPOwner" target="taglist_controller" label="taglistController"/>
-
+	<outlet source="#CPOwner" target="parameter_lists_controller" label="parameterlistsController"/>
 
 	<outlet source="#CPOwner" target="displayfilters_ac" label="displayfilters_ac"/>
 	<outlet source="#CPOwner" target="uploadfilters_ac" label="uploadfilters_ac"/>

@@ -1,11 +1,40 @@
 /*
- *
+ * compobrowser created 2013 by prof. boehringer
  */
 
 /////////////////////////////////////////////////////////
 
-var _sharedCompoBrowser;
+@import "TableViewControl.j"
 
+var _sharedCompoBrowser;
+var CompoJanusControl_typeArray;
+
+@implementation CompoJanusControl : TableViewJanusControl
++(void) initialize
+{	[super initialize];
+/*
+		("1","Numeric"),
+		("2","Boolean"),
+		("3","String"),
+		("0","ImmutableString"),
+		("5","List"),
+		("4","Image")
+ */
+	CompoJanusControl_typeArray=[TableViewControl, TableViewControl, TableViewControl, TableViewControl, nil, TableViewPopup];
+}
+- viewClass
+{	return CompoJanusControl_typeArray[_typeIndex];
+}
+
+@end
+@implementation GSMarkupTagCompoJanusControl: GSMarkupTagTableViewJanusControl
+
++ (Class) platformObjectClass
+{
+	return [CompoJanusControl class];
+}
+
+@end
 
 @implementation CompoBrowser : CPObject
 {	id myalert;
@@ -23,7 +52,7 @@ var _sharedCompoBrowser;
 
 - (void)deleteWarningDidEnd:(CPAlert)anAlert code:(id)code context:(id)context
 {
-    if(code)	// doit
+    if(code)	// do it
 	{
 	}
 }
