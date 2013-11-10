@@ -31,6 +31,8 @@
 	[_myView setFrame:mybounds];
 	[_myView setTarget: self];
 	[_myView setAction: @selector(viewChanged:)];
+	[_myView setAutoresizingMask: CPViewWidthSizable| CPViewHeightSizable];
+ 	[self setAutoresizingMask: CPViewWidthSizable| CPViewHeightSizable];
 }
 
 - (void) viewChanged: sender
@@ -167,10 +169,6 @@ var TableViewJanusControl_typeArray;
 	unsigned	_typeIndex;
 }
 
-- initWithFrame:(CGRect) myFrame
-{	self=[super initWithFrame: myFrame];
-	return self;
-}
 -(void) _installJanusView
 {	if(_myView) [_myView removeFromSuperview];
 	else return;
@@ -225,7 +223,7 @@ var TableViewJanusControl_typeArray;
     if (self != nil)
     {	[self setType: [aCoder decodeObjectForKey:"_type"]];
     }
-    return self;
+	return self;
 }
 - (void)encodeWithCoder:(id)aCoder
 {	[super encodeWithCoder:aCoder];
