@@ -26,7 +26,8 @@
 {	[_myView removeFromSuperview];
 	[self addSubview: _myView];
 	var mybounds= [self bounds];
-	mybounds.size.height+=2;
+	if(![self isKindOfClass: TableViewJanusControl])
+		mybounds.size.height+=2;
 	[_myView setFrame:mybounds];
 	[_myView setTarget: self];
 	[_myView setAction: @selector(viewChanged:)];
