@@ -26,16 +26,29 @@
 
   <window title="Analysis Tags" closable="no"  x="650" y="50" id="trialswindow" width="200" height="340">
 	<vbox>
-	<scrollView>
-	 <tableView zebra="yes" autosaveName="alltags" delegate="#myadmincontroller" valueBinding="#CPOwner.tagrepoController">
-		<tableColumn identifier="id" title="id" editable="NO"/>
-		<tableColumn identifier="name" title="name" editable="YES"/>
-		<tableColumn identifier="type" title="type" editable="YES"/>
-	 </tableView>
-	</scrollView>
-	<ButtonBar target="#CPOwner.tagrepoController" plusButtonAction="insert:" minusButtonAction="remove:" actionsButton="YES">
+	 <hbox>
+	  <vbox>
+	   <scrollView>
+	    <tableView zebra="yes" autosaveName="alltags" delegate="#myadmincontroller" valueBinding="#CPOwner.tagrepoController">
+		 <tableColumn identifier="id" title="id" editable="NO"/>
+		 <tableColumn identifier="name" title="name" editable="YES"/>
+		 <tableColumn identifier="type" title="type" editable="YES"/>
+	    </tableView>
+	   </scrollView>
+	   <ButtonBar target="#CPOwner.tagrepoController" plusButtonAction="insert:" minusButtonAction="remove:" actionsButton="YES">
  		<popUpButtonItem title="Update trial" target="#myadmincontroller" action="updateTags:"/>
-	</ButtonBar>
+	   </ButtonBar>
+	  </vbox>
+	  <vbox>
+	   <scrollView>
+	    <tableView zebra="yes" autosaveName="alltaglists" valueBinding="#CPOwner.taglistController2">
+		 <tableColumn identifier="name" title="name" editable="YES"/>
+		 <tableColumn identifier="ordering" title="type" editable="YES"/>
+	    </tableView>
+	   </scrollView>
+	   <ButtonBar target="#CPOwner.taglistController2" plusButtonAction="insert:" minusButtonAction="remove:"/>
+	  </vbox>
+	 </hbox>
 	</vbox>
  </window>
 

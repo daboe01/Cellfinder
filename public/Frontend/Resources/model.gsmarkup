@@ -44,6 +44,7 @@
 	<arrayController id="tag_repository_controller" entity="tag_repository" valueBinding ="trials_controller.selection.tagrepo"/>
 	<arrayController id="tags_controller" entity="tags" valueBinding ="folder_content_controller.selection.tags"/>
 	<arrayController id="taglist_controller" entity="taglist_repository" autoFetch="YES"/>
+	<arrayController id="taglist_controller2" entity="taglist_repository" valueBinding ="tag_repository_controller.selection.items"/>
 	<arrayController id="parameter_lists_controller" entity="parameter_lists" autoFetch="YES"/>
 
   <menu type="main">
@@ -270,6 +271,7 @@
 	<outlet source="#CPOwner" target="patches_controller" label="patchesController"/>
 	<outlet source="#CPOwner" target="inputval_controller" label="inputValController"/>
 	<outlet source="#CPOwner" target="taglist_controller" label="taglistController"/>
+	<outlet source="#CPOwner" target="taglist_controller2" label="taglistController2"/>
 	<outlet source="#CPOwner" target="parameter_lists_controller" label="parameterlistsController"/>
 
 	<outlet source="#CPOwner" target="displayfilters_ac" label="displayfilters_ac"/>

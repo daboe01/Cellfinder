@@ -81,6 +81,7 @@ PhotoDragType="PhotoDragType";
 	id	patchesController;
 	id	inputValController;
 	id	taglistController;
+	id	taglistController2;
 	id	parameterlistsController;
 
 	id	displayfilters_ac;
