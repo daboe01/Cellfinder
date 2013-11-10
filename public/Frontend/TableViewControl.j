@@ -18,7 +18,7 @@
 }
 
 -(void) setObjectValue: myVal
-{	_value= myVal;
+{	_value=myVal;
 	var v=[myVal valueForKeyPath: _face];
 	[_myView setObjectValue: v||""];
 }
