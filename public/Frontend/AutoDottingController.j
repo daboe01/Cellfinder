@@ -114,7 +114,7 @@
 	[myreq setHTTPBody: JSON.stringify(myarr) ];
 	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
 
-	window.open("http://auginfo:3000/Frontend/index.html?id="+idtrial+"&t=AutoStacks.gsmarkup",'autostacks');
+	window.open("http://augimageserver:3000/Frontend/index.html?id="+idtrial+"&t=AutoStacks.gsmarkup",'autostacks');
 }
 
 -(void) matchDotsAll: sender	//<!> fixme GUI feedback usw.

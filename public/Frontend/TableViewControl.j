@@ -109,7 +109,7 @@ var _itemsControllerHash;
 	_itemsController=aController;
 }
 - viewClass
-{	return CPPopUpButton;
+{	return FSPopUpButton;
 }
 
 - (void) viewChanged: sender

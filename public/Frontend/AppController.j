@@ -8,7 +8,7 @@
 
 /////////////////////////////////////////////////////////
 
-HostURL="http://localhost:3000"
+HostURL=""
 BaseURL= HostURL+"/IMG/";
 
 PhotoDragType="PhotoDragType";

@@ -107,7 +107,7 @@ point.set.register2=function(I.A,I.B, identity.radius=5){
 
 
 read.pointset=function(id, rotate90=F, flipH=F, flipV=F){
-	d1=read.delim(paste("http://localhost/cellfinder_results/0?mode=results&constraint=idanalysis=", id, sep=""))
+	d1=read.delim(paste("http://auginfo/cellfinder_results/0?mode=results&constraint=idanalysis=", id, sep=""))
 #	d1=read.delim(paste("http://localhost:3000/ANA/results/", id, sep=""))
 	if(rotate90)
 	{	t= d1$col

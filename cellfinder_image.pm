@@ -19,7 +19,8 @@ use SQL::Abstract;
 use POSIX;
 
 
-use constant server_root=>'/Library/WebServer/Documents/cellfinder';
+use constant server_root=>'/Users/Shared/cellfinder';
+#use constant server_root=>'/Library/WebServer/Documents/cellfinder';
 #use constant server_root=>'/srv/www/htdocs/cellfinder';
 
 sub runRCode { my ($RCmd)=@_;
@@ -37,8 +38,7 @@ sub runRCode { my ($RCmd)=@_;
 sub runSimpleRegistrationRCode { my ($id1,$id2)=@_;
 	my $RCmd=<<'ENDOFR'
 	read.pointset=function(id){
-		d1=read.delim(paste("http://localhost/cellfinder_results/0?mode=results&constraint=idanalysis=", id, sep=""))
-	#	d1=read.delim(paste("http://localhost:3000/ANA/results/", id, sep=""))
+		d1=read.delim(paste("http://localhost:3000/ANA/results/", id, sep=""))
 		return (d1)
 	}
 	d0= subset(read.pointset(<id1>), select=c(row,col))
@@ -53,7 +53,7 @@ ENDOFR
 }
 sub runRANSACRegistrationRCode { my ($id1,$id2, $thresh, $identityradius, $iterations, $aiterations, $cfunc)=@_;
 	my $RCmd=<<'ENDOFR'
-	source('/Users/daboe01/src/daboe01_Cellfinder/Cellfinder/ransac4.R')
+	source('/Users/Shared/bin/Cellfinder2/ransac4.R')
 	out=register.pointsets.out(<id1>, <id2>, <thresh>, <identityradius>, <iterations>, do.rotate=F <extrapars>)
 ENDOFR
 ;
@@ -67,14 +67,13 @@ ENDOFR
 	$RCmd=~s/<identityradius>/$identityradius/ogs;
 	$RCmd=~s/<iterations>/$iterations/ogs;
 	$RCmd=~s/<extrapars>/$extrapars/ogs;
-	warn $RCmd;
 	return runRCode($RCmd);
 }
 sub runRJSONCode { my ($id,$code)=@_;
 	my $RCmd=<<'ENDOFR'
 	library(rjson)
 	read.pointset=function(id){
-		d1=read.delim(paste("http://localhost/cellfinder_results/0?mode=results&constraint=idanalysis=", id, sep=""))
+		d1=read.delim(paste("http://auginfo/cellfinder_results/0?mode=results&constraint=idanalysis=", id, sep=""))
 	#	d1=read.delim(paste("http://localhost:3000/ANA/results/", id, sep=""))
 		return (d1)
 	}
@@ -90,11 +89,11 @@ ENDOFR
 
 sub runEBImageRCode { my ($infile,$code)=@_;
 	my $RCmd=<<'ENDOFR'
-	library(EBImage)
-	library(rjson)
-	e=readImage("<infile>")
-	out=""
-	<code>
+    library(EBImage)
+    library(rjson)
+    e=readImage("<infile>")
+    out=""
+    <code>
 ENDOFR
 ;	$RCmd=~s/<code>/$code/ogs;
 	$RCmd=~s/<infile>/$infile/ogs;
@@ -293,7 +292,9 @@ sub imageForDBHAndRenderchainIDAndImage{
 		elsif($curr_patch->{patch_type} == 2 )				# call external programm
 		{	next unless ref $p eq 'Image::Magick';
 			my $filename=tempFileName('/tmp/cellf');
-			$p->Write($filename.'.jpg');
+			my $filetype='.'.$curr_patch->{filetype};
+
+			$p->Write($filename.$filetype);
 
 			my $patchparams=$curr_patch->{params};
 			$patchparams=~s/imageForDBHAndRenderchainIDAndImage\(([^\)]+)\)/tmpfilenameForImgCallParams($dbh, $readImageFunction, $1)/oegs;
@@ -306,10 +307,10 @@ sub imageForDBHAndRenderchainIDAndImage{
 				map {s/^["\s]+//ogs;$_;}
 				split  /(?<!\\),/o, $patchparams;
 			my $call=$curr_patch->{patch};
-			my @filenamelist=glob($filename."*.jpg");
+			my @filenamelist=glob($filename.'*'.$filetype);
 
-			my $effective_fn= ((scalar @filenamelist)>1) ?  (join ' ', @filenamelist) : $filename.'.jpg';
-			my $effective_fn_out=$filename.'_out.jpg';
+			my $effective_fn= ((scalar @filenamelist)>1) ?  (join ' ', @filenamelist) : $filename.$filetype;
+			my $effective_fn_out=$filename.'_out'.$filetype;
 			my $args=join ' ', @arr;
 			if($curr_patch->{patch_type} == 2)
 			{	if( $call=~ /<infiles>/o)
@@ -317,15 +318,15 @@ sub imageForDBHAndRenderchainIDAndImage{
 					$call=~s/<args>/$args/ogs;
 					$call=~s/<outfile>/$effective_fn_out/ogs;
 				} else
-				{	$call.=" $args $filename".'.jpg';
+				{	$call.=" $args $filename".$filetype;
 				}
 				$call=~s/<idanalysis>/$idanalysis/gs;
-				$call.=" >$filename".'.jpg'.'_out';
+				$call.=" >$filename".$filetype.'_out';
 				system($call);
 				warn $call;
 
-				my $infile=readFile($filename.'.jpg'.'_out');
-				unlink($filename.'.jpg'.'_out');
+				my $infile=readFile($filename.$filetype.'_out');
+				unlink($filename.$filetype.'_out');
 				$infile=~s/\s+$//ogs;
 				$p = Image::Magick->new();
 				$p->Read($infile);
@@ -360,6 +361,7 @@ sub insertObjectIntoTable{
 	warn "err: ".$DBI::errstr if $DBI::errstr;
 	return $dbh->last_insert_id(undef, undef, $table, $pk);
 }
+			
 sub uniquelyInsertObjectIntoTable{
 	my $dbh  = shift;
 	my $table = shift;
@@ -384,7 +386,6 @@ sub deleteObjectFromTable{
 	$sth->execute(@bind);
 }
 
-
 sub getMontageForIDImageAndIDStack{ my ($dbh, $idimage, $idstack)=@_;
 	my $sql = SQL::Abstract->new;
 	my($stmt, @bind) = $sql->select('montage_images', [qw/parameter idanalysis/], {idimage=>, $idimage, idmontage=> $idstack});
@@ -406,9 +407,10 @@ sub _distortImage{ my ($i, $parameter, $offsetX, $offsetY)=@_;
 	$i->Distort(method=>'AffineProjection', points=> _pointArrayRForMatrixStringAndOffset($_, $offsetX, $offsetY) , 'virtual-pixel'=> 'Background') for @parameters;
 	return $i;
 }
+
 sub resizeImage{ my ($p, $pixels)=@_;
 	my ($w,$h)=$p->Get('width', 'height');
-	if (0&& $w*$h > 5000000 && -e '/usr/bin/sips')	# use sips on large images whenever possible
+	if (0&& $w*$h > 5000000 && -e '/usr/bin/sips')	# use sips on large images whenever poosible
 	{	my $filename=tempFileName('/tmp/cellf', '.jpg');
 		$p->Write($filename);
 		my $max1= floor($w*sqrt($pixels/($w*$h)));
@@ -420,7 +422,6 @@ sub resizeImage{ my ($p, $pixels)=@_;
 	}
 	return $p;
 }
-
 
 sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsize, $affine, $idstack, $idcomposition)=@_;
 	return sub {return undef} if(!$idimage&& !$idstack);
@@ -443,6 +444,7 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsiz
 	my $curr_img = getObjectFromDBHandID($dbh,'images_name', $idimage);
 	## warn Dumper $curr_img;
 	return sub{
+		warn "$offX,$offY";
 		return ($nocache? 0: $idimage) if shift;
 		$p = Image::Magick->new(magick=>'jpg');
 		if($idstack)
@@ -456,6 +458,7 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsiz
 				$i= imageForComposition($dbh, $idcomposition, undef, $i, 0, $m->{idanalysis}) if($idcomposition);
 				my $parameter=$m->{parameter} || '[1,0,0,1,0,0]';
 				_distortImage($i, $parameter, $offX,$offY);
+$i->Write('/tmp/'.$id.'.jpg');
 				push @$p,$i;
 			}
 		} else {
@@ -486,7 +489,6 @@ sub reverseAffineMatrix { my ($m1)=@_;
 	$m1=$1 if $m1=~/^\[(.+)\]$/;
 	my ($sx, $rx, $ry, $sy, $tx, $ty) =split /,/, $m1;
 	my $det= $sx*$sy - $rx*$ry;
-warn "$sx, $rx, $ry, $sy, $tx, $ty : $det";
 	my $inverse_sx= 	 $sy/$det;
 	my $inverse_rx= (-1)*$rx/$det;
 	my $inverse_ry= (-1)*$ry/$det;
@@ -559,7 +561,6 @@ sub deleteImage { my ($dbh, $idimage)=@_;
 		my $sth = $dbh->prepare($sql);
 		$sth->execute(($idimage));
 		unlink $dest unless $sth->err;
-	
 	}
 }
 
