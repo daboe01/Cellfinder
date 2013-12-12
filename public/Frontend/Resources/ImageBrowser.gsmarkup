@@ -4,8 +4,8 @@
 
 <objects>
   <imageBrowser id="myimagebrowser"/>
-  <window title="Images" closable="yes" id="mainwindow" x="330" y="30" width="400" height="640" autosaveName="imagesColumnSizes" delegate="myimagebrowser">
-	<splitView vertical="YES" autosaveName="splitview_folders2">
+  <window title="Images" closable="yes" id="mainwindow" x="330" y="30" width="500" height="640" minWidth="500" autosaveName="imagesColumnSizes" delegate="myimagebrowser">
+	<splitView vertical="YES" autosaveName="splitview_folders2" delegate="#myimagebrowser">
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
 				<tableView autosaveName="folders" zebra="yes" valueBinding="#CPOwner.folderController" target="#CPOwner">

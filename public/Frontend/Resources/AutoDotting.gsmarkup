@@ -18,6 +18,7 @@
 	  			</tableView>
 			</scrollView>
 		</vbox>
+		<hbox halign="min">
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
 				<tableView autosaveName="folders_auto_dotting_content" zebra="yes" allowsMultipleSelection="YES" valueBinding="#CPOwner.folderContentController" target="#CPOwner">
@@ -67,8 +68,8 @@
 				</scrollView>
 			</vbox>
 		</vbox>
-		<vbox>
-			<scrollView halign="expand">
+		<vbox halign="expand">
+			<scrollView>
 				<annotatedImageView id="annotated_image_view" delegate="mydottingcontroller" valueBinding="#CPOwner.analysesController.selection.results"/>
 			</scrollView>
 			<hbox>
@@ -79,6 +80,7 @@
 				<button image="gear" width="30" target="#mydottingcontroller" action="editViewingCompo:"/>
 			</hbox>
 		</vbox>
+		</hbox>
 	 </splitView>
   </window>
   <window title="Trial settings" id="trialsettingswindow" x="260" y="500" width="300" height="90" visible="NO"  resizable="NO">

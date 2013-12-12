@@ -146,6 +146,14 @@ var _sharedImageBrowser;
     return [CPKeyedArchiver archivedDataWithRootObject: o ];
 }
 
+
+- (float)splitView:(CPSplitView)aSplitView constrainMinCoordinate: proposedMin ofSubviewAt: dividerIndex
+{	return 100;	
+}
+- (float)splitView:(CPSplitView)aSplitView constrainMaxCoordinate: proposedMax ofSubviewAt: dividerIndex
+{	return [[aSplitView window] frame].size.width-200;
+}
+
 -(void) delete:sender
 {	[[[CPApp keyWindow] delegate] delete:sender];
 }

@@ -19,8 +19,8 @@ use SQL::Abstract;
 use POSIX;
 
 
-use constant server_root=>'/Users/Shared/cellfinder';
-#use constant server_root=>'/Library/WebServer/Documents/cellfinder';
+#use constant server_root=>'/Users/Shared/cellfinder';
+use constant server_root=>'/Library/WebServer/Documents/cellfinder';
 #use constant server_root=>'/srv/www/htdocs/cellfinder';
 
 sub runRCode { my ($RCmd)=@_;
