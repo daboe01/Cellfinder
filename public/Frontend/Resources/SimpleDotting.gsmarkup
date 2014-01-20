@@ -5,7 +5,7 @@
 <objects>
   <manualDottingController id="mydottingcontroller"/>
   <window title="ImageDotting" x="50" y="30" width="400" height="340"  bridge="YES" delegate="mydottingcontroller">
-	<splitView vertical="YES" autosaveName="splitview_folders_manual_dotting">
+	<splitView vertical="YES" autosaveName="splitview_folders_manual_dotting1">
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
 				<tableView autosaveName="folders_dotting" zebra="yes" valueBinding="#CPOwner.folderController" target="#CPOwner">
@@ -13,17 +13,22 @@
 	  			</tableView>
 			</scrollView>
 		</vbox>
-		<hbox halign="min">
-		<vbox halign="min">
+		<hbox>
+		<vbox halign="min" width="400">
 			<scrollView hasHorizontalScroller="NO">
-				<tableView autosaveName="folders_man_dotting_content" zebra="yes" valueBinding="#CPOwner.folderContentController" target="#CPOwner">
-					<tableColumn identifier="folder_name" title="Image"/>
+				<tableView autosaveName="folders_auto_dotting_content" zebra="yes" allowsMultipleSelection="YES" valueBinding="#CPOwner.folderContentController" target="#CPOwner">
+					<tableColumn identifier="name" title="Image"/>
 					<tableColumn identifier="idimage" title="ID"/>
+	  			</tableView>
+			</scrollView>
+			<scrollView hasHorizontalScroller="NO">
+				<tableView autosaveName="folders_manual_dotting_tags" zebra="yes" valueBinding="#CPOwner.tagsController" viewBasedBidndings="YES">
+					<tableColumn identifier="tag.name" title="Name" dataView="#namedataview"/>
+					<tableColumn identifier="value" title="Wert" dataView="#popupdataview"/>
 	  			</tableView>
 			</scrollView>
 		</vbox>
 		<vbox halign="min">
-			<vbox>
 				<vbox>
 					<scrollView hasHorizontalScroller="NO">
 						<tableView autosaveName="folders_dotting_analyses" zebra="yes" valueBinding="#CPOwner.analysesController" target="#CPOwner">
@@ -44,11 +49,10 @@
 						<tableColumn identifier="value" title="Value"/>
 					</tableView>
 				</scrollView>
-			</vbox>
 		</vbox>
 		<vbox halign="expand">
 			<scrollView>
-				<annotatedImageView id="annotated_image_view" delegate="mydottingcontroller" valueBinding="#CPOwner.analysesController.selection.results"/>
+				<annotatedImageView id="annotated_image_view" delegate="#mydottingcontroller" valueBinding="#CPOwner.analysesController.selection.results"/>
 			</scrollView>
 			<hbox>
 				<slider continuous="NO" min="0" max="1" valueBinding="mydottingcontroller.scale" halign="right"/>
@@ -60,6 +64,10 @@
 		</vbox>
 		</hbox>
 	 </splitView>
+  </window>
+  <window visible="NO">
+    <tableViewControl width="100" height="23" id="namedataview" editable="YES" face="tag.name"/>
+    <tableViewJanusControl width="100" height="23" type="tag.type" id="popupdataview" itemsController="#CPOwner.taglistController" itemsValue="arrangedObjects.id" itemsFace="arrangedObjects.name" editable="YES" face="value" itemsPredicateFormat="idtag == $idtag"/>
   </window>
 
 </objects>

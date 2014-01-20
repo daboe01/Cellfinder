@@ -28,13 +28,23 @@
 	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
 }
 -(void) newTrial: sender
-{	[[CPApp delegate].trialsController insert: self]
-//<!> fixme
+{	[[CPApp delegate].trialsController addObject: @{"name": "New trial"}];
 }
+
+- (void)deleteWarningDidEnd:(CPAlert)anAlert code:(id)code context:(id)context
+{	if(code)
+	{	[[CPApp delegate].trialsController remove: self]
+	}
+}
+
 -(void) removeTrial: sender
 {
-//<!> fixme
-//	[[CPApp delegate].trialsController delete: self]
+	var myalert = [CPAlert new];
+	[myalert setMessageText: "Are you sure you want to delete this trial?"];
+	[myalert addButtonWithTitle:"Cancel"];
+	[myalert addButtonWithTitle:"Delete"];
+	[myalert beginSheetModalForWindow: trialsWindow modalDelegate:self didEndSelector:@selector(deleteWarningDidEnd:code:context:) contextInfo: nil];
+
 }
 
 @end

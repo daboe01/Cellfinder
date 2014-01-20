@@ -137,6 +137,11 @@ var myFastSortFunction=function(a,b,context)
 	int			_defaultTag @accessors(property=defaultTag);
 }
 
+- (BOOL)acceptsFirstResponder
+{
+	return YES;
+}
+
 -(void) setDelegate: someDelegate
 {	_delegate=someDelegate;
 	_sendDelegateMoves= _delegate && [_delegate respondsToSelector:@selector(annotatedImageView:dot:movedToPoint:)];
@@ -519,9 +524,14 @@ var myFastSortFunction=function(a,b,context)
 	[CPApp setTarget:self selector:@selector(dragMarqueeWithEvent:) forNextEventMatchingMask:CPLeftMouseDraggedMask | CPLeftMouseUpMask untilDate:nil inMode:nil dequeue:YES];
 }
 
+- (void)keyDown:(CPEvent)anEvent
+{
+    [self interpretKeyEvents:[anEvent]];
+}
+
 - (void)mouseDown:(CPEvent)event
 {
-
+	[[self window] makeFirstResponder: self];
 	if ( [event clickCount] == 2 && _delegate && [_delegate respondsToSelector:@selector(annotatedImageView:didDoubleClickWithEvent:)])
     {	[_delegate annotatedImageView: self didDoubleClickWithEvent: anEvent];
 		return;
@@ -589,6 +599,12 @@ var myFastSortFunction=function(a,b,context)
 }
 -(void) delete:sender
 {	[self deleteDots: [self selectedDots]];
+}
+-(void) deleteBackward:sender
+{	[self delete:sender];
+}
+-(void) deleteForward:sender
+{	[self delete:sender];
 }
 
 -(CPArray) allDots
