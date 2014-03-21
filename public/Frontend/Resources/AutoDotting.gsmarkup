@@ -23,7 +23,7 @@
 		<vbox halign="min">
 			<scrollView hasHorizontalScroller="NO">
 				<tableView autosaveName="folders_auto_dotting_content" zebra="yes" allowsMultipleSelection="YES" valueBinding="#CPOwner.folderContentController" target="#CPOwner">
-					<tableColumn identifier="name" title="Image"/>
+					<tableColumn identifier="name" title="Image" editable="YES"/>
 					<tableColumn identifier="idimage" title="ID"/>
 	  			</tableView>
 			</scrollView>

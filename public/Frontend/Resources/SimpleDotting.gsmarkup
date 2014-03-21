@@ -32,6 +32,7 @@
 				<vbox>
 					<scrollView hasHorizontalScroller="NO">
 						<tableView autosaveName="folders_dotting_analyses" zebra="yes" valueBinding="#CPOwner.analysesController" target="#CPOwner">
+							<tableColumn identifier="id" title="ID"/>
 							<tableColumn identifier="idimage" title="Analysis"/>
 						</tableView>
 					</scrollView>

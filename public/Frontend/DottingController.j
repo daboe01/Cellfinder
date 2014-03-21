@@ -106,18 +106,6 @@
 	var myreq=[CPURLRequest requestWithURL: BaseURL+'copy_results/'+mySourceAnalysis+'/'+myDestinationAnalysis];
 	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
 
-/*
-	var sourceArray=[mySourceAnalysis valueForKey:"results"];
-	var destinationArray=[myDestinationAnalysis valueForKey:"results"];
-	var i,j=[sourceArray count];
-	for(i=0; i< j; i++)
-	{	var mydot=[sourceArray objectAtIndex: i];
-		var mydotCopy=[CPDictionary new];
-		[mydotCopy setValue:[mydot valueForKey:"row"] forKey:"row"];
-		[mydotCopy setValue:[mydot valueForKey:"col"] forKey:"col"];
-		[destinationArray addObject:mydotCopy];
-	}
-*/
 	[self _refreshResults];
 }
 -(void) _refreshResults
@@ -148,6 +136,20 @@
 {	[[myAppController.analysesController selectedObject] willChangeValueForKey:"aggregations"];
 	[myAppController.analysesController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 	[[myAppController.analysesController selectedObject] didChangeValueForKey:"aggregations"];
+}
+
+-(void) webSocketActionData:(CPData) someData
+{
+    var re = new RegExp("([0-9]{2,12})");
+	var m = re.exec(someData);
+	if(m)
+    {
+        [myAppController.folderController reload];
+        [myAppController.folderContentController reload];
+        [myAppController.folderController selectObjectWithPK: linkname];
+        var linkname=[myAppController.trialsController valueForKeyPath:"selection.id"]+m[0];
+        [myAppController.folderController setFilterPredicate: [CPPredicate predicateWithFormat:"linkname=='"+linkname+"'" ]];
+      }
 }
 
 @end

@@ -19,8 +19,8 @@ use SQL::Abstract;
 use POSIX;
 
 
-#use constant server_root=>'/Users/Shared/cellfinder';
-use constant server_root=>'/Library/WebServer/Documents/cellfinder';
+use constant server_root=>'/Users/Shared/cellfinder';
+#use constant server_root=>'/Library/WebServer/Documents/cellfinder';
 #use constant server_root=>'/srv/www/htdocs/cellfinder';
 
 sub runRCode { my ($RCmd)=@_;
@@ -83,20 +83,24 @@ sub runRJSONCode { my ($id,$code)=@_;
 ENDOFR
 ;	$RCmd=~s/<id>/$id/ogs;
 	$RCmd=~s/<code>/$code/ogs;
+	#warn $RCmd;
 	my $out=runRCode($RCmd);
 	return $out? JSON::XS->new->utf8->decode($out):undef;
 }
 
-sub runEBImageRCode { my ($infile,$code)=@_;
+sub runEBImageRCode { my ($infile,$code, $idanalysis)=@_;
 	my $RCmd=<<'ENDOFR'
     library(EBImage)
     library(rjson)
     e=readImage("<infile>")
+    d1=read.delim(paste("http://auginfo/cellfinder_results/0?mode=results&constraint=idanalysis=", <idanalysis>, sep=""))
+	#	d1=read.delim(paste("http://localhost:3000/ANA/results/", <idanalysis>, sep=""))
     out=""
     <code>
 ENDOFR
 ;	$RCmd=~s/<code>/$code/ogs;
 	$RCmd=~s/<infile>/$infile/ogs;
+	$RCmd=~s/<idanalysis>/$idanalysis/ogs;
 	my $out=runRCode($RCmd);
 	return (length $out)? JSON::XS->new->utf8->decode($out):undef;
 }
@@ -234,7 +238,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 				my $filename=tempFileName('/tmp/cellf');
 				$old_p->Write($filename.'.jpg');
 				chmod 0777, $filename.'.jpg';   
-				my $infile=runEBImageRCode($filename.'.jpg', $p);
+				my $infile=runEBImageRCode($filename.'.jpg', $p, $idanalysis);
 				$p = Image::Magick->new();
 				if(!$infile)
 				{	$p->Read($filename.'.jpg');				# read it back in just in case R/EBImage did some processing on it
@@ -540,6 +544,7 @@ sub uploadImageFromData { my ($dbh, $idtrial, $name, $suffix, $data)=@_;
 	my $filename=tempFileName('/tmp/cellf', $suffix);
 	TempFileNames::writeFile($filename, $data);
 	my ($idimage, $upload_dest)=createImageFromUpload($dbh, $idtrial, $name.".$suffix", $filename);
+warn $upload_dest;
 	my $idcomposition;
 	my $trial = getObjectFromDBHandID($dbh,'trials', $idtrial);
 	$idcomposition= $trial->{composition_for_upload};
@@ -573,7 +578,7 @@ sub rebuildFromRepository { my ($dbh, $idtrial, $rebuild_mode)=@_;
 		$sth->execute(($idtrial,$name));
 		return $sth->fetchrow_hashref();
 	}
-					
+
 	my $sql='insert into images (name, filename, idtrial) values (?,?,?)';
 	my $sth = $dbh->prepare($sql);
 	my @files= glob server_root."/$idtrial-*.jpg";

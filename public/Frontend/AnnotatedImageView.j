@@ -347,6 +347,7 @@ var myFastSortFunction=function(a,b,context)
 	}
 	if( _styleFlags & AIVStyleLengthInfo )
 	{	CGContextSelectFont(context, [CPFont systemFontOfSize:12]);
+        CGContextBeginPath(context);
 		var mySubviews=[self subviews];
 		var n = [mySubviews count];
 		var lastPoint, currPoint;
@@ -388,7 +389,6 @@ var myFastSortFunction=function(a,b,context)
 		var voronoi = new Voronoi();
 		var result = voronoi.compute(sites, {xl: 0, xr:  bbox.size.width, yt: 0, yb: bbox.size.height});
 
-		// var result =[v compute: sites boundingBox: {xl: 0, xr:  bbox.size.width, yt: 0, yb: bbox.size.height} ];
 		if(result.cells)
 		{
 			var n= result.cells.length;
