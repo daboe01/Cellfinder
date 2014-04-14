@@ -15,7 +15,7 @@ use Try::Tiny;
 $ENV{MOJO_MAX_MESSAGE_SIZE} = 1_073_741_824;
 
 plugin 'database', { 
-			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
+			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
 			username => 'root',
 			password => 'root',
 			options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
@@ -85,8 +85,7 @@ post '/DBI/:table/:pk'=> sub
 	my $sql = SQL::Abstract->new;
 	my $json_decoder= Mojo::JSON->new;
 	my $jsonR   = $json_decoder->decode( $self->req->body );
-app->log->debug($self->req->body);
-	my($stmt, @bind) = $sql->insert($table, $jsonR);
+	my($stmt, @bind) = $sql->insert($table, $jsonR || {name=>'New'});
 	my $sth = $self->db->prepare($stmt);
 	$sth->execute(@bind);
 	app->log->debug("err: ".$DBI::errstr ) if $DBI::errstr;
@@ -161,6 +160,8 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
 	$p= cellfinder_image::imageForComposition($self->db, $idcomposition,$f,$p, 1, $idanalysis)	if($idcomposition);
 	$p= cellfinder_image::imageForComposition($self->db, $afterload,$f,$p,1) if($afterload);
 	$p= cellfinder_image::_distortImage($p, $affine) if($affine);
+
+	app->log->debug("$idimage ");
 
 	if($csize && !$idstack)
 	{	$p->Extent(geometry=>$csize, gravity=>'NorthWest', background=>'graya(0%, 0)');
@@ -394,7 +395,7 @@ post '/IMG/import_stack/:idtrial/:name'=> [name=>qr/.+/] => sub
 	my $i=0;
 	foreach my $dc_name (@$jsonR)	# import every image
 	{	my $ua = Mojo::UserAgent->new;
-		my $data=$ua->get($dc_name)->res->body;
+		my $data=$ua->get('http://augimageserver'.$dc_name)->res->body;
 		$suffix=$1 if $dc_name =~/^.+\.(.+)$/o;
 		my $idimage= cellfinder_image::uploadImageFromData($self->db, $idtrial, $name. ($i? "_$i":''), $suffix, $data);
 		push @image_ids, $idimage;
@@ -649,6 +650,15 @@ warn Dumper $montage_image;
 };
 
 
+get '/IMG/trigger/:loc/:piz'=> [loc =>qr/[0-9a-z]+/i, piz=>qr/[0-9a]{8,9}/i] => sub
+{	my $self=shift;
+	my $piz = $self->param('piz');
+    my $loc = $self->param('loc');
+    my $ua = Mojo::UserAgent->new;
+    my $data= $ua->get("http://auginfo/scanuploaddocscal/$loc/$piz")->res->body;
+    $self->render(data=>'OK', format =>'txt' );
+};
+
 
 get '/IMG/rebase/:idmontageimage'=> [idmontageimage => qr/[0-9]+/] => sub
 {	my $self=shift;
@@ -747,6 +757,7 @@ post '/upload/:idtrial' => [idtrial=>qr/[0-9]+/] => sub {
     $self->render( json => \@uploads );
 };
 
-
+use Mojo::Log;
+app->log( Mojo::Log->new( path => '/tmp/cellfinder.log', level => 'debug' ) );
 app->config(hypnotoad => {listen => ['http://*:3000'], workers => 10, heartbeat_timeout=>60000, inactivity_timeout=> 60000});
 app->start;

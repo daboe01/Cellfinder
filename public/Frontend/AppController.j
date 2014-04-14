@@ -23,6 +23,7 @@ PhotoDragType="PhotoDragType";
 @import "CompoBrowser.j"
 @import "UploadManager.j"
 @import "TableViewControl.j"
+@import "CPWebSocket.j"
 
 
 /////////////////////////////////////////////////////////
@@ -129,7 +130,6 @@ PhotoDragType="PhotoDragType";
 - (void) applicationDidFinishLaunching:(CPNotification)aNotification
 {	store=[[FSStore alloc] initWithBaseURL: HostURL+"/DBI"];
 	[CPBundle loadRessourceNamed: "model.gsmarkup" owner:self];
-
 	var model;
 	var re = new RegExp("id=([0-9]+)");
 	var m = re.exec(document.location);
@@ -146,12 +146,25 @@ PhotoDragType="PhotoDragType";
 		var o=[trialsController selectedObject];
 		model=[o valueForKey:"editing_controller"]+".gsmarkup";
 	}
+    var re = new RegExp("&w=([^&]+)");
+    var m = re.exec(document.location);
+    if(m&&m[1]) [self runWatch:m[1]];
+
 	var re = new RegExp("t=([^&#]+)");
 	var m = re.exec(document.location);
 	if(m) model=m[1];
 	if(model) [CPBundle loadRessourceNamed: model owner:self];
 	else [self sharedConfigController];
 }
+-(void) runWatch:(CPString)what
+{
+     [[CPWebSocket alloc] initWithURL: "ws:augimageserver:3005/echo/"+what delegate:self];
+}
+- (void)webSocket:aSoc didReceiveMessage:someData
+{
+    [mainController webSocketActionData:someData]
+}
+
 
 -(void) delete:sender
 {	[[[CPApp keyWindow] delegate] delete:sender];

@@ -24,7 +24,7 @@
 		var i,l=arr.length;
 		for(i=0;i<l;i++)
 		{	var m=arr[i];
-			if([m characterAtIndex:0]=='<') next;
+			if([m characterAtIndex:0]=='<') continue;
 			var sel=CPSelectorFromString(m);
 			if(sel) [self performSelector:sel];
 		}

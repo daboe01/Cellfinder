@@ -19,8 +19,8 @@ use SQL::Abstract;
 use POSIX;
 
 
-#use constant server_root=>'/Users/Shared/cellfinder';
-use constant server_root=>'/Library/WebServer/Documents/cellfinder';
+use constant server_root=>'/Users/Shared/cellfinder';
+#use constant server_root=>'/Library/WebServer/Documents/cellfinder';
 #use constant server_root=>'/srv/www/htdocs/cellfinder';
 
 sub runRCode { my ($RCmd)=@_;
@@ -83,20 +83,24 @@ sub runRJSONCode { my ($id,$code)=@_;
 ENDOFR
 ;	$RCmd=~s/<id>/$id/ogs;
 	$RCmd=~s/<code>/$code/ogs;
+	#warn $RCmd;
 	my $out=runRCode($RCmd);
 	return $out? JSON::XS->new->utf8->decode($out):undef;
 }
 
-sub runEBImageRCode { my ($infile,$code)=@_;
+sub runEBImageRCode { my ($infile,$code, $idanalysis)=@_;
 	my $RCmd=<<'ENDOFR'
     library(EBImage)
     library(rjson)
     e=readImage("<infile>")
+    d1=read.delim(paste("http://auginfo/cellfinder_results/0?mode=results&constraint=idanalysis=", <idanalysis>, sep=""))
+	#	d1=read.delim(paste("http://localhost:3000/ANA/results/", <idanalysis>, sep=""))
     out=""
     <code>
 ENDOFR
 ;	$RCmd=~s/<code>/$code/ogs;
 	$RCmd=~s/<infile>/$infile/ogs;
+	$RCmd=~s/<idanalysis>/$idanalysis/ogs;
 	my $out=runRCode($RCmd);
 	return (length $out)? JSON::XS->new->utf8->decode($out):undef;
 }
@@ -163,6 +167,8 @@ sub imageForDBHAndRenderchainIDAndImage{
 	my $idpoint;
 	my $idimage=$readImageFunction? $readImageFunction->(1):0;
 
+    warn "** $idimage";
+
 	my $stash;
 
 	my $cachename='/tmp/cellfinder_cache_'.$idimage.'_'.$id.'.jpg';
@@ -178,15 +184,15 @@ sub imageForDBHAndRenderchainIDAndImage{
 	my $sql=qq/select * from patch_chains_with_parameters where idpatch_chain=?/;
 	my $sth = $dbh->prepare( $sql );
 	$sth->execute(($id));
-	my $old_p;
+
 	while(my $curr_patch = $sth->fetchrow_hashref())
-	{	$old_p=$p;
+	{
 # warn Dumper $curr_patch;
 		if($curr_patch->{params}=~/<handover>/o)
 		{	my  $analysis = getObjectFromDBHandID($dbh, 'analyses', $idanalysis);
 			my  $handover_params=$analysis->{setup_params};
 			$curr_patch->{params}=~s/<handover>/$handover_params/gs;
-			#warn $handover_params;
+#warn $handover_params;
 			$idimage=0;	# dont write to cache
 		}
 		if($curr_patch->{patch_type} == 1)	# let do imagemagick do the magick
@@ -211,6 +217,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 				map { [ split/=>/o ] }
 				map {s/^["\s]+//ogs;$_;}
 				split  /[^\\],/o, $curr_patch->{params};
+            my $old_p=$p; # preserve image information
 			$p=$curr_patch->{patch};
 			$p=~s/<$_->[0]>/$_->[1]/gs foreach(@arr);
 			$p=~s/<idanalysis>/$idanalysis/gs;
@@ -219,7 +226,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 			my $result=$p;
 			if($curr_patch->{patch_type} == 4)	# sql
 			{	my $sth = $dbh->prepare($p);
-#				warn $p;
+# warn $p;
 				$sth->execute();
 				if( $p=~/select/io )
 				{	$result=($sth->rows>1)? fetchall_hashref_for_sth($sth):$sth->fetchrow_hashref();
@@ -234,10 +241,11 @@ sub imageForDBHAndRenderchainIDAndImage{
 				my $filename=tempFileName('/tmp/cellf');
 				$old_p->Write($filename.'.jpg');
 				chmod 0777, $filename.'.jpg';   
-				my $infile=runEBImageRCode($filename.'.jpg', $p);
+				my $infile=runEBImageRCode($filename.'.jpg', $p, $idanalysis);
 				$p = Image::Magick->new();
 				if(!$infile)
-				{	$p->Read($filename.'.jpg');				# read it back in just in case R/EBImage did some processing on it
+				{   $p=$old_p;
+                    $p->Read($filename.'.jpg');				# read it back in just in case R/EBImage did some processing on it
 					$idimage=$result=0;
 				} elsif(exists $infile->{xpoint} && exists $infile->{ypoint}) # simple points return
 				{
@@ -312,25 +320,23 @@ sub imageForDBHAndRenderchainIDAndImage{
 			my $effective_fn= ((scalar @filenamelist)>1) ?  (join ' ', @filenamelist) : $filename.$filetype;
 			my $effective_fn_out=$filename.'_out'.$filetype;
 			my $args=join ' ', @arr;
-			if($curr_patch->{patch_type} == 2)
-			{	if( $call=~ /<infiles>/o)
-				{	$call=~s/<infiles>/$effective_fn/ogs;
-					$call=~s/<args>/$args/ogs;
-					$call=~s/<outfile>/$effective_fn_out/ogs;
-				} else
-				{	$call.=" $args $filename".$filetype;
-				}
-				$call=~s/<idanalysis>/$idanalysis/gs;
-				$call.=" >$filename".$filetype.'_out';
-				system($call);
-				warn $call;
+			if( $call=~ /<infiles>/o)
+            {	$call=~s/<infiles>/$effective_fn/ogs;
+                $call=~s/<args>/$args/ogs;
+                $call=~s/<outfile>/$effective_fn_out/ogs;
+            } else
+            {	$call.=" $args $filename".$filetype;
+            }
+            $call=~s/<idanalysis>/$idanalysis/gs;
+            $call.=" >$filename".$filetype.'_out';
+            system($call);
+            warn $call;
 
-				my $infile=readFile($filename.$filetype.'_out');
-				unlink($filename.$filetype.'_out');
-				$infile=~s/\s+$//ogs;
-				$p = Image::Magick->new();
-				$p->Read($infile);
-			}
+            my $infile=readFile($filename.$filetype.'_out');
+            unlink($filename.$filetype.'_out');
+            $infile=~s/\s+$//ogs;
+            $p = Image::Magick->new();
+            $p->Read($infile);
 		}
 	}
 	if($idimage && $id && ref $p eq 'Image::Magick')
@@ -429,7 +435,7 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsiz
 	$csize=$1 if $ocsize=~/([0-9]+x[0-9]+)/o;
 	my ($offX,$offY);
 	($offX,$offY)=($1,$2) if $ocsize=~/([-+][0-9]+)([-+][0-9]+)/o;
-	warn "$ocsize $offX,$offY";
+    #	warn "$ocsize $offX,$offY";
 	sub doReadImageFile{ my ($p, $curr_img)=@_;
 		my $filename="$curr_img->{idtrial}-$curr_img->{filename}";
 		$p = Image::Magick->new(magick=>'jpg') unless $p;
@@ -444,7 +450,7 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsiz
 	my $curr_img = getObjectFromDBHandID($dbh,'images_name', $idimage);
 	## warn Dumper $curr_img;
 	return sub{
-		warn "$offX,$offY";
+        #		warn "$offX,$offY";
 		return ($nocache? 0: $idimage) if shift;
 		$p = Image::Magick->new(magick=>'jpg');
 		if($idstack)
@@ -458,7 +464,6 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsiz
 				$i= imageForComposition($dbh, $idcomposition, undef, $i, 0, $m->{idanalysis}) if($idcomposition);
 				my $parameter=$m->{parameter} || '[1,0,0,1,0,0]';
 				_distortImage($i, $parameter, $offX,$offY);
-$i->Write('/tmp/'.$id.'.jpg');
 				push @$p,$i;
 			}
 		} else {
@@ -540,6 +545,7 @@ sub uploadImageFromData { my ($dbh, $idtrial, $name, $suffix, $data)=@_;
 	my $filename=tempFileName('/tmp/cellf', $suffix);
 	TempFileNames::writeFile($filename, $data);
 	my ($idimage, $upload_dest)=createImageFromUpload($dbh, $idtrial, $name.".$suffix", $filename);
+warn $upload_dest;
 	my $idcomposition;
 	my $trial = getObjectFromDBHandID($dbh,'trials', $idtrial);
 	$idcomposition= $trial->{composition_for_upload};
@@ -573,7 +579,7 @@ sub rebuildFromRepository { my ($dbh, $idtrial, $rebuild_mode)=@_;
 		$sth->execute(($idtrial,$name));
 		return $sth->fetchrow_hashref();
 	}
-					
+
 	my $sql='insert into images (name, filename, idtrial) values (?,?,?)';
 	my $sth = $dbh->prepare($sql);
 	my @files= glob server_root."/$idtrial-*.jpg";
