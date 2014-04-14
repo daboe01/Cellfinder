@@ -39,6 +39,9 @@ var CompoJanusControl_typeArray;
 
 @implementation CompoBrowser : CPObject
 {	id myalert;
+	id addPatchPopover;
+	id addCompoWindow;
+	id addCompoTV;
 }
 
 + sharedImageBrowser
@@ -66,6 +69,31 @@ var CompoJanusControl_typeArray;
 	[myalert addButtonWithTitle:"Delete"];
 	[myalert beginSheetModalForWindow:myWindow modalDelegate:self didEndSelector:@selector(deleteWarningDidEnd:code:context:) contextInfo: nil];
 }
+
+-(void) performAddCompo: sender
+{
+}
+-(void) cancelAddCompo: sender
+{	[addPatchPopover close];
+
+}
+
+-(void) newPatch: sender
+{
+	if( !addPatchPopover)
+	{	 addPatchPopover =[CPPopover new];
+		[addPatchPopover setDelegate:self];
+		[addPatchPopover setAnimates:YES];
+		[addPatchPopover setBehavior: CPPopoverBehaviorTransient ];
+		[addPatchPopover setAppearance: CPPopoverAppearanceMinimal];
+		var myViewController=[CPViewController new];
+		[addPatchPopover setContentViewController: myViewController];
+		[myViewController setView: [addCompoWindow contentView]];
+	}
+	[addPatchPopover showRelativeToRect:NULL ofView: sender preferredEdge: nil];
+	[[addCompoTV window] makeFirstResponder: addCompoTV]	
+}
+
 
 -(void) delete:sender
 {	[[[CPApp keyWindow] delegate] delete:sender];

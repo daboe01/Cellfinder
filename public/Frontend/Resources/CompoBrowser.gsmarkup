@@ -75,6 +75,9 @@
 
 <connectors>
 	<outlet source="#CPOwner" target="mycompobrowser" label="_sharedCompoBrowser"/>
+	<outlet source="#CPOwner" target="addcompowindow" label="addCompoWindow"/>
+	<outlet source="#CPOwner" target="addcompotv" label="addCompoTV"/>
+
 </connectors>
 
 </gsmarkup>
