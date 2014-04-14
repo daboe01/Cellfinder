@@ -15,7 +15,7 @@ use Try::Tiny;
 $ENV{MOJO_MAX_MESSAGE_SIZE} = 1_073_741_824;
 
 plugin 'database', { 
-			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
+			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
 			username => 'root',
 			password => 'root',
 			options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
@@ -26,7 +26,7 @@ plugin 'database', {
 # dbi part
 
 # fetch all entities
-get '/DBI/:table'=> sub
+get '/DB/:table'=> sub
 {	my $self = shift;
 	my $sql = SQL::Abstract->new;
 	my $table  = $self->param('table');
@@ -42,7 +42,7 @@ get '/DBI/:table'=> sub
 };
 
 # fetch entities by (foreign) key
-get '/DBI/:table/:col/:pk' => [col=>qr/.+/, pk=>qr/.+/] => sub
+get '/DB/:table/:col/:pk' => [col=>qr/.+/, pk=>qr/.+/] => sub
 {	my $self = shift;
 	my $sql = SQL::Abstract->new;
 	my $table  = $self->param('table');
@@ -61,7 +61,7 @@ get '/DBI/:table/:col/:pk' => [col=>qr/.+/, pk=>qr/.+/] => sub
 };
 
 # update
-put '/DBI/:table/:pk/:key'=> [key=>qr/\d+/] => sub
+put '/DB/:table/:pk/:key'=> [key=>qr/\d+/] => sub
 {	my $self	= shift;
 	my $table	= $self->param('table');
 	my $pk		= $self->param('pk');
@@ -78,7 +78,7 @@ put '/DBI/:table/:pk/:key'=> [key=>qr/\d+/] => sub
 };
 
 # insert
-post '/DBI/:table/:pk'=> sub
+post '/DB/:table/:pk'=> sub
 {	my $self	= shift;
 	my $table	= $self->param('table');
 	my $pk		= $self->param('pk');
@@ -94,7 +94,7 @@ post '/DBI/:table/:pk'=> sub
 };
 
 # delete
-del '/DBI/:table/:pk/:key'=> [key=>qr/\d+/] => sub
+del '/DB/:table/:pk/:key'=> [key=>qr/\d+/] => sub
 {	my $self	= shift;
 	my $table	= $self->param('table');
 	my $pk		= $self->param('pk');
@@ -110,7 +110,7 @@ del '/DBI/:table/:pk/:key'=> [key=>qr/\d+/] => sub
 
 #<!> experimental
 # fuzzy-fetch entities by (foreign) key
-get '/DBI/:table/:col/like/:pk' => [pk=>qr/.+/] => sub
+get '/DB/:table/:col/like/:pk' => [pk=>qr/.+/] => sub
 {	my $self = shift;
 	my $sql = SQL::Abstract->new;
 	my $table  = $self->param('table');

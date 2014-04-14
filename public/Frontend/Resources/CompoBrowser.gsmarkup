@@ -59,8 +59,8 @@
 	 </tableView>
 	</scrollView>
 	<hbox>
-	  <button title="Add selected" target="#myadmincontroller" action="performAddCompo:"/>
-	  <button title="Cancel" target="#myadmincontroller" action="cancelAddCompo:"/>
+	  <button title="Add selected" target="#mycompobrowser" action="performAddCompo:"/>
+	  <button title="Cancel" target="#mycompobrowser" action="cancelAddCompo:"/>
 	</hbox>
    </vbox>
   </window>
@@ -75,8 +75,8 @@
 
 <connectors>
 	<outlet source="#CPOwner" target="mycompobrowser" label="_sharedCompoBrowser"/>
-	<outlet source="#CPOwner" target="addcompowindow" label="addCompoWindow"/>
-	<outlet source="#CPOwner" target="addcompotv" label="addCompoTV"/>
+	<outlet source="#mycompobrowser" target="addcompowindow" label="addCompoWindow"/>
+	<outlet source="#mycompobrowser" target="addcompotv" label="addCompoTV"/>
 
 </connectors>
 

@@ -85,6 +85,7 @@ PhotoDragType="PhotoDragType";
 	id	taglistController2;
 	id	parameterlistsController;
 	id  patchRepoController;
+	id  patchParametersController;
 
 	id	displayfilters_ac;
 	id	uploadfilters_ac;
@@ -128,7 +129,7 @@ PhotoDragType="PhotoDragType";
 }
 
 - (void) applicationDidFinishLaunching:(CPNotification)aNotification
-{	store=[[FSStore alloc] initWithBaseURL: HostURL+"/DBI"];
+{	store=[[FSStore alloc] initWithBaseURL: HostURL+"/DB"];
 	[CPBundle loadRessourceNamed: "model.gsmarkup" owner:self];
 	var model;
 	var re = new RegExp("id=([0-9]+)");

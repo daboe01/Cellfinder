@@ -71,10 +71,28 @@ var CompoJanusControl_typeArray;
 }
 
 -(void) performAddCompo: sender
-{
+{	var idpatch = [[CPApp delegate].patchRepoController valueForKeyPath:"selection.id"];
+	var patchesController = [CPApp delegate].patchesController;
+	[patchesController addObject: @{"idpatch": idpatch} ];
+	var valcontroller = [CPApp delegate].inputValController;
+	var patchParametersController = [CPApp delegate].patchParametersController;
+
+	var a=[[patchParametersController._entity store] fetchObjectsWithKey: "idpatch" equallingValue: idpatch inEntity: patchParametersController._entity options: @{"FSSynchronous":1}];
+	var l=[a count];
+	for(var i=0; i< l; i++)
+	{	var o= [a objectAtIndex:i];
+		var pk=[o valueForKey:"idpatch"];
+		var dv=[o valueForKey:"default_value"];
+		[valcontroller addObject: @{ "idpatch": idpatch, "idparameter": pk, "value": dv } ];
+	}
+	[valcontroller reload];
 }
 -(void) cancelAddCompo: sender
 {	[addPatchPopover close];
+
+}
+-(void) deletePatch: sender
+{	[[CPApp delegate].patchesController remove:self];
 
 }
 
