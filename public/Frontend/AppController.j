@@ -17,6 +17,7 @@ PhotoDragType="PhotoDragType";
 
 @import <Foundation/CPObject.j>
 @import <Renaissance/Renaissance.j>
+@import <CPTextView/CPTextView.j>
 @import "DottingControllers.j"
 @import "AdminController.j"
 @import "ImageBrowser.j"
