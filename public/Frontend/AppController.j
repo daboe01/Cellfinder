@@ -83,6 +83,7 @@ PhotoDragType="PhotoDragType";
 	id	taglistController;
 	id	taglistController2;
 	id	parameterlistsController;
+	id  patchRepoController;
 
 	id	displayfilters_ac;
 	id	uploadfilters_ac;

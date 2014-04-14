@@ -29,6 +29,7 @@
 	<arrayController id="cfifilters_ac" entity="patch_compositions"			valueBinding="trials_controller.selection.compos" filterPredicate="cfifilters_pred"/>
 
 
+	<arrayController id="patch_repo_controller" entity="patch_repository" autoFetch="YES" sortDescriptor="by_name"/>
 	<arrayController id="trials_controller" entity="trials" autoFetch="YES" sortDescriptor="by_name"/>
 	<arrayController id="compos_controller" entity="patch_compositions" valueBinding ="trials_controller.selection.compos"/>
 	<arrayController id="chains_controller" entity="patch_chains" valueBinding ="compos_controller.selection.chains" sortDescriptor="by_ordering"/>
@@ -272,6 +273,7 @@
 	<outlet source="#CPOwner" target="taglist_controller" label="taglistController"/>
 	<outlet source="#CPOwner" target="taglist_controller2" label="taglistController2"/>
 	<outlet source="#CPOwner" target="parameter_lists_controller" label="parameterlistsController"/>
+	<outlet source="#CPOwner" target="patch_repo_controller" label="patchRepoController"/>
 
 	<outlet source="#CPOwner" target="displayfilters_ac" label="displayfilters_ac"/>
 	<outlet source="#CPOwner" target="uploadfilters_ac" label="uploadfilters_ac"/>
