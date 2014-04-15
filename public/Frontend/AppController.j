@@ -17,7 +17,6 @@ PhotoDragType="PhotoDragType";
 
 @import <Foundation/CPObject.j>
 @import <Renaissance/Renaissance.j>
-@import <CPTextView/CPTextView.j>
 @import "DottingControllers.j"
 @import "AdminController.j"
 @import "ImageBrowser.j"
@@ -25,6 +24,7 @@ PhotoDragType="PhotoDragType";
 @import "UploadManager.j"
 @import "TableViewControl.j"
 @import "CPWebSocket.j"
+@import <CPTextView/CPTextView.j>
 
 
 /////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ PhotoDragType="PhotoDragType";
 /////////////////////////////////////////////////////////
 
 
-@implementation AppController : CPObject
+@implementation AppController : CPControl
 {	id	store @accessors;	
 
 	id	trialsController;
@@ -104,6 +104,9 @@ PhotoDragType="PhotoDragType";
 	id	_sharedCompoBrowser @accessors(property=sharedCompoBrowser);
 
 	id mainController @accessors;
+    
+    id _insertText;
+    id _myWatchLocation;
 }
 // this is to make the currently GUI controller globally available (to get access to e.g. scale)
 - mainController
@@ -150,21 +153,30 @@ PhotoDragType="PhotoDragType";
 	}
     var re = new RegExp("&w=([^&]+)");
     var m = re.exec(document.location);
-    if(m&&m[1]) [self runWatch:m[1]];
+    if(m && m[1]) [self runWatch: _myWatchLocation=m[1]];
 
 	var re = new RegExp("t=([^&#]+)");
 	var m = re.exec(document.location);
 	if(m) model=m[1];
 	if(model) [CPBundle loadRessourceNamed: model owner:self];
 	else [self sharedConfigController];
+
+    if(_myWatchLocation)
+    {   [CPApp setNextResponder: self];
+        _insertText="";
+    }
 }
 -(void) runWatch:(CPString)what
 {
      [[CPWebSocket alloc] initWithURL: "ws:augimageserver:3005/echo/"+what delegate:self];
 }
+
 - (void)webSocket:aSoc didReceiveMessage:someData
 {
     [mainController webSocketActionData:someData]
+}
+- (void)webSocketDidOpen:aSoc 
+{
 }
 
 
@@ -187,6 +199,31 @@ PhotoDragType="PhotoDragType";
 -(void) reaggregateAll:sender
 {	var myreq=[CPURLRequest requestWithURL: BaseURL+"reaggregate_all/"+[trialsController valueForKeyPath:"selection.id"] ];
 	[CPURLConnection connectionWithRequest: myreq delegate: nil];
+}
+
+- (void)insertText:(CPString)aString
+{
+    _insertText += aString;
+    var re = new RegExp("([aA]{0,1}[0-9]{8})");
+    var m = re.exec(_insertText);
+    if(m && m[1])
+    {   var loc=_myWatchLocation=="EG"?"topcon2":"topcon1";
+    	var myreq=[CPURLRequest requestWithURL: BaseURL+"trigger/"+loc+"/"+ m[1]];
+		[CPURLConnection connectionWithRequest:myreq delegate: self];
+        _insertText="";
+    }
+}
+-(void) connection: someConnection didReceiveData: data
+{
+}
+
+- (void)keyDown:(CPEvent)event
+{
+    [self interpretKeyEvents:[event]];
+}
+
+- (id)nextResponder
+{   return nil;
 }
 
 @end

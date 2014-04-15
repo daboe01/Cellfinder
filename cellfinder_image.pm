@@ -241,11 +241,11 @@ sub imageForDBHAndRenderchainIDAndImage{
 				my $filename=tempFileName('/tmp/cellf');
 				$old_p->Write($filename.'.jpg');
 				chmod 0777, $filename.'.jpg';   
+                $p=~s/<idimage>/$idimage/ogs;
 				my $infile=runEBImageRCode($filename.'.jpg', $p, $idanalysis);
 				$p = Image::Magick->new();
 				if(!$infile)
-				{   $p=$old_p;
-                    $p->Read($filename.'.jpg');				# read it back in just in case R/EBImage did some processing on it
+				{   $p->Read($filename.'.jpg');				# read it back in just in case R/EBImage did some processing on it
 					$idimage=$result=0;
 				} elsif(exists $infile->{xpoint} && exists $infile->{ypoint}) # simple points return
 				{
@@ -328,15 +328,22 @@ sub imageForDBHAndRenderchainIDAndImage{
             {	$call.=" $args $filename".$filetype;
             }
             $call=~s/<idanalysis>/$idanalysis/gs;
-            $call.=" >$filename".$filetype.'_out';
+            #     $call.=" >$filename".$filetype.'_out';
             system($call);
-            warn $call;
-
-            my $infile=readFile($filename.$filetype.'_out');
-            unlink($filename.$filetype.'_out');
-            $infile=~s/\s+$//ogs;
-            $p = Image::Magick->new();
-            $p->Read($infile);
+            #   TempFileNames::writeFile('/tmp/cellf_dbg.txt', $call."\n".$effective_fn_out."\n".$curr_patch->{patch}."\n".$filetype."\n");
+            #   warn $call;
+            if(-e $filename.$filetype.'_out')
+            {   my $infile=readFile($filename.$filetype.'_out');
+                unlink($filename.$filetype.'_out');
+                $infile=~s/\s+$//ogs;
+                $p = Image::Magick->new();
+                $p->Read($infile);
+                unlink($infile);
+            } else
+            {   $p = Image::Magick->new();
+                $p->Read($effective_fn_out);
+                unlink($effective_fn_out);
+            }
 		}
 	}
 	if($idimage && $id && ref $p eq 'Image::Magick')

@@ -15,7 +15,7 @@ use Try::Tiny;
 $ENV{MOJO_MAX_MESSAGE_SIZE} = 1_073_741_824;
 
 plugin 'database', { 
-			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
+			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
 			username => 'root',
 			password => 'root',
 			options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
@@ -174,8 +174,14 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
 		{	$self->render(text=> $p->Get($spc) );
 		}
 		else
-		{
-			$self->render(data => ($p->ImageToBlob(magick=>'jpg'))[0], format =>'jpg' );
+		{   my $blob= ($p->ImageToBlob(magick=>'jpg'))[0];
+			if($blob)
+            {   $self->render(data => $blob, format =>'jpg' );
+            } else
+            {
+                app->log->debug("error: image is empty");
+                $self->render(data => 'error', format =>'text' );
+            }
 		}
 	} elsif($p)
 	{	if(ref $p eq 'ARRAY')
@@ -441,17 +447,19 @@ post '/IMG/analyze/:idtrial/:name'=> [idtrial=>qr/[0-9]+/, name=>qr/.+/] => sub
 	my $idtrial=	$self->param("idtrial");
 	my $name=		$self->param("name");
 	my $uri=		$self->req->body;
-	my $ua = Mojo::UserAgent->new;
+	my $ua =        Mojo::UserAgent->new;
 	my $data=		$ua->get($uri)->res->body;
 	my $suffix='.jpg';	# sensible default
 	$suffix=$1 if $uri =~/^.+\.(.+)$/o;
 
+app->log->debug("will start upload");
 	my $trial = cellfinder_image::getObjectFromDBHandID($self->db, 'trials', $idtrial);
 	my $idimage = cellfinder_image::uploadImageFromData($self->db, $idtrial, $name, $suffix, $data);
-	my $d={idimage=>$idimage, idcomposition_for_editing=> $trial->{composition_for_editing}, idcomposition_for_analysis=> $trial->{composition_for_celldetection} };
+	my $d = { idimage=>$idimage, idcomposition_for_editing => $trial->{composition_for_editing}, idcomposition_for_analysis=> $trial->{composition_for_celldetection} };
 	my $idanalysis=cellfinder_image::insertObjectIntoTable($self->db, 'analyses', 'id', $d );
 	my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage);
 	cellfinder_image::imageForComposition($self->db, $d->{idcomposition_for_analysis}, $f, $f->(0), 0, $idanalysis);
+app->log->debug("upload finished");
 	$self->render(data=>'OK', format =>'txt' );
 };
 

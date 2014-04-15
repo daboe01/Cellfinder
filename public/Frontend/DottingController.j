@@ -36,7 +36,7 @@
 	var myidimage=		[self valueForKey:"idimage" ];
 	var myidanalysis =	[self valueForKey:"id" ];
 	if(mycompoID !== CPNullMarker)
-	{	myurl= BaseURL +myidimage+"?cmp="+mycompoID+"&idanalysis="+ myidanalysis;
+	{	var myurl= BaseURL +myidimage+"?cmp="+mycompoID+"&idanalysis="+ myidanalysis;
 		var myreq=[CPURLRequest requestWithURL: myurl];
 		[CPURLConnection connectionWithRequest:myreq delegate: someDelegate];
 	}
@@ -93,11 +93,15 @@
 
 
 -(void) insertAnalysis: sender
-{	[myAppController.analysesController add:sender];
+{	[myAppController.analysesController add: sender];
 	var myAnalysis=  [myAppController.analysesController selectedObject];
+    var idimage=[myAppController.folderContentController valueForKeyPath:"selection.idimage"];
+    [myAnalysis setValue:idimage forKey:"idimage"];
 	var mycompoID  = [myAppController.trialsController valueForKeyPath: "selection.composition_for_celldetection"];
+	var myviewingID  = [myAppController.trialsController valueForKeyPath: "selection.composition_for_editing"];
 	[myAnalysis setValue: mycompoID  forKey:"idcomposition_for_analysis"];
-	[self reloadAnalysis:self];
+	[myAnalysis setValue: myviewingID  forKey:"idcomposition_for_editing"];
+	[self reloadAnalysis: myAnalysis];
 }
 -(void) duplicateAnalysis: sender
 {	var mySourceAnalysis=  [myAppController.analysesController valueForKeyPath:"selection.id"];
@@ -121,9 +125,8 @@
 	[[myAppController.analysesController selectedObject]  didChangeValueForKey:"aggregations"];
 }
 
--(void) reloadAnalysis: sender
-{	var myAnalysis=  [myAppController.analysesController selectedObject];
-	[progress startAnimation: self];
+-(void) reloadAnalysis: myAnalysis
+{   [progress startAnimation: self];
 	[myAnalysis _replaceAnalysisWithDelegate: self];
 
 }
@@ -146,7 +149,6 @@
     {
         [myAppController.folderController reload];
         [myAppController.folderContentController reload];
-        [myAppController.folderController selectObjectWithPK: linkname];
         var linkname=[myAppController.trialsController valueForKeyPath:"selection.id"]+m[0];
         [myAppController.folderController setFilterPredicate: [CPPredicate predicateWithFormat:"linkname=='"+linkname+"'" ]];
       }

@@ -71,7 +71,7 @@ var _sharedImageBrowser;
 
 -(void) deleteSelectedImage: sender
 {	var idimage=[[CPApp delegate].folderContentController valueForKeyPath: "selection.idimage"];
-	var myurl= HostURL +"/DBI/images/id/"+ idimage;
+	var myurl= HostURL +"/DB/images/id/"+ idimage;
 	var myreq=[CPURLRequest requestWithURL: myurl];
 	[myreq setHTTPMethod:"delete"];
 	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];

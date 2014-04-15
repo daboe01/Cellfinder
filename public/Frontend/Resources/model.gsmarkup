@@ -43,7 +43,7 @@
 	<arrayController id="folder_controller" entity="folders" valueBinding ="trials_controller.selection.folders" sortDescriptor="by_folder_name"/>
 	<arrayController id="folder_content_controller" entity="folder_content" valueBinding ="folder_controller.selection.folder_content" sortDescriptor="by_reverse_name"/>
 	<arrayController id="analyses_controller" entity="analyses" valueBinding ="folder_content_controller.selection.analyses"/>
-	<arrayController id="aggregations_controller" entity="aggregations" valueBinding ="analyses_controller.selection.aggregations"/>
+	<arrayController id="aggregations_controller" entity="aggregations" valueBinding ="analyses_controller.selection.aggregations" sortDescriptor="by_name"/>
 	<arrayController id="tag_repository_controller" entity="tag_repository" valueBinding ="trials_controller.selection.tagrepo"/>
 	<arrayController id="tags_controller" entity="tags" valueBinding ="folder_content_controller.selection.tags"/>
 	<arrayController id="taglist_controller" entity="taglist_repository" autoFetch="YES"/>

@@ -27,7 +27,7 @@
 					<tableColumn identifier="idimage" title="ID"/>
 	  			</tableView>
 			</scrollView>
-			<ButtonBar target="#mydottingcontroller" halign="right" width="250" actionsButton="YES">
+			<ButtonBar target="#mydottingcontroller" halign="right" width="350" actionsButton="YES">
    				<popUpButtonItem title="Try to match selected" target="#mydottingcontroller" action="matchDots:"/>
    				<popUpButtonItem title="Try to match all" target="#mydottingcontroller" action="matchDotsAll:"/>
 			</ButtonBar>
@@ -52,7 +52,6 @@
    						<popUpButtonItem title="Duplicate" target="#mydottingcontroller" action="duplicateAnalysis:"/>
    						<popUpButtonItem title="Reveal coords..." target="#mydottingcontroller" action="revealCoords:"/>
    						<popUpButtonItem title="Replace with input..." target="#mydottingcontroller" action="insertAnalysisFromInput:"/>
-   						<popUpButtonItem title="Reload dots" target="#mydottingcontroller" action="reloadAnalysis:"/>
  						<popUpButtonItem title="Edit composition..." target="#mydottingcontroller" action="editAnalysis:"/>
   						<popUpButtonItem title="Reaggregate" target="#mydottingcontroller" action="reaggregate:"/>
  						<popUpButtonItem title="Switch Extractor" target="#mydottingcontroller" action="runSettings:"/>
