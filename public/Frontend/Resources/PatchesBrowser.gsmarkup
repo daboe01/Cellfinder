@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE gsmarkup>
+<gsmarkup>
+
+<objects>
+  <window title="Patches" closable="yes" id="mainwindow" x="30" y="30" width="800" height="640" autosaveName="coposColumnSizes">
+	<splitView vertical="YES" autosaveName="patches1">
+		<vbox>
+			<scrollView hasHorizontalScroller="NO">
+				<tableView autosaveName="allpatches" zebra="yes" valueBinding="#CPOwner.patchRepoController" target="#CPOwner">
+					<tableColumn identifier="name" title="name" editable="YES"/>
+					<tableColumn identifier="type" title="type" editable="YES"/>
+					<tableColumn identifier="filetype" title="filetype" editable="YES"/>
+	  			</tableView>
+			</scrollView>
+			<ButtonBar plusButtonAction="insert:" minusButtonAction="remove:" target="#CPOwner.patchRepoController">
+			</ButtonBar>
+		</vbox>
+		<vbox>
+			<scrollView hasHorizontalScroller="NO">
+				<textView halign="expand" valign="expand" valueBinding="#CPOwner.patchRepoControlle.selection.code"/>
+			</scrollView>
+		</vbox>
+	 </splitView>
+  </window>
+</objects>
+
+
+
+</gsmarkup>
