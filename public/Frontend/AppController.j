@@ -195,6 +195,9 @@ PhotoDragType="PhotoDragType";
 -(void) runCompoBrowser:sender
 {	[CompoBrowser sharedImageBrowser];
 }
+-(void) runPatchesBrowser:sender
+{   [CPBundle loadRessourceNamed:"PatchesBrowser.gsmarkup" owner:self];
+}
 
 -(void) reaggregateAll:sender
 {	var myreq=[CPURLRequest requestWithURL: BaseURL+"reaggregate_all/"+[trialsController valueForKeyPath:"selection.id"] ];
