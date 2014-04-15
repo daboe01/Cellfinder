@@ -15,7 +15,7 @@ use Try::Tiny;
 $ENV{MOJO_MAX_MESSAGE_SIZE} = 1_073_741_824;
 
 plugin 'database', { 
-			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
+			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
 			username => 'root',
 			password => 'root',
 			options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
@@ -747,6 +747,13 @@ get '/IMG/ransac_debug/:idransac/:idmontage/:idanalysis1/:idanalysis2'=> [idrans
 	}
 };
 
+
+post '/IMG/rebuildFromRepository/:idtrial'=> [idtrial => qr/[0-9]+/] => sub
+{	my $self=shift;
+	my $idtrial = $self->param('idtrial');
+	my $idstack=$self-> rebuildFromRepository($self->db, $idtrial, 0);
+	$self->render(data=> 'OK', format =>'txt' );
+};
 
 
 # POST /upload (push one or more files to app)

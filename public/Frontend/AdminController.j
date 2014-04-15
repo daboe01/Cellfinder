@@ -47,6 +47,20 @@
 
 }
 
+
+-(void) rebuildFromRepo: sender
+{	var idtrial=[[CPApp delegate].trialsController valueForKeyPath:"selection.id"];
+	var myreq=[CPURLRequest requestWithURL: BaseURL+"rebuildFromRepository"+"/"+idtrial];
+    [myreq setHTTPMethod: "POST"];
+	[myreq setHTTPBody: "" ];
+	[CPURLConnection connectionWithRequest:myreq delegate: self];
+	// fixme: start spinner
+}
+-(void) connection: someConnection didReceiveData: data
+{	// fixme: stop spinner
+
+}
+
 @end
 
 

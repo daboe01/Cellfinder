@@ -3,10 +3,10 @@
 <gsmarkup>
 
 <objects>
-  <window title="Patches" closable="yes" id="mainwindow" x="30" y="30" width="800" height="640" autosaveName="coposColumnSizes">
-	<splitView vertical="YES" autosaveName="patches1">
+  <window title="Patches" closable="yes" id="mainwindow" x="30" y="30" width="800" height="640" autosaveName="composColumnSizes">
+	<hbox>
 		<vbox>
-			<scrollView hasHorizontalScroller="NO">
+			<scrollView hasHorizontalScroller="NO" width="200">
 				<tableView autosaveName="allpatches" zebra="yes" valueBinding="#CPOwner.patchRepoController" target="#CPOwner">
 					<tableColumn identifier="name" title="name" editable="YES"/>
 					<tableColumn identifier="type" title="type" editable="YES"/>
@@ -17,11 +17,11 @@
 			</ButtonBar>
 		</vbox>
 		<vbox>
-			<scrollView hasHorizontalScroller="NO">
-				<textView halign="expand" valign="expand" valueBinding="#CPOwner.patchRepoControlle.selection.code"/>
+			<scrollView hasHorizontalScroller="NO" width="400">
+				<textView editable="YES" valueBinding="#CPOwner.patchRepoController.selection.code"/>
 			</scrollView>
 		</vbox>
-	 </splitView>
+	 </hbox>
   </window>
 </objects>
 

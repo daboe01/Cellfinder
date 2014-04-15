@@ -114,6 +114,7 @@
 		<column name="id" primaryKey="YES"/>
 		<column name="type"/>
 		<column name="name"/>
+		<column name="code"/>
 		<column name="filetype"/>
 	</entity>
 	<entity id="patch_input_values" store="#CPOwner.store">
