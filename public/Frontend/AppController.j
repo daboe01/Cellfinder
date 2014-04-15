@@ -87,6 +87,7 @@ PhotoDragType="PhotoDragType";
 	id	parameterlistsController;
 	id  patchRepoController;
 	id  patchParametersController;
+	id  patchParametersController2;
 
 	id	displayfilters_ac;
 	id	uploadfilters_ac;

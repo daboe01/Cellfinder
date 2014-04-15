@@ -21,6 +21,18 @@
 				<textView editable="YES" valueBinding="#CPOwner.patchRepoController.selection.code"/>
 			</scrollView>
 		</vbox>
+		<vbox>
+			<scrollView hasHorizontalScroller="NO" width="200">
+				<tableView autosaveName="patchParameters" zebra="yes" valueBinding="#CPOwner.patchParametersController2" target="#CPOwner">
+					<tableColumn identifier="name" title="name" editable="YES"/>
+					<tableColumn identifier="default_value" title="default" editable="YES"/>
+					<tableColumn identifier="type" title="type" editable="YES"/>
+					<tableColumn identifier="cmd_name" title="cmd_name" editable="YES"/>
+	  			</tableView>
+			</scrollView>
+			<ButtonBar plusButtonAction="insert:" minusButtonAction="remove:" target="#CPOwner.patchRepoController">
+			</ButtonBar>
+		</vbox>
 	 </hbox>
   </window>
 </objects>
