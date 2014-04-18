@@ -22,7 +22,7 @@
 			</scrollView>
 		</vbox>
 		<vbox>
-			<scrollView hasHorizontalScroller="NO" width="200">
+			<scrollView hasHorizontalScroller="NO" width="400">
 				<tableView autosaveName="patchParameters" zebra="yes" valueBinding="#CPOwner.patchParametersController2" target="#CPOwner">
 					<tableColumn identifier="name" title="name" editable="YES"/>
 					<tableColumn identifier="default_value" title="default" editable="YES"/>

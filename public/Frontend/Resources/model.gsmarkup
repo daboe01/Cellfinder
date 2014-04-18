@@ -37,7 +37,7 @@
 	<arrayController id="patches_controller" entity="patches" valueBinding ="chains_controller.selection.patches" sortDescriptor="by_ordering"/>
 	<arrayController id="inputval_controller" entity="patch_input_values" valueBinding ="patches_controller.selection.input_values"/>
 	<arrayController id="patch_parameters_controller" entity="patch_parameters" autoFetch="YES" sortDescriptor="by_id"/>
-	<arrayController id="patch_parameters_controller2" entity="patch_parameters" valueBinding = "patches_controller.selection.parameters" sortDescriptor="by_id"/>
+	<arrayController id="patch_parameters_controller2" entity="patch_parameters" valueBinding = "patch_repo_controller.selection.parameters" sortDescriptor="by_id"/>
 
 	<arrayController id="stacks_controller" entity="montages" valueBinding ="trials_controller.selection.stacks" sortDescriptor="by_name"/>
 	<arrayController id="stacks_content_controller" entity="montage_images" valueBinding ="stacks_controller.selection.analyses"/>
@@ -110,7 +110,6 @@
 		<column name="ordering"/>
 		<relationship type="toOne" name="patch" bindingColumn="idpatch" target="patch_repository"/>
 		<relationship type="toMany" name="input_values" targetColumn="idpatch" target="patch_input_values"/>
-		<relationship type="toMany" name="parameters" targetColumn="idpatch" target="patch_parameters"/>
 	</entity>
 	<entity id="patch_repository" store="#CPOwner.store">
 		<column name="id" primaryKey="YES"/>
@@ -118,6 +117,7 @@
 		<column name="name"/>
 		<column name="code"/>
 		<column name="filetype"/>
+		<relationship type="toMany" name="parameters" targetColumn="idpatch" target="patch_parameters"/>
 	</entity>
 	<entity id="patch_input_values" store="#CPOwner.store">
 		<column name="id" primaryKey="YES"/>
