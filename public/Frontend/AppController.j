@@ -62,17 +62,6 @@ PhotoDragType="PhotoDragType";
 }
 @end
 
-@implementation CPText(KVO)
-- (CPString)objectValue
-{
-    return [self string];
-}
-- (void)setObjectValue:(CPString)aString
-{	[self setString:aString];
-}
-@end
-
-
 /////////////////////////////////////////////////////////
 
 
