@@ -240,7 +240,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 				next unless ref $old_p eq 'Image::Magick';
 				my $filename=tempFileName('/tmp/cellf');
 				$old_p->Write($filename.'.jpg');
-				chmod 0777, $filename.'.jpg';   
+				chmod 0777, $filename.'.jpg';
                 $p=~s/<idimage>/$idimage/ogs;
 				my $infile=runEBImageRCode($filename.'.jpg', $p, $idanalysis);
 				$p = Image::Magick->new();
@@ -291,7 +291,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 			}
 			if($result){
 				if(ref($stash) eq 'ARRAY')
-				{	push(@$stash,$result); 
+				{	push(@$stash,$result);
 				} else
 				{	$stash=[$result];
 				}
@@ -311,7 +311,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 				grep {($_->[0]=~/%/ogs &&  $_->[1]) || (!($_->[0]=~/%/ogs) && $_->[1])}
 				map {  $_->[0]=~s/"$//ogs; $_->[1]=~s/\\,/,/ogs; $_->[1]=~s/"//ogs;$_;}
 				map { [ split/=>/o ] }
-				sort 
+				sort
 				map {s/^["\s]+//ogs;$_;}
 				split  /(?<!\\),/o, $patchparams;
 			my $call=$curr_patch->{patch};
@@ -374,13 +374,13 @@ sub insertObjectIntoTable{
 	warn "err: ".$DBI::errstr if $DBI::errstr;
 	return $dbh->last_insert_id(undef, undef, $table, $pk);
 }
-			
+
 sub uniquelyInsertObjectIntoTable{
 	my $dbh  = shift;
 	my $table = shift;
 	my $pk = shift;
 	my $o = shift;
-	
+
 	my $sql = SQL::Abstract->new;
 	my($stmt, @bind) = $sql->select($table, undef, $o);
 	my $sth = $dbh->prepare($stmt);
@@ -392,7 +392,7 @@ sub deleteObjectFromTable{
 	my $dbh  = shift;
 	my $table = shift;
 	my $o = shift;
-	
+
 	my $sql = SQL::Abstract->new;
 	my($stmt, @bind) = $sql->delete($table, $o);
 	my $sth = $dbh->prepare($stmt);
@@ -586,7 +586,8 @@ sub rebuildFromRepository { my ($dbh, $idtrial, $rebuild_mode)=@_;
 		$sth->execute(($idtrial,$name));
 		return $sth->fetchrow_hashref();
 	}
-
+warn "hello world";
+warn server_root."/$idtrial-*.jpg";
 	my $sql='insert into images (name, filename, idtrial) values (?,?,?)';
 	my $sth = $dbh->prepare($sql);
 	my @files= glob server_root."/$idtrial-*.jpg";

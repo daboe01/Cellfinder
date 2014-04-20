@@ -14,7 +14,7 @@ use Try::Tiny;
 # enable receiving uploads up to 1GB
 $ENV{MOJO_MAX_MESSAGE_SIZE} = 1_073_741_824;
 
-plugin 'database', { 
+plugin 'database', {
 			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
 			username => 'root',
 			password => 'root',
@@ -208,12 +208,12 @@ get '/IMG/reaggregate_all/:idtrial'=> [idtrial =>qr/\d+/] => sub
 	my $idtrial= $self->param("idtrial");
 	my $dbh=$self->db;
 	my $trial = cellfinder_image::getObjectFromDBHandID($dbh, 'trials', $idtrial);
-	
+
 	$dbh->{AutoCommit}=0;
 	my $sql=qq{delete from aggregations using analyses, images where  analyses.idimage=images.id and aggregations.idanalysis=analyses.id and idtrial=?};
 	my $sth = $dbh->prepare( $sql );
 	$sth->execute(($idtrial));
-	
+
 	$sql=qq{select distinct analyses.id, idimage from analyses left join aggregations on  aggregations.idanalysis=analyses.id join images on analyses.idimage=images.id  join number_points on number_points.idanalysis=analyses.id where  aggregations.idanalysis is null and idtrial=?};
 	$sth = $dbh->prepare( $sql );
 	$sth->execute(($idtrial));
@@ -248,7 +248,7 @@ get '/IMG/input_results/:idto/:results'=> [idto =>qr/\d+/,results =>qr/.+/] => s
 	}
 	$dbh->commit;
 	$dbh->{AutoCommit}=1;
-	
+
 	$self->render(text=> 'OK');
 };
 
@@ -313,7 +313,7 @@ get '/ANA/aggregations/:idtrial'=> [idtrial =>qr/\d+/] => sub
 		$result.="\n";
 	}
 	$self->render(text=>$result);
-	
+
 };
 get '/ANA/:table/:idtrial'=> [table=>qr/[^"]+/, idtrial =>qr/\d+/] => sub
 {	my $self=shift;
@@ -323,15 +323,15 @@ get '/ANA/:table/:idtrial'=> [table=>qr/[^"]+/, idtrial =>qr/\d+/] => sub
 	my $sql="SELECT * FROM \"$table\" where idtrial=$idtrial";
 	my $sth = $dbh->prepare( $sql );
 	$sth->execute();
-	my $res = $sth->fetchall_arrayref();                    
-	my $colnames = $sth->{NAME};          
+	my $res = $sth->fetchall_arrayref();
+	my $colnames = $sth->{NAME};
 	my $result=	join("\t", @$colnames)."\n";
 	for my $curr (@$res)
 	{	$result.=join("\t", (@$curr));
 		$result.="\n";
 	}
 	$self->render(text=> $result);
-	
+
 };
 
 
@@ -565,7 +565,7 @@ get '/IMG/autostitch/:idmontage'=> [idmontage =>qr/[0-9]+/] => sub
 warn "$idanalysis, $idmontage, $idmontage_orig";
 		$sth->execute(($idanalysis, $idmontage, $idmontage_orig));
 		my $anchors= $sth->fetchall_arrayref();
-	
+
 		foreach my $curr_anchor (@$anchors)
 		{	if( $curr_anchor->[2] )
 			{	if ($current_matrix) {
@@ -751,7 +751,7 @@ get '/IMG/ransac_debug/:idransac/:idmontage/:idanalysis1/:idanalysis2'=> [idrans
 post '/IMG/rebuildFromRepository/:idtrial'=> [idtrial => qr/[0-9]+/] => sub
 {	my $self=shift;
 	my $idtrial = $self->param('idtrial');
-	my $idstack=$self-> rebuildFromRepository($self->db, $idtrial, 0);
+	my $idstack=cellfinder_image::rebuildFromRepository($self->db, $idtrial, 0);
 	$self->render(data=> 'OK', format =>'txt' );
 };
 

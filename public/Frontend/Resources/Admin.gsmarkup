@@ -19,7 +19,7 @@
  		<popUpButtonItem title="Settings..." target="#CPOwner" action="runSettings:" keyEquivalent="i"/>
  		<popUpButtonItem title="Reaggregate all" target="#CPOwner" action="reaggregateAll:"/>
  		<popUpButtonItem title="Duplicate structure" target="#CPOwner" action="duplicate:"/>
- 		<popUpButtonItem title="Rebuild from repo..." target="#CPOwner" action="rebuildFromRepo:"/>
+ 		<popUpButtonItem title="Rebuild from repo..." target="#myadmincontroller" action="rebuildFromRepo:"/>
 	</ButtonBar>
 	</vbox>
  </window>
