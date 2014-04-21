@@ -9,8 +9,9 @@
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
 				<tableView autosaveName="compos" zebra="yes" valueBinding="#CPOwner.compoController" target="#CPOwner">
-					<tableColumn identifier="name" title="name" editable="YES"/>
-	  			</tableView>
+                    <tableColumn identifier="name" title="name" editable="YES"/>
+                    <tableColumn identifier="type" title="type" editable="YES"/>
+	  		  </tableView>
 			</scrollView>
 			<ButtonBar plusButtonAction="newCompo:" minusButtonAction="deleteCompo:" actionsButton="YES" target="#mycompobrowser">
 				<popUpButtonItem title="CopyCompo" target="#mycompobrowser" action="copyCompo:"/>
@@ -75,7 +76,8 @@
 
 <connectors>
 	<outlet source="#CPOwner" target="mycompobrowser" label="_sharedCompoBrowser"/>
-	<outlet source="#mycompobrowser" target="addcompowindow" label="addCompoWindow"/>
+    <outlet source="#mycompobrowser" target="mainwindow" label="myWindow"/>
+    <outlet source="#mycompobrowser" target="addcompowindow" label="addCompoWindow"/>
 	<outlet source="#mycompobrowser" target="addcompotv" label="addCompoTV"/>
 
 </connectors>

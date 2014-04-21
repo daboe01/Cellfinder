@@ -31,7 +31,7 @@
 {	[[CPApp delegate].trialsController addObject: @{"name": "New trial"}];
 }
 
-- (void)deleteWarningDidEnd:(CPAlert)anAlert code:(id)code context:(id)context
+- (void)deleteTrialWarningDidEnd:(CPAlert)anAlert code:(id)code context:(id)context
 {	if(code)
 	{	[[CPApp delegate].trialsController remove: self]
 	}
@@ -43,22 +43,45 @@
 	[myalert setMessageText: "Are you sure you want to delete this trial?"];
 	[myalert addButtonWithTitle:"Cancel"];
 	[myalert addButtonWithTitle:"Delete"];
-	[myalert beginSheetModalForWindow: trialsWindow modalDelegate:self didEndSelector:@selector(deleteWarningDidEnd:code:context:) contextInfo: nil];
+	[myalert beginSheetModalForWindow: trialsWindow modalDelegate:self didEndSelector:@selector(deleteTrialWarningDidEnd:code:context:) contextInfo: nil];
 
 }
 
 
 -(void) rebuildFromRepo: sender
 {	var idtrial=[[CPApp delegate].trialsController valueForKeyPath:"selection.id"];
-	var myreq=[CPURLRequest requestWithURL: BaseURL+"rebuildFromRepository"+"/"+idtrial];
+    var myreq=[CPURLRequest requestWithURL: BaseURL+"rebuildFromRepository"+"/"+idtrial];
     [myreq setHTTPMethod: "POST"];
-	[myreq setHTTPBody: "" ];
-	[CPURLConnection connectionWithRequest:myreq delegate: self];
-	// fixme: start spinner
+    [myreq setHTTPBody: "" ];
+    [CPURLConnection connectionWithRequest:myreq delegate: self];
+    // fixme: start spinner
+}
+
+- (void)deleteImagesWarningDidEnd:(CPAlert)anAlert code:(id)code context:(id)context
+{	if(code)
+    {
+        var myreq=[CPURLRequest requestWithURL: BaseURL+"deleteAllImages"+"/"+context];
+        [myreq setHTTPMethod: "POST"];
+        [myreq setHTTPBody: "" ];
+        [CPURLConnection connectionWithRequest:myreq delegate: self];
+    }
+}
+
+-(void) deleteAllImages: sender
+{	var idtrial=[[CPApp delegate].trialsController valueForKeyPath:"selection.id"];
+
+    var myalert = [CPAlert new];
+    [myalert setMessageText: "Are you sure you want to delete all images from this trial?"];
+    [myalert addButtonWithTitle:"Cancel"];
+    [myalert addButtonWithTitle:"Delete"];
+    [myalert beginSheetModalForWindow: trialsWindow modalDelegate:self didEndSelector:@selector(deleteImagesWarningDidEnd:code:context:) contextInfo: idtrial];
+
 }
 -(void) connection: someConnection didReceiveData: data
 {	// fixme: stop spinner
-
+    var appController=[CPApp delegate];
+    [appController.folderController reload];
+    [appController.folderContentController reload];
 }
 
 @end
@@ -75,4 +98,3 @@
 	return [AdminController class];
 }
 @end
-

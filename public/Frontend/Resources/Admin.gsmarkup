@@ -19,7 +19,8 @@
  		<popUpButtonItem title="Settings..." target="#CPOwner" action="runSettings:" keyEquivalent="i"/>
  		<popUpButtonItem title="Reaggregate all" target="#CPOwner" action="reaggregateAll:"/>
  		<popUpButtonItem title="Duplicate structure" target="#CPOwner" action="duplicate:"/>
- 		<popUpButtonItem title="Rebuild from repo..." target="#myadmincontroller" action="rebuildFromRepo:"/>
+         <popUpButtonItem title="Rebuild from repo" target="#myadmincontroller" action="rebuildFromRepo:"/>
+         <popUpButtonItem title="Delete all images" target="#myadmincontroller" action="deleteAllImages:"/>
 	</ButtonBar>
 	</vbox>
  </window>

@@ -39,6 +39,7 @@ var CompoJanusControl_typeArray;
 
 @implementation CompoBrowser : CPObject
 {	id myalert;
+    id myWindow;
 	id addPatchPopover;
 	id addCompoWindow;
 	id addCompoTV;
@@ -54,20 +55,33 @@ var CompoJanusControl_typeArray;
 	return _sharedCompoBrowser;
 }
 
-- (void)deleteWarningDidEnd:(CPAlert)anAlert code:(id)code context:(id)context
+- (void)deleteCompoWarningDidEnd:(CPAlert)anAlert code:(id)code context:(id)context
 {
     if(code)	// do it
 	{
+        [[CPApp delegate].compoController remove:self];
 	}
 }
 
 -(void) deleteCompo: sender
 {
-	myalert = [CPAlert new];
+    myalert = [CPAlert new];
     [myalert setMessageText: "Are you sure you want to delete all images of this folder?"];
-	[myalert addButtonWithTitle:"Cancel"];
-	[myalert addButtonWithTitle:"Delete"];
-	[myalert beginSheetModalForWindow:myWindow modalDelegate:self didEndSelector:@selector(deleteWarningDidEnd:code:context:) contextInfo: nil];
+    [myalert addButtonWithTitle:"Cancel"];
+    [myalert addButtonWithTitle:"Delete"];
+    [myalert beginSheetModalForWindow:[CPApp mainWindow] modalDelegate:self didEndSelector:@selector(deleteCompoWarningDidEnd:code:context:) contextInfo: nil];
+}
+-(void) newCompo: sender
+{
+    [[CPApp delegate].compoController insert:self];
+}
+-(void) newChain: sender
+{
+    [[CPApp delegate].chainsController insert:self];
+}
+-(void) deleteChain: sender
+{
+    [[CPApp delegate].chainsController remove:self];
 }
 
 -(void) performAddCompo: sender
@@ -109,7 +123,7 @@ var CompoJanusControl_typeArray;
 		[myViewController setView: [addCompoWindow contentView]];
 	}
 	[addPatchPopover showRelativeToRect:NULL ofView: sender preferredEdge: nil];
-	[[addCompoTV window] makeFirstResponder: addCompoTV]	
+	[[addCompoTV window] makeFirstResponder: addCompoTV]
 }
 
 

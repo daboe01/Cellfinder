@@ -563,17 +563,24 @@ warn $upload_dest;
 	return $idimage;
 }
 
-sub deleteImage { my ($dbh, $idimage)=@_;
-	my $sql = 'select * from images where id=?';
-	my $sth = $dbh->prepare($sql);
-	$sth->execute(($idimage));
-	my $image=$sth->fetchrow_hashref();
+sub deleteImage { my ($dbh, $idimage, $notFully)=@_;
+
+	my $image=getObjectFromDBHandID($dbh, 'images', $idimage);
 	if($image)
 	{	my $dest=server_root.'/'.$image->{idtrial}.'-'.$image->{filename};
 		my $sql = 'delete from images where id=?';
 		my $sth = $dbh->prepare($sql);
 		$sth->execute(($idimage));
-		unlink $dest unless $sth->err;
+		unlink $dest unless $notFully || $sth->err;
+	}
+}
+sub deleteAllImages { my ($dbh, $idtrial, $fully)=@_;
+	my $sth = $dbh->prepare( qq/select id from images where idtrial=?/);
+	$sth->execute(($idtrial));
+	my $a= $sth->fetchall_arrayref();
+	for my $currImage (@$a)
+	{
+		deleteImage($dbh, $currImage->[0], !$fully);
 	}
 }
 
@@ -586,8 +593,6 @@ sub rebuildFromRepository { my ($dbh, $idtrial, $rebuild_mode)=@_;
 		$sth->execute(($idtrial,$name));
 		return $sth->fetchrow_hashref();
 	}
-warn "hello world";
-warn server_root."/$idtrial-*.jpg";
 	my $sql='insert into images (name, filename, idtrial) values (?,?,?)';
 	my $sth = $dbh->prepare($sql);
 	my @files= glob server_root."/$idtrial-*.jpg";

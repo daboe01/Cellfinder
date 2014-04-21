@@ -754,6 +754,13 @@ post '/IMG/rebuildFromRepository/:idtrial'=> [idtrial => qr/[0-9]+/] => sub
 	my $idstack=cellfinder_image::rebuildFromRepository($self->db, $idtrial, 0);
 	$self->render(data=> 'OK', format =>'txt' );
 };
+post '/IMG/deleteAllImages/:idtrial'=> [idtrial => qr/[0-9]+/] => sub
+{	my $self=shift;
+	my $idtrial = $self->param('idtrial');
+	my $fully = $self->param('fully');
+	my $idstack=cellfinder_image::deleteAllImages($self->db, $idtrial, $fully);
+	$self->render(data=> 'OK', format =>'txt' );
+};
 
 
 # POST /upload (push one or more files to app)
