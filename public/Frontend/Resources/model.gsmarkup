@@ -33,7 +33,8 @@
 	<arrayController id="patch_repo_controller" entity="patch_repository" autoFetch="YES" sortDescriptor="by_name"/>
 	<arrayController id="trials_controller" entity="trials" autoFetch="YES" sortDescriptor="by_name"/>
 	<arrayController id="compos_controller" entity="patch_compositions" valueBinding ="trials_controller.selection.compos"/>
-	<arrayController id="chains_controller" entity="patch_chains" valueBinding ="compos_controller.selection.chains" sortDescriptor="by_ordering"/>
+    <arrayController id="chains_controller" entity="patch_chains" valueBinding ="compos_controller.selection.chains" sortDescriptor="by_ordering"/>
+    <arrayController id="chains_controller2" entity="patch_chains" autoFetch="YES" sortDescriptor="by_ordering"/>
 	<arrayController id="patches_controller" entity="patches" valueBinding ="chains_controller.selection.patches" sortDescriptor="by_ordering"/>
 	<arrayController id="inputval_controller" entity="patch_input_values" valueBinding ="patches_controller.selection.input_values"/>
 	<arrayController id="patch_parameters_controller" entity="patch_parameters" autoFetch="YES" sortDescriptor="by_id"/>
@@ -90,9 +91,11 @@
 	<entity id="patch_compositions" store="#CPOwner.store">
 		<column name="id" primaryKey="YES"/>
 		<column name="idtrials"/>
-		<column name="type"/>
+        <column name="type"/>
+        <column name="primary_chain"/>
 		<column name="name"/>
 		<relationship type="toOne" name="trial" bindingColumn="idtrials" target="trials"/>
+        <relationship type="toOne" name="primarychain" bindingColumn="primary_chain" target="patch_chains"/>
 		<relationship name="chains" type="toMany" target="patch_chains" targetColumn="idpatch_composition"/>
 		<relationship name="inputParams" type="toMany" target="composition_interactive_parameters" targetColumn="idpatch_composition"/>
 	</entity>
@@ -274,7 +277,8 @@
 	<outlet source="#CPOwner" target="tag_repository_controller" label="tagrepoController"/>
 	<outlet source="#CPOwner" target="tags_controller" label="tagsController"/>
 	<outlet source="#CPOwner" target="compos_controller" label="compoController"/>
-	<outlet source="#CPOwner" target="chains_controller" label="chainsController"/>
+    <outlet source="#CPOwner" target="chains_controller" label="chainsController"/>
+    <outlet source="#CPOwner" target="chains_controller2" label="chainsControllerAll"/>
 	<outlet source="#CPOwner" target="patches_controller" label="patchesController"/>
 	<outlet source="#CPOwner" target="inputval_controller" label="inputValController"/>
 	<outlet source="#CPOwner" target="taglist_controller" label="taglistController"/>

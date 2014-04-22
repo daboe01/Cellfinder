@@ -51,7 +51,7 @@
 		{	if(_editable) [self setEditable:YES];
         	[self _installView];
 		}
-		
+
     }
     return self;
 }
@@ -113,7 +113,20 @@ var _itemsControllerHash;
 }
 
 - (void) viewChanged: sender
-{	[[self objectValue] setValue:[sender selectedTag] forKeyPath: _face];
+{
+	if(_face)
+	    [[self objectValue] setValue:[sender selectedTag] forKeyPath: _face];
+	else
+	{
+		_value=[sender selectedTag];
+		[[self superview] _commitDataViewObjectValue: self];
+	}
+
+}
+// unfortunately, this is necessary to fool CPTableView.
+-(BOOL) isKindOfClass: aClass
+{	if(aClass === [CPButton class]) return YES;
+	return [super isKindOfClass: aClass];
 }
 
 - (id)initWithCoder:(id)aCoder
@@ -154,9 +167,11 @@ var _itemsControllerHash;
 }
 
 -(void) setObjectValue: myVal
-{	_value= myVal;
+{
+	_value= myVal;
 	[self _setupView];
-	var v=[myVal valueForKeyPath: _face];
+	var v=_face? [myVal valueForKeyPath: _face]: myVal;
+	if(_myView) _myView._value= (v || -1);
 	[_myView setSelectedTag: v || -1];
 }
 
@@ -254,7 +269,7 @@ var TableViewJanusControl_typeArray;
 
 - (id) initPlatformObject: (id)platformObject
 {	platformObject = [super initPlatformObject: platformObject];
-  
+
 	var editable = [self boolValueForAttribute: @"editable"];
 	if (editable == 1) [platformObject setEditable: YES];
 	var face = [self stringValueForAttribute: @"face"];
@@ -279,7 +294,7 @@ var TableViewJanusControl_typeArray;
 
 - (id) initPlatformObject: (id)platformObject
 {	platformObject = [super initPlatformObject: platformObject];
-  
+
 	var itemsFace = [self stringValueForAttribute: @"itemsFace"];
 	if (itemsFace != nil) [platformObject setItemsFace: itemsFace];
 	var itemsValue = [self stringValueForAttribute: @"itemsValue"];
@@ -307,7 +322,7 @@ var TableViewJanusControl_typeArray;
 
 - (id) initPlatformObject: (id)platformObject
 {	platformObject = [super initPlatformObject: platformObject];
-  
+
 	var type = [self stringValueForAttribute: @"type"];
 	[platformObject setType: type];
 
@@ -315,4 +330,3 @@ var TableViewJanusControl_typeArray;
 }
 
 @end
-

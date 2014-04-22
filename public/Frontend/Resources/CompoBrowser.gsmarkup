@@ -11,6 +11,7 @@
 				<tableView autosaveName="compos" zebra="yes" valueBinding="#CPOwner.compoController" target="#CPOwner">
                     <tableColumn identifier="name" title="name" editable="YES"/>
                     <tableColumn identifier="type" title="type" editable="YES"/>
+                    <tableColumn identifier="primary_chain" title="primary chain" dataView="#primarychain"/>
 	  		  </tableView>
 			</scrollView>
 			<ButtonBar plusButtonAction="newCompo:" minusButtonAction="deleteCompo:" actionsButton="YES" target="#mycompobrowser">
@@ -70,6 +71,7 @@
   <window visible="NO">
     <tableViewControl width="100" height="23" id="column_nameview" editable="YES" face="parameter.name"/>
     <CompoJanusControl width="100" height="23" type="parameter.type" id="column_valueview" itemsController="#CPOwner.parameterlistsController" itemsValue="arrangedObjects.id" itemsFace="arrangedObjects.value" editable="YES" face="value" itemsPredicateFormat="idpatch_parameter == $idparameter"/>
+    <tableViewPopup  width="100" height="23"  id="primarychain" itemsController="#CPOwner.chainsControllerAll" itemsValue="arrangedObjects.id" itemsFace="arrangedObjects.name" itemsPredicateFormat="id == $idpatch_composition"/>
   </window>
 </objects>
 

@@ -66,7 +66,7 @@ PhotoDragType="PhotoDragType";
 
 
 @implementation AppController : CPControl
-{	id	store @accessors;	
+{	id	store @accessors;
 
 	id	trialsController;
 	id	stacksController;
@@ -78,7 +78,8 @@ PhotoDragType="PhotoDragType";
 	id	tagrepoController;
 	id	tagsController;
 	id	compoController;
-	id	chainsController;
+    id	chainsController;
+    id	chainsControllerAll;
 	id	patchesController;
 	id	inputValController;
 	id	taglistController;
@@ -104,7 +105,7 @@ PhotoDragType="PhotoDragType";
 	id	_sharedCompoBrowser @accessors(property=sharedCompoBrowser);
 
 	id mainController @accessors;
-    
+
     id _insertText;
     id _myWatchLocation;
 }
@@ -175,7 +176,7 @@ PhotoDragType="PhotoDragType";
 {
     [mainController webSocketActionData:someData]
 }
-- (void)webSocketDidOpen:aSoc 
+- (void)webSocketDidOpen:aSoc
 {
 }
 
