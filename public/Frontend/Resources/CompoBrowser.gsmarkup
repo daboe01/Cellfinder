@@ -8,9 +8,9 @@
 	<splitView vertical="YES" autosaveName="compos1">
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
-				<tableView autosaveName="compos" zebra="yes" valueBinding="#CPOwner.compoController" target="#CPOwner">
-                    <tableColumn identifier="name" title="name" editable="YES"/>
-                    <tableColumn identifier="type" title="type" editable="YES"/>
+				<tableView autosaveName="compos" zebra="yes" valueBinding="#CPOwner.compoController" target="#CPOwner" viewBasedBidndings="YES">
+                    <tableColumn identifier="name" title="name"  dataView="#componame"/>
+                    <tableColumn identifier="type" title="type"  dataView="#compotype"/>
                     <tableColumn identifier="primary_chain" title="primary chain" dataView="#primarychain"/>
 	  		  </tableView>
 			</scrollView>
@@ -54,9 +54,10 @@
 	 </splitView>
   </window>
   <window id="addcompowindow" visible="NO" width="400" height="600">
-   <vbox>
+   <vbox id="addcompotv">
+	<searchField valueBinding="mycompobrowser.searchTerm"/>
 	<scrollView hasHorizontalScroller="NO">
-	 <tableView zebra="yes" id="addcompotv" autosaveName="addcompotv1" valueBinding="#CPOwner.patchRepoController">
+	 <tableView zebra="yes" doubleAction="performAddCompo:" target="#mycompobrowser" autosaveName="addcompotv1" valueBinding="#CPOwner.patchRepoController">
 		<tableColumn identifier="name" title="name"/>
 	 </tableView>
 	</scrollView>
@@ -70,8 +71,10 @@
 
   <window visible="NO">
     <tableViewControl width="100" height="23" id="column_nameview" editable="YES" face="parameter.name"/>
+    <tableViewControl width="100" height="21" id="componame" editable="YES" face="name"/>
+    <tableViewControl width="100" height="21" id="compotype" editable="YES" face="type"/>
     <CompoJanusControl width="100" height="23" type="parameter.type" id="column_valueview" itemsController="#CPOwner.parameterlistsController" itemsValue="arrangedObjects.id" itemsFace="arrangedObjects.value" editable="YES" face="value" itemsPredicateFormat="idpatch_parameter == $idparameter"/>
-    <tableViewPopup  width="100" height="23"  id="primarychain" itemsController="#CPOwner.chainsControllerAll" itemsValue="arrangedObjects.id" itemsFace="arrangedObjects.name" itemsPredicateFormat="id == $idpatch_composition"/>
+    <tableViewPopup  width="100" height="23"  id="primarychain" itemsController="#CPOwner.chainsControllerAll" itemsValue="arrangedObjects.id" itemsFace="arrangedObjects.name"  face="primary_chain" itemsPredicateFormat="idpatch_composition == $id"/>
   </window>
 </objects>
 

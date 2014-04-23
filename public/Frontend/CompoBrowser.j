@@ -43,6 +43,7 @@ var CompoJanusControl_typeArray;
 	id addPatchPopover;
 	id addCompoWindow;
 	id addCompoTV;
+	id searchTerm @accessors;
 }
 
 + sharedImageBrowser
@@ -95,11 +96,12 @@ var CompoJanusControl_typeArray;
 	var l=[a count];
 	for(var i=0; i< l; i++)
 	{	var o= [a objectAtIndex:i];
-		var pk=[o valueForKey:"idpatch"];
+		var pk=[o valueForKey:"id"];
 		var dv=[o valueForKey:"default_value"];
 		[valcontroller addObject: @{ "idpatch": idpatch, "idparameter": pk, "value": dv } ];
 	}
 	[valcontroller reload];
+    [addPatchPopover close];
 }
 -(void) cancelAddCompo: sender
 {	[addPatchPopover close];
@@ -129,6 +131,15 @@ var CompoJanusControl_typeArray;
 
 -(void) delete:sender
 {	[[[CPApp keyWindow] delegate] delete:sender];
+}
+
+-(void) setSearchTerm: aTerm
+{
+    searchTerm=aTerm;
+
+	if(aTerm && aTerm.length)
+	{	  [[CPApp delegate].patchRepoController setFilterPredicate: [CPPredicate predicateWithFormat:"name CONTAINS %@", aTerm.toLowerCase()]];
+	} else [[CPApp delegate].patchRepoController setFilterPredicate: nil];
 }
 
 @end
