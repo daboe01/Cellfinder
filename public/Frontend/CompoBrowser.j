@@ -138,7 +138,7 @@ var CompoJanusControl_typeArray;
     searchTerm=aTerm;
 
 	if(aTerm && aTerm.length)
-	{	  [[CPApp delegate].patchRepoController setFilterPredicate: [CPPredicate predicateWithFormat:"name CONTAINS %@", aTerm.toLowerCase()]];
+	{	  [[CPApp delegate].patchRepoController setFilterPredicate: [CPPredicate predicateWithFormat:"name LIKE[cd] %@", aTerm.toLowerCase()]];
 	} else [[CPApp delegate].patchRepoController setFilterPredicate: nil];
 }
 
