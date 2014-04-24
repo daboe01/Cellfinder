@@ -7,8 +7,6 @@
 	id trialSettingsWindow;
 	id inputAnalysisWindow;
 	id inputAnalysisField;
-	id outputAnalysisWindow;
-	id outputAnalysisField;
 	id tagField;
 }
 
@@ -136,7 +134,9 @@
 }
 
 -(void) insertAnalysisFromInput:sender
-{	[inputAnalysisWindow makeKeyAndOrderFront:self];
+{
+	[inputAnalysisField setStringValue:[self _getCoords]];
+	[inputAnalysisWindow makeKeyAndOrderFront:self];
 }
 -(void) performUploadCoords:sender
 {	var myIdSourceAnalysis=  [myAppController.analysesController valueForKeyPath:"selection.id"];
@@ -144,14 +144,14 @@
 	var myreq=[CPURLRequest requestWithURL: BaseURL+"input_results/"+myIdSourceAnalysis+"/"+mystuff];
 	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
 	[self _refreshResults];
+	[inputAnalysisWindow orderOut:self];
 }
-
--(void) revealCoords: sender
+-(CPString) _getCoords
 {	var coords="";
 	var mySourceAnalysis=  [myAppController.analysesController selectedObject];
 	var sourceArray=[mySourceAnalysis valueForKey:"results"];
-	var i,j=[sourceArray count];
-	for(i=0; i< j; i++)
+	var i,j = [sourceArray count];
+	for(i = 0; i < j; i++)
 	{	coords+=[[sourceArray objectAtIndex:i] valueForKey:"row"];
 		coords+=" ";
 		coords+=[[sourceArray objectAtIndex:i] valueForKey:"col"];
@@ -163,8 +163,7 @@
 		}
 		coords+=" ";
 	}
-	[outputAnalysisField setStringValue:coords]
-	[outputAnalysisWindow makeKeyAndOrderFront:self];
+	return coords;
 }
 
 -(void) setTag: sender
@@ -195,4 +194,3 @@
 	return [AutoDottingController class];
 }
 @end
-
