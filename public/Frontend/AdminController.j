@@ -75,8 +75,52 @@
     [myalert addButtonWithTitle:"Cancel"];
     [myalert addButtonWithTitle:"Delete"];
     [myalert beginSheetModalForWindow: trialsWindow modalDelegate:self didEndSelector:@selector(deleteImagesWarningDidEnd:code:context:) contextInfo: idtrial];
+}
+
+- (void) addAllWarningDidEnd:anAlert code:(id)code context:(id)context
+{	if(code)
+    {
+        var myreq=[CPURLRequest requestWithURL: BaseURL+"addStandardAnalysisToAll"+"/"+context];
+        [myreq setHTTPMethod: "POST"];
+        [myreq setHTTPBody: "" ];
+        [CPURLConnection connectionWithRequest:myreq delegate: self];
+    }
+}
+
+-(void) addDefaultAnalysisToAll: sender
+{	var idtrial=[[CPApp delegate].trialsController valueForKeyPath:"selection.id"];
+
+    var myalert = [CPAlert new];
+    [myalert setMessageText: "Are you sure you want to add the default analysis to all images?"];
+    [myalert addButtonWithTitle:"Cancel"];
+    [myalert addButtonWithTitle:"Add"];
+    [myalert beginSheetModalForWindow: trialsWindow modalDelegate:self didEndSelector:@selector(addAllWarningDidEnd:code:context:) contextInfo: idtrial];
 
 }
+
+- (void) reaggregateAllWarningDidEnd:anAlert code:(id)code context:(id)context
+{	if(code)
+    {
+        var myreq=[CPURLRequest requestWithURL: BaseURL+"reaggregate_all"+"/"+context];
+        [myreq setHTTPMethod: "POST"];
+        [myreq setHTTPBody: "" ];
+        [CPURLConnection connectionWithRequest:myreq delegate: self];
+    }
+}
+
+
+-(void) reaggregateAll: sender
+{	var idtrial=[[CPApp delegate].trialsController valueForKeyPath:"selection.id"];
+
+    var myalert = [CPAlert new];
+    [myalert setMessageText: "Are you sure you want to reaggregate all analyses?"];
+    [myalert addButtonWithTitle:"Cancel"];
+    [myalert addButtonWithTitle:"Reaggregate all"];
+    [myalert beginSheetModalForWindow: trialsWindow modalDelegate:self didEndSelector:@selector(reaggregateAllWarningDidEnd:code:context:) contextInfo: idtrial];
+
+}
+
+
 -(void) connection: someConnection didReceiveData: data
 {	// fixme: stop spinner
     var appController=[CPApp delegate];

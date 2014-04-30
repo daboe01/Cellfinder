@@ -622,4 +622,23 @@ sub reapplyUploadFilter { my ($dbh, $idtrial)=@_;
 		$p->Write($dest);
 	}
 }
+
+sub addStandardAnalysisToAll { my ($dbh, $idtrial)=@_;
+	my $trial = getObjectFromDBHandID($dbh,'trials', $idtrial);
+	my $idcomposition= $trial->{composition_for_celldetection};
+	return unless $idcomposition;
+
+	my $sth = $dbh->prepare( qq/select id from images where idtrial=?/);
+	$sth->execute(($idtrial));
+	my $a= $sth->fetchall_arrayref();
+	for my $currImage (@$a)
+	{	my $idimage=$currImage->[0];
+		my $d = { idimage=> $idimage , idcomposition_for_analysis=> $idcomposition };
+		my $idanalysis=insertObjectIntoTable($dbh, 'analyses', 'id', $d );
+		my $f= cellfinder_image::readImageFunctionForIDAndWidth($dbh, $idimage);
+		my $p= $f->(0);
+		$p= cellfinder_image::imageForComposition($dbh, $idcomposition,$f,$p, 1, $idanalysis);
+	}
+}
+
 1;

@@ -203,7 +203,7 @@ get '/IMG/make_tags'=> sub
 	$sth->execute();
 	$self->render(text=>'OK');
 };
-get '/IMG/reaggregate_all/:idtrial'=> [idtrial =>qr/\d+/] => sub
+post '/IMG/reaggregate_all/:idtrial'=> [idtrial =>qr/\d+/] => sub
 {	my $self=shift;
 	my $idtrial= $self->param("idtrial");
 	my $dbh=$self->db;
@@ -759,6 +759,13 @@ post '/IMG/deleteAllImages/:idtrial'=> [idtrial => qr/[0-9]+/] => sub
 	my $idtrial = $self->param('idtrial');
 	my $fully = $self->param('fully');
 	my $idstack=cellfinder_image::deleteAllImages($self->db, $idtrial, $fully);
+	$self->render(data=> 'OK', format =>'txt' );
+};
+post '/IMG/addStandardAnalysisToAll/:idtrial'=> [idtrial => qr/[0-9]+/] => sub
+{	my $self=shift;
+	my $idtrial = $self->param('idtrial');
+warn $idtrial;
+	my $idstack=cellfinder_image::addStandardAnalysisToAll($self->db, $idtrial);
 	$self->render(data=> 'OK', format =>'txt' );
 };
 
