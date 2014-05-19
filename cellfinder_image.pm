@@ -26,6 +26,7 @@ use constant server_root=>'/Users/Shared/cellfinder';
 sub runRCode { my ($RCmd)=@_;
 	my $R= Statistics::R->new(shared=>1);
 	$R->startR;
+    warn $RCmd;
 	$R->send($RCmd."\n 1");
 	my $out=$R->get('out');
 	$R->stopR;
@@ -240,7 +241,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 				next unless ref $old_p eq 'Image::Magick';
 				my $filename=tempFileName('/tmp/cellf');
 				$old_p->Write($filename.'.jpg');
-				chmod 0777, $filename.'.jpg';   
+				chmod 0777, $filename.'.jpg';
                 $p=~s/<idimage>/$idimage/ogs;
 				my $infile=runEBImageRCode($filename.'.jpg', $p, $idanalysis);
 				$p = Image::Magick->new();
@@ -291,7 +292,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 			}
 			if($result){
 				if(ref($stash) eq 'ARRAY')
-				{	push(@$stash,$result); 
+				{	push(@$stash,$result);
 				} else
 				{	$stash=[$result];
 				}
@@ -311,7 +312,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 				grep {($_->[0]=~/%/ogs &&  $_->[1]) || (!($_->[0]=~/%/ogs) && $_->[1])}
 				map {  $_->[0]=~s/"$//ogs; $_->[1]=~s/\\,/,/ogs; $_->[1]=~s/"//ogs;$_;}
 				map { [ split/=>/o ] }
-				sort 
+				sort
 				map {s/^["\s]+//ogs;$_;}
 				split  /(?<!\\),/o, $patchparams;
 			my $call=$curr_patch->{patch};
@@ -374,13 +375,13 @@ sub insertObjectIntoTable{
 	warn "err: ".$DBI::errstr if $DBI::errstr;
 	return $dbh->last_insert_id(undef, undef, $table, $pk);
 }
-			
+
 sub uniquelyInsertObjectIntoTable{
 	my $dbh  = shift;
 	my $table = shift;
 	my $pk = shift;
 	my $o = shift;
-	
+
 	my $sql = SQL::Abstract->new;
 	my($stmt, @bind) = $sql->select($table, undef, $o);
 	my $sth = $dbh->prepare($stmt);
@@ -392,7 +393,7 @@ sub deleteObjectFromTable{
 	my $dbh  = shift;
 	my $table = shift;
 	my $o = shift;
-	
+
 	my $sql = SQL::Abstract->new;
 	my($stmt, @bind) = $sql->delete($table, $o);
 	my $sth = $dbh->prepare($stmt);
@@ -563,17 +564,24 @@ warn $upload_dest;
 	return $idimage;
 }
 
-sub deleteImage { my ($dbh, $idimage)=@_;
-	my $sql = 'select * from images where id=?';
-	my $sth = $dbh->prepare($sql);
-	$sth->execute(($idimage));
-	my $image=$sth->fetchrow_hashref();
+sub deleteImage { my ($dbh, $idimage, $notFully)=@_;
+
+	my $image=getObjectFromDBHandID($dbh, 'images', $idimage);
 	if($image)
 	{	my $dest=server_root.'/'.$image->{idtrial}.'-'.$image->{filename};
 		my $sql = 'delete from images where id=?';
 		my $sth = $dbh->prepare($sql);
 		$sth->execute(($idimage));
-		unlink $dest unless $sth->err;
+		unlink $dest unless $notFully || $sth->err;
+	}
+}
+sub deleteAllImages { my ($dbh, $idtrial, $fully)=@_;
+	my $sth = $dbh->prepare( qq/select id from images where idtrial=?/);
+	$sth->execute(($idtrial));
+	my $a= $sth->fetchall_arrayref();
+	for my $currImage (@$a)
+	{
+		deleteImage($dbh, $currImage->[0], !$fully);
 	}
 }
 
@@ -586,7 +594,6 @@ sub rebuildFromRepository { my ($dbh, $idtrial, $rebuild_mode)=@_;
 		$sth->execute(($idtrial,$name));
 		return $sth->fetchrow_hashref();
 	}
-
 	my $sql='insert into images (name, filename, idtrial) values (?,?,?)';
 	my $sth = $dbh->prepare($sql);
 	my @files= glob server_root."/$idtrial-*.jpg";
@@ -616,4 +623,24 @@ sub reapplyUploadFilter { my ($dbh, $idtrial)=@_;
 		$p->Write($dest);
 	}
 }
+
+sub addStandardAnalysisToAll { my ($dbh, $idtrial)=@_;
+	my $trial = getObjectFromDBHandID($dbh,'trials', $idtrial);
+	my $idcomposition= $trial->{composition_for_celldetection};
+	return unless $idcomposition;
+
+	my $sth = $dbh->prepare( qq/select id from images where idtrial=? order by 1/);
+	$sth->execute(($idtrial));
+	my $a= $sth->fetchall_arrayref();
+	for my $currImage (@$a)
+	{	my $idimage=$currImage->[0];
+		my $d = { idimage=> $idimage , idcomposition_for_analysis=> $idcomposition };
+		my $idanalysis=insertObjectIntoTable($dbh, 'analyses', 'id', $d );
+		my $f= cellfinder_image::readImageFunctionForIDAndWidth($dbh, $idimage);
+		my $p= $f->(0);
+		cellfinder_image::imageForComposition($dbh, $idcomposition,$f,$p, 1, $idanalysis);
+        warn "$idimage $idcomposition $idanalysis";
+	}
+}
+
 1;

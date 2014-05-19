@@ -129,7 +129,7 @@
 
 -(void) runCrossvalidation:sender
 {	var myArray=[[myAppController.stacksController selectedObject] valueForKey:"analyses" synchronous:YES];
-	[[CossvalidationController new] setAnalysisArray: myArray];
+	[[CrossvalidationController new] setAnalysisArray: myArray];
 
 }
 @end

@@ -33,10 +33,12 @@
 	<arrayController id="patch_repo_controller" entity="patch_repository" autoFetch="YES" sortDescriptor="by_name"/>
 	<arrayController id="trials_controller" entity="trials" autoFetch="YES" sortDescriptor="by_name"/>
 	<arrayController id="compos_controller" entity="patch_compositions" valueBinding ="trials_controller.selection.compos"/>
-	<arrayController id="chains_controller" entity="patch_chains" valueBinding ="compos_controller.selection.chains" sortDescriptor="by_ordering"/>
+    <arrayController id="chains_controller" entity="patch_chains" valueBinding ="compos_controller.selection.chains" sortDescriptor="by_ordering"/>
+    <arrayController id="chains_controller2" entity="patch_chains" autoFetch="YES" sortDescriptor="by_ordering"/>
 	<arrayController id="patches_controller" entity="patches" valueBinding ="chains_controller.selection.patches" sortDescriptor="by_ordering"/>
 	<arrayController id="inputval_controller" entity="patch_input_values" valueBinding ="patches_controller.selection.input_values"/>
 	<arrayController id="patch_parameters_controller" entity="patch_parameters" autoFetch="YES" sortDescriptor="by_id"/>
+	<arrayController id="patch_parameters_controller2" entity="patch_parameters" valueBinding = "patch_repo_controller.selection.parameters" sortDescriptor="by_id"/>
 
 	<arrayController id="stacks_controller" entity="montages" valueBinding ="trials_controller.selection.stacks" sortDescriptor="by_name"/>
 	<arrayController id="stacks_content_controller" entity="montage_images" valueBinding ="stacks_controller.selection.analyses"/>
@@ -89,9 +91,11 @@
 	<entity id="patch_compositions" store="#CPOwner.store">
 		<column name="id" primaryKey="YES"/>
 		<column name="idtrials"/>
-		<column name="type"/>
+        <column name="type"/>
+        <column name="primary_chain"/>
 		<column name="name"/>
 		<relationship type="toOne" name="trial" bindingColumn="idtrials" target="trials"/>
+        <relationship type="toOne" name="primarychain" bindingColumn="primary_chain" target="patch_chains"/>
 		<relationship name="chains" type="toMany" target="patch_chains" targetColumn="idpatch_composition"/>
 		<relationship name="inputParams" type="toMany" target="composition_interactive_parameters" targetColumn="idpatch_composition"/>
 	</entity>
@@ -114,7 +118,9 @@
 		<column name="id" primaryKey="YES"/>
 		<column name="type"/>
 		<column name="name"/>
+		<column name="code"/>
 		<column name="filetype"/>
+		<relationship type="toMany" name="parameters" targetColumn="idpatch" target="patch_parameters"/>
 	</entity>
 	<entity id="patch_input_values" store="#CPOwner.store">
 		<column name="id" primaryKey="YES"/>
@@ -271,7 +277,8 @@
 	<outlet source="#CPOwner" target="tag_repository_controller" label="tagrepoController"/>
 	<outlet source="#CPOwner" target="tags_controller" label="tagsController"/>
 	<outlet source="#CPOwner" target="compos_controller" label="compoController"/>
-	<outlet source="#CPOwner" target="chains_controller" label="chainsController"/>
+    <outlet source="#CPOwner" target="chains_controller" label="chainsController"/>
+    <outlet source="#CPOwner" target="chains_controller2" label="chainsControllerAll"/>
 	<outlet source="#CPOwner" target="patches_controller" label="patchesController"/>
 	<outlet source="#CPOwner" target="inputval_controller" label="inputValController"/>
 	<outlet source="#CPOwner" target="taglist_controller" label="taglistController"/>
@@ -279,6 +286,7 @@
 	<outlet source="#CPOwner" target="parameter_lists_controller" label="parameterlistsController"/>
 	<outlet source="#CPOwner" target="patch_repo_controller" label="patchRepoController"/>
 	<outlet source="#CPOwner" target="patch_parameters_controller" label="patchParametersController"/>
+	<outlet source="#CPOwner" target="patch_parameters_controller2" label="patchParametersController2"/>
 
 	<outlet source="#CPOwner" target="displayfilters_ac" label="displayfilters_ac"/>
 	<outlet source="#CPOwner" target="uploadfilters_ac" label="uploadfilters_ac"/>

@@ -99,9 +99,12 @@
     [myAnalysis setValue:idimage forKey:"idimage"];
 	var mycompoID  = [myAppController.trialsController valueForKeyPath: "selection.composition_for_celldetection"];
 	var myviewingID  = [myAppController.trialsController valueForKeyPath: "selection.composition_for_editing"];
-	[myAnalysis setValue: mycompoID  forKey:"idcomposition_for_analysis"];
-	[myAnalysis setValue: myviewingID  forKey:"idcomposition_for_editing"];
-	[self reloadAnalysis: myAnalysis];
+	if(myviewingID !== CPNullMarker) [myAnalysis setValue: myviewingID  forKey:"idcomposition_for_editing"];
+	if(mycompoID !== CPNullMarker)
+	{
+		[myAnalysis setValue: mycompoID  forKey:"idcomposition_for_analysis"];
+		[self reloadAnalysis: myAnalysis];
+	}
 }
 -(void) duplicateAnalysis: sender
 {	var mySourceAnalysis=  [myAppController.analysesController valueForKeyPath:"selection.id"];

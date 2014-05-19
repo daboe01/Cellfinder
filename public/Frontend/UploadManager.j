@@ -43,6 +43,7 @@ var _sharedUploadManager;
 
 - (void)cup:(Cup)aCup uploadDidCompleteForFile:(CupFile)aFile
 {
+// FIXME: use reload method instead
 	[[appController.trialsController selectedObject] willChangeValueForKey:"folders"];
 	 [appController.trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 	 [appController.folderController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];

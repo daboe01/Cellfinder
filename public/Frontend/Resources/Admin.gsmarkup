@@ -17,14 +17,17 @@
 	</scrollView>
 	<ButtonBar actionsButton="YES" target="#myadmincontroller" plusButtonAction="newTrial:" minusButtonAction="removeTrial:">
  		<popUpButtonItem title="Settings..." target="#CPOwner" action="runSettings:" keyEquivalent="i"/>
- 		<popUpButtonItem title="Reaggregate all" target="#CPOwner" action="reaggregateAll:"/>
+ 		<popUpButtonItem title="Reaggregate all" target="#myadmincontroller" action="reaggregateAll:"/>
+ 		<popUpButtonItem title="Add default analysis" target="#myadmincontroller" action="addDefaultAnalysisToAll:"/>
  		<popUpButtonItem title="Duplicate structure" target="#CPOwner" action="duplicate:"/>
- 		<popUpButtonItem title="Rebuild from repo..." target="#CPOwner" action="rebuildFromRepo:"/>
+         <popUpButtonItem title="Rebuild from repo" target="#myadmincontroller" action="rebuildFromRepo:"/>
+         <popUpButtonItem title="Delete all images" target="#myadmincontroller" action="deleteAllImages:"/>
+         <popUpButtonItem title="Delete all analyses" target="#myadmincontroller" action="deleteAllAnalyses:"/>
 	</ButtonBar>
 	</vbox>
  </window>
 
-  <window title="Analysis Tags" closable="no"  x="650" y="50" id="trialswindow" width="200" height="340">
+  <window title="Analysis Tags" closable="no"  x="650" y="50" id="trialswindow" width="400" height="340">
 	<vbox>
 	 <hbox>
 	  <vbox>
@@ -52,11 +55,12 @@
 	</vbox>
  </window>
 
-  <window title="Trial settings" id="trialsettingswindow" x="310" y="50" width="300" height="200" resizable="YES">
+  <window title="Trial settings" id="trialsettingswindow" x="310" y="50" width="400" height="400" resizable="YES">
 	<vbox>
 		<tabView type="topBezel">
 			<tabViewItem title="General">
 				<vbox>
+      				<vspace height="20" valign="min"/>
 				<hbox><label valign="center" halign="min" width="100">Name</label><textField valueBinding="#CPOwner.trialsController.selection.name" nextKeyView="#groupregexfield"/></hbox>
 				<hbox><label valign="center" halign="min" width="100">Grouping regex</label><textField valueBinding="#CPOwner.trialsController.selection.entity_regex" id="groupregexfield"/></hbox>
 				<popUpButton width="200" itemsBinding="guiclasses_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.editing_controller"/>
@@ -64,10 +68,13 @@
 			</tabViewItem>
 			<tabViewItem title="Filters">
 				<vbox>
+      				<vspace height="20" valign="min"/>
 	    		<hbox><label valign="center" halign="min" width="130">Upload</label><popUpButton width="200" itemsBinding="#CPOwner.uploadfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_upload"/></hbox>
 	    		<hbox><label valign="center" halign="min" width="130">Editing</label><popUpButton width="200" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_editing"/></hbox>
 	    		<hbox><label valign="center" halign="min" width="130">Feature extraction</label><popUpButton width="200" itemsBinding="#CPOwner.analyticsfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_celldetection"/></hbox>
 	    		<hbox><label valign="center" halign="min" width="130">RANSAC parameters</label><popUpButton width="200" itemsBinding="#CPOwner.cfifilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_ransac"/></hbox>
+	    		<hbox><label valign="center" halign="min" width="130">Fixup</label><popUpButton width="200" itemsBinding="#CPOwner.fixupfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_fixup"/></hbox>
+	    		<hbox><label valign="center" halign="min" width="130">Fixup</label><popUpButton width="200" itemsBinding="#CPOwner.javascriptfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_javascript"/></hbox>
 				</vbox>
 			</tabViewItem>
 		</tabView>

@@ -87,7 +87,7 @@
 @end
 
 
-@implementation CossvalidationController: CPObject
+@implementation CrossvalidationController: CPObject
 {	var sourceAnalysis;
 	var destinationAnalysis;
 	var myAnalysis;

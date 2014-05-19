@@ -39,9 +39,11 @@ var CompoJanusControl_typeArray;
 
 @implementation CompoBrowser : CPObject
 {	id myalert;
+    id myWindow;
 	id addPatchPopover;
 	id addCompoWindow;
 	id addCompoTV;
+	id searchTerm @accessors;
 }
 
 + sharedImageBrowser
@@ -54,20 +56,33 @@ var CompoJanusControl_typeArray;
 	return _sharedCompoBrowser;
 }
 
-- (void)deleteWarningDidEnd:(CPAlert)anAlert code:(id)code context:(id)context
+- (void)deleteCompoWarningDidEnd:(CPAlert)anAlert code:(id)code context:(id)context
 {
     if(code)	// do it
 	{
+        [[CPApp delegate].compoController remove:self];
 	}
 }
 
 -(void) deleteCompo: sender
 {
-	myalert = [CPAlert new];
+    myalert = [CPAlert new];
     [myalert setMessageText: "Are you sure you want to delete all images of this folder?"];
-	[myalert addButtonWithTitle:"Cancel"];
-	[myalert addButtonWithTitle:"Delete"];
-	[myalert beginSheetModalForWindow:myWindow modalDelegate:self didEndSelector:@selector(deleteWarningDidEnd:code:context:) contextInfo: nil];
+    [myalert addButtonWithTitle:"Cancel"];
+    [myalert addButtonWithTitle:"Delete"];
+    [myalert beginSheetModalForWindow:[CPApp mainWindow] modalDelegate:self didEndSelector:@selector(deleteCompoWarningDidEnd:code:context:) contextInfo: nil];
+}
+-(void) newCompo: sender
+{
+    [[CPApp delegate].compoController insert:self];
+}
+-(void) newChain: sender
+{
+    [[CPApp delegate].chainsController insert:self];
+}
+-(void) deleteChain: sender
+{
+    [[CPApp delegate].chainsController remove:self];
 }
 
 -(void) performAddCompo: sender
@@ -81,11 +96,12 @@ var CompoJanusControl_typeArray;
 	var l=[a count];
 	for(var i=0; i< l; i++)
 	{	var o= [a objectAtIndex:i];
-		var pk=[o valueForKey:"idpatch"];
+		var pk=[o valueForKey:"id"];
 		var dv=[o valueForKey:"default_value"];
 		[valcontroller addObject: @{ "idpatch": idpatch, "idparameter": pk, "value": dv } ];
 	}
 	[valcontroller reload];
+    [addPatchPopover close];
 }
 -(void) cancelAddCompo: sender
 {	[addPatchPopover close];
@@ -105,16 +121,25 @@ var CompoJanusControl_typeArray;
 		[addPatchPopover setBehavior: CPPopoverBehaviorTransient ];
 		[addPatchPopover setAppearance: CPPopoverAppearanceMinimal];
 		var myViewController=[CPViewController new];
-		[addPatchPopover setContentViewController: myViewController];
+		[addPatchPopover setContentViewController:myViewController];
 		[myViewController setView: [addCompoWindow contentView]];
 	}
 	[addPatchPopover showRelativeToRect:NULL ofView: sender preferredEdge: nil];
-	[[addCompoTV window] makeFirstResponder: addCompoTV]	
+	[[addCompoTV window] makeFirstResponder: addCompoTV]
 }
 
 
 -(void) delete:sender
 {	[[[CPApp keyWindow] delegate] delete:sender];
+}
+
+-(void) setSearchTerm: aTerm
+{
+    searchTerm=aTerm;
+
+	if(aTerm && aTerm.length)
+	{	  [[CPApp delegate].patchRepoController setFilterPredicate: [CPPredicate predicateWithFormat:"name LIKE[cd] %@", aTerm.toLowerCase()]];
+	} else [[CPApp delegate].patchRepoController setFilterPredicate: nil];
 }
 
 @end
