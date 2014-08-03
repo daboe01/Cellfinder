@@ -22,7 +22,7 @@
 	  			</tableView>
 			</scrollView>
 			<scrollView hasHorizontalScroller="NO">
-				<tableView autosaveName="folders_manual_dotting_tags" zebra="yes" valueBinding="#CPOwner.tagsController" viewBasedBidndings="YES">
+				<tableView autosaveName="folders_manual_dotting_tags" zebra="yes" valueBinding="#CPOwner.tagsController" viewBasedBindings="YES">
 					<tableColumn identifier="tag.name" title="Name" dataView="#namedataview"/>
 					<tableColumn identifier="value" title="Wert" dataView="#popupdataview"/>
 	  			</tableView>

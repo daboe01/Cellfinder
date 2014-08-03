@@ -132,7 +132,7 @@
 {	var idtrial=[[CPApp delegate].trialsController valueForKeyPath:"selection.id"];
 
     var myalert = [CPAlert new];
-    [myalert setMessageText: "Are you sure you want to reaggregate all analyses?"];
+    [myalert setMessageText: "Are you sure you want to delete all analyses?"];
     [myalert addButtonWithTitle:"Cancel"];
     [myalert addButtonWithTitle:"Delete all analyses"];
     [myalert beginSheetModalForWindow: trialsWindow modalDelegate:self didEndSelector:@selector(deleteAllAnalysesWarningDidEnd:code:context:) contextInfo: idtrial];

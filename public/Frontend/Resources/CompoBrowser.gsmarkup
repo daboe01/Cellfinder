@@ -8,7 +8,7 @@
 	<splitView vertical="YES" autosaveName="compos1">
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
-				<tableView autosaveName="compos" zebra="yes" valueBinding="#CPOwner.compoController" target="#CPOwner" viewBasedBidndings="YES">
+				<tableView autosaveName="compos" zebra="yes" valueBinding="#CPOwner.compoController" target="#CPOwner" viewBasedBindings="YES">
                     <tableColumn identifier="name" title="name"  dataView="#componame"/>
                     <tableColumn identifier="type" title="type"  dataView="#compotype"/>
                     <tableColumn identifier="primary_chain" title="primary chain" dataView="#primarychain"/>
@@ -45,7 +45,7 @@
 		</vbox>
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
-				<tableView autosaveName="inputvals" zebra="yes" valueBinding="#CPOwner.inputValController" viewBasedBidndings="YES">
+				<tableView autosaveName="inputvals" zebra="yes" valueBinding="#CPOwner.inputValController" viewBasedBindings="YES">
 					<tableColumn identifier="parameter.name" title="name" dataView="#column_nameview"/>
 					<tableColumn identifier="value" title="value" dataView="#column_valueview"/>
 	  			</tableView>

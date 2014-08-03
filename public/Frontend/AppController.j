@@ -108,6 +108,7 @@ PhotoDragType="PhotoDragType";
 
     id _insertText;
     id _myWatchLocation;
+    CPDate lastScanDate;
 }
 // this is to make the currently GUI controller globally available (to get access to e.g. scale)
 - mainController
@@ -207,11 +208,28 @@ PhotoDragType="PhotoDragType";
 
 - (void)insertText:(CPString)aString
 {
+    var scanDate=[CPDate dateWithTimeIntervalSinceNow:0];
+    if( lastScanDate && ([scanDate  timeIntervalSinceDate: lastScanDate ] >0.5 ))   // timeout to prevent frameshift
+    {   _insertText="";
+    }
+
+    lastScanDate=scanDate;
+    
     _insertText += aString;
     var re = new RegExp("([aA]{0,1}[0-9]{8})");
     var m = re.exec(_insertText);
     if(m && m[1])
-    {   var loc=_myWatchLocation=="EG"?"topcon2":"topcon1";
+    {   var loc;
+        switch(_myWatchLocation)
+        {   case "EG":
+                loc="topcon2";
+            break;
+            case "HHB":
+                loc="hhb";
+            break;
+            default:
+                loc="topcon1";
+        }
     	var myreq=[CPURLRequest requestWithURL: BaseURL+"trigger/"+loc+"/"+ m[1]];
 		[CPURLConnection connectionWithRequest:myreq delegate: self];
         _insertText="";

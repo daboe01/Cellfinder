@@ -74,7 +74,7 @@
 	    		<hbox><label valign="center" halign="min" width="130">Feature extraction</label><popUpButton width="200" itemsBinding="#CPOwner.analyticsfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_celldetection"/></hbox>
 	    		<hbox><label valign="center" halign="min" width="130">RANSAC parameters</label><popUpButton width="200" itemsBinding="#CPOwner.cfifilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_ransac"/></hbox>
 	    		<hbox><label valign="center" halign="min" width="130">Fixup</label><popUpButton width="200" itemsBinding="#CPOwner.fixupfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_fixup"/></hbox>
-	    		<hbox><label valign="center" halign="min" width="130">Fixup</label><popUpButton width="200" itemsBinding="#CPOwner.javascriptfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_javascript"/></hbox>
+	    		<hbox><label valign="center" halign="min" width="130">GUI</label><popUpButton width="200" itemsBinding="#CPOwner.javascriptfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_javascript"/></hbox>
 				</vbox>
 			</tabViewItem>
 		</tabView>
