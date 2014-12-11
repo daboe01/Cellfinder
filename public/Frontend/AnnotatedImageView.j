@@ -150,12 +150,12 @@ var myFastSortFunction=function(a,b,context)
 
 - (CPString)stringForObjectValue:(id)theObject	// factor out GUI scaling 
 {
-	return parseInt(theObject*_scale);
+	return parseInt(theObject/_scale);
 }
 
 - (id)objectValueForString:(CPString)aString error:(CPError)theError
 {
-	return parseInt(aString/_scale);
+	return parseInt(aString*_scale);
 }
 
 - (id)initWithFrame:(CGRect)aFrame
@@ -383,7 +383,7 @@ var myFastSortFunction=function(a,b,context)
 		{	var currSubview = mySubviews[i];
 			if ( [currSubview isKindOfClass: contentClass])
 			{	currPoint=[currSubview objectValue];
-				sites.push({x: currPoint.x, y: currPoint.y})
+				if(!currPoint.tag) sites.push({x: currPoint.x, y: currPoint.y})
 			}
 		}
 		var voronoi = new Voronoi();

@@ -15,6 +15,7 @@
 			</scrollView>
 			<hbox>
 			<ButtonBar plusButtonAction="newStack:" minusButtonAction="deleteStack:" actionsButton="YES" target="#mystackscontroller">
+  				<popUpButtonItem title="Delete all…" target="#mystackscontroller" action="deleteAll:"/>
   				<popUpButtonItem title="Settings…" target="#mystackscontroller" action="runSettings:"/>
 				<popUpButtonItem title="Flatten" target="#mystackscontroller" action="flattenStack:"/>
 				<popUpButtonItem title="AutoStitch from selection" target="#mystackscontroller" action="autoStitching:"/>
@@ -23,6 +24,7 @@
 				<popUpButtonItem title="Merge bridged" target="#mystackscontroller" action="mergeBridged:"/>
 				<popUpButtonItem title="Collect samebase" target="#mystackscontroller" action="collectSamebase:"/>
 				<popUpButtonItem title="Flickering…" target="#mystackscontroller" action="runFlicker:"/>
+				<popUpButtonItem title="DownloadGIF" target="#mystackscontroller" action="downloadGIF2:"/>
 			</ButtonBar>
 			<progresIndicator id="progress" indeterminate="YES"/>
 			</hbox>

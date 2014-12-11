@@ -27,7 +27,7 @@
 	</vbox>
  </window>
 
-  <window title="Analysis Tags" closable="no"  x="650" y="50" id="trialswindow" width="400" height="340">
+  <window title="Analysis Tags" closable="no"  x="650" y="50" id="tagswindow" width="400" height="340">
 	<vbox>
 	 <hbox>
 	  <vbox>

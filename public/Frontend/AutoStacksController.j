@@ -14,6 +14,26 @@
 {
 }
 
+- (void)deleteAllWarningDidEnd:(CPAlert)anAlert code:(id)code context:(id)context
+{	if(code)
+	{	var idtrial=[myAppController.trialsController valueForKeyPath: "selection.id"]
+        var myreq=[CPURLRequest requestWithURL: BaseURL+"STACK/DELALL/"+idtrial];
+        [CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
+        [myAppController.stacksController reload];
+    }
+
+}
+
+-(void) deleteAll: sender
+{
+	var myalert = [CPAlert new];
+	[myalert setMessageText: "Are you sure you want to delete all entries?"];
+	[myalert addButtonWithTitle:"Cancel"];
+	[myalert addButtonWithTitle:"Delete"];
+	[myalert beginSheetModalForWindow: myWindow modalDelegate:self didEndSelector:@selector(deleteAllWarningDidEnd:code:context:) contextInfo: nil];
+
+}
+
 -(void) runRansac: sender
 {	var idransac=[myAppController.trialsController valueForKeyPath: "selection.composition_for_ransac"]
 	var myreq=[CPURLRequest requestWithURL: BaseURL+"STACK/"+[myAppController.stacksController valueForKeyPath: "selection.id"] +"?spc=affine&ransac="+idransac];

@@ -116,13 +116,15 @@
 	[self _refreshResults];
 }
 -(void) _refreshResults
-{	[[myAppController.analysesController selectedObject] willChangeValueForKey:"results"];
+{
+	[[myAppController.analysesController selectedObject] willChangeValueForKey:"results"];
 	 [myAppController.analysesController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 	[[myAppController.analysesController selectedObject] didChangeValueForKey:"results"];
 }
 
 -(void) connection: someConnection didReceiveData: data
 {	[progress stopAnimation:self];
+
 	[self _refreshResults];
 	[[myAppController.analysesController selectedObject] willChangeValueForKey:"aggregations"];
 	[[myAppController.analysesController selectedObject]  didChangeValueForKey:"aggregations"];

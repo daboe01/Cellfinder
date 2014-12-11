@@ -42,6 +42,7 @@
  						<popUpButtonItem title="Edit..." target="#mydottingcontroller" action="editAnalysis:"/>
   						<popUpButtonItem title="Analyze" target="#mydottingcontroller" action="reaggregate:"/>
  						<popUpButtonItem title="Switch Extractor" target="#mydottingcontroller" action="runSettings:"/>
+   						<popUpButtonItem title="Edit coords textually..." target="#mydottingcontroller" action="insertAnalysisFromInput:"/>
 					</ButtonBar>
 				</vbox>
 				<scrollView hasHorizontalScroller="NO">
@@ -71,11 +72,26 @@
     <tableViewJanusControl width="100" height="23" type="tag.type" id="popupdataview" itemsController="#CPOwner.taglistController" itemsValue="arrangedObjects.id" itemsFace="arrangedObjects.name" editable="YES" face="value" itemsPredicateFormat="idtag == $idtag"/>
   </window>
 
+  <window title="Edit coordinates textually" id="inputwindow" x="260" y="300" width="300" height="90" visible="NO"  resizable="YES">
+	<vbox>
+	   <label valign="center">Coordinates in format: x y (tag)</label>
+        <scrollView hasHorizontalScroller="NO" width="100" height="200">
+            <textView editable="YES" id="incoordsfield" backgroundColor="white"/>
+        </scrollView>
+	    <hbox>
+            <button target="#mydottingcontroller" action="performUploadCoords:" title="OK"/>
+		    <button target="#inputwindow" action="orderOut:" title="Cancel"/>
+	    </hbox>
+	</vbox>
+  </window>
+
 </objects>
 
 <connectors>
 	<outlet source="mydottingcontroller" target="annotated_image_view" label="annotatedImageView"/>
 	<outlet source="mydottingcontroller" target="tagfield" label="tagField"/>
+	<outlet source="mydottingcontroller" target="inputwindow" label="inputAnalysisWindow"/>
+	<outlet source="mydottingcontroller" target="incoordsfield" label="inputAnalysisField"/>
 </connectors>
 
 

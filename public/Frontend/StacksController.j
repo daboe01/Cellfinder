@@ -200,6 +200,8 @@
 	[self _triggerRegistrationMatrixGeneration];
 
 	var selectedArray=[[myAppController.stacksController selectedObject] valueForKey:"analyses" synchronous:YES];
+	selectedArray= [selectedArray sortedArrayUsingDescriptors: [[CPSortDescriptor sortDescriptorWithKey:@"idimage" ascending:YES selector:@selector(compare:)]] ];
+
 	var myArray=[CPMutableArray new];
 	var i,n=[selectedArray count];
 	var fc=[FlickerController new];

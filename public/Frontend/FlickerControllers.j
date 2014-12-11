@@ -26,6 +26,7 @@
     imageView._DOMImageElement.src = [image filename];
 	[imageView setFrame: CPMakeRect(myframe.origin.x,myframe.origin.y, size.width, size.height)];
     imageView._DOMImageElement.style.visibility = "visible";
+    [[imageView window] setTitle: [image filename]];
 }
 -(unsigned) imageIndex
 {	return _imageIndex;

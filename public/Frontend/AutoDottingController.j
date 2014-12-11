@@ -30,12 +30,14 @@
 	var re = new RegExp("#([^&#]+)");
 	var m=re.exec(document.location);
 	if (m) [myAppController.folderController setFilterPredicate: [CPPredicate predicateWithFormat:"folder_name=='"+m[1]+"'" ]];
+    [annotatedImageView setDefaultTag:0];
 	// this is necessary to prevent the imageDidLoad event beeing eaten up sometimes in firefox (because this event takes too long to finish)
 	[[CPRunLoop currentRunLoop] performSelector:@selector(_postInit2) target:self argument: nil order:0 modes:[CPDefaultRunLoopMode]];
 }
 -(void) _postInit2
 {	[annotatedImageView bind:"backgroundImage" toObject: myAppController.analysesController withKeyPath: "selection._backgroundImage" options:nil];
 	[myAppController.analysesController addObserver:self forKeyPath:"selection.idcomposition_for_editing" options:nil context:nil];
+
 }
 
 - (void)observeValueForKeyPath: keyPath ofObject: object change: change context: context
@@ -114,6 +116,39 @@
 
 	window.open("http://augimageserver:3000/Frontend/index.html?id="+idtrial+"&t=AutoStacks.gsmarkup",'autostacks');
 }
+
+-(void) doAnalyzeSelected: sender
+{	var myarr=[CPMutableArray new];
+	var so=[myAppController.folderContentController selectedObjects];
+	var mycompoID= [myAppController.trialsController valueForKeyPath: "selection.composition_for_celldetection"];
+    if (mycompoID === CPNullMarker) 
+    {   alert("no compo given");
+        return;
+    }
+	var i,l=[so count];
+	for(i=0;i<l;i++)
+	{	var ro=[so objectAtIndex: i];
+        var idimage=[ro valueForKey:"idimage"];
+        var myanalysis=[myAppController.analysesController._entity insertObject:@{"idimage":idimage, "idcomposition_for_analysis":mycompoID}];
+        var myurl= BaseURL +idimage+"?cmp="+mycompoID+"&idanalysis="+[myanalysis valueForKey:"id"];
+		var myconnection=[CPURLConnection connectionWithRequest:[CPURLRequest requestWithURL: myurl] delegate:self];
+        myconnection._doReload=YES;
+	}
+}
+-(void) analyzeSelected: sender
+{
+    setTimeout(function() {[self doAnalyzeSelected: sender]}, 1000);
+}
+
+-(void) connection:someConnection didReceiveData: data
+{
+    if(someConnection._doReload)
+    {
+        [myAppController.analysesController reload];
+    }
+    [super connection:someConnection didReceiveData:data];
+}
+
 
 -(void) matchDotsAll: sender	//<!> fixme GUI feedback usw.
 {	var idtrial =[myAppController.trialsController valueForKeyPath: "selection.id"];

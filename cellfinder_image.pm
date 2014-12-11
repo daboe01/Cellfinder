@@ -23,13 +23,15 @@ use constant server_root=>'/Users/Shared/cellfinder';
 #use constant server_root=>'/Library/WebServer/Documents/cellfinder';
 #use constant server_root=>'/srv/www/htdocs/cellfinder';
 
+#our $R;
+
 sub runRCode { my ($RCmd)=@_;
-	my $R= Statistics::R->new(shared=>1);
-	$R->startR;
-    warn $RCmd;
+    my $R= Statistics::R->new(shared=>1);
+    $R->startR;
+warn $RCmd;
 	$R->send($RCmd."\n 1");
 	my $out=$R->get('out');
-	$R->stopR;
+    $R->stopR; # keep it running forever (comeon it is only a single instance)
 	return  $out;
 }
 
@@ -55,12 +57,13 @@ ENDOFR
 sub runRANSACRegistrationRCode { my ($id1,$id2, $thresh, $identityradius, $iterations, $aiterations, $cfunc)=@_;
 	my $RCmd=<<'ENDOFR'
 	source('/Users/Shared/bin/Cellfinder2/ransac4.R')
-	out=register.pointsets.out(<id1>, <id2>, <thresh>, <identityradius>, <iterations>, do.rotate=F <extrapars>)
+	out=register.pointsets.out(<id1>, <id2>, <thresh>, <identityradius>, iterations=<iterations>, do.rotate=F <extrapars>)
 ENDOFR
 ;
+    $aiterations = $aiterations || '0';
 	my $extrapars;
 	$extrapars.=", evaluate.agreement.FUN=$cfunc" if($cfunc);
-	$extrapars.=", anova.iterations=$aiterations" if($aiterations);
+	$extrapars.=", anova.iterations=$aiterations";
 
 	$RCmd=~s/<id1>/$id1/ogs;
 	$RCmd=~s/<id2>/$id2/ogs;
@@ -68,6 +71,7 @@ ENDOFR
 	$RCmd=~s/<identityradius>/$identityradius/ogs;
 	$RCmd=~s/<iterations>/$iterations/ogs;
 	$RCmd=~s/<extrapars>/$extrapars/ogs;
+warn $RCmd;
 	return runRCode($RCmd);
 }
 sub runRJSONCode { my ($id,$code)=@_;
@@ -102,6 +106,7 @@ ENDOFR
 ;	$RCmd=~s/<code>/$code/ogs;
 	$RCmd=~s/<infile>/$infile/ogs;
 	$RCmd=~s/<idanalysis>/$idanalysis/ogs;
+warn $RCmd;
 	my $out=runRCode($RCmd);
 	return (length $out)? JSON::XS->new->utf8->decode($out):undef;
 }
@@ -287,6 +292,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 				my $sql = 'delete from aggregations where idanalysis = ?';
 				my $sth = $dbh->prepare($sql);
 				$sth->execute(($idanalysis));
+                $p=~s/<idimage>/$idimage/ogs;
 				$result = runRJSONCode($idanalysis, $p);
 				cellfinder_image::insertAggregation($dbh, $idanalysis, $result);
 			}
@@ -331,6 +337,7 @@ sub imageForDBHAndRenderchainIDAndImage{
             $call=~s/<idanalysis>/$idanalysis/gs;
             #     $call.=" >$filename".$filetype.'_out';
             system($call);
+            warn($call);
             #   TempFileNames::writeFile('/tmp/cellf_dbg.txt', $call."\n".$effective_fn_out."\n".$curr_patch->{patch}."\n".$filetype."\n");
             #   warn $call;
             if(-e $filename.$filetype.'_out')
@@ -463,7 +470,7 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsiz
 		$p = Image::Magick->new(magick=>'jpg');
 		if($idstack)
 		{	my $list=getObjectFromDBHandID($dbh,'montage_image_list',$idstack)->{list};
-			my @idarr=split/, /o, $list;
+			my @idarr=sort split/, /o, $list;
 			foreach my $id (@idarr)
 			{
 				my $i=doReadImageFile(undef, getObjectFromDBHandID($dbh,'images_name', $id));
@@ -629,17 +636,19 @@ sub addStandardAnalysisToAll { my ($dbh, $idtrial)=@_;
 	my $idcomposition= $trial->{composition_for_celldetection};
 	return unless $idcomposition;
 
-	my $sth = $dbh->prepare( qq/select id from images where idtrial=? order by 1/);
-	$sth->execute(($idtrial));
+	my $sth = $dbh->prepare( qq/select images.id from images left join analyses on analyses.idimage=images.id and idcomposition_for_analysis=? where analyses.id is null and idtrial=? order by 1/);
+	$sth->execute(($idcomposition, $idtrial));
 	my $a= $sth->fetchall_arrayref();
 	for my $currImage (@$a)
 	{	my $idimage=$currImage->[0];
 		my $d = { idimage=> $idimage , idcomposition_for_analysis=> $idcomposition };
 		my $idanalysis=insertObjectIntoTable($dbh, 'analyses', 'id', $d );
 		my $f= cellfinder_image::readImageFunctionForIDAndWidth($dbh, $idimage);
+        eval{
 		my $p= $f->(0);
 		cellfinder_image::imageForComposition($dbh, $idcomposition,$f,$p, 1, $idanalysis);
         warn "$idimage $idcomposition $idanalysis";
+        }
 	}
 }
 

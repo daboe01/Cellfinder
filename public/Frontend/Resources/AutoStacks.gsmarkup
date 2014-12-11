@@ -9,6 +9,7 @@
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
 				<tableView autosaveName="tv_autostacks" zebra="yes" valueBinding="#CPOwner.stacksController" target="#mystackscontroller">
+					<tableColumn identifier="id" editable="NO" title="id"/>
 					<tableColumn identifier="name" editable="YES" title="name"/>
 	  			</tableView>
 			</scrollView>

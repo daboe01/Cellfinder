@@ -74,7 +74,8 @@ point.set.register2=function(I.A,I.B, identity.radius=5){
 	}
 	best.fit= data.frame(row=NA,col=NA,matches=0)
 	all.indices =c(1:nrow(I.A))
-	iterations=(nrow(I.B) / 10)
+#iterations= min(nrow(I.B)/10, 50)	# maybe 50 needs to be adopted
+	iterations= nrow(I.B)/10
 	for(i in c( iterations:1)){
 		if(length(all.indices)< 3) break
 		sample.point.A=sample(all.indices,1)

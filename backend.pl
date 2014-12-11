@@ -16,8 +16,6 @@ $ENV{MOJO_MAX_MESSAGE_SIZE} = 1_073_741_824;
 
 plugin 'database', {
 			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
-			username => 'root',
-			password => 'root',
 			options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
 			helper   => 'db'
 };
@@ -295,6 +293,20 @@ get '/ANA/results/:idanalysis'=> [idanalysis =>qr/\d+/] => sub
 	}
 	$self->render(text=> $result);
 };
+get '/ANA/stackresults/:idstack'=> [idstack =>qr/\d+/] => sub
+{	my $self=shift;
+	my $idstack= $self->param("idstack");
+	my $dbh=$self->db;
+	my $sql=qq{select results.id, row,col,coalesce(tag,0) as tag,montage_images.idanalysis from montages join montage_images on montages.id=idmontage join analyses on analyses.id=montage_images.idanalysis join results on results.idanalysis=montage_images.idanalysis where montages.id=? order by 1};
+	my $sth = $dbh->prepare( $sql );
+	$sth->execute(($idstack));
+	my $result=	join("\t", qw/id row col tag idanalysis/)."\n";
+	while(my $curr=$sth->fetchrow_arrayref())
+	{	$result.=join("\t", (@$curr));
+		$result.="\n";
+	}
+	$self->render(text=> $result);
+};
 get '/ANA/aggregations/:idtrial'=> [idtrial =>qr/\d+/] => sub
 {	my $self=shift;
 	my $idtrial= $self->param("idtrial");
@@ -305,25 +317,42 @@ get '/ANA/aggregations/:idtrial'=> [idtrial =>qr/\d+/] => sub
 	my $a=$sth->fetchall_arrayref();
 	my @colnames=map {'"'.$_->[0].'"' } @$a;
 	my $colnames= join " text,",@colnames;
-	$sql="SELECT * FROM crosstab( 'select idanalysis, images.id as idimage, images.name as image_name, aggregations.name as cat, value from aggregations join analyses on idanalysis=analyses.id join images on idimage=images.id where idtrial=$idtrial  order by 1,2', 'SELECT distinct aggregations.name FROM aggregations join analyses on idanalysis =analyses.id join images on idimage=images.id where idtrial=$idtrial order by 1') AS ct(idanalysis integer, idimage integer, image_name text, $colnames text)";
+	$sql="SELECT * FROM crosstab( 'select idanalysis, images.id as idimage, images.name as image_name, uploadtime, aggregations.name as cat, value from aggregations join analyses on idanalysis=analyses.id join images on idimage=images.id where idtrial=$idtrial  order by 1,2', 'SELECT distinct aggregations.name FROM aggregations join analyses on idanalysis =analyses.id join images on idimage=images.id where idtrial=$idtrial order by 1') AS ct(idanalysis integer, idimage integer, image_name text, uploadtime date, $colnames text)";
 	$sth = $dbh->prepare( $sql );
 	$sth->execute();
-	my $result=	"idanalysis\tidimage\timage_name\t".join("\t", @colnames)."\n";
+	my $result=	"idanalysis\tidimage\timage_name\tuploadtime\t".join("\t", @colnames)."\n";
 	while(my $curr=$sth->fetchrow_arrayref())
 	{	$result.=join("\t", (@$curr));
 		$result.="\n";
 	}
 	$self->render(text=>$result);
-
 };
+get '/ANA/tags_image/:idimage'=> [idimage =>qr/\d+/] => sub
+{	my $self=shift;
+    my $idimage= $self->param("idimage");
+    my $dbh=$self->db;
+    my $sql="SELECT * FROM tags where idimage=?";
+    my $sth = $dbh->prepare( $sql );
+    $sth->execute(($idimage));
+    my $res = $sth->fetchall_arrayref();
+    my $colnames = $sth->{NAME};
+    my $result=	join("\t", @$colnames)."\n";
+    for my $curr (@$res)
+    {	$result.=join("\t", (@$curr));
+        $result.="\n";
+    }
+    warn $result;
+    $self->render(text=> $result);
+};
+
 get '/ANA/:table/:idtrial'=> [table=>qr/[^"]+/, idtrial =>qr/\d+/] => sub
 {	my $self=shift;
 	my $idtrial= $self->param("idtrial");
 	my $table= $self->param("table");
 	my $dbh=$self->db;
-	my $sql="SELECT * FROM \"$table\" where idtrial=$idtrial";
+	my $sql="SELECT * FROM \"$table\" where idtrial=?";
 	my $sth = $dbh->prepare( $sql );
-	$sth->execute();
+	$sth->execute(($idtrial));
 	my $res = $sth->fetchall_arrayref();
 	my $colnames = $sth->{NAME};
 	my $result=	join("\t", @$colnames)."\n";
@@ -374,6 +403,15 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 		$p->Write($tempfilename.'.gif');
 		$self->render(data=>cellfinder_image::readFile($tempfilename.'.gif'), format=>'gif');
 	}
+};
+
+get '/IMG/STACK/DELALL/:idtrial'=> [idtrial =>qr/\d+/] => sub
+{	my $self=shift;
+    my $idtrial=		$self->param("idtrial");
+    my $sql=qq{delete from montages where idtrial=?};
+    my $sth = $self->db->prepare( $sql );
+    $sth->execute(($idtrial));
+    $self->render(data=>'OK', format =>'txt' );
 };
 
 get '/IMG/import/:idtrial/:name/:uri'=> [name=>qr/.+/, uri=>qr/.+/] => sub
@@ -453,14 +491,17 @@ post '/IMG/analyze/:idtrial/:name'=> [idtrial=>qr/[0-9]+/, name=>qr/.+/] => sub
 	my $suffix='.jpg';	# sensible default
 	$suffix=$1 if $uri =~/^.+\.(.+)$/o;
 
-app->log->debug("will start upload");
 	my $trial = cellfinder_image::getObjectFromDBHandID($self->db, 'trials', $idtrial);
 	my $idimage = cellfinder_image::uploadImageFromData($self->db, $idtrial, $name, $suffix, $data);
 	my $d = { idimage=>$idimage, idcomposition_for_editing => $trial->{composition_for_editing}, idcomposition_for_analysis=> $trial->{composition_for_celldetection} };
 	my $idanalysis=cellfinder_image::insertObjectIntoTable($self->db, 'analyses', 'id', $d );
 	my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage);
 	cellfinder_image::imageForComposition($self->db, $d->{idcomposition_for_analysis}, $f, $f->(0), 0, $idanalysis);
-app->log->debug("upload finished");
+
+    my $sql='INSERT INTO tags (idimage, idtag)  (select ? as idimage, tag_repository.id as idtag from  tag_repository  where tag_repository.idtrial=?)';
+    my $sth = $self->db->prepare($sql);
+    $sth->execute(($idimage, $idtrial));
+
 	$self->render(data=>'OK', format =>'txt' );
 };
 
@@ -797,5 +838,5 @@ post '/upload/:idtrial' => [idtrial=>qr/[0-9]+/] => sub {
 
 use Mojo::Log;
 # app->log( Mojo::Log->new( path => '/tmp/cellfinder.log', level => 'debug' ) );
-app->config(hypnotoad => {listen => ['http://*:3000'], workers => 10, heartbeat_timeout=>60000, inactivity_timeout=> 60000});
+app->config(hypnotoad => {listen => ['http://*:3000'], workers => 20, heartbeat_timeout=>600000, inactivity_timeout=> 600000});
 app->start;
