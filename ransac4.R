@@ -58,11 +58,15 @@ number.of.matches=function(image.A, image.B, P.A, nearest.in.B, identity.radius)
 
 # iterate until convergence by means of increasing radius whilst also increasing threshold
 
-
-perform.ANOVA=function(I.B, current.points){
+perform.ANOVA=function(I.B, current.points, I.B.reset){
 	l= lm(cbind(row.x,col.x) ~ row.y + col.y, data= current.points)
 	names(I.B)=c("row.y","col.y")
-	p =as.data.frame( predict(l, I.B) )
+    if( !is.na(max(l$coefficients[,1])) & !is.na(max(l$coefficients[,2])) & abs(min(l$coefficients[,2]))>1e-10 )
+	{   p =as.data.frame( predict(l, I.B) )
+	} else
+	{
+		p=I.B.reset
+	}
 	names(p)=c("row","col")
 	return (p);
 }
@@ -150,10 +154,11 @@ run.registration=function(I.A, I.B, iterations=7, anova.iterations=20,  thresh=1
 		{	exit.loop=T
 				break
 		}
+		I.B.reset=I.B
 		if(mode==1& anova.iterations>0)
 		{	for(j in 1: anova.iterations){
 				set.AB=matching.points2(I.A, I.B, identity.radius*identity.radius*3)
-				I.B= perform.ANOVA(I.B, set.AB)
+				I.B= perform.ANOVA(I.B, set.AB, I.B.reset)
 				if(DEBUG){
 					plot(I.A$row,I.A$col , col="green", xlim=c(0,1000), ylim=c(0,600))
 					points(I.B$row, I.B$col, col="red")
