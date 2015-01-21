@@ -8,9 +8,8 @@ Features include:
  * Desktop-quality UI (e.g. keyboard navigation, unlimited undo / redo)
  * Image repository
  * Feature extraction
- * Feature editor
+ * Feature database/editor
  * Feature aggregation
- * Analyses database
  * Batch processing
  * Stack support
  * Image registration
@@ -20,8 +19,7 @@ INSTALL
 =====
 ```bash
 # the easiest way to get Postgres up and running on a mac is Postgres.app
-# we need a current TeX distribution such as <https://tug.org/mactex/> 
-# R including developer tools
+# we need a current R version including developer tools
 # perl is already installed on linux and mac but we need quite a bunch of non-core perl modules
 sudo perl -MCPAN -e 'install ($_) for qw/Mojolicious Mojolicious::Plugin::Database Mojolicious::Plugin::RenderFile SQL::Abstract::More Apache::Session::File Spreadsheet::WriteExcel DBD::Pg ImageMagick Statistics::R/'
 # now download this repo and cd into it
