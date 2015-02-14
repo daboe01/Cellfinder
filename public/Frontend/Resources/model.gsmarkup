@@ -8,7 +8,7 @@
   <predicate id="fixupfilters_pred" format="type == '4'"/>
   <predicate id="overlayfilters_pred" format="type == '2'"/>
   <predicate id="analyticsfilters_pred" format="type == '5'"/>
-  <predicate id="perlfilters_pred" format="type == '7'"/>
+  <predicate id="aggfilters_pred" format="type == '8'"/>
   <predicate id="javascriptfilters_pred" format="type == '6'"/>
   <predicate id="cfifilters_pred" format="type == '9'"/>
 
@@ -20,282 +20,289 @@
   <sortDescriptor id="by_folder_name" key="folder_name"/>
 
 
-	<arrayController id="displayfilters_ac" entity="patch_compositions"		valueBinding="trials_controller.selection.compos" filterPredicate="displayfilters_pred"/>
-	<arrayController id="uploadfilters_ac" entity="patch_compositions"		valueBinding="trials_controller.selection.compos" filterPredicate="uploadfilters_pred"/>
-	<arrayController id="fixupfilters_ac" entity="patch_compositions"		valueBinding="trials_controller.selection.compos" filterPredicate="fixupfilters_pred"/>
-	<arrayController id="overlayfilters_ac" entity="patch_compositions"		valueBinding="trials_controller.selection.compos" filterPredicate="overlayfilters_pred"/>
-	<arrayController id="analyticsfilters_ac" entity="patch_compositions"	valueBinding="trials_controller.selection.compos" filterPredicate="analyticsfilters_pred"/>
-	<arrayController id="perlfilters_ac" entity="patch_compositions"		valueBinding="trials_controller.selection.compos" filterPredicate="perlfilters_pred"/>
-	<arrayController id="javascriptfilters_ac" entity="patch_compositions"	valueBinding="trials_controller.selection.compos" filterPredicate="javascriptfilters_pred"/>
-	<arrayController id="cfifilters_ac" entity="patch_compositions"			valueBinding="trials_controller.selection.compos" filterPredicate="cfifilters_pred"/>
+    <arrayController id="displayfilters_ac" entity="patch_compositions"        valueBinding="trials_controller.selection.compos" filterPredicate="displayfilters_pred"/>
+    <arrayController id="uploadfilters_ac" entity="patch_compositions"        valueBinding="trials_controller.selection.compos" filterPredicate="uploadfilters_pred"/>
+    <arrayController id="fixupfilters_ac" entity="patch_compositions"        valueBinding="trials_controller.selection.compos" filterPredicate="fixupfilters_pred"/>
+    <arrayController id="overlayfilters_ac" entity="patch_compositions"        valueBinding="trials_controller.selection.compos" filterPredicate="overlayfilters_pred"/>
+    <arrayController id="analyticsfilters_ac" entity="patch_compositions"    valueBinding="trials_controller.selection.compos" filterPredicate="analyticsfilters_pred"/>
+    <arrayController id="aggfilters_ac" entity="patch_compositions"        valueBinding="trials_controller.selection.compos" filterPredicate="aggfilters_pred"/>
+    <arrayController id="javascriptfilters_ac" entity="patch_compositions"    valueBinding="trials_controller.selection.compos" filterPredicate="javascriptfilters_pred"/>
+    <arrayController id="cfifilters_ac" entity="patch_compositions"            valueBinding="trials_controller.selection.compos" filterPredicate="cfifilters_pred"/>
 
 
-	<arrayController id="patch_repo_controller" entity="patch_repository" autoFetch="YES" sortDescriptor="by_name"/>
-	<arrayController id="trials_controller" entity="trials" autoFetch="YES" sortDescriptor="by_name"/>
-	<arrayController id="compos_controller" entity="patch_compositions" valueBinding ="trials_controller.selection.compos"/>
+    <arrayController id="patch_repo_controller" entity="patch_repository" autoFetch="YES" sortDescriptor="by_name"/>
+    <arrayController id="trials_controller" entity="trials" autoFetch="YES" sortDescriptor="by_name"/>
+    <arrayController id="compos_controller" entity="patch_compositions" valueBinding ="trials_controller.selection.compos"/>
     <arrayController id="chains_controller" entity="patch_chains" valueBinding ="compos_controller.selection.chains" sortDescriptor="by_ordering"/>
     <arrayController id="chains_controller2" entity="patch_chains" autoFetch="YES" sortDescriptor="by_ordering"/>
-	<arrayController id="patches_controller" entity="patches" valueBinding ="chains_controller.selection.patches" sortDescriptor="by_ordering"/>
-	<arrayController id="inputval_controller" entity="patch_input_values" valueBinding ="patches_controller.selection.input_values"/>
-	<arrayController id="patch_parameters_controller" entity="patch_parameters" autoFetch="YES" sortDescriptor="by_id"/>
-	<arrayController id="patch_parameters_controller2" entity="patch_parameters" valueBinding = "patch_repo_controller.selection.parameters" sortDescriptor="by_id"/>
+    <arrayController id="patches_controller" entity="patches" valueBinding ="chains_controller.selection.patches" sortDescriptor="by_ordering"/>
+    <arrayController id="inputval_controller" entity="patch_input_values" valueBinding ="patches_controller.selection.input_values"/>
+    <arrayController id="patch_parameters_controller" entity="patch_parameters" autoFetch="YES" sortDescriptor="by_id"/>
+    <arrayController id="patch_parameters_controller2" entity="patch_parameters" valueBinding = "patch_repo_controller.selection.parameters" sortDescriptor="by_id"/>
 
-	<arrayController id="stacks_controller" entity="montages" valueBinding ="trials_controller.selection.stacks" sortDescriptor="by_name"/>
-	<arrayController id="stacks_content_controller" entity="montage_images" valueBinding ="stacks_controller.selection.analyses"/>
-	<arrayController id="folder_controller" entity="folders" valueBinding ="trials_controller.selection.folders" sortDescriptor="by_folder_name"/>
-	<arrayController id="folder_content_controller" entity="folder_content" valueBinding ="folder_controller.selection.folder_content" sortDescriptor="by_reverse_name"/>
-	<arrayController id="analyses_controller" entity="analyses" valueBinding ="folder_content_controller.selection.analyses"/>
-	<arrayController id="aggregations_controller" entity="aggregations" valueBinding ="analyses_controller.selection.aggregations" sortDescriptor="by_name"/>
-	<arrayController id="tag_repository_controller" entity="tag_repository" valueBinding ="trials_controller.selection.tagrepo"/>
-	<arrayController id="tags_controller" entity="tags" valueBinding ="folder_content_controller.selection.tags"/>
-	<arrayController id="taglist_controller" entity="taglist_repository" autoFetch="YES"/>
-	<arrayController id="parameter_lists_controller" entity="parameter_lists" autoFetch="YES"/>
+    <arrayController id="stacks_controller" entity="montages" valueBinding ="trials_controller.selection.stacks" sortDescriptor="by_name"/>
+    <arrayController id="stacks_content_controller" entity="montage_images" valueBinding ="stacks_controller.selection.analyses"/>
+    <arrayController id="stacks_analyses_controller" entity="analyses" valueBinding ="stacks_controller.selection.stack_analyses"/>
+
+    <arrayController id="folder_controller" entity="folders" valueBinding ="trials_controller.selection.folders" sortDescriptor="by_folder_name"/>
+    <arrayController id="folder_content_controller" entity="folder_content" valueBinding ="folder_controller.selection.folder_content" sortDescriptor="by_reverse_name"/>
+    <arrayController id="analyses_controller" entity="analyses" valueBinding ="folder_content_controller.selection.analyses"/>
+    <arrayController id="aggregations_controller" entity="aggregations" valueBinding ="analyses_controller.selection.aggregations" sortDescriptor="by_name"/>
+    <arrayController id="stack_aggregations_controller" entity="aggregations" valueBinding ="stacks_analyses_controller.selection.aggregations" sortDescriptor="by_name"/>
+    <arrayController id="tag_repository_controller" entity="tag_repository" valueBinding ="trials_controller.selection.tagrepo"/>
+    <arrayController id="tags_controller" entity="tags" valueBinding ="folder_content_controller.selection.tags"/>
+    <arrayController id="taglist_controller" entity="taglist_repository" autoFetch="YES"/>
+    <arrayController id="parameter_lists_controller" entity="parameter_lists" autoFetch="YES"/>
 
   <menu type="main">
-	<menu title="Images">
-		<menuItem title="Upload File" action="uploadImage:"/>
-		<menuItem title="ImageBrowser" action="runImageBrowser:"/>
-		<menuItem title="Compositions..." action="runCompoBrowser:"/>
-		<menuItem title="Patches..." action="runPatchesBrowser:"/>
-	</menu>
-	<menu title="Edit">
-		<menuItem title="Cut" action="cut:" keyEquivalent="x"/>
-		<menuItem title="Copy" action="copy:" keyEquivalent="c"/>
-		<menuItem title="Paste" action="paste:" keyEquivalent="v"/>
-		<menuItem title="Remove" action="delete:" keyEquivalent="y"/>
-		<menuItem title="Select all" action="selectAll:" keyEquivalent="a"/>
-	</menu>
+    <menu title="Images">
+        <menuItem title="Upload File" action="uploadImage:"/>
+        <menuItem title="ImageBrowser" action="runImageBrowser:"/>
+        <menuItem title="Compositions..." action="runCompoBrowser:"/>
+        <menuItem title="Patches..." action="runPatchesBrowser:"/>
+    </menu>
+    <menu title="Edit">
+        <menuItem title="Cut" action="cut:" keyEquivalent="x"/>
+        <menuItem title="Copy" action="copy:" keyEquivalent="c"/>
+        <menuItem title="Paste" action="paste:" keyEquivalent="v"/>
+        <menuItem title="Remove" action="delete:" keyEquivalent="y"/>
+        <menuItem title="Select all" action="selectAll:" keyEquivalent="a"/>
+    </menu>
    </menu>
 </objects>
 
 <entities>
-	<entity id="trials" store="#CPOwner.store">
-		<column name="id" primaryKey="YES"/>
-		<column name="name"/>
-		<column name="editing_controller"/>
-		<column name="entity_regex"/>
-		<column name="composition_for_upload"/>
-		<column name="composition_for_editing"/>
-		<column name="composition_for_celldetection"/>
-		<column name="composition_for_fixup"/>
-		<column name="composition_for_aggregation"/>
-		<column name="composition_for_javascript"/>
-		<column name="composition_for_ransac"/>
+    <entity id="trials" store="#CPOwner.store">
+        <column name="id" primaryKey="YES"/>
+        <column name="name"/>
+        <column name="editing_controller"/>
+        <column name="entity_regex"/>
+        <column name="composition_for_upload"/>
+        <column name="composition_for_editing"/>
+        <column name="composition_for_celldetection"/>
+        <column name="composition_for_fixup"/>
+        <column name="composition_for_aggregation"/>
+        <column name="composition_for_javascript"/>
+        <column name="composition_for_ransac"/>
+        <column name="composition_for_clustering"/>
 
-		<relationship name="compos" type="toMany" target="patch_compositions" targetColumn="idtrials"/>
-		<relationship name="images" type="toMany" target="images" targetColumn="idtrial"/>
-		<relationship name="folders" type="toMany" target="folders" targetColumn="idtrial"/>
-		<relationship name="stacks" type="toMany" target="montages" targetColumn="idtrial"/>
-		<relationship name="tagrepo" type="toMany" target="tag_repository" targetColumn="idtrial"/>
-	</entity>
-	<entity id="patch_compositions" store="#CPOwner.store">
-		<column name="id" primaryKey="YES"/>
-		<column name="idtrials"/>
+        <relationship name="compos" type="toMany" target="patch_compositions" targetColumn="idtrials"/>
+        <relationship name="images" type="toMany" target="images" targetColumn="idtrial"/>
+        <relationship name="folders" type="toMany" target="folders" targetColumn="idtrial"/>
+        <relationship name="stacks" type="toMany" target="montages" targetColumn="idtrial"/>
+        <relationship name="tagrepo" type="toMany" target="tag_repository" targetColumn="idtrial"/>
+    </entity>
+    <entity id="patch_compositions" store="#CPOwner.store">
+        <column name="id" primaryKey="YES"/>
+        <column name="idtrials"/>
         <column name="type"/>
         <column name="primary_chain"/>
-		<column name="name"/>
-		<relationship type="toOne" name="trial" bindingColumn="idtrials" target="trials"/>
+        <column name="name"/>
+        <relationship type="toOne" name="trial" bindingColumn="idtrials" target="trials"/>
         <relationship type="toOne" name="primarychain" bindingColumn="primary_chain" target="patch_chains"/>
-		<relationship name="chains" type="toMany" target="patch_chains" targetColumn="idpatch_composition"/>
-		<relationship name="inputParams" type="toMany" target="composition_interactive_parameters" targetColumn="idpatch_composition"/>
-	</entity>
-	<entity id="patch_chains" store="#CPOwner.store">
-		<column name="id" primaryKey="YES"/>
-		<column name="idpatch_composition"/>
-		<column name="ordering"/>
-		<column name="name"/>
-		<relationship name="patches" type="toMany" target="patches" targetColumn="idpatch_chain"/>
-	</entity>
-	<entity id="patches" store="#CPOwner.store">
-		<column name="id" primaryKey="YES"/>
-		<column name="idpatch_chain"/>
-		<column name="idpatch"/>
-		<column name="ordering"/>
-		<relationship type="toOne" name="patch" bindingColumn="idpatch" target="patch_repository"/>
-		<relationship type="toMany" name="input_values" targetColumn="idpatch" target="patch_input_values"/>
-	</entity>
-	<entity id="patch_repository" store="#CPOwner.store">
-		<column name="id" primaryKey="YES"/>
-		<column name="type"/>
-		<column name="name"/>
-		<column name="code"/>
-		<column name="filetype"/>
-		<relationship type="toMany" name="parameters" targetColumn="idpatch" target="patch_parameters"/>
-	</entity>
-	<entity id="patch_input_values" store="#CPOwner.store">
-		<column name="id" primaryKey="YES"/>
-		<column name="idparameter"/>
-		<column name="idpatch"/>
-		<column name="value"/>
-		<column name="interactive"/>
-		<column name="disable"/>
-		<relationship type="toOne" name="parameter" bindingColumn="idparameter" target="patch_parameters"/>
-	</entity>
-	<entity id="patch_parameters" store="#CPOwner.store">
-		<column name="id" primaryKey="YES"/>
-		<column name="name"/>
-		<column name="default_value"/>
-		<column name="type"/>
-		<column name="range1"/>
-		<column name="range2"/>
-		<column name="idpatch"/>
-		<column name="cmd_name"/>
-		<column name="description"/>
-	</entity>
-	<entity id="composition_interactive_parameters" store="#CPOwner.store">
-		<column name="idinput" primaryKey="YES"/>
-		<column name="patch"/>
-		<column name="idpatch_composition"/>
-		<column name="name"/>
-		<column name="type"/>
-		<column name="value"/>
-		<column name="range1"/>
-		<column name="range2"/>
-		<column name="disabled"/>
-		<column name="idparameter"/>
-	</entity>
-	<entity id="parameter_lists" store="#CPOwner.store">
-		<column name="id" primaryKey="YES"/>
-		<column name="value"/>
-		<column name="idpatch_parameter"/>
-	</entity>
-	<entity id="images" store="#CPOwner.store">
-		<column name="id" primaryKey="YES"/>
-		<column name="idtrial"/>
-		<column name="name"/>
-		<column name="filename"/>
-		<relationship type="toOne" name="trial" bindingColumn="idtrial" target="trials"/>
-		<relationship type="toMany" name="analyses" targetColumn="idimage" target="analyses"/>
-	</entity>
-	<entity id="folders" store="#CPOwner.store">
-		<column name="linkname" primaryKey="YES"/>
-		<column name="folder_name"/>
-		<column name="idtrial"/>
-		<relationship type="toOne" name="trial" bindingColumn="idtrial" target="trials"/>
-		<relationship type="toMany" name="folder_content" targetColumn="linkname" target="folder_content"/>
-	</entity>
-	<entity id="folder_content" store="#CPOwner.store">
-		<column name="idimage" primaryKey="YES"/>
-		<column name="folder_name"/>
-		<column name="name"/>
-		<column name="linkname"/>
-		<relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
-		<relationship type="toMany" name="analyses" targetColumn="idimage" target="analyses"/>
-		<relationship type="toMany" name="tags" targetColumn="idimage" target="tags"/>
-	</entity>
-	<entity id="analyses" store="#CPOwner.store">
-		<column name="id" primaryKey="YES"/>
-		<column name="idimage"/>
-		<column name="width"/>
-		<column name="height"/>
-		<column name="manual_edit"/>
-		<column name="idcomposition_for_editing"/>
-		<column name="idcomposition_for_analysis"/>
-		<column name="setup_params"/>
-		<relationship type="toOne" name="editing_compo" bindingColumn="idcomposition_for_editing" target="patch_compositions"/>
-		<relationship type="toOne" name="analysis_compo" bindingColumn="idcomposition_for_analysis" target="patch_compositions"/>
-		<relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
-		<relationship type="toMany" name="results" targetColumn="idanalysis" target="results"/>
-		<relationship type="toMany" name="aggregations" targetColumn="idanalysis" target="aggregations"/>
-	</entity>
-	<entity id="results" store="#CPOwner.store">
-		<column name="id" primaryKey="YES"/>
-		<column name="idanalysis"/>
-		<column name="row"/>
-		<column name="col"/>
-		<column name="tag"/>
-		<relationship type="toOne" name="analysis" bindingColumn="idanalysis" target="analyses"/>
-	</entity>
-	<entity id="aggregations" store="#CPOwner.store">
-		<column name="id" primaryKey="YES"/>
-		<column name="idanalysis"/>
-		<column name="name"/>
-		<column name="value"/>
-		<relationship type="toOne" name="analysis" bindingColumn="idanalysis" target="analyses"/>
-	</entity>
-	<entity id="montages" store="#CPOwner.store">
-		<column name="id" primaryKey="YES"/>
-		<column name="idtrial"/>
-		<column name="name"/>
-		<column name="geometry"/>
-		<column name="idpatch"/>
-		<column name="idcompo_with_points"/>
-		<relationship type="toOne" name="trial" bindingColumn="idtrial" target="trials"/>
-		<relationship type="toMany" name="analyses" targetColumn="idmontage" target="montage_images"/>
-	</entity>
-	<entity id="montage_images" store="#CPOwner.store">
-		<column name="id" primaryKey="YES"/>
-		<column name="idimage"/>
-		<column name="idmontage"/>
-		<column name="parameter"/>
-		<column name="disable"/>
-		<column name="idanalysis_reference"/>
-		<column name="idanalysis"/>
-		<relationship type="toOne" name="analysis" bindingColumn="idanalysis" target="analyses"/>
-		<relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
-		<relationship type="toOne" name="montage" bindingColumn="idmontage" target="montages"/>
-	</entity>
-	<entity id="tag_repository" store="#CPOwner.store">
-		<column name="id" primaryKey="YES"/>
-		<column name="idtrial"/>
-		<column name="name"/>
-		<column name="type"/>
-		<relationship type="toOne" name="trial" bindingColumn="idtrial" target="trials"/>
-		<relationship type="toMany" name="items" targetColumn="idtag" target="taglist_repository"/>
-	</entity>
-	<entity id="taglist_repository" store="#CPOwner.store">
-		<column name="id" primaryKey="YES"/>
-		<column name="idtag"/>
-		<column name="ordering"/>
-		<column name="name"/>
-	</entity>
-	<entity id="tags" store="#CPOwner.store">
-		<column name="id" primaryKey="YES"/>
-		<column name="idimage"/>
-		<column name="idtag"/>
-		<column name="value"/>
-		<relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
-		<relationship type="toOne" name="tag" bindingColumn="idtag" target="tag_repository"/>
-		<relationship type="toMany" name="items" bindingColumn="value" targetColumn="idtag" target="taglist_repository"/>
-	</entity>
-	<entity id="rois" store="#CPOwner.store">
-		<column name="id" primaryKey="YES"/>
-		<column name="geom_string"/>
-		<column name="idimage"/>
-		<relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
-	</entity>
+        <relationship name="chains" type="toMany" target="patch_chains" targetColumn="idpatch_composition"/>
+        <relationship name="inputParams" type="toMany" target="composition_interactive_parameters" targetColumn="idpatch_composition"/>
+    </entity>
+    <entity id="patch_chains" store="#CPOwner.store">
+        <column name="id" primaryKey="YES"/>
+        <column name="idpatch_composition"/>
+        <column name="ordering"/>
+        <column name="name"/>
+        <relationship name="patches" type="toMany" target="patches" targetColumn="idpatch_chain"/>
+    </entity>
+    <entity id="patches" store="#CPOwner.store">
+        <column name="id" primaryKey="YES"/>
+        <column name="idpatch_chain"/>
+        <column name="idpatch"/>
+        <column name="ordering"/>
+        <relationship type="toOne" name="patch" bindingColumn="idpatch" target="patch_repository"/>
+        <relationship type="toMany" name="input_values" targetColumn="idpatch" target="patch_input_values"/>
+    </entity>
+    <entity id="patch_repository" store="#CPOwner.store">
+        <column name="id" primaryKey="YES"/>
+        <column name="type"/>
+        <column name="name"/>
+        <column name="code"/>
+        <column name="filetype"/>
+        <relationship type="toMany" name="parameters" targetColumn="idpatch" target="patch_parameters"/>
+    </entity>
+    <entity id="patch_input_values" store="#CPOwner.store">
+        <column name="id" primaryKey="YES"/>
+        <column name="idparameter"/>
+        <column name="idpatch"/>
+        <column name="value"/>
+        <column name="interactive"/>
+        <column name="disable"/>
+        <relationship type="toOne" name="parameter" bindingColumn="idparameter" target="patch_parameters"/>
+    </entity>
+    <entity id="patch_parameters" store="#CPOwner.store">
+        <column name="id" primaryKey="YES"/>
+        <column name="name"/>
+        <column name="default_value"/>
+        <column name="type"/>
+        <column name="range1"/>
+        <column name="range2"/>
+        <column name="idpatch"/>
+        <column name="cmd_name"/>
+        <column name="description"/>
+    </entity>
+    <entity id="composition_interactive_parameters" store="#CPOwner.store">
+        <column name="idinput" primaryKey="YES"/>
+        <column name="patch"/>
+        <column name="idpatch_composition"/>
+        <column name="name"/>
+        <column name="type"/>
+        <column name="value"/>
+        <column name="range1"/>
+        <column name="range2"/>
+        <column name="disabled"/>
+        <column name="idparameter"/>
+    </entity>
+    <entity id="parameter_lists" store="#CPOwner.store">
+        <column name="id" primaryKey="YES"/>
+        <column name="value"/>
+        <column name="idpatch_parameter"/>
+    </entity>
+    <entity id="images" store="#CPOwner.store">
+        <column name="id" primaryKey="YES"/>
+        <column name="idtrial"/>
+        <column name="name"/>
+        <column name="filename"/>
+        <relationship type="toOne" name="trial" bindingColumn="idtrial" target="trials"/>
+        <relationship type="toMany" name="analyses" targetColumn="idimage" target="analyses"/>
+    </entity>
+    <entity id="folders" store="#CPOwner.store">
+        <column name="linkname" primaryKey="YES"/>
+        <column name="folder_name"/>
+        <column name="idtrial"/>
+        <relationship type="toOne" name="trial" bindingColumn="idtrial" target="trials"/>
+        <relationship type="toMany" name="folder_content" targetColumn="linkname" target="folder_content"/>
+    </entity>
+    <entity id="folder_content" store="#CPOwner.store">
+        <column name="idimage" primaryKey="YES"/>
+        <column name="folder_name"/>
+        <column name="name"/>
+        <column name="linkname"/>
+        <relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
+        <relationship type="toMany" name="analyses" targetColumn="idimage" target="analyses"/>
+        <relationship type="toMany" name="tags" targetColumn="idimage" target="tags"/>
+    </entity>
+    <entity id="analyses" store="#CPOwner.store">
+        <column name="id" primaryKey="YES"/>
+        <column name="idimage"/>
+        <column name="width"/>
+        <column name="height"/>
+        <column name="manual_edit"/>
+        <column name="idcomposition_for_editing"/>
+        <column name="idcomposition_for_analysis"/>
+        <column name="setup_params"/>
+        <relationship type="toOne" name="editing_compo" bindingColumn="idcomposition_for_editing" target="patch_compositions"/>
+        <relationship type="toOne" name="analysis_compo" bindingColumn="idcomposition_for_analysis" target="patch_compositions"/>
+        <relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
+        <relationship type="toMany" name="results" targetColumn="idanalysis" target="results"/>
+        <relationship type="toMany" name="aggregations" targetColumn="idanalysis" target="aggregations"/>
+    </entity>
+    <entity id="results" store="#CPOwner.store">
+        <column name="id" primaryKey="YES"/>
+        <column name="idanalysis"/>
+        <column name="row"/>
+        <column name="col"/>
+        <column name="tag"/>
+        <relationship type="toOne" name="analysis" bindingColumn="idanalysis" target="analyses"/>
+    </entity>
+    <entity id="aggregations" store="#CPOwner.store">
+        <column name="id" primaryKey="YES"/>
+        <column name="idanalysis"/>
+        <column name="name"/>
+        <column name="value"/>
+        <relationship type="toOne" name="analysis" bindingColumn="idanalysis" target="analyses"/>
+    </entity>
+    <entity id="montages" store="#CPOwner.store">
+        <column name="id" primaryKey="YES"/>
+        <column name="idtrial"/>
+        <column name="name"/>
+        <column name="geometry"/>
+        <column name="idpatch"/>
+        <column name="idcompo_with_points"/>
+        <relationship type="toOne" name="trial" bindingColumn="idtrial" target="trials"/>
+        <relationship type="toMany" name="analyses" targetColumn="idmontage" target="montage_images"/>
+        <relationship type="toMany" name="stack_analyses" targetColumn="idstack" target="analyses"/>
+    </entity>
+    <entity id="montage_images" store="#CPOwner.store">
+        <column name="id" primaryKey="YES"/>
+        <column name="idimage"/>
+        <column name="idmontage"/>
+        <column name="parameter"/>
+        <column name="disable"/>
+        <column name="idanalysis_reference"/>
+        <column name="idanalysis"/>
+        <relationship type="toOne" name="analysis" bindingColumn="idanalysis" target="analyses"/>
+        <relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
+        <relationship type="toOne" name="montage" bindingColumn="idmontage" target="montages"/>
+    </entity>
+    <entity id="tag_repository" store="#CPOwner.store">
+        <column name="id" primaryKey="YES"/>
+        <column name="idtrial"/>
+        <column name="name"/>
+        <column name="type"/>
+        <relationship type="toOne" name="trial" bindingColumn="idtrial" target="trials"/>
+        <relationship type="toMany" name="items" targetColumn="idtag" target="taglist_repository"/>
+    </entity>
+    <entity id="taglist_repository" store="#CPOwner.store">
+        <column name="id" primaryKey="YES"/>
+        <column name="idtag"/>
+        <column name="ordering"/>
+        <column name="name"/>
+    </entity>
+    <entity id="tags" store="#CPOwner.store">
+        <column name="id" primaryKey="YES"/>
+        <column name="idimage"/>
+        <column name="idtag"/>
+        <column name="value"/>
+        <relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
+        <relationship type="toOne" name="tag" bindingColumn="idtag" target="tag_repository"/>
+        <relationship type="toMany" name="items" bindingColumn="value" targetColumn="idtag" target="taglist_repository"/>
+    </entity>
+    <entity id="rois" store="#CPOwner.store">
+        <column name="id" primaryKey="YES"/>
+        <column name="geom_string"/>
+        <column name="idimage"/>
+        <relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
+    </entity>
 </entities>
 
 <connectors>
-	<outlet source="#CPOwner" target="trials_controller" label="trialsController"/>
-	<outlet source="#CPOwner" target="folder_controller" label="folderController"/>
-	<outlet source="#CPOwner" target="folder_content_controller" label="folderContentController"/>
-	<outlet source="#CPOwner" target="analyses_controller" label="analysesController"/>
-	<outlet source="#CPOwner" target="stacks_controller" label="stacksController"/>
-	<outlet source="#CPOwner" target="stacks_content_controller" label="stacksContentController"/>
-	<outlet source="#CPOwner" target="aggregations_controller" label="aggregationsController"/>
-	<outlet source="#CPOwner" target="tag_repository_controller" label="tagrepoController"/>
-	<outlet source="#CPOwner" target="tags_controller" label="tagsController"/>
-	<outlet source="#CPOwner" target="compos_controller" label="compoController"/>
+    <outlet source="#CPOwner" target="trials_controller" label="trialsController"/>
+    <outlet source="#CPOwner" target="folder_controller" label="folderController"/>
+    <outlet source="#CPOwner" target="folder_content_controller" label="folderContentController"/>
+    <outlet source="#CPOwner" target="analyses_controller" label="analysesController"/>
+    <outlet source="#CPOwner" target="stacks_controller" label="stacksController"/>
+    <outlet source="#CPOwner" target="stacks_content_controller" label="stacksContentController"/>
+    <outlet source="#CPOwner" target="aggregations_controller" label="aggregationsController"/>
+    <outlet source="#CPOwner" target="tag_repository_controller" label="tagrepoController"/>
+    <outlet source="#CPOwner" target="tags_controller" label="tagsController"/>
+    <outlet source="#CPOwner" target="compos_controller" label="compoController"/>
     <outlet source="#CPOwner" target="chains_controller" label="chainsController"/>
     <outlet source="#CPOwner" target="chains_controller2" label="chainsControllerAll"/>
-	<outlet source="#CPOwner" target="patches_controller" label="patchesController"/>
-	<outlet source="#CPOwner" target="inputval_controller" label="inputValController"/>
-	<outlet source="#CPOwner" target="taglist_controller" label="taglistController"/>
-	<outlet source="#CPOwner" target="taglist_controller2" label="taglistController2"/>
-	<outlet source="#CPOwner" target="parameter_lists_controller" label="parameterlistsController"/>
-	<outlet source="#CPOwner" target="patch_repo_controller" label="patchRepoController"/>
-	<outlet source="#CPOwner" target="patch_parameters_controller" label="patchParametersController"/>
-	<outlet source="#CPOwner" target="patch_parameters_controller2" label="patchParametersController2"/>
+    <outlet source="#CPOwner" target="patches_controller" label="patchesController"/>
+    <outlet source="#CPOwner" target="inputval_controller" label="inputValController"/>
+    <outlet source="#CPOwner" target="taglist_controller" label="taglistController"/>
+    <outlet source="#CPOwner" target="taglist_controller2" label="taglistController2"/>
+    <outlet source="#CPOwner" target="parameter_lists_controller" label="parameterlistsController"/>
+    <outlet source="#CPOwner" target="patch_repo_controller" label="patchRepoController"/>
+    <outlet source="#CPOwner" target="patch_parameters_controller" label="patchParametersController"/>
+    <outlet source="#CPOwner" target="patch_parameters_controller2" label="patchParametersController2"/>
+    <outlet source="#CPOwner" target="stacks_analyses_controller" label="stacksAnalysesController"/>
+    <outlet source="#CPOwner" target="stack_aggregations_controller" label="stackAggregationsController"/>
 
-	<outlet source="#CPOwner" target="displayfilters_ac" label="displayfilters_ac"/>
-	<outlet source="#CPOwner" target="uploadfilters_ac" label="uploadfilters_ac"/>
-	<outlet source="#CPOwner" target="fixupfilters_ac" label="fixupfilters_ac"/>
-	<outlet source="#CPOwner" target="overlayfilters_ac" label="overlayfilters_ac"/>
-	<outlet source="#CPOwner" target="analyticsfilters_ac" label="analyticsfilters_ac"/>
-	<outlet source="#CPOwner" target="perlfilters_ac" label="perlfilters_ac"/>
-	<outlet source="#CPOwner" target="javascriptfilters_ac" label="javascriptfilters_ac"/>
-	<outlet source="#CPOwner" target="cfifilters_ac" label="cfifilters_ac"/>
+    <outlet source="#CPOwner" target="displayfilters_ac" label="displayfilters_ac"/>
+    <outlet source="#CPOwner" target="uploadfilters_ac" label="uploadfilters_ac"/>
+    <outlet source="#CPOwner" target="fixupfilters_ac" label="fixupfilters_ac"/>
+    <outlet source="#CPOwner" target="overlayfilters_ac" label="overlayfilters_ac"/>
+    <outlet source="#CPOwner" target="analyticsfilters_ac" label="analyticsfilters_ac"/>
+    <outlet source="#CPOwner" target="aggfilters_ac" label="aggfilters_ac"/>
+    <outlet source="#CPOwner" target="javascriptfilters_ac" label="javascriptfilters_ac"/>
+    <outlet source="#CPOwner" target="cfifilters_ac" label="cfifilters_ac"/>
 </connectors>
 
 

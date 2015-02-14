@@ -88,13 +88,15 @@ PhotoDragType="PhotoDragType";
 	id  patchRepoController;
 	id  patchParametersController;
 	id  patchParametersController2;
+    id  stacksAnalysesController;
+    id  stackAggregationsController;
 
 	id	displayfilters_ac;
 	id	uploadfilters_ac;
 	id	fixupfilters_ac;
 	id	overlayfilters_ac;
 	id	analyticsfilters_ac;
-	id	perlfilters_ac;
+	id	aggfilters_ac;
 	id	javascriptfilters_ac;
 	id	cfifilters_ac;
 

@@ -61,7 +61,7 @@ number.of.matches=function(image.A, image.B, P.A, nearest.in.B, identity.radius)
 perform.ANOVA=function(I.B, current.points, I.B.reset){
 	l= lm(cbind(row.x,col.x) ~ row.y + col.y, data= current.points)
 	names(I.B)=c("row.y","col.y")
-    if( !is.na(max(l$coefficients[,1])) & !is.na(max(l$coefficients[,2])) & abs(min(l$coefficients[,2]))>1e-10 )
+    if( !is.na(max(l$coefficients[,1])) & !is.na(max(l$coefficients[,2])) & abs(min(l$coefficients[,2]))>1e-10 & abs(min(l$coefficients[,1]))>1e-10) #
 	{   p =as.data.frame( predict(l, I.B) )
 	} else
 	{
@@ -184,19 +184,14 @@ run.robust.registration=function(I.A, I.B,  thresh=100, identity.radius=6, itera
 	return (I.B)
 }
 
-register.two.pointsets=function(id1, id2, thresh=250, identity.radius=6, iterations=5, anova.iterations=20, do.rotate=T,evaluate.agreement.FUN=evaluate.agreement){
-print(paste(id1, id2))
-	d0= read.pointset(id1, rotate90=F)
-	d1= read.pointset(id2, rotate90=F)
-	r0= max(d0$col)/max(d0$row)
-	r1= max(d1$col)/max(d1$row)
-	rotate=F
-
+register.two.pointsets=function(d0, d1, thresh=250, identity.radius=6, iterations=5, anova.iterations=20, do.rotate=F,evaluate.agreement.FUN=evaluate.agreement){
 	r=run.robust.registration(d0, d1, thresh, identity.radius, iterations, anova.iterations=anova.iterations, evaluate.agreement.FUN=evaluate.agreement.FUN)
 	return(r)
 }
 register.pointsets.out=function(id1, id2, thresh=250, identity.radius=6, iterations=5, anova.iterations=20, do.rotate=F, evaluate.agreement.FUN=evaluate.agreement){
-	r=register.two.pointsets(id1,id2, thresh, identity.radius, iterations, anova.iterations=anova.iterations, do.rotate, evaluate.agreement.FUN)
+	d0= read.pointset(id1)
+	d1= read.pointset(id2)
+	r=register.two.pointsets(d0, d1, thresh, identity.radius, iterations, anova.iterations=anova.iterations, do.rotate, evaluate.agreement.FUN)
 	if(!is.null(r))
 	{	d1= read.pointset(id2)
 		I.B.orig=subset(d1, select=c(row,col))

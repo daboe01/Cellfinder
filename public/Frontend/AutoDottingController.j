@@ -8,6 +8,7 @@
 	id inputAnalysisWindow;
 	id inputAnalysisField;
 	id tagField;
+    id clusterConnection;
 }
 
 -(void) _postInit
@@ -96,10 +97,9 @@
 {	[trialSettingsWindow makeKeyAndOrderFront:self];
 }
 
--(void) matchDots: sender
+-(void)_makestackForIDTrial:idtrial
 {	var myarr=[CPMutableArray new];
 	var so=[myAppController.folderContentController selectedObjects];
-	var idtrial=[myAppController.trialsController valueForKeyPath:"selection.id"];
 	var i,l=[so count];
 	if(l<2)
 	{	[[CPAlert alertWithError:"Bitte mindestens zwei Zeilen auswaehlen (Shift-Taste)"] runModal];
@@ -112,9 +112,30 @@
 	var myreq=[CPURLRequest requestWithURL: BaseURL+"makestack"+"/"+idtrial+"/"+"mystack"];
     [myreq setHTTPMethod: "POST"];
 	[myreq setHTTPBody: JSON.stringify(myarr) ];
-	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
+	var ret=[CPURLConnection sendSynchronousRequest:myreq returningResponse:nil];
+    return [ret rawString];
+}
 
+-(void) matchDots: sender
+{
+	var idtrial=[myAppController.trialsController valueForKeyPath:"selection.id"];
+    [self _makestackForIDTrial:idtrial];
 	window.open("http://augimageserver:3000/Frontend/index.html?id="+idtrial+"&t=AutoStacks.gsmarkup",'autostacks');
+}
+
+-(void) clusterDots:sender
+{
+	var mycompoID= [myAppController.trialsController valueForKeyPath: "selection.composition_for_clustering"];
+    if (mycompoID === CPNullMarker) 
+    {   alert("no compo given");
+        return;
+    }
+	var idtrial=[myAppController.trialsController valueForKeyPath:"selection.id"];
+    var idstack=[self _makestackForIDTrial:idtrial];
+	var myreq=[CPURLRequest requestWithURL:BaseURL+"0?cmp="+mycompoID+"&idstack="+idstack];
+	clusterConnection = [CPURLConnection connectionWithRequest:myreq delegate:self];
+    clusterConnection._idtrial=idtrial;
+    [progress startAnimation: self];
 }
 
 -(void) doAnalyzeSelected: sender
@@ -147,6 +168,12 @@
         [myAppController.analysesController reload];
     }
     [super connection:someConnection didReceiveData:data];
+    if(someConnection === clusterConnection)
+    {   var idtrial=clusterConnection._idtrial;
+        clusterConnection=nil;
+        [progress stopAnimation: self];
+        window.open("http://augimageserver:3000/Frontend/index.html?id="+idtrial+"&t=ClusterStacks.gsmarkup",'autostacks');
+    }
 }
 
 

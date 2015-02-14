@@ -10,6 +10,7 @@ use Data::Dumper;
 use Mojo::UserAgent;
 use POSIX;
 use Try::Tiny;
+use URI::Encode qw(uri_decode);
 
 # enable receiving uploads up to 1GB
 $ENV{MOJO_MAX_MESSAGE_SIZE} = 1_073_741_824;
@@ -44,17 +45,20 @@ get '/DB/:table/:col/:pk' => [col=>qr/.+/, pk=>qr/.+/] => sub
 {	my $self = shift;
 	my $sql = SQL::Abstract->new;
 	my $table  = $self->param('table');
-	my $pk  = $self->param('pk');
-	my $col  = $self->param('col');
+	my $pk  = uri_decode( $self->param('pk'));
+	my $col  = uri_decode( $self->param('col'));
 
-    my($stmt, @bind) = $sql->select($table,undef, {$col=> $pk} );
+    warn $pk;
+    my($stmt, @bind) = $sql->select($table, undef, {$col=> $pk} );
     my $sth = $self->db->prepare($stmt);
+    warn "@bind $stmt";
     $sth->execute(@bind);
 
 	my @a;
 	while(my $c=$sth->fetchrow_hashref())
 	{	push @a,$c;
 	}
+    warn Dumper \@a;
 	$self-> render( json => \@a );
 };
 
@@ -62,8 +66,8 @@ get '/DB/:table/:col/:pk' => [col=>qr/.+/, pk=>qr/.+/] => sub
 put '/DB/:table/:pk/:key'=> [key=>qr/\d+/] => sub
 {	my $self	= shift;
 	my $table	= $self->param('table');
-	my $pk		= $self->param('pk');
-	my $key		= $self->param('key');
+	my $pk		= uri_decode($self->param('pk'));
+	my $key		= uri_decode($self->param('key'));
 	my $sql		= SQL::Abstract->new;
 	my $json_decoder= Mojo::JSON->new;
 	my $jsonR   = $json_decoder->decode( $self->req->body );
@@ -146,6 +150,7 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
 	my $affine=			$self->param('affine');
 	my $idstack=		$self->param('idstack');
 	my $rnd=			$self->param('rnd');
+	my $exif=			$self->param('exif');
 
 	my $nocache=0;
 
@@ -154,8 +159,23 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
 
 	my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage, $width, $nocache, $csize, undef, $idstack);
 	my $p= $f->(0);
+
+    if($exif)
+    {
+        my @exif = split(/[\r\n]/, $p->Get('format', '%[EXIF:*]'));
+        $self->render(json=>\@exif, format =>'json' );
+        return;
+    }
+    if($idstack && $idcomposition && !$idanalysis)
+    {	my $compo=cellfinder_image::getObjectFromDBHandID($self->db, 'patch_compositions', $idcomposition);
+        if($compo->{type} == 5)
+        {
+            $idanalysis=cellfinder_image::insertObjectIntoTable($self->db, 'analyses', 'id', { idstack=> $idstack } );
+        }
+    }
+
 	$p= cellfinder_image::imageForComposition($self->db, $preload,$f,$p) if($preload);
-	$p= cellfinder_image::imageForComposition($self->db, $idcomposition,$f,$p, 1, $idanalysis)	if($idcomposition);
+	$p= cellfinder_image::imageForComposition($self->db, $idcomposition,$f,$p, 1, $idanalysis, $idstack) if($idcomposition);
 	$p= cellfinder_image::imageForComposition($self->db, $afterload,$f,$p,1) if($afterload);
 	$p= cellfinder_image::_distortImage($p, $affine) if($affine);
 
@@ -219,9 +239,10 @@ post '/IMG/reaggregate_all/:idtrial'=> [idtrial =>qr/\d+/] => sub
 	{	my ($idanalysis,$idimage)=($curr->[0],$curr->[1]);
 		my $f= cellfinder_image::readImageFunctionForIDAndWidth($dbh, $idimage);
 		my $p= $f->(0);
-		$p= cellfinder_image::imageForComposition($self->db, $trial->{composition_for_aggregation},$f,$p, 1, $idanalysis);
-warn $idanalysis;
-	}
+		eval {
+            $p= cellfinder_image::imageForComposition($self->db, $trial->{composition_for_aggregation},$f,$p, 1, $idanalysis);
+        }
+    }
 	$dbh->{AutoCommit}=1;
 	$self->render(text => 'OK');
 };
@@ -478,7 +499,7 @@ post '/IMG/makestack/:idtrial/:name'=> [name=>qr/.+/] => sub
 		cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $id, idanalysis=> $idanalysis, idanalysis_reference=>$idref, idmontage=> $idmontage} );
 		$idref=$idanalysis unless $idref;
 	}
-	$self->render(data=>'OK', format =>'txt' );
+	$self->render(data=>$idmontage, format =>'txt' );
 };
 
 post '/IMG/analyze/:idtrial/:name'=> [idtrial=>qr/[0-9]+/, name=>qr/.+/] => sub

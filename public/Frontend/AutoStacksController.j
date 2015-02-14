@@ -143,7 +143,7 @@
 
 		mystacksconnection=nil;
 	} else
-	{	[super connection: someConnection didReceiveData: data];
+	{	[super connection:someConnection didReceiveData: data];
 	}
 }
 
@@ -154,6 +154,37 @@
 }
 @end
 
+@implementation ClusterStacksController: AutoStacksController
+
+-(void) reaggregate: sender
+{	var mycompo= [myAppController.trialsController valueForKeyPath: "selection.composition_for_aggregation"];
+	var idanalysis=[myAppController.stacksAnalysesController valueForKeyPath:"selection.id"];
+    debugger
+	if(mycompo !== CPNullMarker)
+	{
+		var myreq=[CPURLRequest requestWithURL: BaseURL+"0?idanalysis="+idanalysis+"&cmp="+mycompo];
+		var res=[CPURLConnection sendSynchronousRequest:myreq returningResponse:nil];
+        [[CPApp delegate].stackAggregationsController reload];
+	}
+}
+
+@end
+
+@implementation ClusterImageEditorCollectionItem: UnnumberedImageEditorCollectionItem
+-(void) setRepresentedObject: someObject
+{	[super setRepresentedObject: someObject];
+	_idanalysis = [[CPApp delegate].stacksAnalysesController valueForKeyPath:"selection.id"];
+}
+- _createContentView
+{	var o= [AnnotatedImageView new];
+	[o setDelegate: self];
+	[o setStyleFlags: [o styleFlags] | AIVStyleNumbers ];
+	[o bind:"scale" toObject: self withKeyPath: "size" options:nil];
+	[o bind:"value" toObject:[CPApp delegate].stacksAnalysesController withKeyPath: "selection.results" options:nil];
+	return o;
+}
+
+@end
 
 @implementation GSMarkupTagAutoStacksController:GSMarkupTagManualStacksController
 + (CPString) tagName
@@ -163,5 +194,16 @@
 + (Class) platformObjectClass
 {
 	return [AutoStacksController class];
+}
+@end
+
+@implementation GSMarkupTagClusterStacksController:GSMarkupTagAutoStacksController
++ (CPString) tagName
+{
+  return @"clusterStacksController";
+}
++ (Class) platformObjectClass
+{
+	return [ClusterStacksController class];
 }
 @end

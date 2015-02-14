@@ -30,6 +30,7 @@
 			<ButtonBar target="#mydottingcontroller" halign="right" width="350" actionsButton="YES">
    				<popUpButtonItem title="Analyze selected" target="#mydottingcontroller" action="analyzeSelected:"/>
    				<popUpButtonItem title="Make stack from selected..." target="#mydottingcontroller" action="matchDots:"/>
+   				<popUpButtonItem title="Make clusterstack from selected..." target="#mydottingcontroller" action="clusterDots:"/>
    				<popUpButtonItem title="Autostich all" target="#mydottingcontroller" action="matchDotsAll:"/>
 			</ButtonBar>
 			<scrollView hasHorizontalScroller="NO">

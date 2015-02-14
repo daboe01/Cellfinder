@@ -5,3 +5,5 @@
 .Spotlight-V100
 .Trashes
 public/Frontend/Frameworks
+.RData
+.Rhistory
