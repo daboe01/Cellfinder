@@ -44,8 +44,8 @@
 - (void)observeValueForKeyPath: keyPath ofObject: object change: change context: context
 {	if(keyPath === "selection.idcomposition_for_editing" || keyPath === "value" )
 	{
-		// reload image
-		[[CPRunLoop currentRunLoop] performSelector:@selector(reloadImage) target:self argument: nil order:0 modes:[CPDefaultRunLoopMode]];
+        window.___forceImageReload = 1;
+		[[CPRunLoop currentRunLoop] performSelector:@selector(reloadImage) target:self argument:nil order:0 modes:[CPDefaultRunLoopMode]];
 
 	}
 }
@@ -55,9 +55,11 @@
 	[self reloadImage];
 }
 -(void) reloadImage
-{	var img=[myAppController.analysesController valueForKeyPath: "selection._backgroundImage"];
+{
+	var img=[myAppController.analysesController valueForKeyPath: "selection._backgroundImage"];
 	if([img isKindOfClass:[CPImage class]])
-	{	[annotatedImageView setBackgroundImage: img ];
+	{
+    	[annotatedImageView setBackgroundImage:img];
 	}
 }
 
@@ -192,7 +194,7 @@
 }
 
 -(void) editViewingCompo:sender
-{	[[CompoController alloc] initWithCompo: [[myAppController.analysesController selectedObject] valueForKey:"editing_compo"] valueObserver: self];
+{	[[CompoController alloc] initWithCompo: [[myAppController.analysesController selectedObject] valueForKey:"editing_compo"] valueObserver:self];
 }
 
 -(void) insertAnalysisFromInput:sender

@@ -404,14 +404,26 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 			next unless $curr->{idanalysis_reference};
 			next if $curr->{id} == $curr->{idanalysis_reference};
 			my $par;
+            my $write_id=$curr->{id};
 			if($ransac)
 			{	my $params=$self->getRANSACParams($ransac);
 				$par= cellfinder_image::runRANSACRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis}, $params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc});
+                if(!$par){
+                    warn "flipping";
+                    $par= cellfinder_image::runRANSACRegistrationRCode($curr->{idanalysis}, $curr->{idanalysis_reference}, $params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc});
+                    if($par){
+                        my $query=qq/select id from montage_images where idmontage=? and montage_images.idanalysis=?/;
+                        my $sth = $self->db->prepare($query);
+                        $sth->execute(($idstack, $curr->{idanalysis_reference}));
+                        my $a= $sth->fetchall_arrayref();
+                        $write_id = $a->[0]->[0];
+                    }
+                }
 			} else
 			{	$par=cellfinder_image::runSimpleRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis});
 			}
 			my $sql=SQL::Abstract->new();
-			my($stmt, @bind) = $sql->update('montage_images', {parameter=> $par}, {id=>$curr->{id} } );
+			my($stmt, @bind) = $sql->update('montage_images', {parameter=> $par}, {id=> $write_id } );
 			my $sth =  $self->db->prepare($stmt);
 			$sth->execute(@bind);
 		}

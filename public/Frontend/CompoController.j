@@ -124,11 +124,6 @@
 	id		_myNameTable;
 }
 
-- (void)observeValueForKeyPath:(CPString)keyPath ofObject:(id)object change:(CPDictionary)change context:(id)idtrial
-{	var affectedImageControllers=[_myAppController imageControllersForIDTrial: idtrial];
-	[affectedImageControllers makeObjectsPerformSelector:@selector(reload:) withObject:self];
-}
-
 -(void) initWithCompo:(id) compo valueObserver: myObserver
 {	_myAppController=[CPApp delegate];
 	var store=[_myAppController store];	// for the popUpButton entities
@@ -169,9 +164,8 @@
 			break;
 			case "5":	// popUpButton
 			{	var entityName= '_popconnectme'+[input valueForKey:"idparameter"];
-				markup+='<hbox><label textColor="white" valign="center" halign="min" width="100">'+[input valueForKey:"patch"]+'('+[input valueForKey:"name"]+')'+
-						'</label><popUpButton id="_popupcntme_'+i+'" valign="center" halign="expand" itemsBinding="#CPOwner._myNameTable.'+entityName+'.arrangedObjects.value" '+
-						'valueBinding="#CPOwner._myNameTable.'+entityName+'.selection.id"/></hbox>';
+				markup+='<hbox><label textColor="white" valign="center" halign="min" width="100">'+[input valueForKey:"name"]+'('+[input valueForKey:"patch"]+')'+
+						'</label><popUpButton id="_popupcntme_'+i+'" valign="center" halign="expand" itemsBinding="#CPOwner._myNameTable.'+entityName+'.arrangedObjects.value"/></hbox>';
 				var ac = [FSArrayController new];
 				var predicate=[CPPredicate predicateWithFormat: "idpatch_parameter=='"+[input valueForKey:"idparameter"]+"'"  argumentArray: nil  ] ;
 				[ac setContent: [[placeholderEntity allObjects] filteredArrayUsingPredicate: predicate ]];
@@ -218,10 +212,10 @@
 			} else if([peek hasPrefix:"_popupcntme"])
 			{	var idx=parseInt([peek substringFromIndex:12]);
 				cip=[inputParams objectAtIndex: idx];
-				[po bind: "integerValue" toObject: cip withKeyPath: "value" options:nil];
+				[po bind:"selectedTag" toObject: cip withKeyPath:"value" options:nil];
 			}
 			if(myObserver)
-				[cip addObserver: myObserver forKeyPath:"value" options: nil context: nil ];
+				[cip addObserver:myObserver forKeyPath:"value" options: nil context:nil ];
 
 		}
 	}

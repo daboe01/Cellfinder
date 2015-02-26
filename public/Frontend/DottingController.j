@@ -13,8 +13,10 @@
 @implementation CPObject (ImageURLForDottingController)
 -(CPImage) _backgroundImage
 {	var mycompoID=[self valueForKey:"idcomposition_for_editing" ];
-	var myidimage=[self valueForKey:"idimage" ];
-	var myURL= [[CPApp delegate] baseImageURL]+myidimage+"?rnd=1&idanalysis="+[self valueForKey:"id" ];
+	var myidimage=[self valueForKey:"idimage"];
+    var rnd = (window.___forceImageReload === undefined || !window.___forceImageReload)?  1:Math.floor(Math.random()*100000 + 1);
+    window.___forceImageReload = 0;
+	var myURL= [[CPApp delegate] baseImageURL]+myidimage+"?rnd="+rnd+"&idanalysis="+[self valueForKey:"id"];
 	if(mycompoID && mycompoID !== CPNullMarker) myURL+="&cmp="+mycompoID;
 	var mycontroller= [[CPApp delegate] mainController];	// this is hack to get hold of the UI context from within the database context
 	var scale= mycontroller._scale;

@@ -9,14 +9,12 @@
 	{	var newAgg=[CPMutableDictionary new];
 		[newAgg setObject: someKey forKey:"name"];
 		[newAgg setObject: someValue forKey:"value"];
-		[myAggregations addObject: newAgg];
+		[myAggregations addObject:newAgg];
 	} else
 	{	var myObj= [myAggregations selectedObject];
-		[myObj setValue: someValue  forKey:"value"];
+		[myObj setValue:someValue forKey:"value"];
 	}
-
 }
-
 
 -(void) annotatedImageView: someView dot: someDot movedToPoint: newPoint
 {	var count=[[someView allDots] count];

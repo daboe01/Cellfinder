@@ -36,8 +36,8 @@ var _sharedImageBrowser;
 + sharedImageBrowser
 {	if(!_sharedImageBrowser)
 	{	[CPBundle loadRessourceNamed: "ImageBrowser.gsmarkup" owner: [CPApp delegate] ];
-		_sharedImageBrowser= [CPApp delegate]._sharedImageBrowser;
-		_sharedImageBrowser.myAppController= [CPApp delegate];
+		 _sharedImageBrowser= [CPApp delegate]._sharedImageBrowser;
+		 _sharedImageBrowser.myAppController= [CPApp delegate];
 		[_sharedImageBrowser.myCollectionView registerForDraggedTypes:[PhotoDragType]];
 		[_sharedImageBrowser setScale:0.1];
 	}

@@ -26,12 +26,18 @@ use constant server_root=>'/Users/Shared/cellfinder';
 #our $R;
 
 sub runRCode { my ($RCmd)=@_;
+    return undef unless $RCmd;
     my $R= Statistics::R->new(shared=>1);
     $R->startR;
-    # warn $RCmd;
-	$R->send($RCmd."\n 1");
-	my $out=$R->get('out');
-    $R->stopR; # keep it running forever (comeon it is only a single instance)
+warn $RCmd;
+	my $filename=tempFileName('/tmp/cellf');
+	$R->send($RCmd."\nwriteLines(out, '$filename')\n1");
+	# my $out=$R->get('out');
+	my $out;
+    $out=readFile($filename) if -e $filename;
+    chomp $out;
+warn "out is: '$out'";
+    $R->stopR;
 	return  $out;
 }
 
@@ -109,6 +115,7 @@ ENDOFR
 ;	$RCmd=~s/<code>/$code/ogs;
 	$RCmd=~s/<infile>/$infile/ogs;
 	$RCmd=~s/<idanalysis>/$idanalysis/ogs;
+warn $RCmd;
 	my $out=runRCode($RCmd);
 	return (length $out)? JSON::XS->new->utf8->decode($out):undef;
 }
@@ -256,7 +263,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 				chmod 0777, $filename.'.jpg';
                 $p=~s/<idimage>/$idimage/ogs;
                 $p=~s/<idstack>/$idstack/ogs;
-				my $infile=runEBImageRCode($idimage? $filename.'.jpg':'', $p, $idanalysis);
+				my $infile=runEBImageRCode( $filename.'.jpg', $p, $idanalysis);
 				$p = Image::Magick->new();
 				if(!$infile)
 				{   $p->Read($filename.'.jpg');				# read it back in just in case R/EBImage did some processing on it
