@@ -25,6 +25,8 @@
 				<popUpButtonItem title="Collect samebase" target="#mystackscontroller" action="collectSamebase:"/>
 				<popUpButtonItem title="Flickering…" target="#mystackscontroller" action="runFlicker:"/>
 				<popUpButtonItem title="DownloadGIF" target="#mystackscontroller" action="downloadGIF2:"/>
+				<popUpButtonItem title="DownloadZIP" target="#mystackscontroller" action="downloadZIP:"/>
+				<popUpButtonItem title="DownloadMP4" target="#mystackscontroller" action="downloadMP4:"/>
 			</ButtonBar>
 			<progresIndicator id="progress" indeterminate="YES"/>
 			</hbox>
@@ -42,6 +44,8 @@
             <ButtonBar  minusButtonAction="remove:" actionsButton="YES" target="#CPOwner.stacksContentController">
 				<popUpButtonItem title="Rebase" target="#mystackscontroller" action="rebase:"/>
 				<popUpButtonItem title="Re-Ransac" target="#mystackscontroller" action="reRansac:"/>
+				<popUpButtonItem title="Re-Ransac reversed" target="#mystackscontroller" action="reRansacReversed:"/>
+				<popUpButtonItem title="Insert IdentityMatrix" target="#mystackscontroller" action="insertIdentityMatrix:"/>
 				<popUpButtonItem title="FlickerGIF" target="#mystackscontroller" action="downloadGIFSingle:"/>
 			</ButtonBar>
 

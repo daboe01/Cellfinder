@@ -9,6 +9,7 @@
 	id inputAnalysisField;
 	id tagField;
     id clusterConnection;
+    id tagsTV;
 }
 
 -(void) _postInit
@@ -91,7 +92,6 @@
 	{
 		var myreq=[CPURLRequest requestWithURL: BaseURL+idimage+"?idanalysis="+idanalysis+"&cmp="+mycompo];
 		var res=[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
-//alert([res rawString])
 		[super reaggregate:sender];
 	}
 }
@@ -161,6 +161,16 @@
 -(void) analyzeSelected: sender
 {
     setTimeout(function() {[self doAnalyzeSelected: sender]}, 1000);
+}
+
+-(void) addDefaultAnalyses:(id)sender
+{
+	var folder_name=[myAppController.folderController valueForKeyPath:"selection.folder_name"];
+	var idtrial= [myAppController.trialsController valueForKeyPath:"selection.id"]
+	var myurl=BaseURL+"analyze_folder/"+idtrial+"/"+ folder_name;
+	var myreq=[CPURLRequest requestWithURL: myurl];
+	var myconnection=[CPURLConnection connectionWithRequest:myreq delegate: self];	//<!> fixme implement feedback spinner
+    myconnection._doReload=YES;
 }
 
 -(void) connection:someConnection didReceiveData: data

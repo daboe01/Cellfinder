@@ -162,7 +162,7 @@ PhotoDragType="PhotoDragType";
 	var re = new RegExp("t=([^&#]+)");
 	var m = re.exec(document.location);
 	if(m) model=m[1];
-	if(model) [CPBundle loadRessourceNamed: model owner:self];
+	if(model) [CPBundle loadRessourceNamed:model owner:self];
 	else [self sharedConfigController];
 
     if(_myWatchLocation)
@@ -248,8 +248,30 @@ PhotoDragType="PhotoDragType";
     [self interpretKeyEvents:[event]];
 }
 
-- (id)nextResponder
+- (CPResponder)nextResponder
 {   return nil;
+}
+
+-(void) gotoAutoStacks:(id)sender
+{
+	var idtrial=[trialsController valueForKeyPath:"selection.id"];
+	window.open("http://augimageserver:3000/Frontend/index.html?id="+idtrial+"&t=AutoStacks.gsmarkup",'autostacks');
+}
+
+-(void) gotoManualStacks:(id)sender
+{
+	var idtrial=[trialsController valueForKeyPath:"selection.id"];
+	window.open("http://augimageserver:3000/Frontend/index.html?id="+idtrial+"&t=ManualStacks.gsmarkup",'autostacks');
+}
+-(void) gotoClusterStacks:(id)sender
+{
+	var idtrial=[trialsController valueForKeyPath:"selection.id"];
+	window.open("http://augimageserver:3000/Frontend/index.html?id="+idtrial+"&t=ClusterStacks.gsmarkup",'autostacks');
+}
+-(void) gotoAutoStitching:(id)sender
+{
+	var idtrial=[trialsController valueForKeyPath:"selection.id"];
+	window.open("http://augimageserver:3000/Frontend/index.html?id="+idtrial+"&t=AutoStitching.gsmarkup",'autostacks');
 }
 
 @end

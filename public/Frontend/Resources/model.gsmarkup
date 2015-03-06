@@ -12,11 +12,11 @@
   <predicate id="javascriptfilters_pred" format="type == '6'"/>
   <predicate id="cfifilters_pred" format="type == '9'"/>
 
-  <sortDescriptor id="by_id" key="id" ascending="YES"/>
+  <sortDescriptor id="by_id" key="id" ascending="YES" numeric="YES"/>
   <sortDescriptor id="by_reverse_id" key="id" ascending="NO"/>
   <sortDescriptor id="by_name" key="name"/>
   <sortDescriptor id="by_reverse_name" key="name" ascending="NO"/>
-  <sortDescriptor id="by_ordering" key="ordering"/>
+  <sortDescriptor id="by_ordering" key="ordering" numeric="YES"/>
   <sortDescriptor id="by_folder_name" key="folder_name"/>
 
 
@@ -40,8 +40,8 @@
     <arrayController id="patch_parameters_controller" entity="patch_parameters" autoFetch="YES" sortDescriptor="by_id"/>
     <arrayController id="patch_parameters_controller2" entity="patch_parameters" valueBinding = "patch_repo_controller.selection.parameters" sortDescriptor="by_id"/>
 
-    <arrayController id="stacks_controller" entity="montages" valueBinding ="trials_controller.selection.stacks" sortDescriptor="by_name"/>
-    <arrayController id="stacks_content_controller" entity="montage_images" valueBinding ="stacks_controller.selection.analyses"/>
+    <arrayController id="stacks_controller" entity="montages" valueBinding ="trials_controller.selection.stacks" sortDescriptor="by_id"/>
+    <arrayController id="stacks_content_controller" entity="montage_images" valueBinding ="stacks_controller.selection.analyses" sortDescriptor="by_id"/>
     <arrayController id="stacks_analyses_controller" entity="analyses" valueBinding ="stacks_controller.selection.stack_analyses"/>
 
     <arrayController id="folder_controller" entity="folders" valueBinding ="trials_controller.selection.folders" sortDescriptor="by_folder_name"/>
@@ -58,8 +58,6 @@
     <menu title="Images">
         <menuItem title="Upload File" action="uploadImage:"/>
         <menuItem title="ImageBrowser" action="runImageBrowser:"/>
-        <menuItem title="Compositions..." action="runCompoBrowser:"/>
-        <menuItem title="Patches..." action="runPatchesBrowser:"/>
     </menu>
     <menu title="Edit">
         <menuItem title="Cut" action="cut:" keyEquivalent="x"/>
@@ -67,6 +65,14 @@
         <menuItem title="Paste" action="paste:" keyEquivalent="v"/>
         <menuItem title="Remove" action="delete:" keyEquivalent="y"/>
         <menuItem title="Select all" action="selectAll:" keyEquivalent="a"/>
+    </menu>
+    <menu title="Goto">
+        <menuItem title="Compositions..." action="runCompoBrowser:"/>
+        <menuItem title="Patches..." action="runPatchesBrowser:"/>
+        <menuItem title="AutoStacks" action="gotoAutoStacks:"/>
+        <menuItem title="ManualStacks" action="gotoManualStacks:"/>
+        <menuItem title="AutoStitching" action="gotoAutoStitching:"/>
+        <menuItem title="ClusterStacks" action="gotoClusterStacks:"/>
     </menu>
    </menu>
 </objects>

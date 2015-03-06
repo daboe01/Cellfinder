@@ -2,56 +2,118 @@
 
 // fixme: janus-controls do not adjust width when the user rearranges table colums
 
+@implementation ReturnSensitiveTextField : CPTextField
+
+-(void) keyUp:event
+{
+    if(event._characters=="\t")
+    {
+        (event._modifierFlags & CPShiftKeyMask)? [_delegate _moveUp:self]:[_delegate _moveDown:self];
+    } else [super keyUp:event];
+}
+
+- (void)insertNewline:sender
+{
+	[super insertNewline:sender];
+	[_delegate _moveDown:self];
+}
+- (void)moveDown:sender
+{
+	[_delegate _moveDown:self];
+}
+- (void)moveUp:sender
+{
+	[_delegate _moveUp:self];
+}
+
+- (void)mouseUp:(CPEvent)event
+{
+    [super mouseUp:event];
+  	[_delegate _selectAppropriateRow:self];
+}
+
+@end
+
 
 @implementation TableViewControl : CPControl
-{	id			_myView;
+{	id          _myView;
 	CPString 	_face @accessors(property=face);
+	CPString 	_disabledFace @accessors(property=disabledFace);
 	BOOL		_editable  @accessors(property=editable);
 }
-- viewClass
-{	return CPTextField;
-}
-- initWithFrame:(CGRect) myFrame
-{	self=[super initWithFrame: myFrame];
-	_myView =[[[self viewClass] alloc] initWithFrame: myFrame];
-	return self;
+
+- (BOOL)acceptsFirstResponder
+{
+    return YES;
 }
 
--(void) setObjectValue: myVal
-{	_value=myVal;
-	var v=[myVal valueForKeyPath: _face];
-	[_myView setObjectValue: v||""];
+- viewClass
+{	return ReturnSensitiveTextField;
 }
+
+- (void)setObjectValue:(id)myVal
+{	_value=myVal;
+	[_myView unbind:CPValueBinding];
+    [self _installView];
+	[_myView bind:CPValueBinding toObject:_value withKeyPath:_face options:nil];
+	var d= _disabledFace && [myVal valueForKeyPath:_disabledFace];
+	[_myView setTextColor: d? [CPColor grayColor]: [CPColor blackColor]];
+}
+
 -(void) _installView
 {	[_myView removeFromSuperview];
-	[self addSubview: _myView];
-	var mybounds= [self bounds];
-	if(![self isKindOfClass: TableViewJanusControl])
-		mybounds.size.height+=2;
-	[_myView setFrame:mybounds];
-	[_myView setTarget: self];
-	[_myView setAction: @selector(viewChanged:)];
-	[_myView setAutoresizingMask: CPViewWidthSizable| CPViewHeightSizable];
- 	[self setAutoresizingMask: CPViewWidthSizable| CPViewHeightSizable];
+    var mybounds=[self bounds];
+	_myView =[[[self viewClass] alloc] initWithFrame:mybounds];
+
+	[self addSubview:_myView];
+	if ([_myView respondsToSelector:@selector(setEditable:)])
+        [_myView setEditable:YES];
+	if ([_myView respondsToSelector:@selector(setSelectable:)])
+        [_myView setSelectable:YES];
+
+	[_myView setThemeState:_themeState];
 }
 
-- (void) viewChanged: sender
-{	[[self objectValue] setValue:[sender stringValue] forKeyPath: _face];
+// this is necessary to make column resizing work
+- (void) setFrame:(CGRect)aRect
+{
+    [super setFrame:aRect];
+    [_myView setFrame:[self bounds]];
+}
+
+- (void) _moveSelectionIntoDirection:direction
+{	var tv=[self superview];
+	if(![tv isKindOfClass: CPTableView])  tv=[tv superview]
+	var nextRow=[tv selectedRow] + direction;
+	if(nextRow < 0 || nextRow >= [tv numberOfRows]) return; 
+	[tv selectRowIndexes:[CPIndexSet indexSetWithIndex:nextRow] byExtendingSelection:NO];
+    [tv editColumn:1 row:nextRow withEvent:nil select:YES];
+}
+
+- (void) _moveUp:sender
+{
+    [self _moveSelectionIntoDirection:-1]
+}
+- (void) _moveDown:sender
+{
+    [self _moveSelectionIntoDirection:+1]
+}
+
+- (void) _selectAppropriateRow:sender
+{
+	var tv=[self superview];
+	if(![tv isKindOfClass: CPTableView])  tv=[tv superview]
+	[tv selectRowIndexes:[CPIndexSet indexSetWithIndex:[tv rowForView:sender]] byExtendingSelection:NO];
 }
 
 - (id)initWithCoder:(id)aCoder
 {
     self=[super initWithCoder:aCoder];
-    if (self != nil)
+    if (self)
     {
-		_myView =[aCoder decodeObjectForKey:"_myView"];
 		_face=[aCoder decodeObjectForKey:"_face"];
 		_editable=[aCoder decodeObjectForKey:"_editable"];
-		if(![self isKindOfClass: TableViewJanusControl])
-		{	if(_editable) [self setEditable:YES];
-        	[self _installView];
-		}
-
+		_disabledFace=[aCoder decodeObjectForKey:"_disabledFace"];
     }
     return self;
 }
@@ -59,37 +121,29 @@
 - (void)encodeWithCoder:(id)aCoder
 {
     [super encodeWithCoder:aCoder];
-    [aCoder encodeObject:_myView forKey:"_myView"];
     [aCoder encodeObject:_face forKey:"_face"];
+    [aCoder encodeObject:_disabledFace forKey:"_disabledFace"];
     [aCoder encodeObject:_editable forKey:"_editable"];
-
-}
-
--(void) setThemeState: aState
-{	[super   setThemeState: aState];
-	[_myView setThemeState: aState];
-}
--(void) unsetThemeState: aState
-{	[super   unsetThemeState: aState];
-	[_myView unsetThemeState: aState];
-}
-- (void)mouseDown:(CPEvent)  theEvent {
-	[[self nextResponder] mouseDown:theEvent];
 }
 
 - (void)setEditable:(BOOL)isEditable
-{	_editable=isEditable;
-	if(_editable)
-	{	[_myView setEditable:YES];
-		[_myView setSendsActionOnEndEditing:YES];
-		[_myView setSelectable:YES];
-		[_myView selectText:nil];
-		[_myView setBezeled:NO];
-		[_myView setDelegate:self];
-	}
+{	_editable = isEditable;
+	[_myView setEditable:_editable];
 }
-@end
 
+/*
+-(void) setThemeState:aState
+{
+	[super setThemeState:aState];
+	[_myView setThemeState:aState];
+}
+-(void) unsetThemeState:aState
+{	[super unsetThemeState:aState];
+	[_myView unsetThemeState:aState];
+}
+*/
+
+@end
 
 
 var _itemsControllerHash;
@@ -110,23 +164,6 @@ var _itemsControllerHash;
 }
 - viewClass
 {	return FSPopUpButton;
-}
-
-- (void) viewChanged: sender
-{
-	if(_face)
-	    [[self objectValue] setValue:[sender selectedTag] forKeyPath: _face];
-	else
-	{
-		_value=[sender selectedTag];
-		[[self superview] _commitDataViewObjectValue: self];
-	}
-
-}
-// unfortunately, this is necessary to fool CPTableView.
--(BOOL) isKindOfClass: aClass
-{	if(aClass === [CPButton class]) return YES;
-	return [super isKindOfClass: aClass];
 }
 
 - (id)initWithCoder:(id)aCoder
@@ -154,25 +191,19 @@ var _itemsControllerHash;
     [aCoder encodeObject: _itemsPredicateFormat forKey:"_itemsPredicateFormat"];
 
 }
-- (void)mouseDown:(CPEvent)  theEvent {
-    [_myView mouseDown:theEvent];
-}
--(void) _setupView
-{	if(!_itemsController)
-	{	[_myView setItemArray:[]];
-		return;
-	}
-	var options=@{"PredicateFormat": _itemsPredicateFormat, "valueFace": _itemsValue, "Owner":_value};
-	[_myView bind:"itemArray" toObject: _itemsController withKeyPath: _itemsFace options: options];
-}
 
--(void) setObjectValue: myVal
-{
-	_value= myVal;
-	[self _setupView];
-	var v=_face? [myVal valueForKeyPath: _face]: myVal;
-	if(_myView) _myView._value= (v || -1);
-	[_myView setSelectedTag: v || -1];
+-(void) setObjectValue:(id)myVal
+{	_value= myVal;
+	[_myView unbind:"itemArray"];
+	[_myView unbind:"selectedTag"];
+    [self _installView];
+	[_myView bind:"selectedTag" toObject:_value withKeyPath:_face options:nil];
+	if(!_itemsController)
+	{	[_myView setItemArray:[]];
+	} else
+    {   var options=@{"PredicateFormat": _itemsPredicateFormat, "valueFace": _itemsValue, "Owner":_value};
+        [_myView bind:"itemArray" toObject: _itemsController withKeyPath: _itemsFace options:options];
+    }
 }
 
 @end
@@ -187,18 +218,16 @@ var TableViewJanusControl_typeArray;
 -(void) _installJanusView
 {	if(_myView) [_myView removeFromSuperview];
 	else return;
-	[self addSubview: _myView];
-	var mybounds= [self bounds];
-	[_myView setFrame:mybounds];
-	[_myView setFace: _face];
-	[_myView setThemeState: _themeState];
-	[_myView _installView];
-	if( [_myView isKindOfClass: TableViewPopup])
+	[self addSubview:_myView];
+	[_myView setFrame:[self bounds]];
+	[_myView setFace:_face];
+	[_myView setThemeState:_themeState];
+	if( [_myView isKindOfClass:TableViewPopup])
 	{	[_myView setItemsFace: _itemsFace];
 		[_myView setItemsValue: _itemsValue];
 		[_myView setItemsIDs: _itemsIDs]
-		[_myView setItemsPredicateFormat: _itemsPredicateFormat];
-		[_myView setItemsController: _itemsController];
+		[_myView setItemsPredicateFormat:_itemsPredicateFormat];
+		[_myView setItemsController:_itemsController];
 	} else
 	{	[_myView setEditable:_editable];
 	}
@@ -212,9 +241,12 @@ var TableViewJanusControl_typeArray;
 	} else
 	{	_typeIndex=0;
 	}
-	_myView = [[[self viewClass] alloc] initWithFrame: [self frame]];
-	[self _installJanusView];
-	[_myView setObjectValue: myVal];
+	_myView = [[[self viewClass] alloc] initWithFrame:[self frame]];
+	var d= _disabledFace && [myVal valueForKeyPath:_disabledFace];
+	if(!d)
+    {   [self _installJanusView];
+        [_myView setObjectValue: myVal];
+    }
 }
 
 
@@ -230,7 +262,8 @@ var TableViewJanusControl_typeArray;
 {	_type=aType;
 }
 - viewClass
-{	return TableViewJanusControl_typeArray[_typeIndex];
+{
+	return TableViewJanusControl_typeArray[_typeIndex];
 }
 - (id)initWithCoder:(id)aCoder
 {
@@ -251,9 +284,7 @@ var TableViewJanusControl_typeArray;
 - (void)setEditable:(BOOL)isEditable
 {	_editable=isEditable;
 }
-- (void)mouseDown:(CPEvent)  theEvent {
-	[[self nextResponder] mouseDown:theEvent];
-}
+
 @end
 
 @implementation GSMarkupTagTableViewControl:GSMarkupTagControl
@@ -269,11 +300,16 @@ var TableViewJanusControl_typeArray;
 
 - (id) initPlatformObject: (id)platformObject
 {	platformObject = [super initPlatformObject: platformObject];
-
+  
 	var editable = [self boolValueForAttribute: @"editable"];
 	if (editable == 1) [platformObject setEditable: YES];
 	var face = [self stringValueForAttribute: @"face"];
 	if (face != nil) [platformObject setFace: face];
+	var disabled_face = [self stringValueForAttribute: @"disabledFace"];
+	if (disabled_face != nil)
+	{
+		[platformObject setDisabledFace: disabled_face];
+	}
 
 	return platformObject;
 }
@@ -294,7 +330,7 @@ var TableViewJanusControl_typeArray;
 
 - (id) initPlatformObject: (id)platformObject
 {	platformObject = [super initPlatformObject: platformObject];
-
+  
 	var itemsFace = [self stringValueForAttribute: @"itemsFace"];
 	if (itemsFace != nil) [platformObject setItemsFace: itemsFace];
 	var itemsValue = [self stringValueForAttribute: @"itemsValue"];
@@ -322,11 +358,12 @@ var TableViewJanusControl_typeArray;
 
 - (id) initPlatformObject: (id)platformObject
 {	platformObject = [super initPlatformObject: platformObject];
-
-	var type = [self stringValueForAttribute: @"type"];
+  
+	var type = [self stringValueForAttribute: @"typeFace"];
 	[platformObject setType: type];
 
 	return platformObject;
 }
 
 @end
+

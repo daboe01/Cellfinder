@@ -228,6 +228,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 					$code=~s/=>"\[([0-9e\., \-\]]+)"/=>[$1/ogs;
 					$code=~s/([0-9])\]"/$1]/ogs;
 				eval($code);
+                #  warn $code;
 				warn "error: $@" if($@);
 			};
 ###			warn $curr_patch->{patch};
@@ -466,7 +467,7 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsiz
 	my $csize=$ocsize;
 	$csize=$1 if $ocsize=~/([0-9]+x[0-9]+)/o;
 	my ($offX,$offY);
-	($offX,$offY)=($1,$2) if $ocsize=~/([-+][0-9]+)([-+][0-9]+)/o;
+	($offX, $offY)=($1, $2) if $ocsize=~/([-+][0-9]+)([-+][0-9]+)/o;
     #	warn "$ocsize $offX,$offY";
 	sub doReadImageFile{ my ($p, $curr_img)=@_;
 		my $filename="$curr_img->{idtrial}-$curr_img->{filename}";
@@ -487,15 +488,15 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsiz
 		$p = Image::Magick->new(magick=>'jpg');
 		if($idstack)
 		{	my $list=getObjectFromDBHandID($dbh,'montage_image_list',$idstack)->{list};
-			my @idarr=sort split/, /o, $list;
+			my @idarr= split/, /o, $list;
 			foreach my $id (@idarr)
 			{
 				my $i=doReadImageFile(undef, getObjectFromDBHandID($dbh,'images_name', $id));
 				$i->Extent(geometry=>$csize, gravity=>'NorthWest', background=>'graya(0%, 0)') if $csize;
 				my $m=getMontageForIDImageAndIDStack($dbh, $id, $idstack);
-				$i= imageForComposition($dbh, $idcomposition, undef, $i, 0, $m->{idanalysis}) if($idcomposition);
 				my $parameter=$m->{parameter} || '[1,0,0,1,0,0]';
-				_distortImage($i, $parameter, $offX,$offY);
+				_distortImage($i, $parameter, $offX, $offY);
+				$i= imageForComposition($dbh, $idcomposition, undef, $i, 0, $m->{idanalysis}) if $idcomposition;
 				push @$p,$i;
 			}
 		} else {

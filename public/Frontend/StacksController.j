@@ -239,6 +239,16 @@
 	if(_viewingCompo) myURL+=("&cmp="+parseInt(_viewingCompo));
 	window.open(myURL,'animated_gifwindow');
 }
+-(void) downloadZIP: sender
+{	var myURL=BaseURL+"STACK/"+[myAppController valueForKeyPath:"stacksController.selection.id"] +"?spc=zip";
+	if(_viewingCompo) myURL+=("&cmp="+parseInt(_viewingCompo));
+	document.location=myURL;
+}
+-(void) downloadMP4: sender
+{	var myURL=BaseURL+"STACK/"+[myAppController valueForKeyPath:"stacksController.selection.id"] +"?spc=mp4";
+	if(_viewingCompo) myURL+=("&cmp="+parseInt(_viewingCompo));
+	window.open(myURL,'animated_mp4window');
+}
 
 -(unsigned) getIDOfReferenceAnalaysis
 {	var arr=[myAppController.stacksContentController arrangedObjects];

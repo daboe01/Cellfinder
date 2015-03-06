@@ -7,7 +7,7 @@
 
   <window visible="NO">
     <tableViewControl width="100" height="23" id="namedataview" editable="YES" face="tag.name"/>
-    <tableViewJanusControl width="100" height="23" type="tag.type" id="popupdataview" itemsController="#CPOwner.taglistController" itemsValue="arrangedObjects.id" itemsFace="arrangedObjects.name" editable="YES" face="value" itemsPredicateFormat="idtag == $idtag"/>
+    <tableViewJanusControl width="100" height="23" typeFace="tag.type" id="popupdataview" itemsController="#CPOwner.taglistController" itemsValue="arrangedObjects.id" itemsFace="arrangedObjects.name" editable="YES" face="value" itemsPredicateFormat="idtag == $idtag"/>
   </window>
 
   <window title="ImageDotting" x="50" y="30" width="400" height="340"  bridge="YES" delegate="mydottingcontroller">
@@ -31,10 +31,11 @@
    				<popUpButtonItem title="Analyze selected" target="#mydottingcontroller" action="analyzeSelected:"/>
    				<popUpButtonItem title="Make stack from selected..." target="#mydottingcontroller" action="matchDots:"/>
    				<popUpButtonItem title="Make clusterstack from selected..." target="#mydottingcontroller" action="clusterDots:"/>
+   				<popUpButtonItem title="Delete and reanalyze all" target="#mydottingcontroller" action="addDefaultAnalyses:"/>
    				<popUpButtonItem title="Autostich all" target="#mydottingcontroller" action="matchDotsAll:"/>
 			</ButtonBar>
 			<scrollView hasHorizontalScroller="NO">
-				<tableView autosaveName="folders_manual_dotting_tags" zebra="yes" valueBinding="#CPOwner.tagsController" viewBasedBindings="YES">
+				<tableView autosaveName="folders_manual_dotting_tags" zebra="yes" valueBinding="#CPOwner.tagsController" id="tags_tv" viewBasedBindings="YES">
 					<tableColumn identifier="tag.name" title="Name" dataView="#namedataview"/>
 					<tableColumn identifier="value" title="Wert" dataView="#popupdataview"/>
 	  			</tableView>
@@ -92,10 +93,10 @@
 
   <window title="Edit coordinates textually" id="inputwindow" x="260" y="300" width="300" height="90" visible="NO"  resizable="YES">
 	<vbox>
-	   <label valign="center">Coordinates in format: x y (tag)</label>
-        <scrollView hasHorizontalScroller="NO" width="100" height="200">
+          <label valign="center">Coordinates in format: x y (tag)</label>
+           <scrollView hasHorizontalScroller="NO" width="100" height="200">
             <textView editable="YES" id="incoordsfield" backgroundColor="white"/>
-        </scrollView>
+            </scrollView>
 	    <hbox>
             <button target="#mydottingcontroller" action="performUploadCoords:" title="OK"/>
 		    <button target="#inputwindow" action="orderOut:" title="Cancel"/>
@@ -113,6 +114,7 @@
 	<outlet source="mydottingcontroller" target="inputwindow" label="inputAnalysisWindow"/>
 	<outlet source="mydottingcontroller" target="incoordsfield" label="inputAnalysisField"/>
 	<outlet source="mydottingcontroller" target="tagfield" label="tagField"/>
+	<outlet source="mydottingcontroller" target="tags_tv" label="tagsTV"/>
 </connectors>
 
 

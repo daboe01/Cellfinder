@@ -70,13 +70,20 @@ var _sharedImageBrowser;
 }
 
 -(void) deleteSelectedImage: sender
-{	var idimage=[[CPApp delegate].folderContentController valueForKeyPath: "selection.idimage"];
-	var myurl= HostURL +"/DB/images/id/"+ idimage;
-	var myreq=[CPURLRequest requestWithURL: myurl];
-	[myreq setHTTPMethod:"delete"];
-	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
-	if([[[CPApp delegate].folderContentController arrangedObjects]  count] ==1)
+{
+	var so=[myAppController.folderContentController selectedObjects];
+	var i,l=[so count];
+	for(i=0;i<l;i++)
+	{	var ro=[so objectAtIndex: i];
+        var idimage=[ro valueForKey:"idimage"];
+        var myurl= HostURL +"/DB/images/id/"+ idimage;
+        var myreq=[CPURLRequest requestWithURL: myurl];
+        [myreq setHTTPMethod:"delete"];
+        [CPURLConnection connectionWithRequest:myreq delegate:self];
+    }
+	if([[[CPApp delegate].folderContentController arrangedObjects]  count] === 1)
 		[self _refreshFoldersList];
+
 	[self _refreshFoldersContentList];
 }
 -(void) renameSelectedImage: sender

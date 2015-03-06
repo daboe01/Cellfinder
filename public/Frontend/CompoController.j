@@ -154,7 +154,7 @@
 				var maxVal=[input unpercentedValueForKey:"range2"];
 				var curVal=[input unpercentedValueForKey:"value"];
 
-				markup+='<hbox><label textColor="white" valign="center" halign="min" width="200">'+ [input valueForKey:"patch"]+'('+[input valueForKey:"name"]+')'+
+				markup+='<hbox><label textColor="white" valign="center" halign="min" width="200">'+ [input valueForKey:"name"]+'('+[input valueForKey:"patch"]+')'+
 						'</label><label textColor="white" valign="center" halign="min" width="20">'+[input valueForKey:"range1"]+'</label>'+
 						'<optionSlider continuous="NO" id="_connectme1_'+i+'" valign="center" halign="expand"  min="'+
 						 minVal+'" max="'+maxVal+'" current="'+
@@ -178,12 +178,12 @@
 				var re = new RegExp('^([0-9%]+)\s*x([0-9%]+)');
 				var match=curVal.match(re);
 				if(match)
-				{		markup+='<hbox><label textColor="white" valign="center" halign="min" width="100">'+[input valueForKey:"patch"]+'('+[input valueForKey:"name"]+')'+
+				{		markup+='<hbox><label textColor="white" valign="center" halign="min" width="100">'+[input valueForKey:"name"]+'('+[input valueForKey:"patch"]+')'+
 						'</label><dualSlider id="_connectme1_'+i+'"/><textField width="50" valign="center" halign="expand" id="_connectme2_'+i+'"></textField></hbox>';
 
 				} else
 				{
-					markup+='<hbox><label textColor="white" valign="center" halign="min" width="100">'+[input valueForKey:"patch"]+'('+[input valueForKey:"name"]+')'+
+					markup+='<hbox><label textColor="white" valign="center" halign="min" width="100">'+[input valueForKey:"name"]+'('+[input valueForKey:"patch"]+')'+
 						'</label> <textField width="50" valign="center" halign="expand" id="_connectme2_'+i+'"></textField></hbox>';
 				}
 			}

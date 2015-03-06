@@ -45,10 +45,30 @@
 	var idmontage=[myAppController.stacksController valueForKeyPath: "selection.id"];
 	var idanalysis1 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis"];
 	var idanalysis2 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis_reference"];
+	if(idanalysis2 === CPNullMarker)
+	{	[[CPAlert alertWithError:"Please select entry with a reference"] runModal];
+		return;
+	}
 	var myreq=[CPURLRequest requestWithURL: BaseURL+"ransac_debug/" + idransac + "/" + idmontage + "/" + idanalysis1 + "/" + idanalysis2];
 	mystacksconnection=[CPURLConnection connectionWithRequest:myreq delegate: self];
 	[progress startAnimation: self];
 }
+-(void) insertIdentityMatrix:(id)sender
+{   [myAppController.stacksContentController setValue:"1,0,0,1,0,0" forKeyPath: "selection.parameter"];
+}
+-(void) reRansacReversed:(id)sender
+{
+	var idanalysis1 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis"];
+	var idanalysis2 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis_reference"];
+	if(idanalysis2 === CPNullMarker)
+	{	[[CPAlert alertWithError:"Please select entry with a reference"] runModal];
+		return;
+	}
+   [myAppController.stacksContentController setValue:idanalysis1 forKeyPath:"selection.idanalysis_reference"];
+   [myAppController.stacksContentController setValue:idanalysis2 forKeyPath:"selection.idanalysis"];
+   [self reRansac:self];
+}
+
 -(void) rebase: sender
 {	var id = [myAppController.stacksContentController valueForKeyPath: "selection.id"];
 	var myreq=[CPURLRequest requestWithURL: BaseURL+"rebase/" + id];
@@ -73,7 +93,7 @@
 	}
 	var myURL=BaseURL+"ransac_debug/0/" + idmontage + "/" + idanalysis1 + "/" + idanalysis2;
 	if(_viewingCompo) myURL+=("&cmp="+parseInt(_viewingCompo));	//<!> fixme still unimplemented in backend
-	window.open(myURL,'animated_gifwindow');
+	window.open(myURL,'animated_gifwindow_debug');
 }
 
 -(void) autoStitching: sender

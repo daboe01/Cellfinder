@@ -11,12 +11,15 @@ use Mojo::UserAgent;
 use POSIX;
 use Try::Tiny;
 use URI::Encode qw(uri_decode);
+use Archive::Zip;
 
 # enable receiving uploads up to 1GB
 $ENV{MOJO_MAX_MESSAGE_SIZE} = 1_073_741_824;
 
 plugin 'database', {
 			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
+			username => 'root',
+			password => 'root',
 			options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
 			helper   => 'db'
 };
@@ -435,7 +438,33 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
 		my $tempfilename=cellfinder_image::tempFileName('/tmp/cellf');
 		$p->Write($tempfilename.'.gif');
 		$self->render(data=>cellfinder_image::readFile($tempfilename.'.gif'), format=>'gif');
-	}
+    }  elsif($spc eq 'zip')
+    {	my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, 0, undef, undef, undef, undef, $idstack, $idcomposition);
+        my $p= $f->(0);
+        my $zip = Archive::Zip->new();
+        my $i=1;
+        my $tempfilename=cellfinder_image::tempFileName('/tmp/cellf');
+        for(@$p)
+        {   my $fname=$tempfilename.sprintf('%04d', $i++).'.jpg';
+            $_->Write($fname);
+            $zip->addFile($fname);
+        }
+        $zip->writeToFileNamed($tempfilename.'.zip');
+        $self->render(data=>cellfinder_image::readFile($tempfilename.'.zip'), format=>'zip');
+        system('rm '.$tempfilename.'*');
+    }  elsif($spc eq 'mp4')
+    {   my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, 0, undef, undef, undef, undef, $idstack, $idcomposition);
+        my $p = $f->(0);
+        my $i=1;
+        my $tempfilename=cellfinder_image::tempFileName('/tmp/cellf');
+        for(@$p)
+        {   my $fname=$tempfilename.sprintf('%04d', $i++).'.jpg';
+            $_->Write($fname);
+        }
+        system('/usr/local/bin/ffmpeg -i '.$tempfilename.'%04d.jpg -vf fps=15  -pix_fmt yuv420p '.$tempfilename.'.mp4');
+        $self->render(data=>cellfinder_image::readFile($tempfilename.'.mp4'), format=>'mp4');
+        system('rm '.$tempfilename.'*');
+    }
 };
 
 get '/IMG/STACK/DELALL/:idtrial'=> [idtrial =>qr/\d+/] => sub
@@ -551,14 +580,13 @@ get '/IMG/analyze_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, folder_n
 	my $sql=qq{select idimage, name from  folder_content where linkname=? order by 2};
 	my $sth = $dbh->prepare( $sql );
 	$sth->execute(($linkname));
+    my $sqldel = SQL::Abstract->new;
 	while(my $curr=$sth->fetchrow_arrayref())
 	{	my $idimage=$curr->[0];
-		my $d={idimage=>$idimage, idcomposition_for_editing=> $trial->{composition_for_editing}, idcomposition_for_analysis=> $trial->{composition_for_celldetection} };
-		my $sqldel = SQL::Abstract->new;
-		my($stmt, @bind) = $sqldel->delete('analyses', $d);
+		my $d={idimage=>$idimage, idcomposition_for_editing => $trial->{composition_for_editing}, idcomposition_for_analysis=> $trial->{composition_for_celldetection} };
+		my($stmt, @bind) = $sqldel->delete('analyses', {idimage=>$idimage} );
 		my $sthdel = $self->db->prepare($stmt);
 		$sthdel->execute(@bind);
-
 		my $idanalysis=cellfinder_image::insertObjectIntoTable($self->db, 'analyses', 'id', $d );
 		my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage);
 		cellfinder_image::imageForComposition($self->db, $d->{idcomposition_for_analysis}, $f, $f->(0), 0, $idanalysis);
@@ -594,12 +622,10 @@ get '/IMG/automatch_folder/:idtrial/:idransac/:folder_name'=> [idtrial=>qr/[0-9]
 		$idimage2=$next_idimage;
 		if($idana1 && $idana2 &&  $idana1 != $idana2)
 		{	my $par= cellfinder_image::runRANSACRegistrationRCode($idana1, $idana2,$params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc});
-			if($par)
-			{	my $name="$idana1 $idana2";
-				my $idmontage=cellfinder_image::insertObjectIntoTable($self->db, 'montages', 'id', {idtrial=> $idtrial, name=> $name} );
-				cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $idimage1, idanalysis=> $idana1, idanalysis_reference=>undef,   idmontage=> $idmontage} );
-				cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $idimage2, idanalysis=> $idana2, idanalysis_reference=>$idana1, idmontage=> $idmontage, parameter=> $par} );
-			}
+			my $name="$idana1 $idana2";
+            my $idmontage=cellfinder_image::insertObjectIntoTable($self->db, 'montages', 'id', {idtrial=> $idtrial, name=> $name} );
+            cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $idimage1, idanalysis=> $idana1, idanalysis_reference=>undef,   idmontage=> $idmontage} );
+            cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $idimage2, idanalysis=> $idana2, idanalysis_reference=>$idana1, idmontage=> $idmontage, parameter=> $par} );
 		}
 		($idimage1, $idimage2)=($idimage2, $next_idimage);
 	}
