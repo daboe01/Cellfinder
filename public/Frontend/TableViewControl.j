@@ -138,6 +138,29 @@ var _itemsControllerHash;
 
 @end
 
+@implementation IconTableViewControl : TableViewControl
+
++ viewClass
+{	return CPImageView;
+}
+
+-(void) setObjectValue: myVal
+{	_value= myVal;
+	if(myVal)
+	{	var img= [[CPImage alloc] initWithContentsOfFile: [CPString stringWithFormat:@"%@/%@.png", [[CPBundle mainBundle] resourcePath], myVal]];
+		[_myView setImage:img];
+	} else
+	{   [_myView setImage:nil];
+	}
+}
+-(void) _installView
+{	[_myView removeFromSuperview];
+	[self addSubview: _myView];
+	[_myView setFrame:CPMakeRect(0, 0, 22, 22)];
+}
+
+@end
+
 var TableViewJanusControl_typeArray;
 
 @implementation TableViewJanusControl : TableViewPopup
@@ -297,3 +320,15 @@ var TableViewJanusControl_typeArray;
 
 @end
 
+
+@implementation GSMarkupTagIconTableViewControl:GSMarkupTagControl
++ (CPString) tagName
+{
+  return @"iconTableViewControl";
+}
+
++ (Class) platformObjectClass
+{
+	return [IconTableViewControl class];
+}
+@end
