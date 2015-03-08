@@ -1,77 +1,35 @@
 @import <AppKit/CPControl.j>
 
-// fixme: janus-controls do not adjust width when the user rearranges table colums
-
-@implementation ReturnSensitiveTextField : CPTextField
-
--(void) keyUp:event
-{
-    if(event._characters=="\t")
-    {
-        (event._modifierFlags & CPShiftKeyMask)? [_delegate _moveUp:self]:[_delegate _moveDown:self];
-    } else [super keyUp:event];
-}
-
-- (void)insertNewline:sender
-{
-	[super insertNewline:sender];
-	[_delegate _moveDown:self];
-}
-- (void)moveDown:sender
-{
-	[_delegate _moveDown:self];
-}
-- (void)moveUp:sender
-{
-	[_delegate _moveUp:self];
-}
-
-- (void)mouseUp:(CPEvent)event
-{
-    [super mouseUp:event];
-  	[_delegate _selectAppropriateRow:self];
-}
-
-@end
-
-
 @implementation TableViewControl : CPControl
-{	id          _myView;
-	CPString 	_face @accessors(property=face);
-	CPString 	_disabledFace @accessors(property=disabledFace);
-	BOOL		_editable  @accessors(property=editable);
+{   id          _myView;
+    CPString     _face @accessors(property=face);
+    CPString     _disabledFace @accessors(property=disabledFace);
+    BOOL        _editable  @accessors(property=editable);
 }
 
-- (BOOL)acceptsFirstResponder
-{
-    return YES;
-}
-
-- viewClass
-{	return ReturnSensitiveTextField;
+- (Class)viewClass
+{   return CPTextField;
 }
 
 - (void)setObjectValue:(id)myVal
-{	_value=myVal;
-	[_myView unbind:CPValueBinding];
+{   _value = myVal;
+    [_myView unbind:CPValueBinding];
     [self _installView];
-	[_myView bind:CPValueBinding toObject:_value withKeyPath:_face options:nil];
-	var d= _disabledFace && [myVal valueForKeyPath:_disabledFace];
-	[_myView setTextColor: d? [CPColor grayColor]: [CPColor blackColor]];
+    [_myView bind:CPValueBinding toObject:_value withKeyPath:_face options:nil];
 }
 
 -(void) _installView
-{	[_myView removeFromSuperview];
-    var mybounds=[self bounds];
-	_myView =[[[self viewClass] alloc] initWithFrame:mybounds];
+{  [_myView removeFromSuperview];
+    _myView = [[[self viewClass] alloc] initWithFrame:[self bounds]];
 
-	[self addSubview:_myView];
-	if ([_myView respondsToSelector:@selector(setEditable:)])
+    if ([_myView respondsToSelector:@selector(setEditable:)])
         [_myView setEditable:YES];
-	if ([_myView respondsToSelector:@selector(setSelectable:)])
+    if ([_myView respondsToSelector:@selector(setSelectable:)])
         [_myView setSelectable:YES];
 
-	[_myView setThemeState:_themeState];
+    [self addSubview:_myView];
+    [_myView setThemeState:_themeState];
+    [_myView unsetThemeState:CPThemeStateEditable]
 }
 
 // this is necessary to make column resizing work
@@ -81,39 +39,24 @@
     [_myView setFrame:[self bounds]];
 }
 
-- (void) _moveSelectionIntoDirection:direction
-{	var tv=[self superview];
-	if(![tv isKindOfClass: CPTableView])  tv=[tv superview]
-	var nextRow=[tv selectedRow] + direction;
-	if(nextRow < 0 || nextRow >= [tv numberOfRows]) return; 
-	[tv selectRowIndexes:[CPIndexSet indexSetWithIndex:nextRow] byExtendingSelection:NO];
-    [tv editColumn:1 row:nextRow withEvent:nil select:YES];
+- (void)setThemeState:(id)aState
+{   [super setThemeState:aState];
+    [_myView setThemeState:aState];
+}
+- (void)unsetThemeState:(id)aState
+{   [super unsetThemeState:aState];
+    [_myView unsetThemeState:aState];
 }
 
-- (void) _moveUp:sender
-{
-    [self _moveSelectionIntoDirection:-1]
-}
-- (void) _moveDown:sender
-{
-    [self _moveSelectionIntoDirection:+1]
-}
-
-- (void) _selectAppropriateRow:sender
-{
-	var tv=[self superview];
-	if(![tv isKindOfClass: CPTableView])  tv=[tv superview]
-	[tv selectRowIndexes:[CPIndexSet indexSetWithIndex:[tv rowForView:sender]] byExtendingSelection:NO];
-}
 
 - (id)initWithCoder:(id)aCoder
 {
     self=[super initWithCoder:aCoder];
     if (self)
     {
-		_face=[aCoder decodeObjectForKey:"_face"];
-		_editable=[aCoder decodeObjectForKey:"_editable"];
-		_disabledFace=[aCoder decodeObjectForKey:"_disabledFace"];
+        _face=[aCoder decodeObjectForKey:"_face"];
+        _editable=[aCoder decodeObjectForKey:"_editable"];
+        _disabledFace=[aCoder decodeObjectForKey:"_disabledFace"];
     }
     return self;
 }
@@ -127,43 +70,31 @@
 }
 
 - (void)setEditable:(BOOL)isEditable
-{	_editable = isEditable;
-	[_myView setEditable:_editable];
+{   _editable = isEditable;
+    [_myView setEditable:_editable];
 }
-
-/*
--(void) setThemeState:aState
-{
-	[super setThemeState:aState];
-	[_myView setThemeState:aState];
-}
--(void) unsetThemeState:aState
-{	[super unsetThemeState:aState];
-	[_myView unsetThemeState:aState];
-}
-*/
 
 @end
 
 
 var _itemsControllerHash;
 @implementation TableViewPopup: TableViewControl
-{	id	_itemsController @accessors(property=itemsController);
-	CPString _itemsFace @accessors(property=itemsFace);
-	CPString _itemsValue @accessors(property=itemsValue);
-	CPString _itemsIDs @accessors(property=itemsIDs);
-	CPString _itemsPredicateFormat @accessors(property=itemsPredicateFormat);
+{   id    _itemsController @accessors(property=itemsController);
+    CPString _itemsFace @accessors(property=itemsFace);
+    CPString _itemsValue @accessors(property=itemsValue);
+    CPString _itemsIDs @accessors(property=itemsIDs);
+    CPString _itemsPredicateFormat @accessors(property=itemsPredicateFormat);
 }
 +(void) initialize
-{	[super initialize];
-	_itemsControllerHash=[CPMutableArray new];
+{    [super initialize];
+    _itemsControllerHash=[CPMutableArray new];
 }
 -(void) setItemsController: aController
-{	_itemsControllerHash[[self hash]]= aController
-	_itemsController=aController;
+{   _itemsControllerHash[[self hash]]= aController
+    _itemsController=aController;
 }
 - viewClass
-{	return FSPopUpButton;
+{    return FSPopUpButton;
 }
 
 - (id)initWithCoder:(id)aCoder
@@ -171,11 +102,11 @@ var _itemsControllerHash;
     self=[super initWithCoder:aCoder];
     if (self != nil)
     {
-		_itemsController = _itemsControllerHash[[aCoder decodeObjectForKey:"_itemsController"]];
-		_itemsFace =[aCoder decodeObjectForKey:"_itemsFace"];
-		_itemsValue =[aCoder decodeObjectForKey:"_itemsValue"];
-		_itemsIDs =[aCoder decodeObjectForKey:"_itemsIDs"];
-		_itemsPredicateFormat =[aCoder decodeObjectForKey:"_itemsPredicateFormat"];
+        _itemsController = _itemsControllerHash[[aCoder decodeObjectForKey:"_itemsController"]];
+        _itemsFace =[aCoder decodeObjectForKey:"_itemsFace"];
+        _itemsValue =[aCoder decodeObjectForKey:"_itemsValue"];
+        _itemsIDs =[aCoder decodeObjectForKey:"_itemsIDs"];
+        _itemsPredicateFormat =[aCoder decodeObjectForKey:"_itemsPredicateFormat"];
 
     }
     return self;
@@ -184,23 +115,22 @@ var _itemsControllerHash;
 - (void)encodeWithCoder:(id)aCoder
 {
     [super encodeWithCoder:aCoder];
-    [aCoder encodeObject: [self hash] forKey:"_itemsController"];
-    [aCoder encodeObject: _itemsFace forKey:"_itemsFace"];
-    [aCoder encodeObject: _itemsValue forKey:"_itemsValue"];
-    [aCoder encodeObject: _itemsIDs forKey:"_itemsIDs"];
-    [aCoder encodeObject: _itemsPredicateFormat forKey:"_itemsPredicateFormat"];
-
+    [aCoder encodeObject:[self hash] forKey:"_itemsController"];
+    [aCoder encodeObject:_itemsFace forKey:"_itemsFace"];
+    [aCoder encodeObject:_itemsValue forKey:"_itemsValue"];
+    [aCoder encodeObject:_itemsIDs forKey:"_itemsIDs"];
+    [aCoder encodeObject:_itemsPredicateFormat forKey:"_itemsPredicateFormat"];
 }
 
 -(void) setObjectValue:(id)myVal
-{	_value= myVal;
-	[_myView unbind:"itemArray"];
-	[_myView unbind:"selectedTag"];
+{   _value= myVal;
+    [_myView unbind:"itemArray"];
+    [_myView unbind:"selectedTag"];
     [self _installView];
-	[_myView bind:"selectedTag" toObject:_value withKeyPath:_face options:nil];
-	if(!_itemsController)
-	{	[_myView setItemArray:[]];
-	} else
+    [_myView bind:"selectedTag" toObject:_value withKeyPath:_face options:nil];
+    if(!_itemsController)
+    {    [_myView setItemArray:[]];
+    } else
     {   var options=@{"PredicateFormat": _itemsPredicateFormat, "valueFace": _itemsValue, "Owner":_value};
         [_myView bind:"itemArray" toObject: _itemsController withKeyPath: _itemsFace options:options];
     }
@@ -211,39 +141,39 @@ var _itemsControllerHash;
 var TableViewJanusControl_typeArray;
 
 @implementation TableViewJanusControl : TableViewPopup
-{	CPString	_type @accessors(property=type);
-	unsigned	_typeIndex;
+{    CPString    _type @accessors(property=type);
+    unsigned    _typeIndex;
 }
 
 -(void) _installJanusView
-{	if(_myView) [_myView removeFromSuperview];
-	else return;
-	[self addSubview:_myView];
-	[_myView setFrame:[self bounds]];
-	[_myView setFace:_face];
-	[_myView setThemeState:_themeState];
-	if( [_myView isKindOfClass:TableViewPopup])
-	{	[_myView setItemsFace: _itemsFace];
-		[_myView setItemsValue: _itemsValue];
-		[_myView setItemsIDs: _itemsIDs]
-		[_myView setItemsPredicateFormat:_itemsPredicateFormat];
-		[_myView setItemsController:_itemsController];
-	} else
-	{	[_myView setEditable:_editable];
-	}
+{    if(_myView) [_myView removeFromSuperview];
+    else return;
+    [self addSubview:_myView];
+    [_myView setFrame:[self bounds]];
+    [_myView setFace:_face];
+    [_myView setThemeState:_themeState];
+    if ([_myView isKindOfClass:TableViewPopup])
+    {    [_myView setItemsFace: _itemsFace];
+        [_myView setItemsValue: _itemsValue];
+        [_myView setItemsIDs: _itemsIDs]
+        [_myView setItemsPredicateFormat:_itemsPredicateFormat];
+        [_myView setItemsController:_itemsController];
+    } else
+    {    [_myView setEditable:_editable];
+    }
 }
 
 -(void) setObjectValue: myVal
-{	_value=myVal;
-	[[self subviews] makeObjectsPerformSelector: @selector(removeFromSuperview)];
-	if(myVal)
-	{	_typeIndex= [myVal valueForKeyPath: _type];
-	} else
-	{	_typeIndex=0;
-	}
-	_myView = [[[self viewClass] alloc] initWithFrame:[self frame]];
-	var d= _disabledFace && [myVal valueForKeyPath:_disabledFace];
-	if(!d)
+{    _value=myVal;
+    [[self subviews] makeObjectsPerformSelector: @selector(removeFromSuperview)];
+    if(myVal)
+    {    _typeIndex= [myVal valueForKeyPath: _type];
+    } else
+    {    _typeIndex=0;
+    }
+    _myView = [[[self viewClass] alloc] initWithFrame:[self frame]];
+    var d= _disabledFace && [myVal valueForKeyPath:_disabledFace];
+    if(!d)
     {   [self _installJanusView];
         [_myView setObjectValue: myVal];
     }
@@ -251,38 +181,38 @@ var TableViewJanusControl_typeArray;
 
 
 +(void) initialize
-{	[super initialize];
-	TableViewJanusControl_typeArray=[TableViewControl, TableViewPopup];
+{    [super initialize];
+    TableViewJanusControl_typeArray=[TableViewControl, TableViewPopup];
 }
 
 // 0: textfield
 // 1: popup
 
 -(void) setType:(unsigned) aType
-{	_type=aType;
+{    _type=aType;
 }
 - viewClass
 {
-	return TableViewJanusControl_typeArray[_typeIndex];
+    return TableViewJanusControl_typeArray[_typeIndex];
 }
 - (id)initWithCoder:(id)aCoder
 {
     self=[super initWithCoder:aCoder];
     if (self != nil)
-    {	[self setType: [aCoder decodeObjectForKey:"_type"]];
+    {    [self setType: [aCoder decodeObjectForKey:"_type"]];
     }
-	return self;
+    return self;
 }
 - (void)encodeWithCoder:(id)aCoder
-{	[super encodeWithCoder:aCoder];
+{    [super encodeWithCoder:aCoder];
     [aCoder encodeObject: _type forKey:"_type"];
 }
 
 - itemsController
-{	return [_myView itemsController];
+{   return [_myView itemsController];
 }
 - (void)setEditable:(BOOL)isEditable
-{	_editable=isEditable;
+{   _editable=isEditable;
 }
 
 @end
@@ -290,28 +220,28 @@ var TableViewJanusControl_typeArray;
 @implementation GSMarkupTagTableViewControl:GSMarkupTagControl
 + (CPString) tagName
 {
-  return @"tableViewControl";
+    return @"tableViewControl";
 }
 
 + (Class) platformObjectClass
 {
-	return [TableViewControl class];
+    return [TableViewControl class];
 }
 
 - (id) initPlatformObject: (id)platformObject
-{	platformObject = [super initPlatformObject: platformObject];
+{   platformObject = [super initPlatformObject: platformObject];
   
-	var editable = [self boolValueForAttribute: @"editable"];
-	if (editable == 1) [platformObject setEditable: YES];
-	var face = [self stringValueForAttribute: @"face"];
-	if (face != nil) [platformObject setFace: face];
-	var disabled_face = [self stringValueForAttribute: @"disabledFace"];
-	if (disabled_face != nil)
-	{
-		[platformObject setDisabledFace: disabled_face];
-	}
+    var editable = [self boolValueForAttribute: @"editable"];
+    if (editable == 1) [platformObject setEditable: YES];
+    var face = [self stringValueForAttribute: @"face"];
+    if (face != nil) [platformObject setFace: face];
+    var disabled_face = [self stringValueForAttribute: @"disabledFace"];
+    if (disabled_face != nil)
+    {
+        [platformObject setDisabledFace: disabled_face];
+    }
 
-	return platformObject;
+    return platformObject;
 }
 
 @end
@@ -320,27 +250,27 @@ var TableViewJanusControl_typeArray;
 @implementation GSMarkupTagTableViewPopup: GSMarkupTagTableViewControl
 + (CPString) tagName
 {
-  return @"tableViewPopup";
+    return @"tableViewPopup";
 }
 
 + (Class) platformObjectClass
 {
-	return [TableViewPopup class];
+    return [TableViewPopup class];
 }
 
 - (id) initPlatformObject: (id)platformObject
-{	platformObject = [super initPlatformObject: platformObject];
+{   platformObject = [super initPlatformObject: platformObject];
   
-	var itemsFace = [self stringValueForAttribute: @"itemsFace"];
-	if (itemsFace != nil) [platformObject setItemsFace: itemsFace];
-	var itemsValue = [self stringValueForAttribute: @"itemsValue"];
-	if (itemsValue != nil) [platformObject setItemsValue: itemsValue];
-	var itemsIDs = [self stringValueForAttribute: @"itemsIDs"];
-	if (itemsIDs != nil) [platformObject setItemsIDs: itemsIDs];
-	var itemsPredicateFormat = [self stringValueForAttribute: @"itemsPredicateFormat"];
-	if (itemsPredicateFormat != nil) [platformObject setItemsPredicateFormat: itemsPredicateFormat];
+    var itemsFace = [self stringValueForAttribute: @"itemsFace"];
+    if (itemsFace != nil) [platformObject setItemsFace: itemsFace];
+    var itemsValue = [self stringValueForAttribute: @"itemsValue"];
+    if (itemsValue != nil) [platformObject setItemsValue: itemsValue];
+    var itemsIDs = [self stringValueForAttribute: @"itemsIDs"];
+    if (itemsIDs != nil) [platformObject setItemsIDs: itemsIDs];
+    var itemsPredicateFormat = [self stringValueForAttribute: @"itemsPredicateFormat"];
+    if (itemsPredicateFormat != nil) [platformObject setItemsPredicateFormat: itemsPredicateFormat];
 
-	return platformObject;
+    return platformObject;
 }
 
 @end
@@ -353,16 +283,16 @@ var TableViewJanusControl_typeArray;
 
 + (Class) platformObjectClass
 {
-	return [TableViewJanusControl class];
+    return [TableViewJanusControl class];
 }
 
 - (id) initPlatformObject: (id)platformObject
-{	platformObject = [super initPlatformObject: platformObject];
+{   platformObject = [super initPlatformObject: platformObject];
   
-	var type = [self stringValueForAttribute: @"typeFace"];
-	[platformObject setType: type];
+    var type = [self stringValueForAttribute: @"typeFace"];
+    [platformObject setType: type];
 
-	return platformObject;
+    return platformObject;
 }
 
 @end
