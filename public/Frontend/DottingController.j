@@ -12,17 +12,32 @@
 
 @implementation CPObject (ImageURLForDottingController)
 -(CPImage) _backgroundImage
-{	var mycompoID=[self valueForKey:"idcomposition_for_editing" ];
+{
+    var mycompoID;
+    try{
+        mycompoID=[self valueForKey:"idcomposition_for_editing" ];
+    } catch(e)
+    {
+        mycompoID=nil;
+    }
 	var myidimage=[self valueForKey:"idimage"];
+    var affine;
+    try{
+        affine=[self valueForKey:"parameter" ];
+    } catch(e)
+    {
+        affine=nil;
+    }
     var rnd = (window.___forceImageReload === undefined || !window.___forceImageReload)?  1:Math.floor(Math.random()*100000 + 1);
     window.___forceImageReload = 0;
 	var myURL= [[CPApp delegate] baseImageURL]+myidimage+"?rnd="+rnd+"&idanalysis="+[self valueForKey:"id"];
+    if(affine) myURL+="&affine="+affine;
 	if(mycompoID && mycompoID !== CPNullMarker) myURL+="&cmp="+mycompoID;
 	var mycontroller= [[CPApp delegate] mainController];	// this is hack to get hold of the UI context from within the database context
-	var scale= mycontroller._scale;
+	var scale = mycontroller._scale;
 	var origSize=mycontroller._originalSizeArray[myidimage];
 	if(!origSize)
-	{	var geom=[self _cellfinderSpc: "geom" forID: myidimage];
+	{	var geom=[self _cellfinderSpc:"geom" forID:myidimage];
 		var arr= geom.split(' ');
 		origSize= mycontroller._originalSizeArray[myidimage]= CPMakeSize(arr[0],arr[1]);
 	}

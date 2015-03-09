@@ -17,9 +17,7 @@ use Archive::Zip;
 $ENV{MOJO_MAX_MESSAGE_SIZE} = 1_073_741_824;
 
 plugin 'database', {
-			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
-			username => 'root',
-			password => 'root',
+			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
 			options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
 			helper   => 'db'
 };
@@ -160,7 +158,7 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
 	$nocache= 1 if(($rnd && $rnd!=1)  || $width);
 	$spc="" unless $spc;
 
-	my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage, $width, $nocache, $csize, undef, $idstack);
+	my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage, $width, $nocache, $csize, $affine, $idstack);
 	my $p= $f->(0);
 
     if($exif)
@@ -180,7 +178,6 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
 	$p= cellfinder_image::imageForComposition($self->db, $preload,$f,$p) if($preload);
 	$p= cellfinder_image::imageForComposition($self->db, $idcomposition,$f,$p, 1, $idanalysis, $idstack) if($idcomposition);
 	$p= cellfinder_image::imageForComposition($self->db, $afterload,$f,$p,1) if($afterload);
-	$p= cellfinder_image::_distortImage($p, $affine) if($affine);
 
 	app->log->debug("$idimage ");
 
@@ -191,7 +188,16 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
 	if(ref $p eq 'Image::Magick')
 	{	if($spc eq 'geom')	# geom-query
 		{	$self->render(text => join ' ', $p->Get('width', 'height') );
-		} elsif(length $spc)
+		} elsif ($spc eq 'pixels')
+        {
+            my $geom=$self->param('geom');
+            $geom=~s/ /+/ogs;
+            warn $geom;
+            $p->Crop($geom) if $geom;
+            my ($width, $height)= $p->Get('width', 'height');
+            $self->render(text => join ' ', $p->GetPixels(map=> ($self->param('map') || 'I' ), width=>$width, height=>$height, normalize=> ( $self->param('normalize') || '0' ) ) );
+        }
+        elsif(length $spc)
 		{	$self->render(text=> $p->Get($spc) );
 		}
 		else

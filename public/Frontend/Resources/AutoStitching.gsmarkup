@@ -24,6 +24,8 @@
 				<popUpButtonItem title="Merge bridged" target="#mystackscontroller" action="mergeBridged:"/>
 				<popUpButtonItem title="Collect samebase" target="#mystackscontroller" action="collectSamebase:"/>
 				<popUpButtonItem title="Flickering…" target="#mystackscontroller" action="runFlicker:"/>
+                                <popUpButtonItem title="Run images probing..." target="#mystackscontroller" action="gotoClusterStacks:"/>
+
 				<popUpButtonItem title="DownloadGIF" target="#mystackscontroller" action="downloadGIF2:"/>
 				<popUpButtonItem title="DownloadZIP" target="#mystackscontroller" action="downloadZIP:"/>
 				<popUpButtonItem title="DownloadMP4" target="#mystackscontroller" action="downloadMP4:"/>

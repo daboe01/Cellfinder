@@ -19,15 +19,17 @@
         </vbox>
         <vbox>
             <scrollView hasHorizontalScroller="NO">
-                <tableView zebra="yes" autosaveName="tv_clusterstacks_results"  valueBinding="#CPOwner.stacksAnalysesController" target="#mystackscontroller">
-                    <tableColumn identifier="id" title="analysis" editable="YES"/>
+                <tableView zebra="yes" autosaveName="tv_autostacks_results"  valueBinding="#CPOwner.stacksContentController" target="#mystackscontroller" allowsMultipleSelection="NO">
+                    <tableColumn identifier="idanalysis" title="analysis" editable="YES"/>
+                    <tableColumn identifier="idanalysis_reference" title="ref" editable="YES"/>
+                    <tableColumn identifier="idimage" title="idimg"/>
+                    <tableColumn identifier="idmontage" title="idmontage" editable="YES"/>
+                    <tableColumn identifier="parameter" editable="YES" title="parameter"/>
                   </tableView>
-            </scrollView>
-            <hbox>
-                <ButtonBar target="#CPOwner.stacksAnalysesController" halign="right" width="250"  minusButtonAction="remove:" actionsButton="YES">
+             </scrollView>
+             <ButtonBar target="#CPOwner.stacksAnalysesController" halign="expand" minusButtonAction="remove:" actionsButton="YES">
                     <popUpButtonItem title="Reaggregate" target="#mystackscontroller" action="reaggregate:"/>
-                </ButtonBar>
-             </hbox>
+             </ButtonBar>
             <scrollView hasHorizontalScroller="NO">
                 <tableView autosaveName="aggregations_cluster_name" zebra="yes" valueBinding="#CPOwner.stackAggregationsController" target="#CPOwner">
                     <tableColumn identifier="name" title="Name"/>
@@ -37,8 +39,8 @@
 
         </vbox>
         <vbox>
-            <scrollView hasHorizontalScroller="NO" hasVerticalScroller="YES">
-                <collectionView id="stacks_collection_view" itemWidth="100" itemHeight="100" valueBinding="#CPOwner.stacksContentController.arrangedObjects" delegate="mystackscontroller" itemsClassName="ClusterImageEditorCollectionItem" selectable="YES"/>
+            <scrollView>
+                <annotatedImageView id="stacks_image_view" valueBinding="#CPOwner.stacksAnalysesController.selection.results" delegate="mystackscontroller"/>
             </scrollView>
             <hbox>
                 <slider continuous="NO" min="0" max="1"  valueBinding="mystackscontroller.scale" halign="right"/><hspace/>
@@ -49,5 +51,8 @@
   </window>
 </objects>
 
+<connectors>
+    <outlet source="#mystackscontroller" target="stacks_image_view" label="stacksImageView"/>
+</connectors>
 
 </gsmarkup>

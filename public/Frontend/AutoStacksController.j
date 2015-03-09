@@ -172,14 +172,34 @@
 	[[CrossvalidationController new] setAnalysisArray: myArray];
 
 }
+-(void) gotoClusterStacks:(id)sender
+{
+    var idstack=[myAppController.stacksController valueForKeyPath:"selection.id"];
+    var myanalysis=[myAppController.analysesController._entity insertObject:@{"idstack":idstack}];
+	var idtrial=[myAppController.trialsController valueForKeyPath:"selection.id"];
+	window.open("http://augimageserver:3000/Frontend/index.html?id="+idtrial+"&t=ClusterStacks.gsmarkup",'clusterstacks');
+}
+
 @end
 
 @implementation ClusterStacksController: AutoStacksController
+{
+    id stacksImageView;
+}
+-(void) _postInit
+{
+    [super _postInit];
+	[stacksImageView setDelegate:self];
+	[stacksImageView setStyleFlags:[stacksImageView styleFlags] | AIVStyleNumbers ];
+	[stacksImageView bind:"scale" toObject:self withKeyPath:"scale" options:nil];
+	[stacksImageView bind:"value" toObject:[CPApp delegate].stacksAnalysesController withKeyPath: "selection.results" options:nil];
+	[stacksImageView bind:"backgroundImage" toObject:[CPApp delegate].stacksContentController withKeyPath: "selection._backgroundImage" options:nil];
+}
 
 -(void) reaggregate: sender
 {	var mycompo= [myAppController.trialsController valueForKeyPath: "selection.composition_for_aggregation"];
 	var idanalysis=[myAppController.stacksAnalysesController valueForKeyPath:"selection.id"];
-    debugger
+
 	if(mycompo !== CPNullMarker)
 	{
 		var myreq=[CPURLRequest requestWithURL: BaseURL+"0?idanalysis="+idanalysis+"&cmp="+mycompo];
@@ -188,23 +208,22 @@
 	}
 }
 
-@end
-
-@implementation ClusterImageEditorCollectionItem: UnnumberedImageEditorCollectionItem
--(void) setRepresentedObject: someObject
-{	[super setRepresentedObject: someObject];
-	_idanalysis = [[CPApp delegate].stacksAnalysesController valueForKeyPath:"selection.id"];
+-(void) reloadImage
+{
+	var img=[[CPApp delegate].stacksContentController valueForKeyPath: "selection._backgroundImage"];
+	if([img isKindOfClass:[CPImage class]])
+	{
+    	[stacksImageView setBackgroundImage:img];
+	}
 }
-- _createContentView
-{	var o= [AnnotatedImageView new];
-	[o setDelegate: self];
-	[o setStyleFlags: [o styleFlags] | AIVStyleNumbers ];
-	[o bind:"scale" toObject: self withKeyPath: "size" options:nil];
-	[o bind:"value" toObject:[CPApp delegate].stacksAnalysesController withKeyPath: "selection.results" options:nil];
-	return o;
+-(void) setScale:(double) someScale
+{	[super setScale:someScale];
+	[stacksImageView setScale: _scale];
+	[self reloadImage];
 }
 
 @end
+
 
 @implementation GSMarkupTagAutoStacksController:GSMarkupTagManualStacksController
 + (CPString) tagName
@@ -216,7 +235,6 @@
 	return [AutoStacksController class];
 }
 @end
-
 @implementation GSMarkupTagClusterStacksController:GSMarkupTagAutoStacksController
 + (CPString) tagName
 {

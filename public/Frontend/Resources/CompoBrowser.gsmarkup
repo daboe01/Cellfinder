@@ -5,66 +5,66 @@
 <objects>
   <compoBrowser id="mycompobrowser"/>
   <window title="Compositions" closable="yes" id="mainwindow" x="30" y="30" width="800" height="640" autosaveName="coposColumnSizes">
-	<splitView vertical="YES" autosaveName="compos1">
-		<vbox>
-			<scrollView hasHorizontalScroller="NO">
-				<tableView autosaveName="compos" zebra="yes" valueBinding="#CPOwner.compoController" target="#CPOwner" viewBasedBindings="YES">
+    <splitView vertical="YES" autosaveName="compos1">
+        <vbox>
+            <scrollView hasHorizontalScroller="NO">
+                <tableView autosaveName="compos" zebra="yes" valueBinding="#CPOwner.compoController" target="#CPOwner" viewBasedBindings="YES">
                     <tableColumn identifier="name" title="name"  dataView="#componame"/>
                     <tableColumn identifier="type" title="type"  dataView="#compotype"/>
                     <tableColumn identifier="primary_chain" title="primary chain" dataView="#primarychain"/>
-	  		  </tableView>
-			</scrollView>
-			<ButtonBar plusButtonAction="newCompo:" minusButtonAction="deleteCompo:" actionsButton="YES" target="#mycompobrowser">
-				<popUpButtonItem title="CopyCompo" target="#mycompobrowser" action="copyCompo:"/>
-				<popUpButtonItem title="Move to other trial..." target="#mycompobrowser" action="moveToTrial:"/>
-			</ButtonBar>
-		</vbox>
-		<vbox>
-			<scrollView hasHorizontalScroller="NO">
-				<tableView autosaveName="chains" zebra="yes" valueBinding="#CPOwner.chainsController" target="#CPOwner">
-					<tableColumn identifier="name" title="name" editable="YES"/>
-					<tableColumn identifier="ordering" title="sort" editable="YES"/>
-	  			</tableView>
-			</scrollView>
-			<ButtonBar plusButtonAction="newChain:" minusButtonAction="deleteChain:" actionsButton="YES" target="#mycompobrowser">
-				<popUpButtonItem title="Set primary" target="#mycompobrowser" action="setPrimaryChain:"/>
-				<popUpButtonItem title="Duplicate" target="#mycompobrowser" action="duplicateChain:"/>
-				<popUpButtonItem title="Move to other trial..." target="#mycompobrowser" action="moveToTrial:"/>
-			</ButtonBar>
-		</vbox>
-		<vbox>
-			<scrollView hasHorizontalScroller="NO">
-				<tableView autosaveName="patches" zebra="yes" valueBinding="#CPOwner.patchesController" target="#CPOwner">
-					<tableColumn identifier="patch.name" title="name" editable="YES"/>
-					<tableColumn identifier="ordering" title="sort" editable="YES"/>
-	  			</tableView>
-			</scrollView>
-			<ButtonBar plusButtonAction="newPatch:" minusButtonAction="deletePatch:" actionsButton="YES" target="#mycompobrowser">
-				<popUpButtonItem title="Duplicate" target="#mycompobrowser" action="duplicateChain:"/>
-			</ButtonBar>
-		</vbox>
-		<vbox>
-			<scrollView hasHorizontalScroller="NO">
-				<tableView autosaveName="inputvals" zebra="yes" valueBinding="#CPOwner.inputValController" viewBasedBindings="YES">
-					<tableColumn identifier="parameter.name" title="name" dataView="#column_nameview"/>
-					<tableColumn identifier="value" title="value" dataView="#column_valueview"/>
-	  			</tableView>
-			</scrollView>
-		</vbox>
-	 </splitView>
+                </tableView>
+            </scrollView>
+            <ButtonBar plusButtonAction="newCompo:" minusButtonAction="deleteCompo:" actionsButton="YES" target="#mycompobrowser">
+                <popUpButtonItem title="CopyCompo" target="#mycompobrowser" action="copyCompo:"/>
+                <popUpButtonItem title="Move to other trial..." target="#mycompobrowser" action="moveToTrial:"/>
+            </ButtonBar>
+        </vbox>
+        <vbox>
+            <scrollView hasHorizontalScroller="NO">
+                <tableView autosaveName="chains" zebra="yes" valueBinding="#CPOwner.chainsController" target="#CPOwner">
+                    <tableColumn identifier="name" title="name" editable="YES"/>
+                    <tableColumn identifier="ordering" title="sort" editable="YES"/>
+                  </tableView>
+            </scrollView>
+            <ButtonBar plusButtonAction="newChain:" minusButtonAction="deleteChain:" actionsButton="YES" target="#mycompobrowser">
+                <popUpButtonItem title="Set primary" target="#mycompobrowser" action="setPrimaryChain:"/>
+                <popUpButtonItem title="Duplicate" target="#mycompobrowser" action="duplicateChain:"/>
+                <popUpButtonItem title="Move to other trial..." target="#mycompobrowser" action="moveToTrial:"/>
+            </ButtonBar>
+        </vbox>
+        <vbox>
+            <scrollView hasHorizontalScroller="NO">
+                <tableView autosaveName="patches" zebra="yes" valueBinding="#CPOwner.patchesController" target="#CPOwner">
+                    <tableColumn identifier="patch.name" title="name" editable="YES"/>
+                    <tableColumn identifier="ordering" title="sort" editable="YES"/>
+                  </tableView>
+            </scrollView>
+            <ButtonBar plusButtonAction="newPatch:" minusButtonAction="deletePatch:" actionsButton="YES" target="#mycompobrowser">
+                <popUpButtonItem title="Duplicate" target="#mycompobrowser" action="duplicateChain:"/>
+            </ButtonBar>
+        </vbox>
+        <vbox>
+            <scrollView hasHorizontalScroller="NO">
+                <tableView autosaveName="inputvals" zebra="yes" valueBinding="#CPOwner.inputValController" viewBasedBindings="YES">
+                    <tableColumn identifier="parameter.name" title="name" dataView="#column_nameview"/>
+                    <tableColumn identifier="value" title="value" dataView="#column_valueview"/>
+                  </tableView>
+            </scrollView>
+        </vbox>
+     </splitView>
   </window>
   <window id="addcompowindow" visible="NO" width="400" height="600">
    <vbox id="addcompotv">
-	<searchField valueBinding="mycompobrowser.searchTerm"/>
-	<scrollView hasHorizontalScroller="NO">
-	 <tableView zebra="yes" doubleAction="performAddCompo:" target="#mycompobrowser" autosaveName="addcompotv1" valueBinding="#CPOwner.patchRepoController">
-		<tableColumn identifier="name" title="name"/>
-	 </tableView>
-	</scrollView>
-	<hbox>
-	  <button title="Add selected" target="#mycompobrowser" action="performAddCompo:"/>
-	  <button title="Cancel" target="#mycompobrowser" action="cancelAddCompo:"/>
-	</hbox>
+    <searchField valueBinding="mycompobrowser.searchTerm"/>
+    <scrollView hasHorizontalScroller="NO">
+     <tableView zebra="yes" doubleAction="performAddCompo:" target="#mycompobrowser" autosaveName="addcompotv1" valueBinding="#CPOwner.patchRepoController">
+        <tableColumn identifier="name" title="name"/>
+     </tableView>
+    </scrollView>
+    <hbox>
+      <button title="Add selected" target="#mycompobrowser" action="performAddCompo:"/>
+      <button title="Cancel" target="#mycompobrowser" action="cancelAddCompo:"/>
+    </hbox>
    </vbox>
   </window>
 
@@ -80,10 +80,10 @@
 
 
 <connectors>
-	<outlet source="#CPOwner" target="mycompobrowser" label="_sharedCompoBrowser"/>
+    <outlet source="#CPOwner" target="mycompobrowser" label="_sharedCompoBrowser"/>
     <outlet source="#mycompobrowser" target="mainwindow" label="myWindow"/>
     <outlet source="#mycompobrowser" target="addcompowindow" label="addCompoWindow"/>
-	<outlet source="#mycompobrowser" target="addcompotv" label="addCompoTV"/>
+    <outlet source="#mycompobrowser" target="addcompotv" label="addCompoTV"/>
 
 </connectors>
 

@@ -72,7 +72,6 @@
         <menuItem title="AutoStacks" action="gotoAutoStacks:"/>
         <menuItem title="ManualStacks" action="gotoManualStacks:"/>
         <menuItem title="AutoStitching" action="gotoAutoStitching:"/>
-        <menuItem title="ClusterStacks" action="gotoClusterStacks:"/>
     </menu>
    </menu>
 </objects>

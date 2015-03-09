@@ -184,7 +184,7 @@
     {   var idtrial=clusterConnection._idtrial;
         clusterConnection=nil;
         [progress stopAnimation: self];
-        window.open("http://augimageserver:3000/Frontend/index.html?id="+idtrial+"&t=ClusterStacks.gsmarkup",'autostacks');
+        window.open("http://augimageserver:3000/Frontend/index.html?id="+idtrial+"&t=ClusterStacks.gsmarkup",'clusterstacks');
     }
 }
 

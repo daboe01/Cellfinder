@@ -263,11 +263,6 @@ PhotoDragType="PhotoDragType";
 	var idtrial=[trialsController valueForKeyPath:"selection.id"];
 	window.open("http://augimageserver:3000/Frontend/index.html?id="+idtrial+"&t=ManualStacks.gsmarkup",'autostacks');
 }
--(void) gotoClusterStacks:(id)sender
-{
-	var idtrial=[trialsController valueForKeyPath:"selection.id"];
-	window.open("http://augimageserver:3000/Frontend/index.html?id="+idtrial+"&t=ClusterStacks.gsmarkup",'autostacks');
-}
 -(void) gotoAutoStitching:(id)sender
 {
 	var idtrial=[trialsController valueForKeyPath:"selection.id"];
