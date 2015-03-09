@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!DOCTYPE gsmarkup>
+<gsmarkup>
+
+<objects>
+  <clusterStacksController id="mystackscontroller"/>
+  <window title="Stacks" id="stackswindow" closable="yes"  x="50" y="30" width="400" height="340"  bridge="YES" delegate="mystackscontroller">
+    <splitView vertical="YES" autosaveName="splitview_clusterstacks2">
+        <vbox>
+            <scrollView hasHorizontalScroller="NO">
+                <tableView autosaveName="tv_clusterstacks" zebra="yes" valueBinding="#CPOwner.stacksController" target="#mystackscontroller">
+                    <tableColumn identifier="id" editable="NO" title="id"/>
+                    <tableColumn identifier="name" editable="YES" title="name"/>
+                  </tableView>
+            </scrollView>
+            <hbox>
+            <progresIndicator id="progress" indeterminate="YES"/>
+            </hbox>
+        </vbox>
+        <vbox>
+            <scrollView hasHorizontalScroller="NO">
+                <tableView zebra="yes" autosaveName="tv_clusterstacks_results"  valueBinding="#CPOwner.stacksAnalysesController" target="#mystackscontroller">
+                    <tableColumn identifier="id" title="analysis" editable="YES"/>
+                  </tableView>
+            </scrollView>
+            <hbox>
+                <ButtonBar target="#CPOwner.stacksAnalysesController" halign="right" width="250"  minusButtonAction="remove:" actionsButton="YES">
+                    <popUpButtonItem title="Reaggregate" target="#mystackscontroller" action="reaggregate:"/>
+                </ButtonBar>
+             </hbox>
+            <scrollView hasHorizontalScroller="NO">
+                <tableView autosaveName="aggregations_cluster_name" zebra="yes" valueBinding="#CPOwner.stackAggregationsController" target="#CPOwner">
+                    <tableColumn identifier="name" title="Name"/>
+                    <tableColumn identifier="value" title="Value"/>
+                </tableView>
+            </scrollView>
+
+        </vbox>
+        <vbox>
+            <scrollView hasHorizontalScroller="NO" hasVerticalScroller="YES">
+                <collectionView id="stacks_collection_view" itemWidth="100" itemHeight="100" valueBinding="#CPOwner.stacksContentController.arrangedObjects" delegate="mystackscontroller" itemsClassName="ClusterImageEditorCollectionItem" selectable="YES"/>
+            </scrollView>
+            <hbox>
+                <slider continuous="NO" min="0" max="1"  valueBinding="mystackscontroller.scale" halign="right"/><hspace/>
+                <popUpButton width="100" id="compoPopup" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" valueBinding="mystackscontroller.viewingCompo"/>
+            </hbox>
+        </vbox>
+     </splitView>
+  </window>
+</objects>
+
+
+</gsmarkup>
