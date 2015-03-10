@@ -195,7 +195,8 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
             warn $geom;
             $p->Crop($geom) if $geom;
             my ($width, $height)= $p->Get('width', 'height');
-            $self->render(text => join ' ', $p->GetPixels(map=> ($self->param('map') || 'I' ), width=>$width, height=>$height, normalize=> ( $self->param('normalize') || '0' ) ) );
+            my @h=$p->GetPixels(map=> ($self->param('map') || 'I' ), width=>$width, height=>$height, normalize=> ( $self->param('normalize') || '0' ) );
+            $self->render(json => \@h );
         }
         elsif(length $spc)
 		{	$self->render(text=> $p->Get($spc) );
@@ -331,6 +332,20 @@ get '/ANA/stackresults/:idstack'=> [idstack =>qr/\d+/] => sub
 	my $sth = $dbh->prepare( $sql );
 	$sth->execute(($idstack));
 	my $result=	join("\t", qw/id row col tag idanalysis/)."\n";
+	while(my $curr=$sth->fetchrow_arrayref())
+	{	$result.=join("\t", (@$curr));
+		$result.="\n";
+	}
+	$self->render(text=> $result);
+};
+get '/ANA/clusterstackresults/:idstack'=> [idstack =>qr/\d+/] => sub
+{	my $self=shift;
+	my $idstack= $self->param("idstack");
+	my $dbh=$self->db;
+	my $sql=qq{select results.id, row,col,coalesce(tag,0) as tag, montage_images.idimage, images.name from montages join montage_images on montages.id=idmontage join analyses on analyses.idstack=montages.id join results on results.idanalysis=analyses.id join images on images.id=montage_images.idimage where montages.id=? order by 1};
+	my $sth = $dbh->prepare( $sql );
+	$sth->execute(($idstack));
+	my $result=	join("\t", qw/id row col tag idimage name/)."\n";
 	while(my $curr=$sth->fetchrow_arrayref())
 	{	$result.=join("\t", (@$curr));
 		$result.="\n";

@@ -434,10 +434,8 @@ sub getMontageForIDImageAndIDStack{ my ($dbh, $idimage, $idstack)=@_;
 }
 sub _pointArrayRForMatrixStringAndOffset{ my ($parameter, $offsetX, $offsetY)=@_;
 	my $pointR=eval($parameter);  #<!>fixme replace with JSON deparser
-# warn Dumper $pointR;
 	$pointR->[4]+=$offsetX;
 	$pointR->[5]+=$offsetY;
-# warn Dumper $pointR;
 	return $pointR;
 }
 sub _distortImage{ my ($i, $parameter, $offsetX, $offsetY)=@_;

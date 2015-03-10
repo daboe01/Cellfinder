@@ -30,7 +30,7 @@
 					<tableColumn identifier="cmd_name" title="cmd_name" editable="YES"/>
 	  			</tableView>
 			</scrollView>
-			<ButtonBar plusButtonAction="insert:" minusButtonAction="remove:" target="#CPOwner.patchRepoController">
+			<ButtonBar plusButtonAction="insert:" minusButtonAction="remove:" target="#CPOwner.patchParametersController2">
 			</ButtonBar>
 		</vbox>
 	 </hbox>
