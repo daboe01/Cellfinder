@@ -9,6 +9,7 @@
 	id inputAnalysisField;
 	id tagField;
     id clusterConnection;
+    id autostitchConnection;
     id tagsTV;
 }
 
@@ -173,7 +174,7 @@
     myconnection._doReload=YES;
 }
 
--(void) connection:someConnection didReceiveData: data
+- (void)connection:someConnection didReceiveData: data
 {
     if(someConnection._doReload)
     {
@@ -186,6 +187,12 @@
         [progress stopAnimation: self];
         window.open("http://augimageserver:3000/Frontend/index.html?id="+idtrial+"&t=ClusterStacks.gsmarkup",'clusterstacks');
     }
+    if(someConnection === autostitchConnection)
+    {   var idtrial=clusterConnection._idtrial;
+        autostitchConnection=nil;
+        [progress stopAnimation: self];
+        window.open("http://augimageserver:3000/Frontend/index.html?id="+idtrial+"&t=AutoStacks.gsmarkup",'autostacks');
+    }
 }
 
 
@@ -194,7 +201,8 @@
 	var idransac=[myAppController.trialsController valueForKeyPath: "selection.composition_for_ransac"];
 
 	var myreq=[CPURLRequest requestWithURL: BaseURL+"automatch_folder/"+idtrial+"/"+idransac+"/"+[myAppController.folderController valueForKeyPath:"selection.folder_name"]];
-	[CPURLConnection connectionWithRequest:myreq delegate: self];
+    [progress startAnimation:self];
+	autostitchConnection=[CPURLConnection connectionWithRequest:myreq delegate: self];
 }
 
 
@@ -204,7 +212,7 @@
 }
 
 -(void) editViewingCompo:sender
-{	[[CompoController alloc] initWithCompo: [[myAppController.analysesController selectedObject] valueForKey:"editing_compo"] valueObserver:self];
+{	[[CompoController alloc] initWithCompo:[[myAppController.analysesController selectedObject] valueForKey:"editing_compo"] valueObserver:self];
 }
 
 -(void) insertAnalysisFromInput:sender

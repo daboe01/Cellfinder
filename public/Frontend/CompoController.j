@@ -138,8 +138,8 @@
 // step 1: build the panel via dynamically generated markup
 	var i,l=[inputParams count];
 
-	var markup='<gsmarkup><objects><window id="panel" title="Inspector" HUD="yes" closable="yes" x="600" y="30" width="200">';
-	markup+='<vbox id="toplevel_container">';
+	var markup='<gsmarkup><objects><window id="panel" title="Inspector" closable="yes" x="600" y="30" width="350" height="500"><scrollView halign="expand" valign="expand"  hasHorizontalScroller="YES">';
+	markup+='<vbox id="toplevel_container" halign="min" width="350">';
 
 	for(i=0;i<l;i++)
 	{	var input=[inputParams objectAtIndex:i];
@@ -154,20 +154,20 @@
 				var maxVal=[input unpercentedValueForKey:"range2"];
 				var curVal=[input unpercentedValueForKey:"value"];
 
-				markup+='<hbox><label textColor="white" valign="center" halign="min" width="200">'+ [input valueForKey:"name"]+'('+[input valueForKey:"patch"]+')'+
-						'</label><label textColor="white" valign="center" halign="min" width="20">'+[input valueForKey:"range1"]+'</label>'+
+				markup+='<hbox><label valign="center" halign="min" width="100">'+ [input valueForKey:"name"]+'('+[input valueForKey:"patch"]+')'+
+						'</label><label  valign="center" halign="min" width="20">'+[input valueForKey:"range1"]+'</label>'+
 						'<optionSlider continuous="NO" id="_connectme1_'+i+'" valign="center" halign="expand"  min="'+
 						 minVal+'" max="'+maxVal+'" current="'+
-						 curVal+'" /><label textColor="white" valign="center" halign="min" width="20">'+[input valueForKey:"range2"]+
+						 curVal+'" /><label  valign="center" halign="min" width="20">'+[input valueForKey:"range2"]+
 						'</label><textField width="50" valign="center" halign="center" id="_connectme2_'+i+'"></textField></hbox>';
 			}
 			break;
 			case "5":	// popUpButton
 			{	var entityName= '_popconnectme'+[input valueForKey:"idparameter"];
-				markup+='<hbox><label textColor="white" valign="center" halign="min" width="100">'+[input valueForKey:"name"]+'('+[input valueForKey:"patch"]+')'+
+				markup+='<hbox><label  valign="center" halign="min" width="100">'+[input valueForKey:"name"]+'('+[input valueForKey:"patch"]+')'+
 						'</label><popUpButton id="_popupcntme_'+i+'" valign="center" halign="expand" itemsBinding="#CPOwner._myNameTable.'+entityName+'.arrangedObjects.value"/></hbox>';
 				var ac = [FSArrayController new];
-				var predicate=[CPPredicate predicateWithFormat: "idpatch_parameter=='"+[input valueForKey:"idparameter"]+"'"  argumentArray: nil  ] ;
+				var predicate=[CPPredicate predicateWithFormat:"idpatch_parameter=='"+[input valueForKey:"idparameter"]+"'"  argumentArray:nil] ;
 				[ac setContent: [[placeholderEntity allObjects] filteredArrayUsingPredicate: predicate ]];
 				[_myNameTable setObject: ac forKey: entityName];
 				[ac setEntity: placeholderEntity];
@@ -178,18 +178,18 @@
 				var re = new RegExp('^([0-9%]+)\s*x([0-9%]+)');
 				var match=curVal.match(re);
 				if(match)
-				{		markup+='<hbox><label textColor="white" valign="center" halign="min" width="100">'+[input valueForKey:"name"]+'('+[input valueForKey:"patch"]+')'+
-						'</label><dualSlider id="_connectme1_'+i+'"/><textField width="50" valign="center" halign="expand" id="_connectme2_'+i+'"></textField></hbox>';
+				{   markup+='<hbox><label  valign="center" halign="min" width="100">'+[input valueForKey:"name"]+'('+[input valueForKey:"patch"]+')'+
+                            '</label><dualSlider id="_connectme1_'+i+'"/><textField width="50" valign="center" halign="expand" id="_connectme2_'+i+'"></textField></hbox>';
 
 				} else
 				{
-					markup+='<hbox><label textColor="white" valign="center" halign="min" width="100">'+[input valueForKey:"name"]+'('+[input valueForKey:"patch"]+')'+
+					markup+='<hbox><label valign="center" halign="min" width="100">'+[input valueForKey:"name"]+'('+[input valueForKey:"patch"]+')'+
 						'</label> <textField width="50" valign="center" halign="expand" id="_connectme2_'+i+'"></textField></hbox>';
 				}
 			}
 		}
 	}
-	markup+='</vbox></window></objects><connectors>'+
+	markup+='</vbox></scrollView></window></objects><connectors>'+
 			'<outlet source="#CPOwner" target ="panel" label ="_panel"/></connectors></gsmarkup>';
 	var parser=[CPBundle loadGSMarkupData: [CPData dataWithRawString: markup] externalNameTable: [CPDictionary dictionaryWithObject: self forKey:"CPOwner"]
 			localizableStringsTable: nil inBundle: nil tagMapping: nil];

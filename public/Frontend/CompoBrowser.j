@@ -43,6 +43,7 @@ var CompoJanusControl_typeArray;
 	id addPatchPopover;
 	id addCompoWindow;
 	id addCompoTV;
+    id moveToWindow;
 	id searchTerm @accessors;
 }
 
@@ -140,6 +141,35 @@ var CompoJanusControl_typeArray;
 	if(aTerm && aTerm.length)
 	{	  [[CPApp delegate].patchRepoController setFilterPredicate: [CPPredicate predicateWithFormat:"name LIKE[cd] %@", aTerm.toLowerCase()]];
 	} else [[CPApp delegate].patchRepoController setFilterPredicate: nil];
+}
+
+-(void) duplicateCompo:(id)sender
+{
+    var compoController=[CPApp delegate].compoController;
+    var myreq=[CPURLRequest requestWithURL:BaseURL+"duplicate_compo/"+[compoController valueForKeyPath:"selection.id"] ];
+    [myreq setHTTPMethod:"POST"];
+
+    var pk=[[CPURLConnection sendSynchronousRequest:myreq returningResponse: nil]  rawString];
+    [compoController reload];
+    [[CPApp delegate].chainsControllerAll setContent:[[CPApp delegate].chainsControllerAll._entity allObjects] ];
+    window.setTimeout(function(){ [compoController selectObjectWithPK:pk] }, 300); 
+}
+-(void) duplicateChain:(id)sender
+{
+    var chainsController=[CPApp delegate].chainsController;
+    var myreq=[CPURLRequest requestWithURL:BaseURL+"duplicate_chain/"+[chainsController valueForKeyPath:"selection.id"] ];
+    [myreq setHTTPMethod:"POST"];
+    var pk=[[CPURLConnection sendSynchronousRequest:myreq returningResponse: nil]  rawString];
+    [chainsController reload];
+    [chainsController selectObjectWithPK:pk];
+}
+-(void) moveToTrial:(id)sender
+{   [moveToWindow makeKeyAndOrderFront:self];
+}
+-(void) setPrimaryChain:(id)sender
+{   var compoController=[CPApp delegate].compoController;
+    var chainsController=[CPApp delegate].chainsController;
+    [compoController setValue:[chainsController valueForKeyPath:"selection.id"] forKeyPath:"selection.primary_chain"]
 }
 
 @end

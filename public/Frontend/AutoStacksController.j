@@ -6,12 +6,20 @@
 @implementation AutoStacksController: ManualStacksController
 {	id		progress;
 	BOOL	_bridgeStitchingAll;
-	var		mystacksconnection
+	id		mystacksconnection;
+    id      mainBB;
 }
 
-//prevent our RANSAC matrix from beeing destroyed. don't call super method!!
+-(void) _postInit
+{
+    [super _postInit];
+    var button=[mainBB addButtonWithImageName:"reload.png" target:self action:@selector(reloadList:)];
+    [button setToolTip:"Reload trials"];
+}
+
 -(void) _triggerRegistrationMatrixGeneration
 {
+// prevent our RANSAC matrix from beeing destroyed. don't call super method!!
 }
 
 - (void)deleteAllWarningDidEnd:(CPAlert)anAlert code:(id)code context:(id)context
@@ -23,6 +31,11 @@
     }
 
 }
+-(void) reloadList:(id)sender
+{
+    [myAppController.stacksController reload];
+}
+
 
 -(void) deleteAll: sender
 {
@@ -60,7 +73,7 @@
 {
 	var idanalysis1 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis"];
 	var idanalysis2 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis_reference"];
-	if(idanalysis2 === CPNullMarker)
+	if (idanalysis2 === CPNullMarker)
 	{	[[CPAlert alertWithError:"Please select entry with a reference"] runModal];
 		return;
 	}

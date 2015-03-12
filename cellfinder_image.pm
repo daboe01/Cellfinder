@@ -414,6 +414,22 @@ sub uniquelyInsertObjectIntoTable{
 	return insertObjectIntoTable($dbh,$table,$pk,$o) unless $sth->fetchrow_hashref();
 	return undef;
 }
+sub dictsForWhereClauseDict{
+	my $dbh  = shift;
+	my $table = shift;
+	my $wc = shift;
+    
+	my $sql = SQL::Abstract->new;
+	my($stmt, @bind) = $sql->select($table, undef, $wc);
+	my $sth = $dbh->prepare($stmt);
+	$sth->execute(@bind);
+    my @out;
+	while(my $c=$sth->fetchrow_hashref())
+	{	push @out,$c;
+	}
+    return \@out;
+}
+
 sub deleteObjectFromTable{
 	my $dbh  = shift;
 	my $table = shift;

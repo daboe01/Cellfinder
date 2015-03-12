@@ -15,7 +15,7 @@
                 </tableView>
             </scrollView>
             <ButtonBar plusButtonAction="newCompo:" minusButtonAction="deleteCompo:" actionsButton="YES" target="#mycompobrowser">
-                <popUpButtonItem title="CopyCompo" target="#mycompobrowser" action="copyCompo:"/>
+                <popUpButtonItem title="Duplicate" target="#mycompobrowser" action="duplicateCompo:"/>
                 <popUpButtonItem title="Move to other trial..." target="#mycompobrowser" action="moveToTrial:"/>
             </ButtonBar>
         </vbox>
@@ -29,7 +29,6 @@
             <ButtonBar plusButtonAction="newChain:" minusButtonAction="deleteChain:" actionsButton="YES" target="#mycompobrowser">
                 <popUpButtonItem title="Set primary" target="#mycompobrowser" action="setPrimaryChain:"/>
                 <popUpButtonItem title="Duplicate" target="#mycompobrowser" action="duplicateChain:"/>
-                <popUpButtonItem title="Move to other trial..." target="#mycompobrowser" action="moveToTrial:"/>
             </ButtonBar>
         </vbox>
         <vbox>
@@ -39,9 +38,7 @@
                     <tableColumn identifier="ordering" title="sort" editable="YES"/>
                   </tableView>
             </scrollView>
-            <ButtonBar plusButtonAction="newPatch:" minusButtonAction="deletePatch:" actionsButton="YES" target="#mycompobrowser">
-                <popUpButtonItem title="Duplicate" target="#mycompobrowser" action="duplicateChain:"/>
-            </ButtonBar>
+            <ButtonBar plusButtonAction="newPatch:" minusButtonAction="deletePatch:" actionsButton="NO" target="#mycompobrowser"/>
         </vbox>
         <vbox>
             <scrollView hasHorizontalScroller="NO">
@@ -53,6 +50,7 @@
         </vbox>
      </splitView>
   </window>
+
   <window id="addcompowindow" visible="NO" width="400" height="600">
    <vbox id="addcompotv">
     <searchField valueBinding="mycompobrowser.searchTerm"/>
@@ -65,6 +63,12 @@
       <button title="Add selected" target="#mycompobrowser" action="performAddCompo:"/>
       <button title="Cancel" target="#mycompobrowser" action="cancelAddCompo:"/>
     </hbox>
+   </vbox>
+  </window>
+
+  <window id="movetowindow" title="Move to other trial" visible="NO" width="400" height="40">
+   <vbox>
+       <popUpButton halign="expand" valueBinding="#CPOwner.compoController.selection.idtrials" itemsBinding="#CPOwner.trialsController.arrangedObjects.name"/>
    </vbox>
   </window>
 
@@ -84,7 +88,7 @@
     <outlet source="#mycompobrowser" target="mainwindow" label="myWindow"/>
     <outlet source="#mycompobrowser" target="addcompowindow" label="addCompoWindow"/>
     <outlet source="#mycompobrowser" target="addcompotv" label="addCompoTV"/>
-
+    <outlet source="#mycompobrowser" target="movetowindow" label="moveToWindow"/>
 </connectors>
 
 </gsmarkup>

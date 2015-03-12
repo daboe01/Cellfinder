@@ -18,6 +18,8 @@ $ENV{MOJO_MAX_MESSAGE_SIZE} = 1_073_741_824;
 
 plugin 'database', {
 			dsn	  => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
+			username => 'root',
+			password => 'root',
 			options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
 			helper   => 'db'
 };
@@ -194,6 +196,7 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
             $geom=~s/ /+/ogs;
             warn $geom;
             $p->Crop($geom) if $geom;
+            $p->Channel($self->param('channel')) if $self->param('channel');
             my ($width, $height)= $p->Get('width', 'height');
             my @h=$p->GetPixels(map=> ($self->param('map') || 'I' ), width=>$width, height=>$height, normalize=> ( $self->param('normalize') || '0' ) );
             $self->render(json => \@h );
@@ -897,6 +900,68 @@ post '/IMG/deleteAllAnalyses/:idtrial'=> [idtrial => qr/[0-9]+/] => sub
     my $sth =  $self->db->prepare( $sql );
     $sth->execute(($idtrial));
     $self->render(data=> 'OK', format =>'txt' );
+};
+post '/IMG/duplicate_compo/:idcompo'=> [idcompo => qr/[0-9]+/] => sub
+{   my $self=shift;
+    my $idcompo = $self->param('idcompo');
+
+    my $oldCompo = cellfinder_image::getObjectFromDBHandID($self->db, 'patch_compositions', $idcompo);
+    delete $oldCompo->{id};
+    $oldCompo->{name}.='_kopie';
+
+    my $newCompoPK=cellfinder_image::insertObjectIntoTable($self->db, 'patch_compositions', 'id', $oldCompo);
+warn "newCompoPK: $newCompoPK";
+    my $chains= cellfinder_image::dictsForWhereClauseDict($self->db, 'patch_chains', {idpatch_composition =>$idcompo} );
+    foreach my $currChain (@$chains)
+    {
+        $currChain->{idpatch_composition}=$newCompoPK;
+        my $oldChainPK=$currChain->{id};
+        delete $currChain->{id};
+        my $newChainPK =cellfinder_image::insertObjectIntoTable($self->db, 'patch_chains', 'id', $currChain );
+warn "newChainPK: $newChainPK";
+        my $allPatches =cellfinder_image::dictsForWhereClauseDict($self->db, 'patches', {idpatch_chain =>$oldChainPK});
+        foreach my $currPatch (@{$allPatches})
+        {   $currPatch->{idpatch_chain}=$newChainPK;
+            my $oldPatchPK=$currPatch->{id};
+            delete $currPatch->{id};
+warn Dumper $currPatch;
+            my $newPatchPK = cellfinder_image::insertObjectIntoTable($self->db, 'patches', 'id', $currPatch);
+warn "newPatchPK: $newPatchPK";
+            my $allParams= cellfinder_image::dictsForWhereClauseDict($self->db, 'patch_input_values', {idpatch =>$oldPatchPK});
+            foreach my $currParam (@{$allParams})
+            {   $currParam->{idpatch}=$newPatchPK;
+                delete $currParam->{id};
+                cellfinder_image::insertObjectIntoTable($self->db, 'patch_input_values', 'id', $currParam);
+            }
+        }
+   }
+   $self->render(data=> $newCompoPK, format =>'txt' );
+};
+
+
+post '/IMG/duplicate_chain/:idchain'=> [idchain => qr/[0-9]+/] => sub
+{   my $self=shift;
+    my $idchain = $self->param('idchain');
+
+    my $currChain = cellfinder_image::getObjectFromDBHandID($self->db, 'patch_chains', $idchain);
+    delete $currChain->{id};
+
+
+    my $newChainPK =cellfinder_image::insertObjectIntoTable($self->db, 'patch_chains', 'id', $currChain );
+    my $allPatches =cellfinder_image::dictsForWhereClauseDict($self->db, 'patches', {idpatch_chain =>$idchain});
+    foreach my $currPatch (@{$allPatches})
+    {   $currPatch->{idpatch_chain}=$newChainPK;
+        my $oldPatchPK=$currPatch->{id};
+        delete $currPatch->{id};
+        my $newPatchPK = cellfinder_image::insertObjectIntoTable($self->db, 'patches', 'id', $currPatch);
+        my $allParams= cellfinder_image::dictsForWhereClauseDict($self->db, 'patch_input_values', {idpatch =>$oldPatchPK});
+        foreach my $currParam (@{$allParams})
+        {   $currParam->{idpatch}=$newPatchPK;
+            delete $currParam->{id};
+            cellfinder_image::insertObjectIntoTable($self->db, 'patch_input_values', 'id', $currParam);
+        }
+    }
+    $self->render(data=> $newChainPK, format =>'txt' );
 };
 
 
