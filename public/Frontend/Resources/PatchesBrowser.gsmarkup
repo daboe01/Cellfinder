@@ -3,37 +3,43 @@
 <gsmarkup>
 
 <objects>
-  <window title="Patches" closable="yes" id="mainwindow" x="30" y="30" width="800" height="640" autosaveName="composColumnSizes">
-	<hbox>
-		<vbox>
-			<scrollView hasHorizontalScroller="NO" width="200">
-				<tableView autosaveName="allpatches" zebra="yes" valueBinding="#CPOwner.patchRepoController" target="#CPOwner">
-					<tableColumn identifier="name" title="name" editable="YES"/>
-					<tableColumn identifier="type" title="type" editable="YES"/>
-					<tableColumn identifier="filetype" title="filetype" editable="YES"/>
-	  			</tableView>
-			</scrollView>
-			<ButtonBar plusButtonAction="insert:" minusButtonAction="remove:" target="#CPOwner.patchRepoController">
-			</ButtonBar>
-		</vbox>
-		<vbox>
-			<scrollView hasHorizontalScroller="NO" width="400">
-				<textView editable="YES" valueBinding="#CPOwner.patchRepoController.selection.code"/>
-			</scrollView>
-		</vbox>
-		<vbox>
-			<scrollView hasHorizontalScroller="NO" width="400">
-				<tableView autosaveName="patchParameters" zebra="yes" valueBinding="#CPOwner.patchParametersController2" target="#CPOwner">
-					<tableColumn identifier="name" title="name" editable="YES"/>
-					<tableColumn identifier="default_value" title="default" editable="YES"/>
-					<tableColumn identifier="type" title="type" editable="YES"/>
-					<tableColumn identifier="cmd_name" title="cmd_name" editable="YES"/>
-	  			</tableView>
-			</scrollView>
-			<ButtonBar plusButtonAction="insert:" minusButtonAction="remove:" target="#CPOwner.patchParametersController2">
-			</ButtonBar>
-		</vbox>
-	 </hbox>
+  <window title="Patches" closable="yes" id="mainwindow" x="30" y="30" width="800" height="640" autosaveName="windowPatchesAutosave">
+   <splitView vertical="YES" autosaveName="hsplitter_patches">
+        <vbox>
+            <scrollView hasHorizontalScroller="NO" width="200">
+                <tableView autosaveName="allpatches" zebra="yes" valueBinding="#CPOwner.patchRepoController" target="#CPOwner">
+                    <tableColumn identifier="name" title="name" editable="YES"/>
+                    <tableColumn identifier="type" title="type" editable="YES"/>
+                    <tableColumn identifier="filetype" title="filetype" editable="YES"/>
+                  </tableView>
+            </scrollView>
+            <ButtonBar plusButtonAction="insert:" minusButtonAction="remove:" target="#CPOwner.patchRepoController">
+            </ButtonBar>
+        </vbox>
+        <vbox>
+            <scrollView hasHorizontalScroller="NO" width="200">
+                <textView editable="YES" backgroundColor="white" valueBinding="#CPOwner.patchRepoController.selection.code"/>
+            </scrollView>
+        </vbox>
+        <vbox>
+            <scrollView hasHorizontalScroller="NO" width="50">
+                <tableView autosaveName="patchParameters" zebra="yes" valueBinding="#CPOwner.patchParametersController2" target="#CPOwner">
+                    <tableColumn identifier="name" title="name" editable="YES"/>
+                  </tableView>
+            </scrollView>
+            <ButtonBar plusButtonAction="insert:" minusButtonAction="remove:" target="#CPOwner.patchParametersController2">
+            </ButtonBar>
+        </vbox>
+        <vbox>
+            <hbox><label valign="center" halign="min" width="50">Type</label><textField valueBinding="#CPOwner.patchParametersController2.selection.type"/></hbox>
+            <hbox><label valign="center" halign="min" width="50">Default</label><textField valueBinding="#CPOwner.patchParametersController2.selection.default_value"/></hbox>
+            <hbox><label valign="center" halign="min" width="25">Min</label><textField valueBinding="#CPOwner.patchParametersController2.selection.range1"/>
+                  <label valign="center" halign="min" width="25">Max</label><textField valueBinding="#CPOwner.patchParametersController2.selection.range2"/></hbox>
+
+            <hbox><label valign="center" halign="min" width="50">Cmd name</label><textField valueBinding="#CPOwner.patchParametersController2.selection.cmd_name"/></hbox>
+
+        </vbox>
+     </splitView>
   </window>
 </objects>
 
