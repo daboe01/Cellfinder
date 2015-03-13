@@ -10,6 +10,7 @@
 	id tagField;
     id clusterConnection;
     id autostitchConnection;
+    id reanaConnection;
     id tagsTV;
 }
 
@@ -40,7 +41,6 @@
 -(void) _postInit2
 {	[annotatedImageView bind:"backgroundImage" toObject: myAppController.analysesController withKeyPath: "selection._backgroundImage" options:nil];
 	[myAppController.analysesController addObserver:self forKeyPath:"selection.idcomposition_for_editing" options:nil context:nil];
-
 }
 
 - (void)observeValueForKeyPath: keyPath ofObject: object change: change context: context
@@ -48,7 +48,6 @@
 	{
         window.___forceImageReload = 1;
 		[[CPRunLoop currentRunLoop] performSelector:@selector(reloadImage) target:self argument:nil order:0 modes:[CPDefaultRunLoopMode]];
-
 	}
 }
 -(void) setScale:(double) someScale
@@ -138,7 +137,7 @@
 	var myreq=[CPURLRequest requestWithURL:BaseURL+"0?cmp="+mycompoID+"&idstack="+idstack];
 	clusterConnection = [CPURLConnection connectionWithRequest:myreq delegate:self];
     clusterConnection._idtrial=idtrial;
-    [progress startAnimation: self];
+    [progress startAnimation:self];
 }
 
 -(void) doAnalyzeSelected: sender
@@ -170,8 +169,9 @@
 	var idtrial= [myAppController.trialsController valueForKeyPath:"selection.id"]
 	var myurl=BaseURL+"analyze_folder/"+idtrial+"/"+ folder_name;
 	var myreq=[CPURLRequest requestWithURL: myurl];
-	var myconnection=[CPURLConnection connectionWithRequest:myreq delegate: self];	//<!> fixme implement feedback spinner
-    myconnection._doReload=YES;
+	reanaConnection=[CPURLConnection connectionWithRequest:myreq delegate: self];	//<!> fixme implement feedback spinner
+    reanaConnection._doReload=YES;
+    [progress startAnimation:self];
 }
 
 - (void)connection:someConnection didReceiveData: data
@@ -193,6 +193,12 @@
         [progress stopAnimation: self];
         window.open("http://augimageserver:3000/Frontend/index.html?id="+idtrial+"&t=AutoStacks.gsmarkup",'autostacks');
     }
+    if(someConnection === reanaConnection)
+    {
+        reanaConnection=nil;
+        [progress stopAnimation: self];
+    }
+    
 }
 
 

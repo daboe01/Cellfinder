@@ -154,10 +154,12 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
 	my $idstack=		$self->param('idstack');
 	my $rnd=			$self->param('rnd');
 	my $exif=			$self->param('exif');
+	my $cc=             $self->param('cc');
 
 	my $nocache=0;
+	$nocache= 1 if $width;  # ignore cache
+	$nocache=-1 if $cc;     # delete cache
 
-	$nocache= 1 if(($rnd && $rnd!=1)  || $width);
 	$spc="" unless $spc;
 
 	my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage, $width, $nocache, $csize, $affine, $idstack);
@@ -195,12 +197,24 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
             my $geom=$self->param('geom');
             $geom=~s/ /+/ogs;
             warn $geom;
-            $p->Crop($geom) if $geom;
             $p->Channel($self->param('channel')) if $self->param('channel');
+            $p->Crop(geometry=>$geom) if $geom;
             my ($width, $height)= $p->Get('width', 'height');
             my @h=$p->GetPixels(map=> ($self->param('map') || 'I' ), width=>$width, height=>$height, normalize=> ( $self->param('normalize') || '0' ) );
             $self->render(json => \@h );
         }
+# http://augimageserver:3013/IMG/34500?spc=boxprope&geom=232x232+664+1219&affine=0.999999999999999,5.92526458420923e-17,4.58410930471789e-17,1,25.0000000000001,-3.00000000000024
+        elsif ($spc eq 'boxprope')
+        {
+            my $geom=$self->param('geom');
+            $geom=~s/ /+/ogs;
+            warn $geom;
+            $p->Channel($self->param('channel')) if $self->param('channel');
+            $p->Crop(geometry=>$geom) if $geom;
+            my $blob= ($p->ImageToBlob(magick=>'jpg'))[0];
+            $self->render(data => $blob, format =>'jpg' );                
+        }
+        
         elsif(length $spc)
 		{	$self->render(text=> $p->Get($spc) );
 		}
@@ -345,10 +359,10 @@ get '/ANA/clusterstackresults/:idstack'=> [idstack =>qr/\d+/] => sub
 {	my $self=shift;
 	my $idstack= $self->param("idstack");
 	my $dbh=$self->db;
-	my $sql=qq{select results.id, row,col,coalesce(tag,0) as tag, montage_images.idimage, images.name from montages join montage_images on montages.id=idmontage join analyses on analyses.idstack=montages.id join results on results.idanalysis=analyses.id join images on images.id=montage_images.idimage where montages.id=? order by 1};
+	my $sql=qq{select results.id, row,col,coalesce(tag,0) as tag, montage_images.idimage, images.name, parameter from montages join montage_images on montages.id=idmontage join analyses on analyses.idstack=montages.id join results on results.idanalysis=analyses.id join images on images.id=montage_images.idimage where montages.id=? order by 1};
 	my $sth = $dbh->prepare( $sql );
 	$sth->execute(($idstack));
-	my $result=	join("\t", qw/id row col tag idimage name/)."\n";
+	my $result=	join("\t", qw/id row col tag idimage name parameter/)."\n";
 	while(my $curr=$sth->fetchrow_arrayref())
 	{	$result.=join("\t", (@$curr));
 		$result.="\n";

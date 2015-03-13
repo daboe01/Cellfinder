@@ -24,7 +24,7 @@
                     <tableColumn identifier="parameter" editable="YES" title="parameter"/>
                   </tableView>
              </scrollView>
-             <ButtonBar target="#CPOwner.stacksAnalysesController" halign="expand" minusButtonAction="remove:" actionsButton="YES">
+             <ButtonBar halign="expand" actionsButton="YES">
                     <popUpButtonItem title="Reaggregate" target="#mystackscontroller" action="reaggregate:"/>
              </ButtonBar>
             <scrollView hasHorizontalScroller="NO">

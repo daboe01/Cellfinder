@@ -192,6 +192,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 	my $stash;
 
 	my $cachename='/tmp/cellfinder_cache_'.$idimage.'_'.$id.'.jpg';
+    unlink $cachename if -e $cachename && $cacheReadDisabled < 0;
 	if($idimage && $id && -e  $cachename && !$cacheReadDisabled )
 	{	$p = Image::Magick->new();
 		$p->Read($cachename);

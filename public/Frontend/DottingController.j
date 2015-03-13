@@ -28,10 +28,20 @@
     {
         affine=nil;
     }
-    var rnd = (window.___forceImageReload === undefined || !window.___forceImageReload)?  1:Math.floor(Math.random()*100000 + 1);
-    window.___forceImageReload = 0;
+
+    if (window.___forceImageReloadRnd === undefined) window.___forceImageReloadRnd = 1;
+    if (window.___forceImageReload) window.___forceImageReloadRnd = Math.floor(Math.random()*100000);
+    var rnd = window.___forceImageReloadRnd;
+
 	var myURL= [[CPApp delegate] baseImageURL]+myidimage+"?rnd="+rnd+"&idanalysis="+[self valueForKey:"id"];
+
     if(affine) myURL+="&affine="+affine;
+
+    if (window.___forceImageReload)
+    {   window.___forceImageReload = 0;
+        myURL+="&cc=1";
+    }
+
 	if(mycompoID && mycompoID !== CPNullMarker) myURL+="&cmp="+mycompoID;
 	var mycontroller= [[CPApp delegate] mainController];	// this is hack to get hold of the UI context from within the database context
 	var scale = mycontroller._scale;
@@ -52,6 +62,7 @@
 {	var mycompoID=		[self valueForKey:"idcomposition_for_analysis" ];
 	var myidimage=		[self valueForKey:"idimage" ];
 	var myidanalysis =	[self valueForKey:"id" ];
+
 	if(mycompoID !== CPNullMarker)
 	{	var myurl= BaseURL +myidimage+"?cmp="+mycompoID+"&idanalysis="+ myidanalysis;
 		var myreq=[CPURLRequest requestWithURL: myurl];

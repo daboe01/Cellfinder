@@ -14,7 +14,7 @@
 {
     [super _postInit];
     var button=[mainBB addButtonWithImageName:"reload.png" target:self action:@selector(reloadList:)];
-    [button setToolTip:"Reload trials"];
+    [button setToolTip:"Reload list"];
 }
 
 -(void) _triggerRegistrationMatrixGeneration
