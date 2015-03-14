@@ -4,7 +4,7 @@
 
 <objects>
   <window title="Patches" closable="yes" id="mainwindow" x="30" y="30" width="800" height="640" autosaveName="windowPatchesAutosave">
-   <splitView vertical="YES" autosaveName="hsplitter_patches">
+   <splitView vertical="YES" autosaveName="hsplitter_patches2">
         <vbox>
             <scrollView hasHorizontalScroller="NO" width="200">
                 <tableView autosaveName="allpatches" zebra="yes" valueBinding="#CPOwner.patchRepoController" target="#CPOwner">
@@ -37,7 +37,12 @@
                   <label valign="center" halign="min" width="25">Max</label><textField valueBinding="#CPOwner.patchParametersController2.selection.range2"/></hbox>
 
             <hbox><label valign="center" halign="min" width="50">Cmd name</label><textField valueBinding="#CPOwner.patchParametersController2.selection.cmd_name"/></hbox>
-
+            <scrollView hasHorizontalScroller="NO" width="200">
+                <tableView autosaveName="parameterlists2" zebra="yes" valueBinding="#CPOwner.parameterlistsControllerBound" target="#CPOwner">
+                    <tableColumn identifier="value" title="value" editable="YES"/>
+                </tableView>
+            </scrollView>
+            <ButtonBar plusButtonAction="insert:" minusButtonAction="remove:" target="#CPOwner.parameterlistsControllerBound">
         </vbox>
      </splitView>
   </window>

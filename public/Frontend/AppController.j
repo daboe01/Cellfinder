@@ -115,6 +115,7 @@ PhotoDragType="PhotoDragType";
 	id	taglistController;
 	id	taglistController2;
 	id	parameterlistsController;
+	id	parameterlistsControllerBound;
 	id  patchRepoController;
 	id  patchParametersController;
 	id  patchParametersController2;

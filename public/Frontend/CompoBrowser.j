@@ -20,7 +20,7 @@ var CompoJanusControl_typeArray;
 		("5","List"),
 		("4","Image")
  */
-	CompoJanusControl_typeArray=[TableViewControl, TableViewControl, TableViewControl, TableViewControl, nil, TableViewPopup];
+	CompoJanusControl_typeArray=[TableViewControl, TableViewControl, TableViewControl, TableViewControl, TableViewPopupImage, TableViewPopup];
 }
 - viewClass
 {
@@ -28,6 +28,23 @@ var CompoJanusControl_typeArray;
 }
 
 @end
+
+@implementation TableViewPopupImage:TableViewPopup
+-(void) setItemsController:(id)aController
+{
+    [super setItemsController:[CPApp delegate].chainsControllerAll]
+}
+-(void) setItemsFace:(CPString)aFace
+{
+    [super setItemsFace:"arrangedObjects.name"]
+}
+-(void) setItemsPredicateFormat:(CPString)aFormat
+{
+    [super setItemsPredicateFormat:"idpatch_composition == $patch.chain.idpatch_composition"]
+}
+
+@end
+
 @implementation GSMarkupTagCompoJanusControl: GSMarkupTagTableViewJanusControl
 
 + (Class) platformObjectClass

@@ -53,6 +53,7 @@
     <arrayController id="tags_controller" entity="tags" valueBinding ="folder_content_controller.selection.tags"/>
     <arrayController id="taglist_controller" entity="taglist_repository" autoFetch="YES"/>
     <arrayController id="parameter_lists_controller" entity="parameter_lists" autoFetch="YES"/>
+    <arrayController id="parameter_lists_controller_bound" entity="parameter_lists" valueBinding ="patch_parameters_controller2.selection.list"/>
 
   <menu type="main">
     <menu title="Images">
@@ -121,6 +122,7 @@
         <column name="idpatch"/>
         <column name="ordering"/>
         <relationship type="toOne" name="patch" bindingColumn="idpatch" target="patch_repository"/>
+        <relationship type="toOne" name="chain" bindingColumn="idpatch_chain" target="patch_chains"/>
         <relationship type="toMany" name="input_values" targetColumn="idpatch" target="patch_input_values"/>
     </entity>
     <entity id="patch_repository" store="#CPOwner.store">
@@ -139,6 +141,7 @@
         <column name="interactive"/>
         <column name="disable"/>
         <relationship type="toOne" name="parameter" bindingColumn="idparameter" target="patch_parameters"/>
+        <relationship type="toOne" name="patch" bindingColumn="idpatch" target="patches"/>
     </entity>
     <entity id="patch_parameters" store="#CPOwner.store">
         <column name="id" primaryKey="YES"/>
@@ -150,6 +153,7 @@
         <column name="idpatch"/>
         <column name="cmd_name"/>
         <column name="description"/>
+        <relationship type="toMany" name="list" targetColumn="idpatch_parameter" target="parameter_lists"/>
     </entity>
     <entity id="composition_interactive_parameters" store="#CPOwner.store">
         <column name="idinput" primaryKey="YES"/>
@@ -294,6 +298,7 @@
     <outlet source="#CPOwner" target="taglist_controller" label="taglistController"/>
     <outlet source="#CPOwner" target="taglist_controller2" label="taglistController2"/>
     <outlet source="#CPOwner" target="parameter_lists_controller" label="parameterlistsController"/>
+    <outlet source="#CPOwner" target="parameter_lists_controller_bound" label="parameterlistsControllerBound"/>
     <outlet source="#CPOwner" target="patch_repo_controller" label="patchRepoController"/>
     <outlet source="#CPOwner" target="patch_parameters_controller" label="patchParametersController"/>
     <outlet source="#CPOwner" target="patch_parameters_controller2" label="patchParametersController2"/>
