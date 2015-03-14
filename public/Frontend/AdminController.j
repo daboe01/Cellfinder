@@ -15,6 +15,13 @@
 {
 	id	trialsWindow;
 	id	trialsettingswindow;
+    id  searchTerm @accessors;
+}
+
+-(void) setSearchTerm:(id)aTerm
+{   if(aTerm && aTerm.length)
+    {   [[CPApp delegate].trialsController setFilterPredicate:[CPPredicate predicateWithFormat:"name CONTAINS %@", aTerm]];
+    } else [[CPApp delegate].trialsController setFilterPredicate: nil];
 }
 
 -(void) runSettings:sender

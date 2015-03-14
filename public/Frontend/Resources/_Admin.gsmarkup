@@ -7,17 +7,15 @@
 
   <arrayController id="guiclasses_ac" entity="gui_classes"/>
 
-  <window title="All trials" bridge="YES"  id="trialswindow" delegate="myadmincontroller">
-    <splitView vertical="YES" autosaveName="vsplitter_main1">
-     <vbox>
-      <searchField valueBinding="myadmincontroller.searchTerm"/>
-     <scrollView>
-       <tableView zebra="yes" autosaveName="alltrials" valueBinding="#CPOwner.trialsController" target="#CPOwner" doubleAction="runSettings:">
+  <window title="All trials" closable="no"  x="10" y="50" id="trialswindow" width="300" height="640" delegate="myadmincontroller">
+    <vbox>
+    <scrollView>
+     <tableView zebra="yes" autosaveName="alltrials" valueBinding="#CPOwner.trialsController" target="#CPOwner" doubleAction="runSettings:">
         <tableColumn identifier="id" title="id"/>
         <tableColumn identifier="name" title="name"/>
-       </tableView>
-      </scrollView>
-      <ButtonBar actionsButton="YES" target="#myadmincontroller" plusButtonAction="newTrial:" minusButtonAction="removeTrial:">
+     </tableView>
+    </scrollView>
+    <ButtonBar actionsButton="YES" target="#myadmincontroller" plusButtonAction="newTrial:" minusButtonAction="removeTrial:">
          <popUpButtonItem title="Settings..." target="#CPOwner" action="runSettings:" keyEquivalent="i"/>
          <popUpButtonItem title="Reaggregate all" target="#myadmincontroller" action="reaggregateAll:"/>
          <popUpButtonItem title="Add default analysis" target="#myadmincontroller" action="addDefaultAnalysisToAll:"/>
@@ -25,18 +23,50 @@
          <popUpButtonItem title="Rebuild from repo" target="#myadmincontroller" action="rebuildFromRepo:"/>
          <popUpButtonItem title="Delete all images" target="#myadmincontroller" action="deleteAllImages:"/>
          <popUpButtonItem title="Delete all analyses" target="#myadmincontroller" action="deleteAllAnalyses:"/>
-      </ButtonBar>
-     </vbox>
-     <tabView type="topBezel">
-     <tabViewItem title="General">
-       <vbox>
+    </ButtonBar>
+    </vbox>
+ </window>
+
+  <window title="Analysis Tags" closable="no"  x="650" y="50" id="tagswindow" width="400" height="340">
+    <vbox>
+     <hbox>
+      <vbox>
+       <scrollView>
+        <tableView zebra="yes" autosaveName="alltags" delegate="#myadmincontroller" valueBinding="#CPOwner.tagrepoController">
+         <tableColumn identifier="id" title="id" editable="NO"/>
+         <tableColumn identifier="name" title="name" editable="YES"/>
+         <tableColumn identifier="type" title="type" editable="YES"/>
+        </tableView>
+       </scrollView>
+       <ButtonBar target="#CPOwner.tagrepoController" plusButtonAction="insert:" minusButtonAction="remove:" actionsButton="YES">
+         <popUpButtonItem title="Update trial" target="#myadmincontroller" action="updateTags:"/>
+       </ButtonBar>
+      </vbox>
+      <vbox>
+       <scrollView>
+        <tableView zebra="yes" autosaveName="alltaglists" valueBinding="#CPOwner.taglistController2">
+         <tableColumn identifier="name" title="name" editable="YES"/>
+         <tableColumn identifier="ordering" title="type" editable="YES"/>
+        </tableView>
+       </scrollView>
+       <ButtonBar target="#CPOwner.taglistController2" plusButtonAction="insert:" minusButtonAction="remove:"/>
+      </vbox>
+     </hbox>
+    </vbox>
+ </window>
+
+  <window title="Trial settings" id="trialsettingswindow" x="310" y="50" width="400" height="400" resizable="YES">
+    <vbox>
+        <tabView type="topBezel">
+            <tabViewItem title="General">
+                <vbox>
                     <vspace height="20" valign="min"/>
                     <hbox><label valign="center" halign="min" width="100">Name</label><textField valueBinding="#CPOwner.trialsController.selection.name" nextKeyView="#groupregexfield"/></hbox>
                     <hbox><label valign="center" halign="min" width="100">Grouping regex</label><textField valueBinding="#CPOwner.trialsController.selection.entity_regex" id="groupregexfield"/></hbox>
                     <popUpButton width="200" itemsBinding="guiclasses_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.editing_controller"/>
-        </vbox>
-     </tabViewItem>
-     <tabViewItem title="Filters">
+                </vbox>
+            </tabViewItem>
+            <tabViewItem title="Filters">
                 <vbox>
                 <vspace height="20" valign="min"/>
                 <hbox><label valign="center" halign="min" width="130">Upload</label><popUpButton width="200" itemsBinding="#CPOwner.uploadfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_upload"/></hbox>
@@ -48,35 +78,11 @@
                 <hbox><label valign="center" halign="min" width="130">Aggregator</label><popUpButton width="200" itemsBinding="#CPOwner.aggfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_aggregation"/></hbox>
                 <hbox><label valign="center" halign="min" width="130">Clustering</label><popUpButton width="200" itemsBinding="#CPOwner.analyticsfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_clustering"/></hbox>
                 </vbox>
-      </tabViewItem>
-      <tabViewItem title="Tags">
-          <hbox>
-           <vbox>
-            <scrollView>
-             <tableView zebra="yes" autosaveName="alltags" delegate="#myadmincontroller" valueBinding="#CPOwner.tagrepoController">
-               <tableColumn identifier="id" title="id" editable="NO"/>
-               <tableColumn identifier="name" title="name" editable="YES"/>
-               <tableColumn identifier="type" title="type" editable="YES"/>
-            </tableView>
-           </scrollView>
-           <ButtonBar target="#CPOwner.tagrepoController" plusButtonAction="insert:" minusButtonAction="remove:" actionsButton="YES">
-              <popUpButtonItem title="Update trial" target="#myadmincontroller" action="updateTags:"/>
-           </ButtonBar>
-         </vbox>
-         <vbox>
-           <scrollView>
-              <tableView zebra="yes" autosaveName="alltaglists" valueBinding="#CPOwner.taglistController2">
-                <tableColumn identifier="name" title="name" editable="YES"/>
-                <tableColumn identifier="ordering" title="type" editable="YES"/>
-              </tableView>
-           </scrollView>
-           <ButtonBar target="#CPOwner.taglistController2" plusButtonAction="insert:" minusButtonAction="remove:"/>
-         </vbox>
-       </hbox>
-     </tabViewItem>
-   </tabView>
-  </splitView>
- </window>
+            </tabViewItem>
+        </tabView>
+        <button title="Done" target="#CPOwner" action="closeSheet:"/>
+    </vbox>
+  </window>
 </objects>
 
 <entities>
