@@ -47,6 +47,9 @@
                     <tableColumn identifier="value" title="value" dataView="#column_valueview"/>
                   </tableView>
             </scrollView>
+            <ButtonBar actionsButton="YES">
+                <popUpButtonItem title="Nullify" target="#mycompobrowser" action="nullifyPatch:"/>
+            </ButtonBar>
         </vbox>
      </splitView>
   </window>

@@ -189,6 +189,11 @@ var CompoJanusControl_typeArray;
     [compoController setValue:[chainsController valueForKeyPath:"selection.id"] forKeyPath:"selection.primary_chain"]
 }
 
+-(void) nullifyPatch:(id)sender
+{   var inputValController=[CPApp delegate].inputValController;
+    [inputValController setValue:[CPNull null] forKeyPath:"selection.value"]
+}
+
 @end
 
 @implementation GSMarkupTagCompoBrowser:GSMarkupTagObject
