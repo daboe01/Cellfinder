@@ -1,17 +1,15 @@
 Cellfinder
 ========
 
-Cellfinder is a comprehensive framework for image storage, filtering and feature extraction. Cellfinder unifies the power of R (i.e. EBImage), ImageMagick, Postgres, Perl and command line tools into a graphical block oriented programming language. Cellfinder has a builtin image and feature basis as well as building blocks for powerful custom GUIs. Cellfinder has e.g. been used for cell counting applications in laboratory experiments, image planimetry, flicker comparison and video stabilisation.
+Cellfinder is a comprehensive framework for image storage, filtering and feature extraction. Cellfinder unifies the power of R (i.e. EBImage), ImageMagick, Postgres, Perl and command line tools into a graphical block oriented programming language. Cellfinder has a builtin image and feature databasis. Cellfinder also comes with building blocks for powerful GUIs. Cellfinder has already been used to buid cell counting applications in the laboratory setting, clinical image planimetry, clinical flicker comparisons and video stabilisation.
 
-Features include:
- * 100% browser based
+Features in detail:
  * Desktop-quality UI (e.g. keyboard navigation, unlimited undo / redo)
+ * 100% browser based
  * Image repository
- * Feature extraction
- * Feature database/editor
- * Feature aggregation
- * Batch processing
  * Stack support
+ * Feature editor
+ * Batch processing
  * Image registration
  * RESTful API (incl. WebSocket)
 
