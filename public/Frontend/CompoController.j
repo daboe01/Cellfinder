@@ -11,8 +11,8 @@
 
 
 @implementation FSObject(percentage)
--(id) unpercentedValueForKey:(CPString) aString
-{	var r= [self valueForKey: aString];
+-(id) unpercentedValueForKey:(CPString)aString
+{	var r= [self valueForKey:aString];
 	return [r stringByReplacingOccurrencesOfString:"%" withString: ""];
 }
 @end
@@ -20,13 +20,12 @@
 @implementation ReversePercentageFormatter : CPFormatter
 
 - (CPString)stringForObjectValue:(id)theObject	// no percentage sign in UI 
-{
-	return [theObject stringByReplacingOccurrencesOfString:"%" withString: ""];
+{	if(![theObject isKindOfClass:[CPString class]]) theObject=[theObject stringValue];
+	return [theObject stringByAppendingString:"%"];
 }
 
 - (id)objectValueForString:(CPString)aString error:(CPError)theError
-{	if(![aString isKindOfClass:[CPString class]]) aString=[aString stringValue];
-	return [aString stringByAppendingString:"%"];
+{	return [aString stringByReplacingOccurrencesOfString:"%" withString: ""];
 
 }
 @end
@@ -148,7 +147,7 @@
 		{	case "1":
 			{	var formatter="";
 				if([[input valueForKey:"range2"] hasSuffix:"%"])
-				{	[input setFormatter: [ReversePercentageFormatter new] forColumnName:"value"];
+				{	[input setFormatter:[ReversePercentageFormatter new] forColumnName:"value"];
 				}
 				var minVal=[input unpercentedValueForKey:"range1"];
 				var maxVal=[input unpercentedValueForKey:"range2"];

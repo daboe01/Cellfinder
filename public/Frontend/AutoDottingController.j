@@ -11,6 +11,7 @@
     id clusterConnection;
     id autostitchConnection;
     id reanaConnection;
+    id reaggConnection;
     id tagsTV;
 }
 
@@ -169,8 +170,20 @@
 	var idtrial= [myAppController.trialsController valueForKeyPath:"selection.id"]
 	var myurl=BaseURL+"analyze_folder/"+idtrial+"/"+ folder_name;
 	var myreq=[CPURLRequest requestWithURL: myurl];
-	reanaConnection=[CPURLConnection connectionWithRequest:myreq delegate: self];	//<!> fixme implement feedback spinner
+	reanaConnection=[CPURLConnection connectionWithRequest:myreq delegate: self];
     reanaConnection._doReload=YES;
+    [progress startAnimation:self];
+}
+-(void) reaggregateFolder:(id)sender
+{
+	var folder_name=[myAppController.folderController valueForKeyPath:"selection.folder_name"];
+	var idtrial= [myAppController.trialsController valueForKeyPath:"selection.id"]
+	var myurl=BaseURL+"reaggregate_folder/"+idtrial+"/"+ folder_name;
+	var myreq=[CPURLRequest requestWithURL: myurl];
+    [myreq setHTTPMethod:"POST"];
+
+	reaggConnection=[CPURLConnection connectionWithRequest:myreq delegate: self];
+    reaggConnection._doReload=YES;
     [progress startAnimation:self];
 }
 
@@ -196,6 +209,11 @@
     if(someConnection === reanaConnection)
     {
         reanaConnection=nil;
+        [progress stopAnimation: self];
+    }
+    if(someConnection === reaggConnection)
+    {
+        reaggConnection=nil;
         [progress stopAnimation: self];
     }
     

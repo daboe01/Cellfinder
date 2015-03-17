@@ -121,6 +121,7 @@
         <column name="idpatch_chain"/>
         <column name="idpatch"/>
         <column name="ordering"/>
+        <column name="interactive"/>
         <relationship type="toOne" name="patch" bindingColumn="idpatch" target="patch_repository"/>
         <relationship type="toOne" name="chain" bindingColumn="idpatch_chain" target="patch_chains"/>
         <relationship type="toMany" name="input_values" targetColumn="idpatch" target="patch_input_values"/>
@@ -245,6 +246,7 @@
         <column name="disable"/>
         <column name="idanalysis_reference"/>
         <column name="idanalysis"/>
+        <column name="idcomposition_for_editing"/>
         <relationship type="toOne" name="analysis" bindingColumn="idanalysis" target="analyses"/>
         <relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
         <relationship type="toOne" name="montage" bindingColumn="idmontage" target="montages"/>

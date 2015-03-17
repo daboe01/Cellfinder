@@ -205,9 +205,26 @@
 	[stacksImageView setDelegate:self];
 	[stacksImageView setStyleFlags:[stacksImageView styleFlags] | AIVStyleNumbers ];
 	[stacksImageView bind:"scale" toObject:self withKeyPath:"scale" options:nil];
-	[stacksImageView bind:"value" toObject:[CPApp delegate].stacksAnalysesController withKeyPath: "selection.results" options:nil];
-	[stacksImageView bind:"backgroundImage" toObject:[CPApp delegate].stacksContentController withKeyPath: "selection._backgroundImage" options:nil];
+	[stacksImageView bind:"value" toObject:myAppController.stacksAnalysesController withKeyPath: "selection.results" options:nil];
+	[stacksImageView bind:"backgroundImage" toObject:myAppController.stacksContentController withKeyPath: "selection._backgroundImage" options:nil];
+	[myAppController.stacksContentController addObserver:self forKeyPath:"selection.idcomposition_for_editing" options:nil context:nil];
 }
+- (void)observeValueForKeyPath: keyPath ofObject: object change: change context: context
+{	if(keyPath === "selection.idcomposition_for_editing" || keyPath === "value" )
+	{
+        window.___forceImageReload = 1;
+		[[CPRunLoop currentRunLoop] performSelector:@selector(reloadImage) target:self argument:nil order:0 modes:[CPDefaultRunLoopMode]];
+	}
+}
+-(void) reloadImage
+{
+	var img=[myAppController.stackAnalysesController valueForKeyPath: "selection._backgroundImage"];
+	if([img isKindOfClass:[CPImage class]])
+	{
+    	[stacksImageView setBackgroundImage:img];
+	}
+}
+
 
 -(void) reaggregate: sender
 {	var mycompo= [myAppController.trialsController valueForKeyPath: "selection.composition_for_aggregation"];

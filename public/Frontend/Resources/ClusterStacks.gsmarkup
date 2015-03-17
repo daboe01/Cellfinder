@@ -41,6 +41,8 @@
             </scrollView>
             <hbox>
                 <slider continuous="NO" min="0" max="1"  valueBinding="mystackscontroller.scale" halign="right"/><hspace/>
+                <hspace/>
+                <popUpButton width="100" id="compoPopup" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.stacksContentController.selection.idcomposition_for_editing"/>
             </hbox>
         </vbox>
      </splitView>

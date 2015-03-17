@@ -33,6 +33,7 @@
    				<popUpButtonItem title="Make clusterstack from selected..." target="#mydottingcontroller" action="clusterDots:"/>
    				<popUpButtonItem title="Delete and reanalyze all" target="#mydottingcontroller" action="addDefaultAnalyses:"/>
    				<popUpButtonItem title="Autostich all" target="#mydottingcontroller" action="matchDotsAll:"/>
+   				<popUpButtonItem title="Reaggregate all" target="#mydottingcontroller" action="reaggregateFolder:"/>
 			</ButtonBar>
 			<scrollView hasHorizontalScroller="NO">
 				<tableView autosaveName="folders_manual_dotting_tags" zebra="yes" valueBinding="#CPOwner.tagsController" id="tags_tv" viewBasedBindings="YES">
