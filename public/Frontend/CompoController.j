@@ -121,10 +121,13 @@
 {	id		_panel;
 	id		_myAppController;
 	id		_myNameTable;
+    id      _delegate @accessors(property=delegate);
 }
 
--(void) initWithCompo:(id) compo valueObserver: myObserver
-{	_myAppController=[CPApp delegate];
+-(id) initWithCompo:(id)compo valueObserver:(id)myObserver
+{
+    if(!(self=[self init])) return nil;
+	_myAppController=[CPApp delegate];
 	var store=[_myAppController store];	// for the popUpButton entities
 	var placeholderEntity = [[FSEntity alloc] initWithName: "parameter_lists" andStore: store];	// for feeding the popUpButtons only
 	[placeholderEntity setColumns:[CPArray arrayWithObjects: "id","idpatch_parameter","value"]];
@@ -137,7 +140,7 @@
 // step 1: build the panel via dynamically generated markup
 	var i,l=[inputParams count];
 
-	var markup='<gsmarkup><objects><window id="panel" title="Inspector" closable="yes" x="600" y="30" width="350" height="500"><scrollView halign="expand" valign="expand"  hasHorizontalScroller="YES">';
+	var markup='<gsmarkup><objects><window id="panel" title="Inspector" closable="yes" x="600" y="30" width="350" height="500"><vbox><scrollView halign="expand" valign="expand"  hasHorizontalScroller="YES">';
 	markup+='<vbox id="toplevel_container" halign="min" width="350">';
 
 	for(i=0;i<l;i++)
@@ -188,9 +191,10 @@
 			}
 		}
 	}
-	markup+='</vbox></scrollView></window></objects><connectors>'+
+    var optionalButton=myObserver?'<button title="Unset compo" target="#CPOwner" action="unsetCompo:"/>':'';
+	markup+='</vbox></scrollView>'+optionalButton+'</vbox></window></objects><connectors>'+
 			'<outlet source="#CPOwner" target ="panel" label ="_panel"/></connectors></gsmarkup>';
-	var parser=[CPBundle loadGSMarkupData: [CPData dataWithRawString: markup] externalNameTable: [CPDictionary dictionaryWithObject: self forKey:"CPOwner"]
+	var parser=[CPBundle loadGSMarkupData: [CPData dataWithRawString: markup] externalNameTable:[CPDictionary dictionaryWithObject:self forKey:"CPOwner"]
 			localizableStringsTable: nil inBundle: nil tagMapping: nil];
 
 // step 2: connect gui to db-objects
@@ -218,10 +222,17 @@
 
 		}
 	}
+    [_panel setTitle:"Inspector for compo: "+[compo valueForKey:"name"]];
+    return self;
+}
+-(void) unsetCompo:(id)sender
+{
+    [_delegate unsetCompo:sender];
 }
 
--(void) initWithCompo:(id) compo
-{	[self initWithCompo: compo valueObserver: nil];
+
+-(id) initWithCompo:(id) compo
+{	return [self initWithCompo: compo valueObserver: nil];
 }
 
 @end

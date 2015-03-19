@@ -16,6 +16,9 @@
     var mycompoID;
     try{
         mycompoID=[self valueForKey:"idcomposition_for_editing" ];
+        if(mycompoID=='null' || mycompoID=='NULL')
+        {   mycompoID=nil;
+        }
     } catch(e)
     {
         mycompoID=nil;

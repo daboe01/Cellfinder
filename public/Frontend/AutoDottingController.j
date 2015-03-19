@@ -236,7 +236,13 @@
 }
 
 -(void) editViewingCompo:sender
-{	[[CompoController alloc] initWithCompo:[[myAppController.analysesController selectedObject] valueForKey:"editing_compo"] valueObserver:self];
+{
+    var mycompocontroller=[[CompoController alloc] initWithCompo:[[myAppController.analysesController selectedObject] valueForKey:"editing_compo"] valueObserver:self];
+    [mycompocontroller setDelegate:self];
+}
+-(void) unsetCompo:(id)sender
+{
+    [[myAppController.analysesController selectedObject] setValue:[CPNull null] forKey:"idcomposition_for_editing"];
 }
 
 -(void) insertAnalysisFromInput:sender

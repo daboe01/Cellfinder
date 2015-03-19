@@ -65,6 +65,16 @@ get '/DB/:table/:col/:pk' => [col=>qr/.+/, pk=>qr/.+/] => sub
     $self-> render( json => \@a );
 };
 
+helper getTypeHashForTable => sub { my ($self, $table)=@_;
+    my $sth = $self->db->column_info('','',$table,'');
+    my $info = $sth->fetchall_arrayref({});
+    my $ret={};
+    foreach (@$info)
+    {   $ret->{$_->{COLUMN_NAME}}=$_->{TYPE_NAME};
+    }
+    return $ret;
+};
+
 # update
 put '/DB/:table/:pk/:key'=> [key=>qr/\d+/] => sub
 {   my $self    = shift;
@@ -74,6 +84,13 @@ put '/DB/:table/:pk/:key'=> [key=>qr/\d+/] => sub
     my $sql     = SQL::Abstract->new;
     my $json_decoder= Mojo::JSON->new;
     my $jsonR   = $json_decoder->decode( $self->req->body );
+
+    my $types = $self->getTypeHashForTable($table);
+    for (keys %$jsonR)    ## support for nullifying dates and integers with empty string or special string NULL
+    {
+        $jsonR->{$_}= ($jsonR->{$_} =~/(^NULL$)|(^\s*$)/o && $types->{$_} !~/text|varchar/o )? undef : $jsonR->{$_} ;
+    }
+    
     app->log->debug($self->req->body);
     my($stmt, @bind) = $sql->update($table, $jsonR, {$pk=>$key});
     my $sth = $self->db->prepare($stmt);

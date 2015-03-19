@@ -101,6 +101,7 @@ ENDOFR
 }
 
 sub runEBImageRCode { my ($infile,$code, $idanalysis)=@_;
+    return undef unless -e $infile;
 	my $RCmd=<<'ENDOFR'
     library(EBImage)
     library(rjson)
@@ -383,7 +384,7 @@ sub getObjectFromDBHandID{
 	my $dbh  = shift;
 	my $table = shift;
 	my $id = shift;
-	return undef if $id eq 'null';
+	return undef if $id eq 'null' || $id eq 'NULL';
 	my $sth = $dbh->prepare( qq/select * from "/.$table.qq/" where id=?/);
 	$sth->execute(($id));
 	return $sth->fetchrow_hashref();

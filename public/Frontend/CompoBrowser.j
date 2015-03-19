@@ -97,6 +97,7 @@ var CompoJanusControl_typeArray;
 -(void) newChain: sender
 {
     [[CPApp delegate].chainsController insert:self];
+    [[CPApp delegate].chainsControllerAll reload];
 }
 -(void) deleteChain: sender
 {

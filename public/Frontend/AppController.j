@@ -231,7 +231,8 @@ PhotoDragType="PhotoDragType";
 {	[CompoBrowser sharedImageBrowser];
 }
 -(void) runPatchesBrowser:sender
-{   [CPBundle loadRessourceNamed:"PatchesBrowser.gsmarkup" owner:self];
+{  [patchRepoController setFilterPredicate:nil];
+   [CPBundle loadRessourceNamed:"PatchesBrowser.gsmarkup" owner:self];
 }
 
 -(void) reaggregateAll:sender
