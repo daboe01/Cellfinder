@@ -220,7 +220,6 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
             my @h=$p->GetPixels(map=> ($self->param('map') || 'I' ), width=>$width, height=>$height, normalize=> ( $self->param('normalize') || '0' ) );
             $self->render(json => \@h );
         }
-# http://augimageserver:3013/IMG/34500?spc=boxprope&geom=232x232+664+1219&affine=0.999999999999999,5.92526458420923e-17,4.58410930471789e-17,1,25.0000000000001,-3.00000000000024
         elsif ($spc eq 'boxprope')
         {
             my $geom=$self->param('geom');
@@ -236,9 +235,10 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
         {   $self->render(text=> $p->Get($spc) );
         }
         else
-        {   my $blob= ($p->ImageToBlob(magick=>'jpg'))[0];
+        {   my $outformat=$self->param('outformat') || 'jpg';
+            my $blob= ($p->ImageToBlob(magick=>$outformat))[0];
             if($blob)
-            {   $self->render(data => $blob, format =>'jpg' );
+            {   $self->render(data => $blob, format =>$outformat);
             } else
             {
                 app->log->debug("error: image is empty");
@@ -539,7 +539,7 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
         {   my $fname=$tempfilename.sprintf('%04d', $i++).'.jpg';
             $_->Write($fname);
         }
-        system('/usr/local/bin/ffmpeg -i '.$tempfilename.'%04d.jpg -vf fps=15  -pix_fmt yuv420p '.$tempfilename.'.mp4');
+        system('/usr/local/bin/ffmpeg -i '.$tempfilename.'%04d.jpg -pix_fmt yuv420p '.$tempfilename.'.mp4');
         $self->render(data=>cellfinder_image::readFile($tempfilename.'.mp4'), format=>'mp4');
         system('rm '.$tempfilename.'*');
     }

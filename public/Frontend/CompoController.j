@@ -133,6 +133,7 @@
 	[placeholderEntity setColumns:[CPArray arrayWithObjects: "id","idpatch_parameter","value"]];
 	[placeholderEntity setPk: "id"];
 
+    [[compo._entity relationOfName:"inputParams"] _invalidateCache];  // clear cache of the entitiy before fetching
 	var inputParams=[compo valueForKey:"inputParams" synchronous:YES];
 
 	_myNameTable=[CPMutableDictionary new];
