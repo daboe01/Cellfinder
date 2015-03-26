@@ -98,7 +98,7 @@ var CompoJanusControl_typeArray;
 {
      [CPApp delegate].chainsControllerAll._entity = [CPApp delegate].chainsController._entity;  // better late than never
     [[CPApp delegate].chainsController addObject:@{"name": "New chain"}];
-    [[CPApp delegate].chainsControllerAll setContent:[[CPApp delegate].chainsControllerAll._entity allObjects] ];
+    [[CPApp delegate].chainsControllerAll setContent:[[CPApp delegate].chainsControllerAll._entity allObjects]];
 }
 -(void) deleteChain: sender
 {
