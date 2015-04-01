@@ -43,7 +43,7 @@
 	[myalert setMessageText: "Are you sure you want to delete all entries?"];
 	[myalert addButtonWithTitle:"Cancel"];
 	[myalert addButtonWithTitle:"Delete"];
-	[myalert beginSheetModalForWindow: myWindow modalDelegate:self didEndSelector:@selector(deleteAllWarningDidEnd:code:context:) contextInfo: nil];
+	[myalert beginSheetModalForWindow:myWindow modalDelegate:self didEndSelector:@selector(deleteAllWarningDidEnd:code:context:) contextInfo: nil];
 
 }
 

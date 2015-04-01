@@ -192,13 +192,27 @@ var _itemsControllerHash;
 	[_myView unbind:"itemArray"];
 	[_myView unbind:"selectedTag"];
     [self _installView];
-	[_myView bind:"selectedTag" toObject:_value withKeyPath:_face options:nil];
 	if(!_itemsController)
 	{	[_myView setItemArray:[]];
 	} else
     {   var options=@{"PredicateFormat": _itemsPredicateFormat, "valueFace": _itemsValue, "Owner":_value};
-        [_myView bind:"itemArray" toObject: _itemsController withKeyPath: _itemsFace options:options];
+        [_myView bind:"itemArray" toObject: _itemsController withKeyPath:_itemsFace options:options];
     }
+    if(!_face)   // cell based
+    {   [_myView setTarget:self]
+        [_myView setAction:@selector(viewChanged:)]
+        [_myView selectItemWithTag:myVal]
+    } else       // view based
+	    [_myView bind:"selectedTag" toObject:_value withKeyPath:_face options:nil];
+}
+
+- (void) viewChanged:(id)sender
+{
+    var tv= [self superview];
+    tv._editingColumn=[tv columnForView:sender]
+    tv._editingRow=[tv rowForView:sender];
+    [[tv window] makeFirstResponder:sender];
+    [tv _commitDataViewObjectValue:sender];
 }
 
 @end

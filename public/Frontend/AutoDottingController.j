@@ -112,7 +112,8 @@
 	{	var ro=[so objectAtIndex: i];
 		[myarr addObject: [ro valueForKey:"idimage"]];
 	}
-	var myreq=[CPURLRequest requestWithURL: BaseURL+"makestack"+"/"+idtrial+"/"+"mystack"];
+    var folderName=[[so objectAtIndex:0] valueForKey:"folder_name"]+'_'+[so count];
+	var myreq=[CPURLRequest requestWithURL: BaseURL+"makestack"+"/"+idtrial+"/"+folderName];
     [myreq setHTTPMethod: "POST"];
 	[myreq setHTTPBody: JSON.stringify(myarr) ];
 	var ret=[CPURLConnection sendSynchronousRequest:myreq returningResponse:nil];

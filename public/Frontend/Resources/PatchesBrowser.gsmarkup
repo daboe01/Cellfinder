@@ -42,7 +42,7 @@
                     <tableColumn identifier="value" title="value" editable="YES"/>
                 </tableView>
             </scrollView>
-            <ButtonBar plusButtonAction="insert:" minusButtonAction="remove:" target="#CPOwner.parameterlistsControllerBound">
+            <ButtonBar plusButtonAction="insert:" minusButtonAction="remove:" target="#CPOwner.parameterlistsControllerBound"/>
         </vbox>
      </splitView>
   </window>

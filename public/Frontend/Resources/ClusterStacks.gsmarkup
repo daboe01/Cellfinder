@@ -14,7 +14,14 @@
                   </tableView>
             </scrollView>
             <hbox>
-            <progresIndicator id="progress" indeterminate="YES"/>
+                <ButtonBar plusButtonAction="newStack:" minusButtonAction="deleteStack:" actionsButton="YES" target="#mystackscontroller">
+  				<popUpButtonItem title="Delete all..." target="#mystackscontroller" action="deleteAll:"/>
+				<popUpButtonItem title="Flatten" target="#mystackscontroller" action="flattenStack:"/>
+				<popUpButtonItem title="DownloadGIF" target="#mystackscontroller" action="downloadGIF2:"/>
+				<popUpButtonItem title="DownloadZIP" target="#mystackscontroller" action="downloadZIP:"/>
+				<popUpButtonItem title="DownloadMP4" target="#mystackscontroller" action="downloadMP4:"/>
+                 </ButtonBar>
+                 <progresIndicator id="progress" indeterminate="YES"/>
             </hbox>
         </vbox>
         <vbox>
@@ -51,6 +58,7 @@
 
 <connectors>
     <outlet source="#mystackscontroller" target="stacks_image_view" label="stacksImageView"/>
+    <outlet source="#mystackscontroller" target="stackswindow" label="myWindow"/>
 </connectors>
 
 </gsmarkup>

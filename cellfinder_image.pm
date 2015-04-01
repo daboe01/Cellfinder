@@ -62,7 +62,7 @@ ENDOFR
 }
 sub runRANSACRegistrationRCode { my ($id1,$id2, $thresh, $identityradius, $iterations, $aiterations, $cfunc)=@_;
 	my $RCmd=<<'ENDOFR'
-	source('/Users/Shared/bin/Cellfinder2/ransac4.R')
+	source('/Users/Shared/bin/Cellfinder2/bin/ransac4.R')
 	out=register.pointsets.out(<id1>, <id2>, <thresh>, <identityradius>, iterations=<iterations>, do.rotate=F <extrapars>)
 ENDOFR
 ;
@@ -555,7 +555,8 @@ sub reverseAffineMatrix { my ($m1)=@_;
 
 sub createImageFromUpload { my ($dbh, $idtrial, $local_filename, $filedataname, $replace_idimage, $timestamp)=@_;
 	sub getFilename{ my ($idtrial, $local_filename)=@_;
-		my ($filename, $suffix)=$local_filename =~/^([^\.]+)\.(.+)$/;
+ warn "** $local_filename";
+		my ($filename, $suffix)=$local_filename =~/^(.+)\.([^\.]+)$/;
 			$filename=~s/_[0-9]+$//;
 		my $dest=server_root.'/'.$idtrial.'-'.$filename;
 		if(-e $dest.'.jpg')
@@ -590,18 +591,42 @@ sub createImageFromUpload { my ($dbh, $idtrial, $local_filename, $filedataname, 
 	}
 	return ($idimage, $dest);
 }
+
 sub uploadImageFromData { my ($dbh, $idtrial, $name, $suffix, $data)=@_;
-	my $filename=tempFileName('/tmp/cellf', $suffix);
+
+    sub create_img{ my ($dbh, $idtrial, $name, $suffix, $filename)=@_;
+        $name.=".$suffix" if $suffix;
+        
+        my ($idimage, $upload_dest)=createImageFromUpload($dbh, $idtrial, $name, $filename);
+        my $idcomposition;
+        my $trial = getObjectFromDBHandID($dbh,'trials', $idtrial);
+        $idcomposition= $trial->{composition_for_upload};
+        my $f= readImageFunctionForIDAndWidth($dbh, $idimage, undef, 1);
+        my $p= $f->(0);
+        $p= imageForComposition($dbh, $idcomposition,$f,$p) if($idcomposition);
+        $p->Write($upload_dest);
+        return $idimage;
+    }
+
+    
+    my $filename=TempFileNames::tempFileName('/tmp/cellf', ".$suffix");
 	TempFileNames::writeFile($filename, $data);
-	my ($idimage, $upload_dest)=createImageFromUpload($dbh, $idtrial, $name.".$suffix", $filename);
-warn $upload_dest;
-	my $idcomposition;
-	my $trial = getObjectFromDBHandID($dbh,'trials', $idtrial);
-	$idcomposition= $trial->{composition_for_upload};
-	my $f= readImageFunctionForIDAndWidth($dbh, $idimage, undef, 1);
-	my $p= $f->(0);
-	$p= imageForComposition($dbh, $idcomposition,$f,$p) if($idcomposition);
-	$p->Write($upload_dest);
+
+    if ($suffix =~/tif/i)
+    {   my $pages=readCommand('/usr/local/bin/identify -format "%p" '.$filename);
+        warn "$pages";
+        if ($pages ne '0')
+        {   system('/usr/local/bin/convert '.$filename.' '.$filename.'-%d.jpg');
+            my @files= glob $filename.'*.jpg';
+            my $i=1;
+            foreach my $cfilename (@files)
+            {
+                create_img($dbh, $idtrial, $name.' '.sprintf("%03d",$i++), 'tiff', $cfilename) unless $idimage == -1;
+            }
+            $idimage=-1;
+        }
+    }
+    $idimage=create_img($dbh, $idtrial, $name, $suffix, $filename) unless $idimage == -1;
 	return $idimage;
 }
 

@@ -85,7 +85,7 @@ var CompoJanusControl_typeArray;
 -(void) deleteCompo: sender
 {
     myalert = [CPAlert new];
-    [myalert setMessageText: "Are you sure you want to delete all images of this folder?"];
+    [myalert setMessageText: "Are you sure you want to delete this composition?"];
     [myalert addButtonWithTitle:"Cancel"];
     [myalert addButtonWithTitle:"Delete"];
     [myalert beginSheetModalForWindow:[CPApp mainWindow] modalDelegate:self didEndSelector:@selector(deleteCompoWarningDidEnd:code:context:) contextInfo: nil];
@@ -99,7 +99,16 @@ var CompoJanusControl_typeArray;
      [CPApp delegate].chainsControllerAll._entity = [CPApp delegate].chainsController._entity;  // better late than never
     [[CPApp delegate].chainsController addObject:@{"name": "New chain"}];
     [[CPApp delegate].chainsControllerAll setContent:[[CPApp delegate].chainsControllerAll._entity allObjects] ];
+    if([[CPApp delegate].compoController valueForKeyPath:"selection.primary_chain"] === CPNullMarker)
+        [self setPrimaryChain:self];
 }
+
+-(void) setPrimaryChain:(id)sender
+{   var compoController=[CPApp delegate].compoController;
+    var chainsController=[CPApp delegate].chainsController;
+    [compoController setValue:[chainsController valueForKeyPath:"selection.id"] forKeyPath:"selection.primary_chain"]
+}
+
 -(void) deleteChain: sender
 {
     [[CPApp delegate].chainsController remove:self];
@@ -184,11 +193,6 @@ var CompoJanusControl_typeArray;
 }
 -(void) moveToTrial:(id)sender
 {   [moveToWindow makeKeyAndOrderFront:self];
-}
--(void) setPrimaryChain:(id)sender
-{   var compoController=[CPApp delegate].compoController;
-    var chainsController=[CPApp delegate].chainsController;
-    [compoController setValue:[chainsController valueForKeyPath:"selection.id"] forKeyPath:"selection.primary_chain"]
 }
 
 -(void) nullifyPatch:(id)sender
