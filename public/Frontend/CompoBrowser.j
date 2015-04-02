@@ -129,6 +129,7 @@ var CompoJanusControl_typeArray;
 		var dv=[o valueForKey:"default_value"];
 		[valcontroller addObject: @{ "idpatch": idpatch, "idparameter": pk, "value": dv } ];
 	}
+	[patchesController reload];
 	[valcontroller reload];
     [addPatchPopover close];
 }
