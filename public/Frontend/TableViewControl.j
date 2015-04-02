@@ -149,13 +149,10 @@ var _itemsControllerHash;
 	CPString _itemsIDs @accessors(property=itemsIDs);
 	CPString _itemsPredicateFormat @accessors(property=itemsPredicateFormat);
 }
-+(void) initialize
-{	[super initialize];
-	_itemsControllerHash=[CPMutableArray new];
-}
--(void) setItemsController: aController
-{	_itemsControllerHash[[self hash]]= aController
-	_itemsController=aController;
+
+-(void) setItemsController:aController
+{	_itemsController=aController;
+    [self _saveObjectController];
 }
 - viewClass
 {	return FSPopUpButton;
@@ -166,25 +163,28 @@ var _itemsControllerHash;
     self=[super initWithCoder:aCoder];
     if (self != nil)
     {
-		_itemsController = _itemsControllerHash[[aCoder decodeObjectForKey:"_itemsController"]];
 		_itemsFace =[aCoder decodeObjectForKey:"_itemsFace"];
 		_itemsValue =[aCoder decodeObjectForKey:"_itemsValue"];
 		_itemsIDs =[aCoder decodeObjectForKey:"_itemsIDs"];
 		_itemsPredicateFormat =[aCoder decodeObjectForKey:"_itemsPredicateFormat"];
-
+		_itemsController = _itemsControllerHash[_itemsFace+ _itemsValue+ _itemsIDs+ _itemsPredicateFormat];
     }
     return self;
 }
 
+- (void)_saveObjectController
+{
+    if (!_itemsControllerHash) _itemsControllerHash=[]
+    _itemsControllerHash[_itemsFace+ _itemsValue+ _itemsIDs+ _itemsPredicateFormat]=_itemsController
+}
 - (void)encodeWithCoder:(id)aCoder
 {
     [super encodeWithCoder:aCoder];
-    [aCoder encodeObject: [self hash] forKey:"_itemsController"];
     [aCoder encodeObject: _itemsFace forKey:"_itemsFace"];
     [aCoder encodeObject: _itemsValue forKey:"_itemsValue"];
     [aCoder encodeObject: _itemsIDs forKey:"_itemsIDs"];
     [aCoder encodeObject: _itemsPredicateFormat forKey:"_itemsPredicateFormat"];
-
+    [self _saveObjectController];
 }
 
 -(void) setObjectValue:(id)myVal
