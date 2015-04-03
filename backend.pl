@@ -1008,14 +1008,14 @@ post '/IMG/rename_images_regex/:idtrial'=> [idtrial=>qr/[0-9]+/] => sub
     my $json_decoder= Mojo::JSON->new;
     my $jsonR  = $json_decoder->decode( $self->req->body );
     my $find   = $jsonR->[0];
-    my $replace= $jsonR->[0];
-    $sql=qq{select id, name from images where idtrial=? and name~* ?};
-    $sth = $self->db->prepare( $sql );
+    my $replace= '"'.$jsonR->[0].'"';
+    my $sql=qq{select id, name from images where idtrial=? and name~* ?};
+    my $sth = $self->db->prepare( $sql );
     $sth->execute(($idtrial, $find));
     while(my $curr=$sth->fetchrow_arrayref())
     {
         my $name=$curr->[1];
-        $name =~ s/$find/$replace/ee;
+        $name =~ s/$find/$replace/eee;
         my $sqla=SQL::Abstract->new();
         my($stmt, @bind) = $sqla->update('images', {name=> $name}, {id=> $curr->[0] } );
         my $sth2=  $self->db->prepare($stmt);
