@@ -13,7 +13,6 @@
 	  			</tableView>
 			</scrollView>
 			<ButtonBar target="#myimagebrowser" plusButtonAction="uploadImage:" minusButtonAction="deleteImagesOfSelectedFolder:" actionsButton="YES">
-				<popUpButtonItem target="#myimagebrowser" title="Add default analyses" action="addDefaultAnalyses:"/>
 				<popUpButtonItem target="#myimagebrowser" title="Rename selected image" action="renameSelectedImage:"/>
 				<popUpButtonItem target="#myimagebrowser" title="Bulk rename" action="bulkRename:"/>
 				<popUpButtonItem target="#myimagebrowser" title="Delete selected image" action="deleteSelectedImage:"/>

@@ -102,35 +102,27 @@ var _sharedImageBrowser;
 }
 -(void) doBulkRename:(id)sender
 {
-	var idtrial= [[CPApp delegate].trialsController valueForKeyPath:"selection.id"]
-	var myurl=BaseURL+"rename_images_regex/"+idtrial;
+	var idtrial= [[CPApp delegate].trialsController valueForKeyPath:"selection.id"];
+    var folder_name= [[CPApp delegate].folderController valueForKeyPath:"selection.folder_name"];
+	var myurl=BaseURL+"rename_images_regex/"+idtrial+"/"+folder_name;
 	var myreq=[CPURLRequest requestWithURL: myurl];
     [myreq setHTTPMethod:"POST"];
 	[myreq setHTTPBody:JSON.stringify([ [searchRegexField stringValue], [replaceRegexField stringValue] ]) ];
-	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
+	[CPURLConnection sendSynchronousRequest:myreq returningResponse: nil];
 	[self _refreshFoldersList];
 	[self _refreshFoldersContentList];
-	[renameWindow orderOut:self];
+	[bulkRenameWindow orderOut:self];
 }
 -(void) cancelBulkRename:(id)sender
 {	[self _refreshFoldersList];
 	[self _refreshFoldersContentList];
-	[renameWindow orderOut:self];
+	[bulkRenameWindow orderOut:self];
 }
 
 
 
 -(void) uploadImage: sender
 {	[UploadManager sharedUploadManager];
-}
-
--(void) addDefaultAnalyses: sender
-{	var selectedItems=[[myCollectionView items] objectsAtIndexes: [myCollectionView selectionIndexes] ]
-	var folder_name=[[[selectedItems objectAtIndex: 0] representedObject] valueForKey:"folder_name"];
-	var idtrial= [[CPApp delegate].trialsController valueForKeyPath:"selection.id"]
-	var myurl=BaseURL+"analyze_folder/"+idtrial+"/"+ folder_name;
-	var myreq=[CPURLRequest requestWithURL: myurl];
-	[CPURLConnection connectionWithRequest: myreq delegate: self];	//<!> fixme implement feedback spinner
 }
 
 - (CPArray)collectionView:(CPCollectionView)aCollectionView dragTypesForItemsAtIndexes:(CPIndexSet)indices

@@ -18,12 +18,8 @@ use Statistics::R;
 use SQL::Abstract;
 use POSIX;
 
-
-use constant server_root=>'/Users/Shared/cellfinder';
-#use constant server_root=>'/Library/WebServer/Documents/cellfinder';
-#use constant server_root=>'/srv/www/htdocs/cellfinder';
-
-#our $R;
+#<!> change me as needed
+use constant server_root=>'/Users/daboe01/src/daboe01_Cellfinder/_images';
 
 sub runRCode { my ($RCmd)=@_;
     return undef unless $RCmd;

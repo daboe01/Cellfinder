@@ -323,8 +323,8 @@ get '/IMG/input_results/:idto/:results'=> [idto =>qr/\d+/,results =>qr/.+/] => s
     my $sql = 'delete from results where idanalysis = ?';
     my $sth = $dbh->prepare($sql);
     $sth->execute(($idanalysis));
-       $sql = 'insert into results (idanalysis, row, col, tag) values (?, ?, ?, ?)';
-       $sth = $dbh->prepare($sql);
+    $sql = 'insert into results (idanalysis, row, col, tag) values (?, ?, ?, ?)';
+    $sth = $dbh->prepare($sql);
     my @result_arr=split/\s+/o, $results;
     my ($x,$y);
     while(($x,$y)= splice @result_arr,0,2)
@@ -1001,27 +1001,31 @@ post '/IMG/duplicate_chain/:idchain'=> [idchain => qr/[0-9]+/] => sub
     $self->render(data=> $newChainPK, format =>'txt' );
 };
 
-post '/IMG/rename_images_regex/:idtrial'=> [idtrial=>qr/[0-9]+/] => sub
+post '/IMG/rename_images_regex/:idtrial/:foldername'=> [idtrial=>qr/[0-9]+/, foldername => qr/.+/] => sub
 {
     my $self=shift;
     my $idtrial= $self->param("idtrial");
+    my $foldername= $self->param("foldername");
     my $json_decoder= Mojo::JSON->new;
     my $jsonR  = $json_decoder->decode( $self->req->body );
     my $find   = $jsonR->[0];
     my $replace= '"'.$jsonR->[0].'"';
     my $sql=qq{select id, name from images where idtrial=? and name~* ?};
     my $sth = $self->db->prepare( $sql );
-    $sth->execute(($idtrial, $find));
+    $sth->execute(($idtrial, "^$foldername"));
+
     while(my $curr=$sth->fetchrow_arrayref())
     {
         my $name=$curr->[1];
+        my $oldname = $name;
         $name =~ s/$find/$replace/eee;
-        my $sqla=SQL::Abstract->new();
-        my($stmt, @bind) = $sqla->update('images', {name=> $name}, {id=> $curr->[0] } );
-        my $sth2=  $self->db->prepare($stmt);
-        $sth2->execute(@bind);
+        if ($oldname ne $name) {
+            my $sqla = SQL::Abstract->new();
+            my($stmt, @bind) = $sqla->update('images', { name=> $name}, {id=> $curr->[0] } );
+            my $sth2=  $self->db->prepare($stmt);
+            $sth2->execute(@bind);
+        }
     }
-
     $self->render(data=>'OK', format =>'txt' );
 };
 
