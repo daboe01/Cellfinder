@@ -220,17 +220,6 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
             my @h=$p->GetPixels(map=> ($self->param('map') || 'I' ), width=>$width, height=>$height, normalize=> ( $self->param('normalize') || '0' ) );
             $self->render(json => \@h );
         }
-        elsif ($spc eq 'boxprope')
-        {
-            my $geom=$self->param('geom');
-            $geom=~s/ /+/ogs;
-            warn $geom;
-            $p->Channel($self->param('channel')) if $self->param('channel');
-            $p->Crop(geometry=>$geom) if $geom;
-            my $blob= ($p->ImageToBlob(magick=>'jpg'))[0];
-            $self->render(data => $blob, format =>'jpg' );                
-        }
-        
         elsif(length $spc)
         {   $self->render(text=> $p->Get($spc) );
         }
@@ -1010,6 +999,30 @@ post '/IMG/duplicate_chain/:idchain'=> [idchain => qr/[0-9]+/] => sub
         }
     }
     $self->render(data=> $newChainPK, format =>'txt' );
+};
+
+post '/IMG/rename_images_regex/:idtrial'=> [idtrial=>qr/[0-9]+/] => sub
+{
+    my $self=shift;
+    my $idtrial= $self->param("idtrial");
+    my $json_decoder= Mojo::JSON->new;
+    my $jsonR  = $json_decoder->decode( $self->req->body );
+    my $find   = $jsonR->[0];
+    my $replace= $jsonR->[0];
+    $sql=qq{select id, name from images where idtrial=? and name~* ?};
+    $sth = $self->db->prepare( $sql );
+    $sth->execute(($idtrial, $find));
+    while(my $curr=$sth->fetchrow_arrayref())
+    {
+        my $name=$curr->[1];
+        $name =~ s/$find/$replace/ee;
+        my $sqla=SQL::Abstract->new();
+        my($stmt, @bind) = $sqla->update('images', {name=> $name}, {id=> $curr->[0] } );
+        my $sth2=  $self->db->prepare($stmt);
+        $sth2->execute(@bind);
+    }
+
+    $self->render(data=>'OK', format =>'txt' );
 };
 
 
