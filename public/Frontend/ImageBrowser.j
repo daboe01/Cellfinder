@@ -9,16 +9,16 @@
 
 - (void)encodeWithCoder: (CPCoder)aCoder
 {
-	var mydata=[_data copy];
-	if(_changes) [mydata addEntriesFromDictionary: _changes];
-	[aCoder _encodeDictionaryOfObjects: mydata forKey:@"FS.objects"];
+    var mydata=[_data copy];
+    if(_changes) [mydata addEntriesFromDictionary: _changes];
+    [aCoder _encodeDictionaryOfObjects: mydata forKey:@"FS.objects"];
 }
 - (void)initWithCoder:(CPCoder)aCoder
-{	self=[self init];
-	if(self)
-	{	_changes=[aCoder _decodeDictionaryOfObjectsForKey:@"FS.objects"]
-	}
-	return self;
+{   self=[self init];
+    if(self)
+    {   _changes=[aCoder _decodeDictionaryOfObjectsForKey:@"FS.objects"]
+    }
+    return self;
 }
 @end
 
@@ -41,134 +41,134 @@ var _sharedImageBrowser;
 }
 
 + sharedImageBrowser
-{	if(!_sharedImageBrowser)
-	{	[CPBundle loadRessourceNamed: "ImageBrowser.gsmarkup" owner: [CPApp delegate] ];
-		 _sharedImageBrowser= [CPApp delegate]._sharedImageBrowser;
-		 _sharedImageBrowser.myAppController= [CPApp delegate];
-		[_sharedImageBrowser.myCollectionView registerForDraggedTypes:[PhotoDragType]];
-		[_sharedImageBrowser setScale:0.1];
-	}
-	[_sharedImageBrowser.myWindow makeKeyAndOrderFront: _sharedImageBrowser ];
-	return _sharedImageBrowser;
+{   if(!_sharedImageBrowser)
+    {   [CPBundle loadRessourceNamed: "ImageBrowser.gsmarkup" owner: [CPApp delegate] ];
+         _sharedImageBrowser= [CPApp delegate]._sharedImageBrowser;
+         _sharedImageBrowser.myAppController= [CPApp delegate];
+        [_sharedImageBrowser.myCollectionView registerForDraggedTypes:[PhotoDragType]];
+        [_sharedImageBrowser setScale:0.1];
+    }
+    [_sharedImageBrowser.myWindow makeKeyAndOrderFront: _sharedImageBrowser ];
+    return _sharedImageBrowser;
 }
 
 - (void)deleteWarningDidEnd:(CPAlert)anAlert code:(id)code context:(id)context
 {
     if(code)
-	{	var selectedItems=[[myCollectionView items] objectsAtIndexes: [myCollectionView selectionIndexes] ]
-		var folder_name=[[[selectedItems objectAtIndex: 0] representedObject] valueForKey:"folder_name"];
-		var idtrial= [[CPApp delegate].trialsController valueForKeyPath:"selection.id"]
-		var myurl=BaseURL+"delete_images_in_folder/"+idtrial+"/"+ folder_name;
-		var myreq=[CPURLRequest requestWithURL: myurl];
-		[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
+    {   var selectedItems=[[myCollectionView items] objectsAtIndexes: [myCollectionView selectionIndexes] ]
+        var folder_name=[[[selectedItems objectAtIndex: 0] representedObject] valueForKey:"folder_name"];
+        var idtrial= [[CPApp delegate].trialsController valueForKeyPath:"selection.id"]
+        var myurl=BaseURL+"delete_images_in_folder/"+idtrial+"/"+ folder_name;
+        var myreq=[CPURLRequest requestWithURL: myurl];
+        [CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
 
-		[self _refreshFoldersList];
-		[self _refreshFoldersContentList];
-	}
+        [self _refreshFoldersList];
+        [self _refreshFoldersContentList];
+    }
 }
 
 -(void) deleteImagesOfSelectedFolder: sender
 {
-	var myalert = [CPAlert new];
+    var myalert = [CPAlert new];
     [myalert setMessageText: "Are you sure you want to delete all images of this folder?"];
-	[myalert addButtonWithTitle:"Cancel"];
-	[myalert addButtonWithTitle:"Delete"];
-	[myalert beginSheetModalForWindow:myWindow modalDelegate:self didEndSelector:@selector(deleteWarningDidEnd:code:context:) contextInfo: nil];
+    [myalert addButtonWithTitle:"Cancel"];
+    [myalert addButtonWithTitle:"Delete"];
+    [myalert beginSheetModalForWindow:myWindow modalDelegate:self didEndSelector:@selector(deleteWarningDidEnd:code:context:) contextInfo: nil];
 }
 
 -(void) deleteSelectedImage: sender
 {
-	var so=[myAppController.folderContentController selectedObjects];
-	var i,l=[so count];
-	for(i=0;i<l;i++)
-	{	var ro=[so objectAtIndex: i];
+    var so=[myAppController.folderContentController selectedObjects];
+    var i,l=[so count];
+    for(i=0;i<l;i++)
+    {   var ro=[so objectAtIndex: i];
         var idimage=[ro valueForKey:"idimage"];
         var myurl= HostURL +"/DB/images/id/"+ idimage;
         var myreq=[CPURLRequest requestWithURL: myurl];
         [myreq setHTTPMethod:"delete"];
         [CPURLConnection connectionWithRequest:myreq delegate:self];
     }
-	if([[[CPApp delegate].folderContentController arrangedObjects]  count] === 1)
-		[self _refreshFoldersList];
+    if([[[CPApp delegate].folderContentController arrangedObjects]  count] === 1)
+        [self _refreshFoldersList];
 
-	[self _refreshFoldersContentList];
+    [self _refreshFoldersContentList];
 }
 -(void) renameSelectedImage: sender
-{	[renameWindow makeKeyAndOrderFront:self];
+{   [renameWindow makeKeyAndOrderFront:self];
 }
 -(void) renameSelectedImageOrderOut:(id)sender
-{	[self _refreshFoldersList];
-	[self _refreshFoldersContentList];
-	[renameWindow orderOut:self];
+{   [self _refreshFoldersList];
+    [self _refreshFoldersContentList];
+    [renameWindow orderOut:self];
 }
 -(void) bulkRename:(id)sender
-{	[bulkRenameWindow makeKeyAndOrderFront:self];
+{   [bulkRenameWindow makeKeyAndOrderFront:self];
 }
 -(void) doBulkRename:(id)sender
 {
-	var idtrial= [[CPApp delegate].trialsController valueForKeyPath:"selection.id"];
+    var idtrial= [[CPApp delegate].trialsController valueForKeyPath:"selection.id"];
     var folder_name= [[CPApp delegate].folderController valueForKeyPath:"selection.folder_name"];
-	var myurl=BaseURL+"rename_images_regex/"+idtrial+"/"+folder_name;
-	var myreq=[CPURLRequest requestWithURL: myurl];
+    var myurl=BaseURL+"rename_images_regex/"+idtrial+"/"+folder_name;
+    var myreq=[CPURLRequest requestWithURL: myurl];
     [myreq setHTTPMethod:"POST"];
-	[myreq setHTTPBody:JSON.stringify([ [searchRegexField stringValue], [replaceRegexField stringValue] ]) ];
-	[CPURLConnection sendSynchronousRequest:myreq returningResponse: nil];
-	[self _refreshFoldersList];
-	[self _refreshFoldersContentList];
-	[bulkRenameWindow orderOut:self];
+    [myreq setHTTPBody:JSON.stringify([ [searchRegexField stringValue], [replaceRegexField stringValue] ]) ];
+    [CPURLConnection sendSynchronousRequest:myreq returningResponse: nil];
+    [self _refreshFoldersList];
+    [self _refreshFoldersContentList];
+    [bulkRenameWindow orderOut:self];
 }
 -(void) cancelBulkRename:(id)sender
-{	[self _refreshFoldersList];
-	[self _refreshFoldersContentList];
-	[bulkRenameWindow orderOut:self];
+{   [self _refreshFoldersList];
+    [self _refreshFoldersContentList];
+    [bulkRenameWindow orderOut:self];
 }
 -(void) doRenameTest:(id)sender
 {
-	var myreq=[CPURLRequest requestWithURL:BaseURL+"rename_probe_regex"];
+    var myreq=[CPURLRequest requestWithURL:BaseURL+"rename_probe_regex"];
     [myreq setHTTPMethod:"POST"];
-	[myreq setHTTPBody:JSON.stringify([ [searchRegexField stringValue], [replaceRegexField stringValue], [findTestField stringValue] ]) ];
-	var response=[[CPURLConnection sendSynchronousRequest:myreq returningResponse: nil] rawString];
+    [myreq setHTTPBody:JSON.stringify([ [searchRegexField stringValue], [replaceRegexField stringValue], [findTestField stringValue] ]) ];
+    var response=[[CPURLConnection sendSynchronousRequest:myreq returningResponse: nil] rawString];
     [replaceTestField setStringValue:response]
 }
 
 
 -(void) uploadImage: sender
-{	[UploadManager sharedUploadManager];
+{   [UploadManager sharedUploadManager];
 }
 
 - (CPArray)collectionView:(CPCollectionView)aCollectionView dragTypesForItemsAtIndexes:(CPIndexSet)indices
 {
-	return [PhotoDragType];
+    return [PhotoDragType];
 }
 
 //<!> fixme: causes flicker and loss of selection
 - (void)_refreshFoldersList
-{	var trialsController=[CPApp delegate].trialsController;
-	[[trialsController selectedObject] willChangeValueForKey:"folders"];
-	 [trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
-	[[trialsController selectedObject] didChangeValueForKey:"folders"];
+{   var trialsController=[CPApp delegate].trialsController;
+    [[trialsController selectedObject] willChangeValueForKey:"folders"];
+     [trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
+    [[trialsController selectedObject] didChangeValueForKey:"folders"];
 }
 - (void)_refreshFoldersContentList
 {
 
-	var folderController=[CPApp delegate].folderController;
-	[[folderController selectedObject] willChangeValueForKey:"folder_content"];
-	 [folderController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
-	[[folderController selectedObject] didChangeValueForKey:"folder_content"];
+    var folderController=[CPApp delegate].folderController;
+    [[folderController selectedObject] willChangeValueForKey:"folder_content"];
+     [folderController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
+    [[folderController selectedObject] didChangeValueForKey:"folder_content"];
 
 }
 
 
 - (void)performDragOperation:(CPDraggingInfo)aSender
-{	var data = [[aSender draggingPasteboard] dataForType:PhotoDragType];
+{   var data = [[aSender draggingPasteboard] dataForType:PhotoDragType];
     var o=[CPKeyedUnarchiver unarchiveObjectWithData: data];
-	var myurl=BaseURL+"import/"+ [trialsController valueForKeyPath:"selection.id"];
-	myurl+="/"+[o objectForKey:"filename" ]+"/"+ [o objectForKey:"uri" ];
+    var myurl=BaseURL+"import/"+ [trialsController valueForKeyPath:"selection.id"];
+    myurl+="/"+[o objectForKey:"filename" ]+"/"+ [o objectForKey:"uri" ];
 
-	var myreq=[CPURLRequest requestWithURL: myurl];
-	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
-	[self _refreshFoldersList];
-	[self _refreshFoldersContentList];
+    var myreq=[CPURLRequest requestWithURL: myurl];
+    [CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
+    [self _refreshFoldersList];
+    [self _refreshFoldersContentList];
 
 }
 
@@ -176,21 +176,21 @@ var _sharedImageBrowser;
    dataForItemsAtIndexes:(CPIndexSet)indices
                  forType:(CPString)aType
 {
-	var firstIndex = [indices firstIndex];
-	var o=[[aCollectionView itemAtIndex: firstIndex] representedObject];
+    var firstIndex = [indices firstIndex];
+    var o=[[aCollectionView itemAtIndex: firstIndex] representedObject];
     return [CPKeyedArchiver archivedDataWithRootObject: o ];
 }
 
 
 - (float)splitView:(CPSplitView)aSplitView constrainMinCoordinate: proposedMin ofSubviewAt: dividerIndex
-{	return 100;	
+{   return 100;    
 }
 - (float)splitView:(CPSplitView)aSplitView constrainMaxCoordinate: proposedMax ofSubviewAt: dividerIndex
-{	return [[aSplitView window] frame].size.width-200;
+{   return [[aSplitView window] frame].size.width-200;
 }
 
 -(void) delete:sender
-{	[[[CPApp keyWindow] delegate] delete:sender];
+{   [[[CPApp keyWindow] delegate] delete:sender];
 }
 
 @end
@@ -202,6 +202,6 @@ var _sharedImageBrowser;
 }
 + (Class) platformObjectClass
 {
-	return [ImageBrowser class];
+    return [ImageBrowser class];
 }
 @end
