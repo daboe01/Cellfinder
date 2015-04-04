@@ -100,6 +100,7 @@ PhotoDragType="PhotoDragType";
 
 	id	trialsController;
 	id	stacksController;
+    id  imagesController;
 	id	stacksContentController;
 	id	folderController;
 	id	folderContentController;
@@ -271,7 +272,7 @@ PhotoDragType="PhotoDragType";
     if (aString === "\n" || aString === "\r" || aString === " ")
         _insertText="";
 }
--(void) connection: someConnection didReceiveData: data
+-(void) connection:(CPConnection)someConnection didReceiveData: data
 {
 }
 
@@ -299,6 +300,38 @@ PhotoDragType="PhotoDragType";
 {
 	var idtrial=[trialsController valueForKeyPath:"selection.id"];
 	window.open("http://augimageserver:3000/Frontend/index.html?id="+idtrial+"&t=AutoStitching.gsmarkup",'autostacks');
+}
+
+-(void) insertImage:(id)sender
+{
+// fixme: run upload manager
+
+}
+-(void) removeImages:(id)sender
+{
+// fixme: implement speedy serverside bulk delete
+}
+
+- (void)renameWarningDidEnd:(CPAlert)anAlert code:(id)code context:(id)context
+{
+    if(code)
+	{
+	    var idtrial=[trialsController valueForKeyPath:"selection.id"];
+	    var myreq=[CPURLRequest requestWithURL:BaseURL+"reset_imagenames/"+idtrial];
+	    [myreq setHTTPMethod:"POST"];
+	    [CPURLConnection sendSynchronousRequest:myreq returningResponse:nil];
+	    [imagesController reload];
+	}
+}
+
+-(void) resetImageNames:(id)sender
+{
+	var myalert = [CPAlert new];
+    [myalert setMessageText: "Are you sure you want to reset all images names?"];
+	[myalert addButtonWithTitle:"Cancel"];
+	[myalert addButtonWithTitle:"Reset"];
+	[myalert beginSheetModalForWindow:[CPApp mainWindow] modalDelegate:self didEndSelector:@selector(renameWarningDidEnd:code:context:) contextInfo: nil];
+
 }
 
 @end

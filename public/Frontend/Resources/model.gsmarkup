@@ -32,6 +32,7 @@
 
     <arrayController id="patch_repo_controller" entity="patch_repository" autoFetch="YES" sortDescriptor="by_name"/>
     <arrayController id="trials_controller" entity="trials" autoFetch="YES" sortDescriptor="by_name"/>
+    <arrayController id="images_controller" entity="images" valueBinding ="trials_controller.selection.images" sortDescriptor="by_name"/>
     <arrayController id="compos_controller" entity="patch_compositions" valueBinding ="trials_controller.selection.compos"/>
     <arrayController id="chains_controller" entity="patch_chains" valueBinding ="compos_controller.selection.chains" sortDescriptor="by_ordering"/>
     <arrayController id="chains_controller2" entity="patch_chains" autoFetch="YES" sortDescriptor="by_ordering"/>
@@ -177,6 +178,7 @@
         <column name="idtrial"/>
         <column name="name"/>
         <column name="filename"/>
+        <column name="uploadtime"/>
         <relationship type="toOne" name="trial" bindingColumn="idtrial" target="trials"/>
         <relationship type="toMany" name="analyses" targetColumn="idimage" target="analyses"/>
     </entity>
@@ -283,6 +285,7 @@
 
 <connectors>
     <outlet source="#CPOwner" target="trials_controller" label="trialsController"/>
+    <outlet source="#CPOwner" target="images_controller" label="imagesController"/>
     <outlet source="#CPOwner" target="folder_controller" label="folderController"/>
     <outlet source="#CPOwner" target="folder_content_controller" label="folderContentController"/>
     <outlet source="#CPOwner" target="analyses_controller" label="analysesController"/>

@@ -12,34 +12,25 @@
      <vbox>
       <searchField valueBinding="myadmincontroller.searchTerm"/>
      <scrollView>
-       <tableView zebra="yes" autosaveName="alltrials" valueBinding="#CPOwner.trialsController" target="#CPOwner" doubleAction="runSettings:">
+       <tableView zebra="yes" autosaveName="alltrials" valueBinding="#CPOwner.trialsController" target="#CPOwner">
         <tableColumn identifier="id" title="id"/>
         <tableColumn identifier="name" title="name"/>
        </tableView>
       </scrollView>
       <ButtonBar actionsButton="YES" target="#myadmincontroller" plusButtonAction="newTrial:" minusButtonAction="removeTrial:">
-         <popUpButtonItem title="Settings..." target="#CPOwner" action="runSettings:" keyEquivalent="i"/>
          <popUpButtonItem title="Reaggregate all" target="#myadmincontroller" action="reaggregateAll:"/>
          <popUpButtonItem title="Add default analysis" target="#myadmincontroller" action="addDefaultAnalysisToAll:"/>
-         <popUpButtonItem title="Duplicate structure" target="#CPOwner" action="duplicate:"/>
-         <popUpButtonItem title="Rebuild from repo" target="#myadmincontroller" action="rebuildFromRepo:"/>
-         <popUpButtonItem title="Delete all images" target="#myadmincontroller" action="deleteAllImages:"/>
          <popUpButtonItem title="Delete all analyses" target="#myadmincontroller" action="deleteAllAnalyses:"/>
       </ButtonBar>
      </vbox>
      <tabView type="topBezel">
-     <tabViewItem title="General">
-       <vbox>
-                    <vspace height="20" valign="min"/>
-                    <hbox><label valign="center" halign="min" width="100">Name</label><textField valueBinding="#CPOwner.trialsController.selection.name" nextKeyView="#groupregexfield"/></hbox>
+       <tabViewItem title="General">
+          <vbox>
+             <vspace height="20" valign="min"/>
+             <hbox><label valign="center" halign="min" width="100">Name</label><textField valueBinding="#CPOwner.trialsController.selection.name" nextKeyView="#groupregexfield"/></hbox>
                     <hbox><label valign="center" halign="min" width="100">Grouping regex</label><textField valueBinding="#CPOwner.trialsController.selection.entity_regex" id="groupregexfield"/></hbox>
-                    <popUpButton width="200" itemsBinding="guiclasses_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.editing_controller"/>
-        </vbox>
-     </tabViewItem>
-     <tabViewItem title="Filters">
-                <vbox>
-                <vspace height="20" valign="min"/>
-                <hbox><label valign="center" halign="min" width="130">Upload</label><popUpButton width="200" itemsBinding="#CPOwner.uploadfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_upload"/></hbox>
+             <hbox><label valign="center" halign="min" width="130">GUI</label><popUpButton width="200" itemsBinding="guiclasses_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.editing_controller"/></hbox>
+             <hbox><label valign="center" halign="min" width="130">Upload</label><popUpButton width="200" itemsBinding="#CPOwner.uploadfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_upload"/></hbox>
                 <hbox><label valign="center" halign="min" width="130">Editing</label><popUpButton width="200" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_editing"/></hbox>
                 <hbox><label valign="center" halign="min" width="130">Feature extraction</label><popUpButton width="200" itemsBinding="#CPOwner.analyticsfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_celldetection"/></hbox>
                 <hbox><label valign="center" halign="min" width="130">RANSAC parameters</label><popUpButton width="200" itemsBinding="#CPOwner.cfifilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_ransac"/></hbox>
@@ -49,6 +40,23 @@
                 <hbox><label valign="center" halign="min" width="130">Clustering</label><popUpButton width="200" itemsBinding="#CPOwner.analyticsfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_clustering"/></hbox>
                 </vbox>
       </tabViewItem>
+      <tabViewItem title="Images">
+           <vbox>
+            <scrollView>
+             <tableView zebra="yes" autosaveName="allimagesadmin" valueBinding="#CPOwner.imagesController">
+               <tableColumn identifier="id" title="id" editable="NO"/>
+               <tableColumn identifier="name" title="name" editable="YES"/>
+               <tableColumn identifier="filename" title="storage name" editable="NO"/>
+               <tableColumn identifier="uploadtime" title="uploadtime" editable="NO"/>
+            </tableView>
+           </scrollView>
+           <ButtonBar target="#CPOwner" plusButtonAction="insertImage:" minusButtonAction="removeImages:" actionsButton="YES">
+              <popUpButtonItem title="Delete all images" target="#myadmincontroller" action="deleteAllImages:"/>
+              <popUpButtonItem title="Rebuild from repo" target="#myadmincontroller" action="rebuildFromRepo:"/>
+              <popUpButtonItem title="Reset names" target="#CPOwner" action="resetImageNames:"/>
+           </ButtonBar>
+         </vbox>
+     </tabViewItem>
       <tabViewItem title="Tags">
           <hbox>
            <vbox>

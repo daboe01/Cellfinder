@@ -41,7 +41,15 @@
 	 <hbox><label valign="center" halign="min" width="60">Search (regex)</label><textField width="300" id="searchregex"/></hbox>
 	 <hbox><label valign="center" halign="min" width="60">Replace </label><textField width="300" id="replaceregex"/></hbox>
 
-	 <hbox><button target="#myimagebrowser" action="doBulkRename:" title="OK"/><button target="#myimagebrowser" action="cancelBulkRename:" title="Cancel"/></hbox>
+	 <hbox><button target="#myimagebrowser" action="doBulkRename:" title="OK"/><button target="#renamewindow3" action="makeKeyAndOrderFront:" title="Test..."/><button target="#myimagebrowser" action="cancelBulkRename:" title="Cancel"/></hbox>
+	</vbox>
+  </window>
+
+  <window title="Test rename regex" id="renamewindow3" x="270" y="310" width="300" height="90" visible="NO"  resizable="NO">
+	<vbox>
+	 <hbox><label valign="center" halign="min" width="60">Find</label><textField width="300" id="findfield"/></hbox>
+	 <hbox><label valign="center" halign="min" width="60">Replaced </label><textField width="300" id="replacefield"/></hbox>
+	 <hbox><button target="#myimagebrowser" action="doRenameTest:" title="Run test"/><button target="#renamewindow3" action="orderOut:" title="Cancel"/></hbox>
 	</vbox>
   </window>
 
@@ -54,8 +62,11 @@
 	<outlet source="#CPOwner" target="myimagebrowser" label="_sharedImageBrowser"/>
 	<outlet source="myimagebrowser" target="renamewindow" label="renameWindow"/>
 	<outlet source="myimagebrowser" target="renamewindow2" label="bulkRenameWindow"/>
+	<outlet source="myimagebrowser" target="renamewindow3" label="testRenameWindow"/>
 	<outlet source="myimagebrowser" target="searchregex" label="searchRegexField"/>
 	<outlet source="myimagebrowser" target="replaceregex" label="replaceRegexField"/>
+	<outlet source="myimagebrowser" target="findfield" label="findTestField"/>
+	<outlet source="myimagebrowser" target="replacefield" label="replaceTestField"/>
 </connectors>
 
 

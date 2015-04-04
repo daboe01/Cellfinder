@@ -4,7 +4,7 @@
 
 <objects>
   <compoBrowser id="mycompobrowser"/>
-  <window title="Compositions" closable="yes" id="mainwindow" x="30" y="30" width="800" height="640" autosaveName="coposColumnSizes">
+  <window title="Compositions" closable="yes" id="mainwindow" x="30" y="30" width="800" height="640" autosaveName="composWindow">
     <splitView vertical="YES" autosaveName="compos1">
         <vbox>
             <scrollView hasHorizontalScroller="NO">

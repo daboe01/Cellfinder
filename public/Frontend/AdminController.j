@@ -143,11 +143,10 @@
     [myalert addButtonWithTitle:"Cancel"];
     [myalert addButtonWithTitle:"Delete all analyses"];
     [myalert beginSheetModalForWindow: trialsWindow modalDelegate:self didEndSelector:@selector(deleteAllAnalysesWarningDidEnd:code:context:) contextInfo: idtrial];
-
 }
 
 
--(void) connection: someConnection didReceiveData: data
+-(void) connection:(CPConnection)someConnection didReceiveData: data
 {	// fixme: stop spinner
     var appController=[CPApp delegate];
     [appController.folderController reload];

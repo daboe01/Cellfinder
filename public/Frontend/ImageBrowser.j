@@ -29,11 +29,15 @@ var _sharedImageBrowser;
 
 
 @implementation ImageBrowser : StacksController
-{   id myalert;
+{ 
     id renameWindow;
     id bulkRenameWindow;
     id replaceRegexField;
     id searchRegexField;
+
+    id testRenameWindow;
+    id findTestField;
+    id replaceTestField;
 }
 
 + sharedImageBrowser
@@ -65,7 +69,7 @@ var _sharedImageBrowser;
 
 -(void) deleteImagesOfSelectedFolder: sender
 {
-	myalert = [CPAlert new];
+	var myalert = [CPAlert new];
     [myalert setMessageText: "Are you sure you want to delete all images of this folder?"];
 	[myalert addButtonWithTitle:"Cancel"];
 	[myalert addButtonWithTitle:"Delete"];
@@ -118,7 +122,14 @@ var _sharedImageBrowser;
 	[self _refreshFoldersContentList];
 	[bulkRenameWindow orderOut:self];
 }
-
+-(void) doRenameTest:(id)sender
+{
+	var myreq=[CPURLRequest requestWithURL:BaseURL+"rename_probe_regex"];
+    [myreq setHTTPMethod:"POST"];
+	[myreq setHTTPBody:JSON.stringify([ [searchRegexField stringValue], [replaceRegexField stringValue], [findTestField stringValue] ]) ];
+	var response=[[CPURLConnection sendSynchronousRequest:myreq returningResponse: nil] rawString];
+    [replaceTestField setStringValue:response]
+}
 
 
 -(void) uploadImage: sender

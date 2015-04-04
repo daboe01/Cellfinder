@@ -12,6 +12,7 @@ use POSIX;
 use Try::Tiny;
 use URI::Encode qw(uri_decode);
 use Archive::Zip;
+use Mojo::JSON qw(decode_json encode_json);
 
 # enable receiving uploads up to 1GB
 $ENV{MOJO_MAX_MESSAGE_SIZE} = 1_073_741_824;
@@ -82,8 +83,7 @@ put '/DB/:table/:pk/:key'=> [key=>qr/\d+/] => sub
     my $pk      = uri_decode($self->param('pk'));
     my $key     = uri_decode($self->param('key'));
     my $sql     = SQL::Abstract->new;
-    my $json_decoder= Mojo::JSON->new;
-    my $jsonR   = $json_decoder->decode( $self->req->body );
+    my $jsonR   = decode_json( $self->req->body );
 
     my $types = $self->getTypeHashForTable($table);
     for (keys %$jsonR)    ## support for nullifying dates and integers with empty string or special string NULL
@@ -105,8 +105,7 @@ post '/DB/:table/:pk'=> sub
     my $table    = $self->param('table');
     my $pk        = $self->param('pk');
     my $sql = SQL::Abstract->new;
-    my $json_decoder= Mojo::JSON->new;
-    my $jsonR   = $json_decoder->decode( $self->req->body );
+    my $jsonR   = decode_json( $self->req->body );
     my($stmt, @bind) = $sql->insert($table, $jsonR || {name=>'New'});
     my $sth = $self->db->prepare($stmt);
     $sth->execute(@bind);
@@ -561,9 +560,8 @@ post '/IMG/import_stack/:idtrial/:name'=> [name=>qr/.+/] => sub
     my $self=shift;
     my $name= $self->param("name");
     my $idtrial= $self->param("idtrial");
-    my $json_decoder= Mojo::JSON->new;
-    # warn $self->req->body;
-    my $jsonR   = $json_decoder->decode( $self->req->body );
+
+    my $jsonR   = decode_json( $self->req->body );
     my $suffix='.jpg';    # sensible default
     my @image_ids;
     my $i=0;
@@ -596,9 +594,8 @@ post '/IMG/makestack/:idtrial/:name'=> [name=>qr/.+/] => sub
 {   my $self=shift;
     my $name= $self->param("name");
     my $idtrial= $self->param("idtrial");
-    my $json_decoder= Mojo::JSON->new;
     # warn $self->req->body;
-    my $jsonR   = $json_decoder->decode( $self->req->body );
+    my $jsonR   = decode_json( $self->req->body );
     my @image_ids=@$jsonR;
     my $idmontage=cellfinder_image::insertObjectIntoTable($self->db, 'montages', 'id', {idtrial=> $idtrial, name=> $name} );
     my $idref;
@@ -1000,16 +997,26 @@ post '/IMG/duplicate_chain/:idchain'=> [idchain => qr/[0-9]+/] => sub
     }
     $self->render(data=> $newChainPK, format =>'txt' );
 };
+post '/IMG/rename_probe_regex'=> sub
+{
+    my $self   = shift;
+    my $probe  = $self->param("probe");
+    my $jsonR  = decode_json( $self->req->body );
+    my $find   = $jsonR->[0];
+    my $replace= '"'.$jsonR->[1].'"';
+    my $probe   = $jsonR->[2];
+    $probe =~ s/$find/$replace/eee;
+    $self->render(data=>$probe, format =>'txt' );
+};
 
 post '/IMG/rename_images_regex/:idtrial/:foldername'=> [idtrial=>qr/[0-9]+/, foldername => qr/.+/] => sub
 {
     my $self=shift;
     my $idtrial= $self->param("idtrial");
     my $foldername= $self->param("foldername");
-    my $json_decoder= Mojo::JSON->new;
-    my $jsonR  = $json_decoder->decode( $self->req->body );
+    my $jsonR  = decode_json( $self->req->body );
     my $find   = $jsonR->[0];
-    my $replace= '"'.$jsonR->[0].'"';
+    my $replace= '"'.$jsonR->[1].'"';
     my $sql=qq{select id, name from images where idtrial=? and name~* ?};
     my $sth = $self->db->prepare( $sql );
     $sth->execute(($idtrial, "^$foldername"));
@@ -1019,13 +1026,23 @@ post '/IMG/rename_images_regex/:idtrial/:foldername'=> [idtrial=>qr/[0-9]+/, fol
         my $name=$curr->[1];
         my $oldname = $name;
         $name =~ s/$find/$replace/eee;
-        if ($oldname ne $name) {
+
+        if ($name && $oldname ne $name) {
             my $sqla = SQL::Abstract->new();
             my($stmt, @bind) = $sqla->update('images', { name=> $name}, {id=> $curr->[0] } );
             my $sth2=  $self->db->prepare($stmt);
             $sth2->execute(@bind);
         }
     }
+    $self->render(data=>'OK', format =>'txt' );
+};
+post '/IMG/reset_imagenames/:idtrial'=> [idtrial=>qr/[0-9]+/] => sub
+{
+    my $self=shift;
+    my $idtrial= $self->param("idtrial");
+    my $sql=qq{UPDATE images SET  name=filename where idtrial=?};
+    my $sth = $self->db->prepare( $sql );
+    $sth->execute(($idtrial));
     $self->render(data=>'OK', format =>'txt' );
 };
 
