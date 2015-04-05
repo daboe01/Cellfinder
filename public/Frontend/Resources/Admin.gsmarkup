@@ -48,9 +48,9 @@
            </scrollView>
            <ButtonBar target="#myadmincontroller" plusButtonAction="insertImage:" minusButtonAction="removeImages:" actionsButton="YES">
               <popUpButtonItem title="Bulk rename..." target="#myadmincontroller" action="bulkRename:"/>
-              <popUpButtonItem title="Delete all images" target="#myadmincontroller" action="deleteAllImages:"/>
+              <popUpButtonItem title="Reset names..." target="#myadmincontroller" action="resetImageNames:"/>
               <popUpButtonItem title="Rebuild from repo" target="#myadmincontroller" action="rebuildFromRepo:"/>
-              <popUpButtonItem title="Reset names" target="#CPOwner" action="resetImageNames:"/>
+              <popUpButtonItem title="Delete all images..." target="#myadmincontroller" action="deleteAllImages:"/>
            </ButtonBar>
          </vbox>
      </tabViewItem>

@@ -155,6 +155,27 @@
 	[myalert beginSheetModalForWindow:[CPApp mainWindow] modalDelegate:self didEndSelector:@selector(deleteWarningDidEnd:code:context:) contextInfo: nil];
 }
 
+- (void)resetWarningDidEnd:(CPAlert)anAlert code:(id)code context:(id)context
+{
+    if(code)
+	{
+	    var idtrial=[trialsController valueForKeyPath:"selection.id"];
+	    var myreq=[CPURLRequest requestWithURL:BaseURL+"reset_imagenames/"+idtrial];
+	    [myreq setHTTPMethod:"POST"];
+	    [CPURLConnection sendSynchronousRequest:myreq returningResponse:nil];
+	    [imagesController reload];
+	}
+}
+
+-(void) resetImageNames:(id)sender
+{
+	var myalert = [CPAlert new];
+    [myalert setMessageText: "Are you sure you want to reset all images names?"];
+	[myalert addButtonWithTitle:"Cancel"];
+	[myalert addButtonWithTitle:"Reset"];
+	[myalert beginSheetModalForWindow:[CPApp mainWindow] modalDelegate:self didEndSelector:@selector(resetWarningDidEnd:code:context:) contextInfo: nil];
+}
+
 
 @end
 

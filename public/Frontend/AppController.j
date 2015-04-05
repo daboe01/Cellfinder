@@ -302,27 +302,6 @@ PhotoDragType="PhotoDragType";
 	window.open("http://augimageserver:3000/Frontend/index.html?id="+idtrial+"&t=AutoStitching.gsmarkup",'autostacks');
 }
 
-- (void)renameWarningDidEnd:(CPAlert)anAlert code:(id)code context:(id)context
-{
-    if(code)
-	{
-	    var idtrial=[trialsController valueForKeyPath:"selection.id"];
-	    var myreq=[CPURLRequest requestWithURL:BaseURL+"reset_imagenames/"+idtrial];
-	    [myreq setHTTPMethod:"POST"];
-	    [CPURLConnection sendSynchronousRequest:myreq returningResponse:nil];
-	    [imagesController reload];
-	}
-}
-
--(void) resetImageNames:(id)sender
-{
-	var myalert = [CPAlert new];
-    [myalert setMessageText: "Are you sure you want to reset all images names?"];
-	[myalert addButtonWithTitle:"Cancel"];
-	[myalert addButtonWithTitle:"Reset"];
-	[myalert beginSheetModalForWindow:[CPApp mainWindow] modalDelegate:self didEndSelector:@selector(renameWarningDidEnd:code:context:) contextInfo: nil];
-}
-
 -(void) addAllWarningDidEnd:anAlert code:(id)code context:(id)context
 {	if(code)
     {
