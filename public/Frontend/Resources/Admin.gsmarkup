@@ -39,7 +39,7 @@
       <tabViewItem title="Images">
            <vbox>
             <scrollView>
-             <tableView zebra="yes" autosaveName="allimagesadmin" valueBinding="#CPOwner.imagesController">
+             <tableView zebra="yes" autosaveName="allimagesadmin" valueBinding="#CPOwner.imagesController" allowsMultipleSelection="YES">
                <tableColumn identifier="id" title="id" editable="NO"/>
                <tableColumn identifier="name" title="name" editable="YES"/>
                <tableColumn identifier="filename" title="storage name" editable="NO"/>
@@ -47,6 +47,7 @@
             </tableView>
            </scrollView>
            <ButtonBar target="#CPOwner" plusButtonAction="insertImage:" minusButtonAction="removeImages:" actionsButton="YES">
+              <popUpButtonItem title="Bulk rename..." target="#myadmincontroller" action="bulkRename:"/>
               <popUpButtonItem title="Delete all images" target="#myadmincontroller" action="deleteAllImages:"/>
               <popUpButtonItem title="Rebuild from repo" target="#myadmincontroller" action="rebuildFromRepo:"/>
               <popUpButtonItem title="Reset names" target="#CPOwner" action="resetImageNames:"/>
@@ -81,6 +82,23 @@
    </tabView>
   </splitView>
  </window>
+ <window title="Bulk rename images" id="renamewindow2" x="260" y="300" width="300" height="90" visible="NO"  resizable="NO">
+	<vbox>
+	 <hbox><label valign="center" halign="min" width="60">Search (regex)</label><textField width="300" id="searchregex"/></hbox>
+	 <hbox><label valign="center" halign="min" width="60">Replace </label><textField width="300" id="replaceregex"/></hbox>
+
+	 <hbox><button target="#myadmincontroller" action="doBulkRename:" title="OK"/><button target="#renamewindow3" action="makeKeyAndOrderFront:" title="Test..."/><button target="#CPOwner" action="cancelBulkRename:" title="Cancel"/></hbox>
+	</vbox>
+ </window>
+
+ <window title="Test rename regex" id="renamewindow3" x="270" y="310" width="300" height="90" visible="NO"  resizable="NO">
+	<vbox>
+	 <hbox><label valign="center" halign="min" width="60">Find</label><textField width="300" id="findfield"/></hbox>
+	 <hbox><label valign="center" halign="min" width="60">Replaced </label><textField width="300" id="replacefield"/></hbox>
+	 <hbox><button target="#myadmincontroller" action="doRenameTest:" title="Run test"/><button target="#renamewindow3" action="orderOut:" title="Cancel"/></hbox>
+	</vbox>
+</window>
+
 </objects>
 
 <entities>
@@ -93,6 +111,13 @@
     <outlet source="myadmincontroller" target="trialswindow" label="trialsWindow"/>
     <outlet source="#CPOwner" target="guiclasses_ac" label="guiClassesArrayController"/>
     <outlet source="#CPOwner" target="myadmincontroller" label="_sharedConfigController"/>
+
+	<outlet source="#myadmincontroller" target="renamewindow2" label="bulkRenameWindow"/>
+	<outlet source="#myadmincontroller" target="renamewindow3" label="testRenameWindow"/>
+	<outlet source="#myadmincontroller" target="searchregex" label="searchRegexField"/>
+	<outlet source="#myadmincontroller" target="replaceregex" label="replaceRegexField"/>
+	<outlet source="#myadmincontroller" target="findfield" label="findTestField"/>
+	<outlet source="#myadmincontroller" target="replacefield" label="replaceTestField"/>
 </connectors>
 
 

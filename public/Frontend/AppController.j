@@ -123,13 +123,6 @@ PhotoDragType="PhotoDragType";
     id  stacksAnalysesController;
     id  stackAggregationsController;
 
-    id bulkRenameWindow;
-    id replaceRegexField;
-    id searchRegexField;
-    id testRenameWindow;
-    id findTestField;
-    id replaceTestField;
-
 	id	displayfilters_ac;
 	id	uploadfilters_ac;
 	id	fixupfilters_ac;
@@ -311,12 +304,21 @@ PhotoDragType="PhotoDragType";
 
 -(void) insertImage:(id)sender
 {
-// fixme: run upload manager
-
+   [UploadManager sharedUploadManager];
 }
 -(void) removeImages:(id)sender
 {
-// fixme: implement speedy serverside bulk delete
+	var so=[imagesController selectedObjects];
+	var i,l=[so count];
+    var body='';
+	for(i=0; i < l; i++)
+        body+=[[so objectAtIndex:i] valueForKey:"id"]+',';
+
+    var myreq=[CPURLRequest requestWithURL:BaseURL+"batch_delete_images"];
+    [myreq setHTTPMethod:"POST"];
+    [myreq setHTTPBody:body];
+    [CPURLConnection sendSynchronousRequest:myreq returningResponse:nil];
+    [imagesController reload];
 }
 
 - (void)renameWarningDidEnd:(CPAlert)anAlert code:(id)code context:(id)context
@@ -402,40 +404,12 @@ PhotoDragType="PhotoDragType";
     [myalert beginSheetModalForWindow:[CPApp mainWindow] modalDelegate:self didEndSelector:@selector(deleteAllAnalysesWarningDidEnd:code:context:) contextInfo: idtrial];
 }
 
--(void) bulkRename:(id)sender
-{   [bulkRenameWindow makeKeyAndOrderFront:self];
-}
 - (void)_refreshFoldersList
 {
     [folderController reload];
     [folderContentController reload];
     [imagesController reload];
 }
-
--(void) doBulkRename:(id)sender
-{
-    var idtrial= [[CPApp delegate].trialsController valueForKeyPath:"selection.id"];
-    var myurl=BaseURL+"rename_images_regex/"+idtrial;
-    var myreq=[CPURLRequest requestWithURL: myurl];
-    [myreq setHTTPMethod:"POST"];
-    [myreq setHTTPBody:JSON.stringify([ [searchRegexField stringValue], [replaceRegexField stringValue] ]) ];
-    [CPURLConnection sendSynchronousRequest:myreq returningResponse: nil];
-    [self _refreshFoldersList];
-    [bulkRenameWindow orderOut:self];
-}
--(void) cancelBulkRename:(id)sender
-{   [self _refreshFoldersList];
-    [bulkRenameWindow orderOut:self];
-}
--(void) doRenameTest:(id)sender
-{
-    var myreq=[CPURLRequest requestWithURL:BaseURL+"rename_probe_regex"];
-    [myreq setHTTPMethod:"POST"];
-    [myreq setHTTPBody:JSON.stringify([ [searchRegexField stringValue], [replaceRegexField stringValue], [findTestField stringValue] ]) ];
-    var response=[[CPURLConnection sendSynchronousRequest:myreq returningResponse: nil] rawString];
-    [replaceTestField setStringValue:response]
-}
-
 
 
 @end

@@ -15,6 +15,13 @@
 {
 	id	trialsWindow;
     id  searchTerm @accessors;
+
+    id bulkRenameWindow;
+    id replaceRegexField;
+    id searchRegexField;
+    id testRenameWindow;
+    id findTestField;
+    id replaceTestField;
 }
 
 -(void) setSearchTerm:(id)aTerm
@@ -78,6 +85,36 @@
     [myalert addButtonWithTitle:"Delete"];
     [myalert beginSheetModalForWindow:[CPApp mainWindow] modalDelegate:self didEndSelector:@selector(deleteImagesWarningDidEnd:code:context:) contextInfo: idtrial];
 }
+
+-(void) bulkRename:(id)sender
+{   [bulkRenameWindow makeKeyAndOrderFront:self];
+}
+
+-(void) doBulkRename:(id)sender
+{
+    var idtrial= [[CPApp delegate].trialsController valueForKeyPath:"selection.id"];
+    var myurl=BaseURL+"rename_images_regex/"+idtrial;
+    var myreq=[CPURLRequest requestWithURL: myurl];
+    [myreq setHTTPMethod:"POST"];
+    [myreq setHTTPBody:JSON.stringify([ [searchRegexField stringValue], [replaceRegexField stringValue] ]) ];
+    [CPURLConnection sendSynchronousRequest:myreq returningResponse: nil];
+    [[CPApp delegate] _refreshFoldersList];
+    [bulkRenameWindow orderOut:self];
+}
+-(void) cancelBulkRename:(id)sender
+{   [[CPApp delegate] _refreshFoldersList];
+    [bulkRenameWindow orderOut:self];
+}
+-(void) doRenameTest:(id)sender
+{
+    var myreq=[CPURLRequest requestWithURL:BaseURL+"rename_probe_regex"];
+    [myreq setHTTPMethod:"POST"];
+    [myreq setHTTPBody:JSON.stringify([ [searchRegexField stringValue], [replaceRegexField stringValue], [findTestField stringValue] ]) ];
+    var response=[[CPURLConnection sendSynchronousRequest:myreq returningResponse: nil] rawString];
+    [replaceTestField setStringValue:response]
+}
+
+
 
 -(void) connection:(CPConnection)someConnection didReceiveData: data
 {	// fixme: stop spinner

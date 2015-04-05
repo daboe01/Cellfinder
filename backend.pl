@@ -102,12 +102,12 @@ put '/DB/:table/:pk/:key'=> [key=>qr/\d+/] => sub
 # insert
 post '/DB/:table/:pk'=> sub
 {   my $self    = shift;
-    my $table    = $self->param('table');
-    my $pk        = $self->param('pk');
+    my $table   = $self->param('table');
+    my $pk      = $self->param('pk');
     my $sql = SQL::Abstract->new;
     my $jsonR   = decode_json( $self->req->body );
     my($stmt, @bind) = $sql->insert($table, $jsonR || {name=>'New'});
-    my $sth = $self->db->prepare($stmt);
+    my $sth     = $self->db->prepare($stmt);
     $sth->execute(@bind);
     app->log->debug("err: ".$DBI::errstr ) if $DBI::errstr;
     my $valpk= $self->db->last_insert_id(undef, undef, $table, $pk);
@@ -117,9 +117,9 @@ post '/DB/:table/:pk'=> sub
 # delete
 del '/DB/:table/:pk/:key'=> [key=>qr/\d+/] => sub
 {   my $self    = shift;
-    my $table    = $self->param('table');
-    my $pk        = $self->param('pk');
-    my $key        = $self->param('key');
+    my $table   = $self->param('table');
+    my $pk      = $self->param('pk');
+    my $key     = $self->param('key');
     my $sql = SQL::Abstract->new;
 
     my($stmt, @bind) = $sql->delete($table, {$pk=>$key});
@@ -132,11 +132,11 @@ del '/DB/:table/:pk/:key'=> [key=>qr/\d+/] => sub
 #<!> experimental
 # fuzzy-fetch entities by (foreign) key
 get '/DB/:table/:col/like/:pk' => [pk=>qr/.+/] => sub
-{   my $self = shift;
-    my $sql = SQL::Abstract->new;
+{   my $self   = shift;
+    my $sql    = SQL::Abstract->new;
     my $table  = $self->param('table');
-    my $pk  = $self->param('pk');
-    my $col  = $self->param('col');
+    my $pk     = $self->param('pk');
+    my $col    = $self->param('col');
     app->log->debug( $pk );
     app->log->debug( $col );
     $self->db->quote_identifier($table);
@@ -363,6 +363,16 @@ get '/IMG/delete_images_in_folder/:idtrial/:folder_name'=> [idtrial =>qr/\d+/, f
         cellfinder_image::deleteImage($dbh, $idimage);
     }
 
+    $self->render(text =>'OK');
+};
+post '/IMG/batch_delete_images'=> sub
+{   my $self  = shift;
+    my $dbh   = $self->db;
+    my @ids   = split /,/, $self->req->body;
+    foreach my $idimage (@ids)    # delete every single image
+    {
+        cellfinder_image::deleteImage($dbh, $idimage);
+    }
     $self->render(text =>'OK');
 };
 
