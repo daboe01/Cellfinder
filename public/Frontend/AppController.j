@@ -123,6 +123,13 @@ PhotoDragType="PhotoDragType";
     id  stacksAnalysesController;
     id  stackAggregationsController;
 
+    id bulkRenameWindow;
+    id replaceRegexField;
+    id searchRegexField;
+    id testRenameWindow;
+    id findTestField;
+    id replaceTestField;
+
 	id	displayfilters_ac;
 	id	uploadfilters_ac;
 	id	fixupfilters_ac;
@@ -333,5 +340,97 @@ PhotoDragType="PhotoDragType";
 	[myalert beginSheetModalForWindow:[CPApp mainWindow] modalDelegate:self didEndSelector:@selector(renameWarningDidEnd:code:context:) contextInfo: nil];
 
 }
+
+-(void) addAllWarningDidEnd:anAlert code:(id)code context:(id)context
+{	if(code)
+    {
+        var myreq=[CPURLRequest requestWithURL: BaseURL+"addStandardAnalysisToAll"+"/"+context];
+        [myreq setHTTPMethod:"POST"];
+        [myreq setHTTPBody:""];
+        [CPURLConnection connectionWithRequest:myreq delegate: self];
+    }
+}
+
+-(void) addDefaultAnalysisToAll: sender
+{	var idtrial=[trialsController valueForKeyPath:"selection.id"];
+
+    var myalert = [CPAlert new];
+    [myalert setMessageText: "Are you sure you want to add the default analysis to all images?"];
+    [myalert addButtonWithTitle:"Cancel"];
+    [myalert addButtonWithTitle:"Add"];
+    [myalert beginSheetModalForWindow:[CPApp mainWindow] modalDelegate:self didEndSelector:@selector(addAllWarningDidEnd:code:context:) contextInfo: idtrial];
+
+}
+
+- (void) reaggregateAllWarningDidEnd:anAlert code:(id)code context:(id)context
+{	if(code)
+    {
+        var myreq=[CPURLRequest requestWithURL: BaseURL+"reaggregate_all"+"/"+context];
+        [myreq setHTTPMethod: "POST"];
+        [myreq setHTTPBody: "" ];
+        [CPURLConnection connectionWithRequest:myreq delegate: self];
+    }
+}
+- (void) deleteAllAnalysesWarningDidEnd:anAlert code:(id)code context:(id)context
+{	if(code)
+    {
+        var myreq=[CPURLRequest requestWithURL: BaseURL+"deleteAllAnalyses"+"/"+context];
+        [myreq setHTTPMethod: "POST"];
+        [myreq setHTTPBody: "" ];
+        [CPURLConnection connectionWithRequest:myreq delegate: self];
+    }
+}
+
+
+-(void) reaggregateAll: sender
+{	var idtrial=[[CPApp delegate].trialsController valueForKeyPath:"selection.id"];
+
+    var myalert = [CPAlert new];
+    [myalert setMessageText: "Are you sure you want to reaggregate all analyses?"];
+    [myalert addButtonWithTitle:"Cancel"];
+    [myalert addButtonWithTitle:"Reaggregate all"];
+    [myalert beginSheetModalForWindow:[CPApp mainWindow] modalDelegate:self didEndSelector:@selector(reaggregateAllWarningDidEnd:code:context:) contextInfo: idtrial];
+
+}
+-(void) deleteAllAnalyses: sender
+{	var idtrial=[[CPApp delegate].trialsController valueForKeyPath:"selection.id"];
+
+    var myalert = [CPAlert new];
+    [myalert setMessageText: "Are you sure you want to delete all analyses?"];
+    [myalert addButtonWithTitle:"Cancel"];
+    [myalert addButtonWithTitle:"Delete all analyses"];
+    [myalert beginSheetModalForWindow:[CPApp mainWindow] modalDelegate:self didEndSelector:@selector(deleteAllAnalysesWarningDidEnd:code:context:) contextInfo: idtrial];
+}
+
+-(void) bulkRename:(id)sender
+{   [bulkRenameWindow makeKeyAndOrderFront:self];
+}
+-(void) doBulkRename:(id)sender
+{
+    var idtrial= [[CPApp delegate].trialsController valueForKeyPath:"selection.id"];
+    var myurl=BaseURL+"rename_images_regex/"+idtrial;
+    var myreq=[CPURLRequest requestWithURL: myurl];
+    [myreq setHTTPMethod:"POST"];
+    [myreq setHTTPBody:JSON.stringify([ [searchRegexField stringValue], [replaceRegexField stringValue] ]) ];
+    [CPURLConnection sendSynchronousRequest:myreq returningResponse: nil];
+    [self _refreshFoldersList];
+    [self _refreshFoldersContentList];
+    [bulkRenameWindow orderOut:self];
+}
+-(void) cancelBulkRename:(id)sender
+{   [self _refreshFoldersList];
+    [self _refreshFoldersContentList];
+    [bulkRenameWindow orderOut:self];
+}
+-(void) doRenameTest:(id)sender
+{
+    var myreq=[CPURLRequest requestWithURL:BaseURL+"rename_probe_regex"];
+    [myreq setHTTPMethod:"POST"];
+    [myreq setHTTPBody:JSON.stringify([ [searchRegexField stringValue], [replaceRegexField stringValue], [findTestField stringValue] ]) ];
+    var response=[[CPURLConnection sendSynchronousRequest:myreq returningResponse: nil] rawString];
+    [replaceTestField setStringValue:response]
+}
+
+
 
 @end

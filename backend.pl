@@ -1000,7 +1000,6 @@ post '/IMG/duplicate_chain/:idchain'=> [idchain => qr/[0-9]+/] => sub
 post '/IMG/rename_probe_regex'=> sub
 {
     my $self   = shift;
-    my $probe  = $self->param("probe");
     my $jsonR  = decode_json( $self->req->body );
     my $find   = $jsonR->[0];
     my $replace= '"'.$jsonR->[1].'"';
@@ -1009,17 +1008,16 @@ post '/IMG/rename_probe_regex'=> sub
     $self->render(data=>$probe, format =>'txt' );
 };
 
-post '/IMG/rename_images_regex/:idtrial/:foldername'=> [idtrial=>qr/[0-9]+/, foldername => qr/.+/] => sub
+post '/IMG/rename_images_regex/:idtrial'=> [idtrial=>qr/[0-9]+/] => sub
 {
     my $self=shift;
     my $idtrial= $self->param("idtrial");
-    my $foldername= $self->param("foldername");
     my $jsonR  = decode_json( $self->req->body );
     my $find   = $jsonR->[0];
     my $replace= '"'.$jsonR->[1].'"';
-    my $sql=qq{select id, name from images where idtrial=? and name~* ?};
+    my $sql=qq{select id, name from images where idtrial=?};
     my $sth = $self->db->prepare( $sql );
-    $sth->execute(($idtrial, "^$foldername"));
+    $sth->execute(($idtrial));
 
     while(my $curr=$sth->fetchrow_arrayref())
     {

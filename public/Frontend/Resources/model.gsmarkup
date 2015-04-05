@@ -75,7 +75,31 @@
         <menuItem title="ManualStacks" action="gotoManualStacks:"/>
         <menuItem title="AutoStitching" action="gotoAutoStitching:"/>
     </menu>
+    <menu title="Batch">
+        <menuItem title="Bulk rename..." action="runBulkRename:"/>
+         <popUpButtonItem title="Reaggregate all" action="reaggregateAll:"/>
+         <popUpButtonItem title="Add default analysis" action="addDefaultAnalysisToAll:"/>
+         <popUpButtonItem title="Delete all analyses" action="deleteAllAnalyses:"/>
+    </menu>
    </menu>
+
+   <window title="Bulk rename images" id="renamewindow2" x="260" y="300" width="300" height="90" visible="NO"  resizable="NO">
+	<vbox>
+	 <hbox><label valign="center" halign="min" width="60">Search (regex)</label><textField width="300" id="searchregex"/></hbox>
+	 <hbox><label valign="center" halign="min" width="60">Replace </label><textField width="300" id="replaceregex"/></hbox>
+
+	 <hbox><button target="#CPOwner" action="doBulkRename:" title="OK"/><button target="#renamewindow3" action="makeKeyAndOrderFront:" title="Test..."/><button target="#CPOwner" action="cancelBulkRename:" title="Cancel"/></hbox>
+	</vbox>
+   </window>
+
+   <window title="Test rename regex" id="renamewindow3" x="270" y="310" width="300" height="90" visible="NO"  resizable="NO">
+	<vbox>
+	 <hbox><label valign="center" halign="min" width="60">Find</label><textField width="300" id="findfield"/></hbox>
+	 <hbox><label valign="center" halign="min" width="60">Replaced </label><textField width="300" id="replacefield"/></hbox>
+	 <hbox><button target="#CPOwner" action="doRenameTest:" title="Run test"/><button target="#renamewindow3" action="orderOut:" title="Cancel"/></hbox>
+	</vbox>
+  </window>
+
 </objects>
 
 <entities>
@@ -317,6 +341,14 @@
     <outlet source="#CPOwner" target="aggfilters_ac" label="aggfilters_ac"/>
     <outlet source="#CPOwner" target="javascriptfilters_ac" label="javascriptfilters_ac"/>
     <outlet source="#CPOwner" target="cfifilters_ac" label="cfifilters_ac"/>
+
+	<outlet source="#CPOwner" target="renamewindow2" label="bulkRenameWindow"/>
+	<outlet source="#CPOwner" target="renamewindow3" label="testRenameWindow"/>
+	<outlet source="#CPOwner" target="searchregex" label="searchRegexField"/>
+	<outlet source="#CPOwner" target="replaceregex" label="replaceRegexField"/>
+	<outlet source="#CPOwner" target="findfield" label="findTestField"/>
+	<outlet source="#CPOwner" target="replacefield" label="replaceTestField"/>
+
 </connectors>
 
 

@@ -14,7 +14,6 @@
 @implementation AdminController : CPObject
 {
 	id	trialsWindow;
-	id	trialsettingswindow;
     id  searchTerm @accessors;
 }
 
@@ -22,10 +21,6 @@
 {   if(aTerm && aTerm.length)
     {   [[CPApp delegate].trialsController setFilterPredicate:[CPPredicate predicateWithFormat:"name CONTAINS %@", aTerm]];
     } else [[CPApp delegate].trialsController setFilterPredicate: nil];
-}
-
--(void) runSettings:sender
-{	[CPApp beginSheet: trialsettingswindow modalForWindow: trialsWindow modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
 }
 
 //- (void)editColumn:(CPInteger)columnIndex row:(CPInteger)rowIndex withEvent:(CPEvent)theEvent select:(BOOL)flag
@@ -81,70 +76,8 @@
     [myalert setMessageText: "Are you sure you want to delete all images from this trial?"];
     [myalert addButtonWithTitle:"Cancel"];
     [myalert addButtonWithTitle:"Delete"];
-    [myalert beginSheetModalForWindow: trialsWindow modalDelegate:self didEndSelector:@selector(deleteImagesWarningDidEnd:code:context:) contextInfo: idtrial];
+    [myalert beginSheetModalForWindow:[CPApp mainWindow] modalDelegate:self didEndSelector:@selector(deleteImagesWarningDidEnd:code:context:) contextInfo: idtrial];
 }
-
-- (void) addAllWarningDidEnd:anAlert code:(id)code context:(id)context
-{	if(code)
-    {
-        var myreq=[CPURLRequest requestWithURL: BaseURL+"addStandardAnalysisToAll"+"/"+context];
-        [myreq setHTTPMethod: "POST"];
-        [myreq setHTTPBody: "" ];
-        [CPURLConnection connectionWithRequest:myreq delegate: self];
-    }
-}
-
--(void) addDefaultAnalysisToAll: sender
-{	var idtrial=[[CPApp delegate].trialsController valueForKeyPath:"selection.id"];
-
-    var myalert = [CPAlert new];
-    [myalert setMessageText: "Are you sure you want to add the default analysis to all images?"];
-    [myalert addButtonWithTitle:"Cancel"];
-    [myalert addButtonWithTitle:"Add"];
-    [myalert beginSheetModalForWindow: trialsWindow modalDelegate:self didEndSelector:@selector(addAllWarningDidEnd:code:context:) contextInfo: idtrial];
-
-}
-
-- (void) reaggregateAllWarningDidEnd:anAlert code:(id)code context:(id)context
-{	if(code)
-    {
-        var myreq=[CPURLRequest requestWithURL: BaseURL+"reaggregate_all"+"/"+context];
-        [myreq setHTTPMethod: "POST"];
-        [myreq setHTTPBody: "" ];
-        [CPURLConnection connectionWithRequest:myreq delegate: self];
-    }
-}
-- (void) deleteAllAnalysesWarningDidEnd:anAlert code:(id)code context:(id)context
-{	if(code)
-    {
-        var myreq=[CPURLRequest requestWithURL: BaseURL+"deleteAllAnalyses"+"/"+context];
-        [myreq setHTTPMethod: "POST"];
-        [myreq setHTTPBody: "" ];
-        [CPURLConnection connectionWithRequest:myreq delegate: self];
-    }
-}
-
-
--(void) reaggregateAll: sender
-{	var idtrial=[[CPApp delegate].trialsController valueForKeyPath:"selection.id"];
-
-    var myalert = [CPAlert new];
-    [myalert setMessageText: "Are you sure you want to reaggregate all analyses?"];
-    [myalert addButtonWithTitle:"Cancel"];
-    [myalert addButtonWithTitle:"Reaggregate all"];
-    [myalert beginSheetModalForWindow: trialsWindow modalDelegate:self didEndSelector:@selector(reaggregateAllWarningDidEnd:code:context:) contextInfo: idtrial];
-
-}
--(void) deleteAllAnalyses: sender
-{	var idtrial=[[CPApp delegate].trialsController valueForKeyPath:"selection.id"];
-
-    var myalert = [CPAlert new];
-    [myalert setMessageText: "Are you sure you want to delete all analyses?"];
-    [myalert addButtonWithTitle:"Cancel"];
-    [myalert addButtonWithTitle:"Delete all analyses"];
-    [myalert beginSheetModalForWindow: trialsWindow modalDelegate:self didEndSelector:@selector(deleteAllAnalysesWarningDidEnd:code:context:) contextInfo: idtrial];
-}
-
 
 -(void) connection:(CPConnection)someConnection didReceiveData: data
 {	// fixme: stop spinner

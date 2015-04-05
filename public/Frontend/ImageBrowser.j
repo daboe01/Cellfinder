@@ -31,13 +31,6 @@ var _sharedImageBrowser;
 @implementation ImageBrowser : StacksController
 { 
     id renameWindow;
-    id bulkRenameWindow;
-    id replaceRegexField;
-    id searchRegexField;
-
-    id testRenameWindow;
-    id findTestField;
-    id replaceTestField;
 }
 
 + sharedImageBrowser
@@ -101,36 +94,6 @@ var _sharedImageBrowser;
     [self _refreshFoldersContentList];
     [renameWindow orderOut:self];
 }
--(void) bulkRename:(id)sender
-{   [bulkRenameWindow makeKeyAndOrderFront:self];
-}
--(void) doBulkRename:(id)sender
-{
-    var idtrial= [[CPApp delegate].trialsController valueForKeyPath:"selection.id"];
-    var folder_name= [[CPApp delegate].folderController valueForKeyPath:"selection.folder_name"];
-    var myurl=BaseURL+"rename_images_regex/"+idtrial+"/"+folder_name;
-    var myreq=[CPURLRequest requestWithURL: myurl];
-    [myreq setHTTPMethod:"POST"];
-    [myreq setHTTPBody:JSON.stringify([ [searchRegexField stringValue], [replaceRegexField stringValue] ]) ];
-    [CPURLConnection sendSynchronousRequest:myreq returningResponse: nil];
-    [self _refreshFoldersList];
-    [self _refreshFoldersContentList];
-    [bulkRenameWindow orderOut:self];
-}
--(void) cancelBulkRename:(id)sender
-{   [self _refreshFoldersList];
-    [self _refreshFoldersContentList];
-    [bulkRenameWindow orderOut:self];
-}
--(void) doRenameTest:(id)sender
-{
-    var myreq=[CPURLRequest requestWithURL:BaseURL+"rename_probe_regex"];
-    [myreq setHTTPMethod:"POST"];
-    [myreq setHTTPBody:JSON.stringify([ [searchRegexField stringValue], [replaceRegexField stringValue], [findTestField stringValue] ]) ];
-    var response=[[CPURLConnection sendSynchronousRequest:myreq returningResponse: nil] rawString];
-    [replaceTestField setStringValue:response]
-}
-
 
 -(void) uploadImage: sender
 {   [UploadManager sharedUploadManager];
