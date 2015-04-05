@@ -405,6 +405,13 @@ PhotoDragType="PhotoDragType";
 -(void) bulkRename:(id)sender
 {   [bulkRenameWindow makeKeyAndOrderFront:self];
 }
+- (void)_refreshFoldersList
+{
+    [folderController reload];
+    [folderContentController reload];
+    [imagesController reload];
+}
+
 -(void) doBulkRename:(id)sender
 {
     var idtrial= [[CPApp delegate].trialsController valueForKeyPath:"selection.id"];
@@ -414,12 +421,10 @@ PhotoDragType="PhotoDragType";
     [myreq setHTTPBody:JSON.stringify([ [searchRegexField stringValue], [replaceRegexField stringValue] ]) ];
     [CPURLConnection sendSynchronousRequest:myreq returningResponse: nil];
     [self _refreshFoldersList];
-    [self _refreshFoldersContentList];
     [bulkRenameWindow orderOut:self];
 }
 -(void) cancelBulkRename:(id)sender
 {   [self _refreshFoldersList];
-    [self _refreshFoldersContentList];
     [bulkRenameWindow orderOut:self];
 }
 -(void) doRenameTest:(id)sender

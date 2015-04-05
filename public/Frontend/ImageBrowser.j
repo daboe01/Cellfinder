@@ -55,8 +55,7 @@ var _sharedImageBrowser;
         var myreq=[CPURLRequest requestWithURL: myurl];
         [CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
 
-        [self _refreshFoldersList];
-        [self _refreshFoldersContentList];
+        [[CPApp delegate] _refreshFoldersList];
     }
 }
 
@@ -81,17 +80,13 @@ var _sharedImageBrowser;
         [myreq setHTTPMethod:"delete"];
         [CPURLConnection connectionWithRequest:myreq delegate:self];
     }
-    if([[[CPApp delegate].folderContentController arrangedObjects]  count] === 1)
-        [self _refreshFoldersList];
-
-    [self _refreshFoldersContentList];
+    [[CPApp delegate] _refreshFoldersList];
 }
 -(void) renameSelectedImage: sender
 {   [renameWindow makeKeyAndOrderFront:self];
 }
 -(void) renameSelectedImageOrderOut:(id)sender
-{   [self _refreshFoldersList];
-    [self _refreshFoldersContentList];
+{   [[CPApp delegate] _refreshFoldersList];
     [renameWindow orderOut:self];
 }
 
@@ -104,24 +99,6 @@ var _sharedImageBrowser;
     return [PhotoDragType];
 }
 
-//<!> fixme: causes flicker and loss of selection
-- (void)_refreshFoldersList
-{   var trialsController=[CPApp delegate].trialsController;
-    [[trialsController selectedObject] willChangeValueForKey:"folders"];
-     [trialsController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
-    [[trialsController selectedObject] didChangeValueForKey:"folders"];
-}
-- (void)_refreshFoldersContentList
-{
-
-    var folderController=[CPApp delegate].folderController;
-    [[folderController selectedObject] willChangeValueForKey:"folder_content"];
-     [folderController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
-    [[folderController selectedObject] didChangeValueForKey:"folder_content"];
-
-}
-
-
 - (void)performDragOperation:(CPDraggingInfo)aSender
 {   var data = [[aSender draggingPasteboard] dataForType:PhotoDragType];
     var o=[CPKeyedUnarchiver unarchiveObjectWithData: data];
@@ -130,8 +107,7 @@ var _sharedImageBrowser;
 
     var myreq=[CPURLRequest requestWithURL: myurl];
     [CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
-    [self _refreshFoldersList];
-    [self _refreshFoldersContentList];
+    [[CPApp delegate] _refreshFoldersList];
 
 }
 

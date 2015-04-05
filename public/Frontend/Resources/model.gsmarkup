@@ -76,10 +76,10 @@
         <menuItem title="AutoStitching" action="gotoAutoStitching:"/>
     </menu>
     <menu title="Batch">
-        <menuItem title="Bulk rename..." action="runBulkRename:"/>
-         <popUpButtonItem title="Reaggregate all" action="reaggregateAll:"/>
-         <popUpButtonItem title="Add default analysis" action="addDefaultAnalysisToAll:"/>
-         <popUpButtonItem title="Delete all analyses" action="deleteAllAnalyses:"/>
+        <menuItem title="Bulk rename..." action="bulkRename:"/>
+        <menuItem title="Reaggregate all" action="reaggregateAll:"/>
+        <menuItem title="Add default analysis" action="addDefaultAnalysisToAll:"/>
+        <menuItem title="Delete all analyses" action="deleteAllAnalyses:"/>
     </menu>
    </menu>
 
