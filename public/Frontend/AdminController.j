@@ -123,6 +123,39 @@
     [appController.folderContentController reload];
 }
 
+-(void) insertImage:(id)sender
+{
+   [UploadManager sharedUploadManager];
+}
+- (void)deleteWarningDidEnd:(CPAlert)anAlert code:(id)code context:(id)context
+{
+    if(code)
+	{
+	    var so=[[CPApp delegate].imagesController selectedObjects];
+	    var i,l=[so count];
+	    var body='';
+	    for(i=0; i < l; i++)
+            body+=[[so objectAtIndex:i] valueForKey:"id"]+',';
+
+	    var myreq=[CPURLRequest requestWithURL:BaseURL+"batch_delete_images"];
+	    [myreq setHTTPMethod:"POST"];
+	    [myreq setHTTPBody:body];
+	    [CPURLConnection sendSynchronousRequest:myreq returningResponse:nil];
+	    [[CPApp delegate].imagesController reload];
+	}
+}
+
+-(void) removeImages:(id)sender
+{
+	var count=[[[CPApp delegate].imagesController selectedObjects] count];
+	var myalert = [CPAlert new];
+    [myalert setMessageText: "Are you sure you want to delete the selected "+ count +" images?"];
+	[myalert addButtonWithTitle:"Cancel"];
+	[myalert addButtonWithTitle:"Delete all "+ count];
+	[myalert beginSheetModalForWindow:[CPApp mainWindow] modalDelegate:self didEndSelector:@selector(deleteWarningDidEnd:code:context:) contextInfo: nil];
+}
+
+
 @end
 
 

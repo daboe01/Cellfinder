@@ -302,25 +302,6 @@ PhotoDragType="PhotoDragType";
 	window.open("http://augimageserver:3000/Frontend/index.html?id="+idtrial+"&t=AutoStitching.gsmarkup",'autostacks');
 }
 
--(void) insertImage:(id)sender
-{
-   [UploadManager sharedUploadManager];
-}
--(void) removeImages:(id)sender
-{
-	var so=[imagesController selectedObjects];
-	var i,l=[so count];
-    var body='';
-	for(i=0; i < l; i++)
-        body+=[[so objectAtIndex:i] valueForKey:"id"]+',';
-
-    var myreq=[CPURLRequest requestWithURL:BaseURL+"batch_delete_images"];
-    [myreq setHTTPMethod:"POST"];
-    [myreq setHTTPBody:body];
-    [CPURLConnection sendSynchronousRequest:myreq returningResponse:nil];
-    [imagesController reload];
-}
-
 - (void)renameWarningDidEnd:(CPAlert)anAlert code:(id)code context:(id)context
 {
     if(code)
@@ -340,7 +321,6 @@ PhotoDragType="PhotoDragType";
 	[myalert addButtonWithTitle:"Cancel"];
 	[myalert addButtonWithTitle:"Reset"];
 	[myalert beginSheetModalForWindow:[CPApp mainWindow] modalDelegate:self didEndSelector:@selector(renameWarningDidEnd:code:context:) contextInfo: nil];
-
 }
 
 -(void) addAllWarningDidEnd:anAlert code:(id)code context:(id)context

@@ -46,7 +46,7 @@
                <tableColumn identifier="uploadtime" title="uploadtime" editable="NO"/>
             </tableView>
            </scrollView>
-           <ButtonBar target="#CPOwner" plusButtonAction="insertImage:" minusButtonAction="removeImages:" actionsButton="YES">
+           <ButtonBar target="#myadmincontroller" plusButtonAction="insertImage:" minusButtonAction="removeImages:" actionsButton="YES">
               <popUpButtonItem title="Bulk rename..." target="#myadmincontroller" action="bulkRename:"/>
               <popUpButtonItem title="Delete all images" target="#myadmincontroller" action="deleteAllImages:"/>
               <popUpButtonItem title="Rebuild from repo" target="#myadmincontroller" action="rebuildFromRepo:"/>
