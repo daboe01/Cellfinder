@@ -68,18 +68,18 @@
         <menuItem title="Remove" action="delete:" keyEquivalent="y"/>
         <menuItem title="Select all" action="selectAll:" keyEquivalent="a"/>
     </menu>
+    <menu title="Batch">
+        <menuItem title="Bulk rename..." action="bulkRename:"/>
+        <menuItem title="Reaggregate all" action="reaggregateAll:"/>
+        <menuItem title="Add default analysis" action="addDefaultAnalysisToAll:"/>
+        <menuItem title="Delete all analyses" action="deleteAllAnalyses:"/>
+    </menu>
     <menu title="Goto">
         <menuItem title="Compositions..." action="runCompoBrowser:"/>
         <menuItem title="Patches..." action="runPatchesBrowser:"/>
         <menuItem title="AutoStacks" action="gotoAutoStacks:"/>
         <menuItem title="ManualStacks" action="gotoManualStacks:"/>
         <menuItem title="AutoStitching" action="gotoAutoStitching:"/>
-    </menu>
-    <menu title="Batch">
-        <menuItem title="Bulk rename..." action="bulkRename:"/>
-        <menuItem title="Reaggregate all" action="reaggregateAll:"/>
-        <menuItem title="Add default analysis" action="addDefaultAnalysisToAll:"/>
-        <menuItem title="Delete all analyses" action="deleteAllAnalyses:"/>
     </menu>
    </menu>
 
