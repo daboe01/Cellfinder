@@ -474,7 +474,7 @@ sub resizeImage{ my ($p, $pixels)=@_;
 	return $p;
 }
 
-sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsize, $affine, $idstack, $idcomposition)=@_;
+sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsize, $affine, $idstack, $idcomposition, $idcomposite)=@_;
 	return sub {return undef} if(!$idimage&& !$idstack);
 	my $csize=$ocsize;
 	$csize=$1 if $ocsize=~/([0-9]+x[0-9]+)/o;
@@ -501,6 +501,7 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsiz
 		if($idstack)
 		{	my $list=getObjectFromDBHandID($dbh,'montage_image_list',$idstack)->{list};
 			my @idarr= split/, /o, $list;
+            my $oldi;
 			foreach my $id (@idarr)
 			{
 				my $i=doReadImageFile(undef, getObjectFromDBHandID($dbh,'images_name', $id));
@@ -509,7 +510,10 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsiz
 				my $parameter=$m->{parameter} || '[1,0,0,1,0,0]';
 				_distortImage($i, $parameter, $offX, $offY);
 				$i= imageForComposition($dbh, $idcomposition, undef, $i, 0, $m->{idanalysis}) if $idcomposition;
+                my $iorig=$i;
+                $i->Composite(image => $oldi, compose => $idcomposite) if $oldi && $idcomposite;
 				push @$p,$i;
+                $oldi=$iorig;
 			}
 		} else {
 			$p=doReadImageFile($p, $curr_img);

@@ -529,7 +529,7 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
         $self->render(data=>cellfinder_image::readFile($tempfilename.'.zip'), format=>'zip');
         system('rm '.$tempfilename.'*');
     }  elsif($spc eq 'mp4')
-    {   my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, 0, undef, undef, undef, undef, $idstack, $idcomposition);
+    {   my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, 0, undef, undef, undef, undef, $idstack, $idcomposition, $self->param('composite'));
         my $p = $f->(0);
         my $i=1;
         my $tempfilename=cellfinder_image::tempFileName('/tmp/cellf');
