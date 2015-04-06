@@ -11,13 +11,13 @@
     <splitView vertical="YES" autosaveName="vsplitter_main1">
      <vbox>
       <searchField valueBinding="myadmincontroller.searchTerm"/>
-     <scrollView>
-       <tableView zebra="yes" autosaveName="alltrials" valueBinding="#CPOwner.trialsController" target="#CPOwner">
-        <tableColumn identifier="id" title="id"/>
-        <tableColumn identifier="name" title="name"/>
-       </tableView>
-      </scrollView>
-      <ButtonBar actionsButton="NO" target="#myadmincontroller" plusButtonAction="newTrial:" minusButtonAction="removeTrial:"/>
+       <scrollView>
+         <tableView zebra="yes" autosaveName="alltrials" valueBinding="#CPOwner.trialsController" target="#CPOwner">
+            <tableColumn identifier="id" title="id"/>
+            <tableColumn identifier="name" title="name"/>
+         </tableView>
+       </scrollView>
+       <ButtonBar actionsButton="NO" target="#myadmincontroller" plusButtonAction="newTrial:" minusButtonAction="removeTrial:"/>
      </vbox>
      <tabView type="topBezel">
        <tabViewItem title="General">
@@ -34,27 +34,8 @@
                 <hbox><label valign="center" halign="min" width="130">GUI</label><popUpButton width="200" itemsBinding="#CPOwner.javascriptfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_javascript"/></hbox>
                 <hbox><label valign="center" halign="min" width="130">Aggregator</label><popUpButton width="200" itemsBinding="#CPOwner.aggfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_aggregation"/></hbox>
                 <hbox><label valign="center" halign="min" width="130">Clustering</label><popUpButton width="200" itemsBinding="#CPOwner.analyticsfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_clustering"/></hbox>
-                </vbox>
-      </tabViewItem>
-      <tabViewItem title="Images">
-           <vbox>
-            <scrollView>
-             <tableView zebra="yes" autosaveName="allimagesadmin" valueBinding="#CPOwner.imagesController" allowsMultipleSelection="YES">
-               <tableColumn identifier="id" title="id" editable="NO"/>
-               <tableColumn identifier="name" title="name" editable="YES"/>
-               <tableColumn identifier="filename" title="storage name" editable="NO"/>
-               <tableColumn identifier="uploadtime" title="uploadtime" editable="NO"/>
-            </tableView>
-           </scrollView>
-           <ButtonBar target="#myadmincontroller" plusButtonAction="insertImage:" minusButtonAction="removeImages:" actionsButton="YES">
-              <popUpButtonItem title="Bulk rename..." target="#myadmincontroller" action="bulkRename:"/>
-              <popUpButtonItem title="Reset names..." target="#myadmincontroller" action="resetImageNames:"/>
-              <popUpButtonItem title="Rebuild from repo" target="#myadmincontroller" action="rebuildFromRepo:"/>
-              <popUpButtonItem title="Delete all images..." target="#myadmincontroller" action="deleteAllImages:"/>
-           </ButtonBar>
-         </vbox>
-     </tabViewItem>
-      <tabViewItem title="Tags">
+
+<hbox><label>Tags</label><hspace/><label>Value lists (only for tags of type 1)</label></hbox>
           <hbox>
            <vbox>
             <scrollView>
@@ -78,6 +59,26 @@
            <ButtonBar target="#CPOwner.taglistController2" plusButtonAction="insert:" minusButtonAction="remove:"/>
          </vbox>
        </hbox>
+
+                </vbox>
+      </tabViewItem>
+      <tabViewItem title="Images">
+           <vbox>
+            <scrollView>
+             <tableView zebra="yes" autosaveName="allimagesadmin" valueBinding="#CPOwner.imagesController" allowsMultipleSelection="YES">
+               <tableColumn identifier="id" title="id" editable="NO"/>
+               <tableColumn identifier="name" title="name" editable="YES"/>
+               <tableColumn identifier="filename" title="storage name" editable="NO"/>
+               <tableColumn identifier="uploadtime" title="uploadtime" editable="NO"/>
+            </tableView>
+           </scrollView>
+           <ButtonBar target="#myadmincontroller" plusButtonAction="insertImage:" minusButtonAction="removeImages:" actionsButton="YES">
+              <popUpButtonItem title="Bulk rename..." target="#myadmincontroller" action="bulkRename:"/>
+              <popUpButtonItem title="Reset names..." target="#myadmincontroller" action="resetImageNames:"/>
+              <popUpButtonItem title="Rebuild from repo" target="#myadmincontroller" action="rebuildFromRepo:"/>
+              <popUpButtonItem title="Delete all images..." target="#myadmincontroller" action="deleteAllImages:"/>
+           </ButtonBar>
+         </vbox>
      </tabViewItem>
    </tabView>
   </splitView>
