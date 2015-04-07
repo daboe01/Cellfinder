@@ -19,7 +19,7 @@ use SQL::Abstract;
 use POSIX;
 
 #<!> change me as needed
-use constant server_root=>'/Users/daboe01/src/daboe01_Cellfinder/_images';
+use constant server_root=>'/Users/Shared/cellfinder';
 
 sub runRCode { my ($RCmd)=@_;
     return undef unless $RCmd;
@@ -509,10 +509,10 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsiz
 				my $m=getMontageForIDImageAndIDStack($dbh, $id, $idstack);
 				my $parameter=$m->{parameter} || '[1,0,0,1,0,0]';
 				_distortImage($i, $parameter, $offX, $offY);
-				$i= imageForComposition($dbh, $idcomposition, undef, $i, 0, $m->{idanalysis}) if $idcomposition;
-                my $iorig=$i;
+                my $iorig=$i->Clone();
                 $i->Composite(image => $oldi, compose => $idcomposite) if $oldi && $idcomposite;
-				push @$p,$i;
+				$i= imageForComposition($dbh, $idcomposition, undef, $i, 0, $m->{idanalysis}) if $idcomposition;
+				push @$p, $i;
                 $oldi=$iorig;
 			}
 		} else {
@@ -549,7 +549,7 @@ sub reverseAffineMatrix { my ($m1)=@_;
 	my $inverse_sy=		 $sx/$det;
 	my $inverse_tx=	(-1)*$tx*$inverse_sx - $ty*$inverse_ry;
 	my $inverse_ty=	(-1)*$tx*$inverse_rx - $ty*$inverse_sy;
-	return join ',', ( $inverse_sx, $inverse_rx , $inverse_ry, $inverse_sy, $inverse_tx, $inverse_ty) ;
+	return join ',', ($inverse_sx, $inverse_rx , $inverse_ry, $inverse_sy, $inverse_tx, $inverse_ty) ;
 }
 
 

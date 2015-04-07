@@ -18,7 +18,7 @@ use Mojo::JSON qw(decode_json encode_json);
 $ENV{MOJO_MAX_MESSAGE_SIZE} = 1_073_741_824;
 
 plugin 'database', {
-            dsn      => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
+            dsn      => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
             username => 'root',
             password => 'root',
             options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },

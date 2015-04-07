@@ -118,9 +118,7 @@
 
 -(void) connection:(CPConnection)someConnection didReceiveData: data
 {	// fixme: stop spinner
-    var appController=[CPApp delegate];
-    [appController.folderController reload];
-    [appController.folderContentController reload];
+    [[CPApp delegate] _refreshFoldersList];
 }
 
 -(void) insertImage:(id)sender
