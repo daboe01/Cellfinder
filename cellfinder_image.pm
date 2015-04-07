@@ -611,6 +611,7 @@ sub uploadImageFromData { my ($dbh, $idtrial, $name, $suffix, $data)=@_;
     
     my $filename=TempFileNames::tempFileName('/tmp/cellf', ".$suffix");
 	TempFileNames::writeFile($filename, $data);
+    my $idimage;
 
     if ($suffix =~/tif/i)
     {   my $pages=readCommand('/usr/local/bin/identify -format "%p" '.$filename);
@@ -621,10 +622,19 @@ sub uploadImageFromData { my ($dbh, $idtrial, $name, $suffix, $data)=@_;
             my $i=1;
             foreach my $cfilename (@files)
             {
-                create_img($dbh, $idtrial, $name.' '.sprintf("%03d",$i++), 'tiff', $cfilename) unless $idimage == -1;
+                create_img($dbh, $idtrial, $name.' '.sprintf("%03d",$i++), 'tiff', $cfilename);
             }
             $idimage=-1;
         }
+    } elsif($suffix =~/mp4/i)
+    {   system('/usr/local/bin/convert -deconstruct '.$filename.' '.$filename.'-%06d.jpg');
+        my @files= glob $filename.'*.jpg';
+        my $i=1;
+        foreach my $cfilename (@files)
+        {
+            create_img($dbh, $idtrial, $name.' '.sprintf("%06d",$i++), 'mp4', $cfilename);
+        }
+        $idimage=-1;        
     }
     $idimage=create_img($dbh, $idtrial, $name, $suffix, $filename) unless $idimage == -1;
 	return $idimage;
