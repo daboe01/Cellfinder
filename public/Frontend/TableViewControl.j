@@ -143,7 +143,7 @@
 
 var _itemsControllerHash;
 @implementation TableViewPopup: TableViewControl
-{	id	_itemsController @accessors(property=itemsController);
+{	id	     _itemsController @accessors(property=itemsController);
 	CPString _itemsFace @accessors(property=itemsFace);
 	CPString _itemsValue @accessors(property=itemsValue);
 	CPString _itemsIDs @accessors(property=itemsIDs);
@@ -180,11 +180,12 @@ var _itemsControllerHash;
     self=[super initWithCoder:aCoder];
     if (self != nil)
     {
-		_itemsFace =[aCoder decodeObjectForKey:"_itemsFace"];
-		_itemsValue =[aCoder decodeObjectForKey:"_itemsValue"];
-		_itemsIDs =[aCoder decodeObjectForKey:"_itemsIDs"];
-		_itemsPredicateFormat =[aCoder decodeObjectForKey:"_itemsPredicateFormat"];
-		_itemsController = _itemsControllerHash[_itemsFace+ _itemsValue+ _itemsIDs+ _itemsPredicateFormat];
+		_itemsFace = [aCoder decodeObjectForKey:"_itemsFace"];
+		_itemsValue = [aCoder decodeObjectForKey:"_itemsValue"];
+		_itemsIDs = [aCoder decodeObjectForKey:"_itemsIDs"];
+		_itemsPredicateFormat = [aCoder decodeObjectForKey:"_itemsPredicateFormat"];
+        var itemsControllerEntity = [aCoder decodeObjectForKey:"_itemsControllerEntity"];
+		_itemsController = _itemsControllerHash[itemsControllerEntity+_itemsFace+ _itemsValue+ _itemsIDs+ _itemsPredicateFormat];
     }
     return self;
 }
@@ -193,15 +194,16 @@ var _itemsControllerHash;
 {
     if (!_itemsController) return;
     if (!_itemsControllerHash) _itemsControllerHash=[]
-    _itemsControllerHash[_itemsFace+ _itemsValue+ _itemsIDs+ _itemsPredicateFormat]=_itemsController;
+    _itemsControllerHash[_itemsController._entity+_itemsFace+ _itemsValue+ _itemsIDs+ _itemsPredicateFormat]=_itemsController;
 }
 - (void)encodeWithCoder:(id)aCoder
 {
     [super encodeWithCoder:aCoder];
-    [aCoder encodeObject: _itemsFace forKey:"_itemsFace"];
-    [aCoder encodeObject: _itemsValue forKey:"_itemsValue"];
-    [aCoder encodeObject: _itemsIDs forKey:"_itemsIDs"];
-    [aCoder encodeObject: _itemsPredicateFormat forKey:"_itemsPredicateFormat"];
+    [aCoder encodeObject:_itemsFace forKey:"_itemsFace"];
+    [aCoder encodeObject:_itemsValue forKey:"_itemsValue"];
+    [aCoder encodeObject:_itemsIDs forKey:"_itemsIDs"];
+    [aCoder encodeObject:_itemsPredicateFormat forKey:"_itemsPredicateFormat"];
+    [aCoder encodeObject:_itemsController._entity forKey:"_itemsControllerEntity"];
     [self _saveObjectController];
 }
 
@@ -210,13 +212,13 @@ var _itemsControllerHash;
 	[_myView unbind:"itemArray"];
 	[_myView unbind:"selectedTag"];
     [self _installView];
-	if(!_itemsController)
+	if (!_itemsController)
 	{	[_myView setItemArray:[]];
 	} else
-    {   var options=@{"PredicateFormat": _itemsPredicateFormat, "valueFace": _itemsValue, "Owner":_value};
+    {   var options= @{"PredicateFormat": _itemsPredicateFormat, "valueFace":_itemsValue, "Owner":_value};
         [_myView bind:"itemArray" toObject: _itemsController withKeyPath:_itemsFace options:options];
     }
-    if(!_face)   // cell based
+    if (!_face)   // cell based
     {   [_myView setTarget:self]
         [_myView setAction:@selector(viewChanged:)]
         [_myView selectItemWithTag:myVal]
