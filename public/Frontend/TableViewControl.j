@@ -150,27 +150,6 @@ var _itemsControllerHash;
 	CPString _itemsPredicateFormat @accessors(property=itemsPredicateFormat);
 }
 
--(void) setItemsController:(id)aController
-{	_itemsController=aController;
-    [self _saveObjectController];
-}
--(void) setItemsFace:(CPString)aString
-{	_itemsFace = aString;
-    [self _saveObjectController];
-}
--(void) setItemsValue:(CPString)aString
-{	_itemsValue = aString;
-    [self _saveObjectController];
-}
--(void) setItemsIDs:(CPString)aString
-{	_itemsIDs = aString;
-    [self _saveObjectController];
-}
--(void) setItemsPredicateFormat:(CPString)aString
-{	_itemsPredicateFormat = aString;
-    [self _saveObjectController];
-}
-
 -(id) viewClass
 {	return FSPopUpButton;
 }
