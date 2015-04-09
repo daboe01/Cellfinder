@@ -157,7 +157,7 @@ var _itemsControllerHash;
 - (id)initWithCoder:(id)aCoder
 {
     self=[super initWithCoder:aCoder];
-    if (self != nil)
+    if (self)
     {
 		_itemsFace = [aCoder decodeObjectForKey:"_itemsFace"];
 		_itemsValue = [aCoder decodeObjectForKey:"_itemsValue"];
