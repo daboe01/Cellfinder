@@ -194,7 +194,7 @@ var _itemsControllerHash;
 {
     if (!_itemsController) return;
     if (!_itemsControllerHash) _itemsControllerHash=[]
-    _itemsControllerHash[_itemsController._entity+_itemsFace+ _itemsValue+ _itemsIDs+ _itemsPredicateFormat]=_itemsController;
+    _itemsControllerHash[_itemsController._entity._name+_itemsFace+ _itemsValue+ _itemsIDs+ _itemsPredicateFormat]=_itemsController;
 }
 - (void)encodeWithCoder:(id)aCoder
 {
@@ -203,7 +203,7 @@ var _itemsControllerHash;
     [aCoder encodeObject:_itemsValue forKey:"_itemsValue"];
     [aCoder encodeObject:_itemsIDs forKey:"_itemsIDs"];
     [aCoder encodeObject:_itemsPredicateFormat forKey:"_itemsPredicateFormat"];
-    [aCoder encodeObject:_itemsController._entity forKey:"_itemsControllerEntity"];
+    [aCoder encodeObject:_itemsController._entity._name forKey:"_itemsControllerEntity"];
     [self _saveObjectController];
 }
 
