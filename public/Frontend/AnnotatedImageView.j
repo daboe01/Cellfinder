@@ -585,14 +585,15 @@ var myFastSortFunction=function(a,b,context)
 	return [myArr lastObject];
 }
 
--(void) deleteDots:(CPArray) arr
+-(void) deleteDots:(CPArray)arr
 {	var myArr=[self objectValue];
 
 	var n = [arr count];
     for(var i = 0; i < n; i++) 
 	{	var dot=[arr objectAtIndex:i];
 		if([dot data])
-			[myArr removeObject: [dot data]];	//also remove in backend
+		{	[myArr removeObject:[dot data]];	//also remove in backend
+        }
 		[dot removeFromSuperview];
 	}
 	[_marqueeLayer setNeedsDisplay];

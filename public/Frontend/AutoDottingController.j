@@ -47,10 +47,15 @@
 - (void)observeValueForKeyPath: keyPath ofObject: object change: change context: context
 {	if(keyPath === "selection.idcomposition_for_editing" || keyPath === "value" )
 	{
-        window.___forceImageReload = 1;
-		[[CPRunLoop currentRunLoop] performSelector:@selector(reloadImage) target:self argument:nil order:0 modes:[CPDefaultRunLoopMode]];
+        [self reloadImage:self];
 	}
 }
+-(void) reloadImage:(id)sender
+{
+        window.___forceImageReload = 1;
+		[[CPRunLoop currentRunLoop] performSelector:@selector(reloadImage) target:self argument:nil order:0 modes:[CPDefaultRunLoopMode]];
+}
+
 -(void) setScale:(double) someScale
 {	_scale=someScale;
 	[annotatedImageView setScale: _scale];
@@ -125,6 +130,17 @@
 	var idtrial=[myAppController.trialsController valueForKeyPath:"selection.id"];
     [self _makestackForIDTrial:idtrial];
 	window.open("http://augimageserver:3000/Frontend/index.html?id="+idtrial+"&t=AutoStacks.gsmarkup",'autostacks');
+}
+
+- (void)makeStackFromFolder:(id)sender
+{
+	var idtrial=[myAppController.trialsController valueForKeyPath:"selection.id"];
+	var folder_name=[myAppController.folderController valueForKeyPath:"selection.folder_name"];
+	var myurl=BaseURL+"makeidentiystack_folder/"+idtrial+"/"+ folder_name;
+	var myreq=[CPURLRequest requestWithURL: myurl];
+    [myreq setHTTPMethod:"POST"];
+	[CPURLConnection sendSynchronousRequest:myreq returningResponse: nil];
+	window.open("http://augimageserver:3000/Frontend/index.html?id="+idtrial+"&t=AutoStitching.gsmarkup",'autostitching');
 }
 
 -(void) clusterDots:sender
@@ -221,7 +237,7 @@
 }
 
 
--(void) matchDotsAll: sender	//<!> fixme GUI feedback usw.
+-(void) matchDotsAll:(id)sender	//<!> fixme GUI feedback usw.
 {	var idtrial =[myAppController.trialsController valueForKeyPath: "selection.id"];
 	var idransac=[myAppController.trialsController valueForKeyPath: "selection.composition_for_ransac"];
 

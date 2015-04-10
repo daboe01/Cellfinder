@@ -30,6 +30,7 @@
 			<ButtonBar target="#mydottingcontroller" halign="right" width="350" actionsButton="YES">
    				<popUpButtonItem title="Analyze selected" target="#mydottingcontroller" action="analyzeSelected:"/>
    				<popUpButtonItem title="Make stack from selected..." target="#mydottingcontroller" action="matchDots:"/>
+   				<popUpButtonItem title="Make identitystack from all..." target="#mydottingcontroller" action="makeStackFromFolder:"/>
    				<popUpButtonItem title="Make clusterstack from selected..." target="#mydottingcontroller" action="clusterDots:"/>
    				<popUpButtonItem title="Delete and reanalyze all" target="#mydottingcontroller" action="addDefaultAnalyses:"/>
    				<popUpButtonItem title="Autostich all" target="#mydottingcontroller" action="matchDotsAll:"/>
@@ -37,8 +38,8 @@
 			</ButtonBar>
 			<scrollView hasHorizontalScroller="NO">
 				<tableView autosaveName="folders_manual_dotting_tags" zebra="yes" valueBinding="#CPOwner.tagsController" id="tags_tv" viewBasedBindings="YES">
-					<tableColumn identifier="tag.name" title="Name" dataView="#namedataview"/>
-					<tableColumn identifier="value" title="Wert" dataView="#popupdataview"/>
+					<tableColumn identifier="tag.name" title="Tag" dataView="#namedataview"/>
+					<tableColumn identifier="value" title="Tag value" dataView="#popupdataview"/>
 	  			</tableView>
 			</scrollView>
 		</vbox>
@@ -65,7 +66,7 @@
 				</vbox>
 				<scrollView hasHorizontalScroller="NO">
 					<tableView autosaveName="aggregations_name" zebra="yes" valueBinding="#CPOwner.aggregationsController" target="#CPOwner">
-						<tableColumn identifier="name" title="Name"/>
+						<tableColumn identifier="name" title="Aggregation"/>
 						<tableColumn identifier="value" title="Value"/>
 					</tableView>
 				</scrollView>

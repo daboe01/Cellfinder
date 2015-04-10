@@ -324,8 +324,8 @@ sub imageForDBHAndRenderchainIDAndImage{
 		{	next unless ref $p eq 'Image::Magick';
 			my $filename=tempFileName('/tmp/cellf');
 			my $filetype='.'.$curr_patch->{filetype};
-
-			$p->Write($filename.$filetype);
+            $filename.=  '0' x (17-length $filename);
+            $p->Write($filename.$filetype);
 
 			my $patchparams=$curr_patch->{params};
 			$patchparams=~s/imageForDBHAndRenderchainIDAndImage\(([^\)]+)\)/tmpfilenameForImgCallParams($dbh, $readImageFunction, $1)/oegs;
@@ -366,8 +366,11 @@ sub imageForDBHAndRenderchainIDAndImage{
             } else
             {   $p = Image::Magick->new();
                 $p->Read($effective_fn_out);
-                unlink($effective_fn_out);
             }
+            foreach my $file (@filenamelist)  # remove all temp files
+            {   unlink $file if -e $file; 
+            }
+            unlink $effective_fn_out if -e $effective_fn_out;
 		}
 	}
 	if($idimage && $id && ref $p eq 'Image::Magick')
@@ -622,17 +625,19 @@ sub uploadImageFromData { my ($dbh, $idtrial, $name, $suffix, $data)=@_;
             my $i=1;
             foreach my $cfilename (@files)
             {
-                create_img($dbh, $idtrial, $name.' '.sprintf("%03d",$i++), 'tiff', $cfilename);
+                create_img($dbh, $idtrial, $name.' '.sprintf("%04d",$i++), 'tiff', $cfilename);
             }
             $idimage=-1;
         }
-    } elsif($suffix =~/mp4/i)
-    {   system('/usr/local/bin/convert -deconstruct '.$filename.' '.$filename.'-%06d.jpg');
+    } elsif($suffix =~/mp|m4v/i) # movie
+    {   system('/usr/local/bin/convert -deconstruct '.$filename.' '.$filename.'-%d.jpg');
         my @files= glob $filename.'*.jpg';
+warn "@files";
         my $i=1;
         foreach my $cfilename (@files)
         {
-            create_img($dbh, $idtrial, $name.' '.sprintf("%06d",$i++), 'mp4', $cfilename);
+ warn $cfilename.' '.$name.' '.sprintf("%06d",$i++);
+            create_img($dbh, $idtrial, $name.' '.sprintf("%04d",$i++), $suffix, $cfilename);
         }
         $idimage=-1;        
     }

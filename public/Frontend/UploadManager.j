@@ -43,7 +43,7 @@ var _sharedUploadManager;
 
 - (void)cup:(Cup)aCup uploadDidCompleteForFile:(CupFile)aFile
 {
-	[appController _refreshFoldersList];
+	[[CPApp delegate] _refreshFoldersList];
 }
 
 @end

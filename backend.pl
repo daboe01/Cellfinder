@@ -157,10 +157,10 @@ get '/DB/:table/:col/like/:pk' => [pk=>qr/.+/] => sub
 # cellfinder specific part
 
 get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
-{   my $self=shift;
+{   my $self=            shift;
     my $spc=            $self->param("spc");
     my $width=          $self->param("width");
-    my $idimage    =    $self->param('idimage');
+    my $idimage=        $self->param('idimage');
     my $idanalysis=     $self->param('idanalysis');
     my $preload=        $self->param('preload');
     my $afterload=      $self->param('afterload');
@@ -616,6 +616,29 @@ post '/IMG/makestack/:idtrial/:name'=> [name=>qr/.+/] => sub
     }
     $self->render(data=>$idmontage, format =>'txt' );
 };
+post '/IMG/makeidentiystack_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, folder_name =>qr/.+/] => sub
+{   my $self=shift;
+    my $idtrial=    $self->param("idtrial");
+    my $folder_name = $self->param("folder_name");
+    my $linkname= $idtrial.$folder_name;
+    my $dbh=$self->db;
+
+    my $sql=qq{select folder_content.idimage, min(analyses.id) as idanalysis from folder_content join analyses on analyses.idimage = folder_content.idimage where linkname = ? group by folder_content.idimage, name order by name};
+    my $sth = $dbh->prepare( $sql );
+    $sth->execute(($linkname));
+
+    my $first = $sth->fetchrow_arrayref();
+    my $trial = cellfinder_image::getObjectFromDBHandID($dbh, 'trials', $idtrial);
+    my $idmontage=cellfinder_image::insertObjectIntoTable($dbh, 'montages', 'id', {idtrial=> $idtrial, name=> $folder_name} );
+    my $idreference=$first->[1]
+    cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $first->[0], idanalysis=> $idreference, idmontage=> $idmontage} );
+
+    while(my $curr=$sth->fetchrow_arrayref())
+    {
+        cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $curr->[0], idanalysis=> $curr->[1], idanalysis_reference=>$idreference, idmontage=> $idmontage, parameter=> '1,0,0,1,0,0'} );
+    }
+    $self->render(data=>$idmontage, format =>'txt' );
+};
 
 post '/IMG/analyze/:idtrial/:name'=> [idtrial=>qr/[0-9]+/, name=>qr/.+/] => sub
 {   my $self=shift;
@@ -641,7 +664,6 @@ post '/IMG/analyze/:idtrial/:name'=> [idtrial=>qr/[0-9]+/, name=>qr/.+/] => sub
     $self->render(data=>'OK', format =>'txt' );
 };
 
-# <!> fixme: support "replace" option+ supply id of analysis
 get '/IMG/analyze_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, folder_name =>qr/.+/] => sub
 {   my $self=shift;
     my $idtrial=    $self->param("idtrial");
@@ -659,19 +681,20 @@ get '/IMG/analyze_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, folder_n
     {   my $idimage=$curr->[0];
         my $d={idimage=>$idimage, idcomposition_for_editing => $trial->{composition_for_editing}, idcomposition_for_analysis=> $trial->{composition_for_celldetection} };
         my($stmt, @bind) = $sqldel->delete('analyses', {idimage=>$idimage} );
-        my $sthdel = $self->db->prepare($stmt);
+        my $sthdel = $dbh->prepare($stmt);
         $sthdel->execute(@bind);
-        my $idanalysis=cellfinder_image::insertObjectIntoTable($self->db, 'analyses', 'id', $d );
-        my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage);
-        cellfinder_image::imageForComposition($self->db, $d->{idcomposition_for_analysis}, $f, $f->(0), 0, $idanalysis);
+        my $idanalysis=cellfinder_image::insertObjectIntoTable($dbh, 'analyses', 'id', $d );
+        my $f= cellfinder_image::readImageFunctionForIDAndWidth($dbh, $idimage);
+        cellfinder_image::imageForComposition($dbh, $d->{idcomposition_for_analysis}, $f, $f->(0), 0, $idanalysis);
     }
     $self->render(data=>'OK', format =>'txt' );
 };
 
 
+
 get '/IMG/automatch_folder/:idtrial/:idransac/:folder_name'=> [idtrial=>qr/[0-9]+/, idransac=>qr/[0-9]+/, folder_name =>qr/.+/] => sub
 {   my $self=shift;
-    my $idtrial=        $self->param("idtrial");
+    my $idtrial=         $self->param("idtrial");
     my $idransac=        $self->param("idransac");
     my $folder_name =    $self->param("folder_name");
 
@@ -806,7 +829,7 @@ helper rebaseMontageID => sub { my ($self, $idmontageimage)=@_;
     my $montage_image=cellfinder_image::getObjectFromDBHandID($self->db, 'montage_images', $idmontageimage);
     my ($oldbase, $newbase, $orig_matrix, $idstack)=(   $montage_image->{idanalysis_reference}, $montage_image->{idanalysis},
                                                         $montage_image->{parameter}, $montage_image->{idmontage} );
-warn Dumper $montage_image;
+
     my $inverted_matrix= $orig_matrix? cellfinder_image::reverseAffineMatrix($orig_matrix):'1,0,0,1,0,0';
 
     my $sql=SQL::Abstract->new();
@@ -1038,7 +1061,7 @@ post '/IMG/rename_images_regex/:idtrial'=> [idtrial=>qr/[0-9]+/] => sub
         if ($name && $oldname ne $name) {
             my $sqla = SQL::Abstract->new();
             my($stmt, @bind) = $sqla->update('images', { name=> $name}, {id=> $curr->[0] } );
-            my $sth2=  $self->db->prepare($stmt);
+            my $sth2= $self->db->prepare($stmt);
             $sth2->execute(@bind);
         }
     }
@@ -1059,14 +1082,13 @@ post '/IMG/reset_imagenames/:idtrial'=> [idtrial=>qr/[0-9]+/] => sub
 post '/upload/:idtrial' => [idtrial=>qr/[0-9]+/] => sub {
     my $self    = shift;
     my $idtrial=    $self->param("idtrial");
-    my $prefix=        $self->param("prefix") || '';
+    my $prefix=     $self->param("prefix") || '';
     my @uploads = $self->req->upload('files[]');
     for my $curr_upload (@uploads) {
         my $upload  = Mojo::Upload->new($curr_upload);
         my $bytes = $upload->slurp;
         my ($filename, $suffix)=$upload->filename =~/^(.+)\.([^\.]+)$/;
         cellfinder_image::uploadImageFromData($self->db, $idtrial, $prefix.$filename, $suffix, $bytes);
-
     }
     $self->render( json => \@uploads );
 };

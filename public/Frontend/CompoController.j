@@ -193,7 +193,7 @@
 		}
 	}
     var optionalButton=myObserver?'<button title="Unset compo" target="#CPOwner" action="unsetCompo:"/>':'';
-	markup+='</vbox></scrollView>'+optionalButton+'</vbox></window></objects><connectors>'+
+	markup+='</vbox></scrollView><hbox>'+optionalButton+'<button title="Reload image" target="#CPOwner" action="reloadImage:"></hbox></vbox></window></objects><connectors>'+
 			'<outlet source="#CPOwner" target ="panel" label ="_panel"/></connectors></gsmarkup>';
 	var parser=[CPBundle loadGSMarkupData: [CPData dataWithRawString: markup] externalNameTable:[CPDictionary dictionaryWithObject:self forKey:"CPOwner"]
 			localizableStringsTable: nil inBundle: nil tagMapping: nil];
@@ -230,7 +230,10 @@
 {
     [_delegate unsetCompo:sender];
 }
-
+-(void) reloadImage:(id)sender
+{
+    [_delegate reloadImage:sender];
+}
 
 -(id) initWithCompo:(id) compo
 {	return [self initWithCompo: compo valueObserver: nil];
