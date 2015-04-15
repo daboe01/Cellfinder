@@ -69,18 +69,6 @@
 -(void) insertIdentityMatrix:(id)sender
 {   [myAppController.stacksContentController setValue:"1,0,0,1,0,0" forKeyPath: "selection.parameter"];
 }
--(void) reRansacReversed:(id)sender
-{
-	var idanalysis1 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis"];
-	var idanalysis2 =[myAppController.stacksContentController valueForKeyPath: "selection.idanalysis_reference"];
-	if (idanalysis2 === CPNullMarker)
-	{	[[CPAlert alertWithError:"Please select entry with a reference"] runModal];
-		return;
-	}
-   [myAppController.stacksContentController setValue:idanalysis1 forKeyPath:"selection.idanalysis_reference"];
-   [myAppController.stacksContentController setValue:idanalysis2 forKeyPath:"selection.idanalysis"];
-   [self reRansac:self];
-}
 
 -(void) rebase: sender
 {	var id = [myAppController.stacksContentController valueForKeyPath: "selection.id"];
@@ -198,17 +186,57 @@
 @implementation ClusterStacksController: AutoStacksController
 {
     id stacksImageView;
+    id tagField;
+	id inputAnalysisWindow;
+	id inputAnalysisField;
 }
 -(void) _postInit
 {
     [super _postInit];
 	[stacksImageView setDelegate:self];
-	[stacksImageView setStyleFlags:[stacksImageView styleFlags] | AIVStyleNumbers ];
+    
+    var mycompo= [myAppController.trialsController valueForKeyPath: "selection.composition_for_javascript2"];
+
+	if(mycompo !== CPNullMarker)
+	{	var myreq=[CPURLRequest requestWithURL: BaseURL+"0?cmp="+mycompo ];
+		var mypackage=[[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil]  rawString];
+		var arr = JSON.parse( mypackage );
+		if(!arr) return;
+		var i,l=arr.length;
+		for(i=0;i<l;i++)
+		{	var m=arr[i];
+			if([m characterAtIndex:0]=='<') continue;
+			var sel=CPSelectorFromString(m);
+			if(sel) [self performSelector:sel];
+		}
+	} else
+        [stacksImageView setStyleFlags:[stacksImageView styleFlags] | AIVStyleNumbers ];
+
 	[stacksImageView bind:"scale" toObject:self withKeyPath:"scale" options:nil];
 	[stacksImageView bind:"value" toObject:myAppController.stacksAnalysesController withKeyPath: "selection.results" options:nil];
 	[stacksImageView bind:"backgroundImage" toObject:myAppController.stacksContentController withKeyPath: "selection._backgroundImage" options:nil];
 	[myAppController.stacksContentController addObserver:self forKeyPath:"selection.idcomposition_for_editing" options:nil context:nil];
 }
+
+// CompoAPI
+-(void) setNumberingPoints
+{	[stacksImageView setStyleFlags: [stacksImageView styleFlags] | AIVStyleNumbers ];
+}
+-(void) setDrawingLines
+{	[stacksImageView setStyleFlags: [stacksImageView styleFlags] | AIVStylePolygon ];
+}
+-(void) setDrawingAngle
+{	[stacksImageView setStyleFlags: [stacksImageView styleFlags] | AIVStyleAngleInfo ];
+}
+-(void) setClosingPolygons
+{	[stacksImageView setStyleFlags: [stacksImageView styleFlags] | AIVStylePolygonClose ];
+}
+-(void) setVoronoi
+{	[stacksImageView setStyleFlags: [stacksImageView styleFlags] | AIVStyleVoronoi ];
+}
+
+
+
 - (void)observeValueForKeyPath: keyPath ofObject: object change: change context: context
 {	if(keyPath === "selection.idcomposition_for_editing" || keyPath === "value" )
 	{
@@ -218,7 +246,7 @@
 }
 -(void) reloadImage
 {
-	var img=[myAppController.stackAnalysesController valueForKeyPath: "selection._backgroundImage"];
+	var img=[myAppController.stacksAnalysesController valueForKeyPath: "selection._backgroundImage"];
 	if([img isKindOfClass:[CPImage class]])
 	{
     	[stacksImageView setBackgroundImage:img];
@@ -250,6 +278,57 @@
 {	[super setScale:someScale];
 	[stacksImageView setScale: _scale];
 	[self reloadImage];
+}
+
+-(void) insertAnalysisFromInput:sender
+{
+	[inputAnalysisField setStringValue:[self _getCoords]];
+	[inputAnalysisWindow makeKeyAndOrderFront:self];
+}
+-(void) performUploadCoords:sender
+{	var myIdSourceAnalysis=  [myAppController.stacksAnalysesController valueForKeyPath:"selection.id"];
+	var mystuff=[inputAnalysisField stringValue];
+	var myreq=[CPURLRequest requestWithURL: BaseURL+"input_results/"+myIdSourceAnalysis+"/"+mystuff];
+	[CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
+	[self _refreshResults];
+	[inputAnalysisWindow orderOut:self];
+}
+-(CPString) _getCoords
+{	var coords="";
+	var sourceArray=[myAppController.stacksAnalysesController valueForKeyPath:"selection.results"];
+	var i,j = [sourceArray count];
+	for(i = 0; i < j; i++)
+	{	coords+=[[sourceArray objectAtIndex:i] valueForKey:"row"];
+		coords+=" ";
+		coords+=[[sourceArray objectAtIndex:i] valueForKey:"col"];
+		var peekTag=[[sourceArray objectAtIndex:i] valueForKey:"tag"];
+		if(peekTag)
+		{	coords+="(";
+			coords+=[[sourceArray objectAtIndex:i] valueForKey:"tag"];
+			coords+=")";
+		}
+		coords+=" ";
+	}
+	return coords;
+}
+
+-(void) setTag: sender
+{
+	var tag=[sender integerValue];
+	[stacksImageView setDefaultTag: tag];
+	var arr=[stacksImageView selectedDots];
+
+	var i,j=[arr count];
+	for(i=0; i<j;i++)
+	{	var o=arr[i];
+		[o._data setValue: tag forKey:"tag"];
+		[o setNeedsDisplay:YES];
+	}
+}
+
+-(void) annotatedImageView:(id)someView dotWasSelected:(id)someDot
+{	[tagField setIntegerValue: [someDot objectValue].tag];
+	[self setTag: tagField];
 }
 
 @end

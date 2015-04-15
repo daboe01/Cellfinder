@@ -95,6 +95,7 @@
         <column name="composition_for_fixup"/>
         <column name="composition_for_aggregation"/>
         <column name="composition_for_javascript"/>
+        <column name="composition_for_javascript2"/>
         <column name="composition_for_ransac"/>
         <column name="composition_for_clustering"/>
 

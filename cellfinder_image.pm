@@ -543,9 +543,11 @@ sub multiplyAffineMatrixes { my ($m1, $m2)=@_;
 }
 
 sub reverseAffineMatrix { my ($m1)=@_;
+    return undef unless $m1;
 	$m1=$1 if $m1=~/^\[(.+)\]$/;
 	my ($sx, $rx, $ry, $sy, $tx, $ty) =split /,/, $m1;
 	my $det= $sx*$sy - $rx*$ry;
+    return undef unless $det;
 	my $inverse_sx= 	 $sy/$det;
 	my $inverse_rx= (-1)*$rx/$det;
 	my $inverse_ry= (-1)*$ry/$det;
@@ -611,6 +613,14 @@ sub uploadImageFromData { my ($dbh, $idtrial, $name, $suffix, $data)=@_;
         return $idimage;
     }
 
+    # sorted arrnumber part numerically (schwartzian transform)
+    sub sorted_filenamearray{ my ($filename)=@_;
+        return
+        map  { $_->[0] }
+        sort { $a->[1] cmp $b->[1] or $a->[2] <=> $b->[2] }
+        map  { [ $_, /^(.+)-(\d+)\.jpg$/ ] }
+        glob $filename.'*.jpg';
+    }
     
     my $filename=TempFileNames::tempFileName('/tmp/cellf', ".$suffix");
 	TempFileNames::writeFile($filename, $data);
@@ -621,7 +631,8 @@ sub uploadImageFromData { my ($dbh, $idtrial, $name, $suffix, $data)=@_;
         warn "$pages";
         if ($pages ne '0')
         {   system('/usr/local/bin/convert '.$filename.' '.$filename.'-%d.jpg');
-            my @files= glob $filename.'*.jpg';
+            my @files=sorted_filenamearray($filename);
+            
             my $i=1;
             foreach my $cfilename (@files)
             {
@@ -631,12 +642,10 @@ sub uploadImageFromData { my ($dbh, $idtrial, $name, $suffix, $data)=@_;
         }
     } elsif($suffix =~/mp|m4v/i) # movie
     {   system('/usr/local/bin/convert -deconstruct '.$filename.' '.$filename.'-%d.jpg');
-        my @files= glob $filename.'*.jpg';
-warn "@files";
+        my @files=sorted_filenamearray($filename);
         my $i=1;
         foreach my $cfilename (@files)
         {
- warn $cfilename.' '.$name.' '.sprintf("%06d",$i++);
             create_img($dbh, $idtrial, $name.' '.sprintf("%04d",$i++), $suffix, $cfilename);
         }
         $idimage=-1;        

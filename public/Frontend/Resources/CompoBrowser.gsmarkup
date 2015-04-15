@@ -87,7 +87,6 @@
        <popUpButton halign="expand" valueBinding="#CPOwner.compoController.selection.idtrials" itemsBinding="#CPOwner.trialsController.arrangedObjects.name"/>
    </vbox>
   </window>
-
 </objects>
 
 

@@ -14,7 +14,8 @@
        <scrollView>
          <tableView zebra="yes" autosaveName="alltrials" valueBinding="#CPOwner.trialsController" target="#CPOwner">
             <tableColumn identifier="id" title="id"/>
-            <tableColumn identifier="name" title="name"/>
+            <tableColumn identifier="name" title="name" editable="YES"/>
+            <tableColumn identifier="entity_regex" title="Grouping regex" editable="YES"/>
          </tableView>
        </scrollView>
        <ButtonBar actionsButton="NO" target="#myadmincontroller" plusButtonAction="newTrial:" minusButtonAction="removeTrial:"/>
@@ -23,15 +24,14 @@
        <tabViewItem title="General">
           <vbox>
              <vspace height="20" valign="min"/>
-             <hbox><label valign="center" halign="min" width="100">Name</label><textField valueBinding="#CPOwner.trialsController.selection.name" nextKeyView="#groupregexfield"/></hbox>
-                    <hbox><label valign="center" halign="min" width="100">Grouping regex</label><textField valueBinding="#CPOwner.trialsController.selection.entity_regex" id="groupregexfield"/></hbox>
-             <hbox><label valign="center" halign="min" width="130">GUI</label><popUpButton width="200" itemsBinding="guiclasses_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.editing_controller"/></hbox>
-             <hbox><label valign="center" halign="min" width="130">Upload</label><popUpButton width="200" itemsBinding="#CPOwner.uploadfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_upload"/></hbox>
+                <hbox><label valign="center" halign="min" width="130">App</label><popUpButton width="200" itemsBinding="guiclasses_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.editing_controller"/></hbox>
+                <hbox><label valign="center" halign="min" width="130">Upload</label><popUpButton width="200" itemsBinding="#CPOwner.uploadfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_upload"/></hbox>
                 <hbox><label valign="center" halign="min" width="130">Editing</label><popUpButton width="200" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_editing"/></hbox>
                 <hbox><label valign="center" halign="min" width="130">Feature extraction</label><popUpButton width="200" itemsBinding="#CPOwner.analyticsfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_celldetection"/></hbox>
                 <hbox><label valign="center" halign="min" width="130">RANSAC parameters</label><popUpButton width="200" itemsBinding="#CPOwner.cfifilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_ransac"/></hbox>
                 <hbox><label valign="center" halign="min" width="130">Fixup</label><popUpButton width="200" itemsBinding="#CPOwner.fixupfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_fixup"/></hbox>
                 <hbox><label valign="center" halign="min" width="130">GUI</label><popUpButton width="200" itemsBinding="#CPOwner.javascriptfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_javascript"/></hbox>
+                <hbox><label valign="center" halign="min" width="130">GUI Cluster</label><popUpButton width="200" itemsBinding="#CPOwner.javascriptfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_javascript2"/></hbox>
                 <hbox><label valign="center" halign="min" width="130">Aggregator</label><popUpButton width="200" itemsBinding="#CPOwner.aggfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_aggregation"/></hbox>
                 <hbox><label valign="center" halign="min" width="130">Clustering</label><popUpButton width="200" itemsBinding="#CPOwner.analyticsfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_clustering"/></hbox>
 

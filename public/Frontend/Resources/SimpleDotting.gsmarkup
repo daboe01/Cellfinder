@@ -3,6 +3,12 @@
 <gsmarkup>
 
 <objects>
+
+  <window visible="NO">
+    <tableViewControl width="100" height="23" id="namedataview" editable="YES" face="tag.name"/>
+    <tableViewJanusControl width="100" height="23" type="tag.type" id="popupdataview" itemsController="#CPOwner.taglistController" itemsValue="arrangedObjects.id" itemsFace="arrangedObjects.name" editable="YES" face="value" itemsPredicateFormat="idtag == $idtag"/>
+  </window>
+
   <manualDottingController id="mydottingcontroller"/>
   <window title="ImageDotting" x="50" y="30" width="400" height="340"  bridge="YES" delegate="mydottingcontroller">
 	<splitView vertical="YES" autosaveName="splitview_folders_manual_dotting1">
@@ -66,10 +72,6 @@
 		</vbox>
 		</hbox>
 	 </splitView>
-  </window>
-  <window visible="NO">
-    <tableViewControl width="100" height="23" id="namedataview" editable="YES" face="tag.name"/>
-    <tableViewJanusControl width="100" height="23" type="tag.type" id="popupdataview" itemsController="#CPOwner.taglistController" itemsValue="arrangedObjects.id" itemsFace="arrangedObjects.name" editable="YES" face="value" itemsPredicateFormat="idtag == $idtag"/>
   </window>
 
   <window title="Edit coordinates textually" id="inputwindow" x="260" y="300" width="300" height="90" visible="NO"  resizable="YES">

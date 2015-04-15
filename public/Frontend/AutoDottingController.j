@@ -88,6 +88,9 @@
 -(void) setClosingPolygons
 {	[annotatedImageView setStyleFlags: [annotatedImageView styleFlags] | AIVStylePolygonClose ];
 }
+-(void) setVoronoi
+{	[annotatedImageView setStyleFlags: [annotatedImageView styleFlags] | AIVStyleVoronoi ];
+}
 
 
 -(void) reaggregate: sender

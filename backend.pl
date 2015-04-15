@@ -18,7 +18,7 @@ use Mojo::JSON qw(decode_json encode_json);
 $ENV{MOJO_MAX_MESSAGE_SIZE} = 1_073_741_824;
 
 plugin 'database', {
-            dsn      => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
+            dsn      => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
             username => 'root',
             password => 'root',
             options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
@@ -497,7 +497,9 @@ get '/IMG/STACK/:idstack'=> [idstack =>qr/\d+/] => sub
             if($ransac)
             {   my $params=$self->getRANSACParams($ransac);
                 $par= cellfinder_image::runRANSACRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis}, $params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc});
-                $par= cellfinder_image::reverseAffineMatrix(cellfinder_image::runRANSACRegistrationRCode($curr->{idanalysis}, $curr->{idanalysis_reference}, $params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc})) unless $par; # try reversed RANSAC
+                eval{
+                    $par= cellfinder_image::reverseAffineMatrix(cellfinder_image::runRANSACRegistrationRCode($curr->{idanalysis}, $curr->{idanalysis_reference}, $params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc})) unless $par; # try reversed RANSAC
+                }
             } else
             {   $par=cellfinder_image::runSimpleRegistrationRCode($curr->{idanalysis_reference}, $curr->{idanalysis});
             }
@@ -630,7 +632,7 @@ post '/IMG/makeidentiystack_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/
     my $first = $sth->fetchrow_arrayref();
     my $trial = cellfinder_image::getObjectFromDBHandID($dbh, 'trials', $idtrial);
     my $idmontage=cellfinder_image::insertObjectIntoTable($dbh, 'montages', 'id', {idtrial=> $idtrial, name=> $folder_name} );
-    my $idreference=$first->[1]
+    my $idreference=$first->[1];
     cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $first->[0], idanalysis=> $idreference, idmontage=> $idmontage} );
 
     while(my $curr=$sth->fetchrow_arrayref())
@@ -719,8 +721,11 @@ get '/IMG/automatch_folder/:idtrial/:idransac/:folder_name'=> [idtrial=>qr/[0-9]
         $idimage2=$next_idimage;
         if($idana1 && $idana2 &&  $idana1 != $idana2)
         {   my $par= cellfinder_image::runRANSACRegistrationRCode($idana1, $idana2,$params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc});
-            my $name="$idana1 $idana2";
-            my $idmontage=cellfinder_image::insertObjectIntoTable($self->db, 'montages', 'id', {idtrial=> $idtrial, name=> $name} );
+            eval{
+               $par= cellfinder_image::reverseAffineMatrix(cellfinder_image::runRANSACRegistrationRCode($idana2, $idana1,$params->{thresh}, $params->{identityradius}, $params->{iterations}, $params->{aiterations}, $params->{cfunc})) unless $par; # try reversed RANSAC
+            };
+            my $name=$par? "$idana1 $idana2":"X$idana1 $idana2";
+            my $idmontage=cellfinder_image::insertObjectIntoTable($self->db, 'montages', 'id', {idtrial=> $idtrial, name=>$name} );
             cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $idimage1, idanalysis=> $idana1, idanalysis_reference=>undef,   idmontage=> $idmontage} );
             cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $idimage2, idanalysis=> $idana2, idanalysis_reference=>$idana1, idmontage=> $idmontage, parameter=> $par} );
         }

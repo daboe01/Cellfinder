@@ -145,13 +145,20 @@
 {
     if(code)
 	{
-		[myAppController.stacksController removeObjectsAtArrangedObjectIndexes: [myAppController.stacksController selectionIndexes] ];
+		[myAppController.stacksController removeObjectsAtArrangedObjectIndexes:[myAppController.stacksController selectionIndexes] ];
 	}
 }
 
 -(void) deleteStack: sender
-{	var analyses=[myAppController.stacksController valueForKeyPath:"selection.analyses"];
-	if(analyses && [analyses count] >2 )
+{
+    if([myAppController.stacksController valueForKeyPath:"selection.@count"]>1)
+    {	var myalert = [CPAlert new];
+		[myalert setMessageText: "Are you sure you want to delete multiple stacks at once?"];
+		[myalert addButtonWithTitle:"Cancel"];
+		[myalert addButtonWithTitle:"Delete mutiple"];
+		[myalert beginSheetModalForWindow: myWindow modalDelegate:self didEndSelector:@selector(deleteStackWarningDidEnd:code:context:) contextInfo: nil];
+    }
+	else if([myAppController.stacksController valueForKeyPath:"selection.analyses.@count"] >2 )
 	{	var myalert = [CPAlert new];
 		[myalert setMessageText: "Are you sure you want to delete the full stack?"];
 		[myalert addButtonWithTitle:"Cancel"];
@@ -164,7 +171,7 @@
 
 
 -(void) runSettings:sender
-{	if(! stacksettingswindow)
+{	if(!stacksettingswindow)
 		[CPBundle loadRessourceNamed: "StacksAdmin.gsmarkup" owner: self ];
 
 	[CPApp beginSheet: stacksettingswindow modalForWindow: myWindow modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
