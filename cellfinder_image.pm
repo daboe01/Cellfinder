@@ -97,11 +97,11 @@ ENDOFR
 }
 
 sub runEBImageRCode { my ($infile,$code, $idanalysis)=@_;
-    return undef unless -e $infile;
+    # return undef unless -e $infile;
 	my $RCmd=<<'ENDOFR'
     library(EBImage)
     library(rjson)
-    if(nchar("<infile>"))
+    if(nchar("<infile>") & file.exists("<infile>"))
         e=readImage("<infile>")
     if(nchar("<idanalysis>"))
         d1=read.delim(paste("http://auginfo/cellfinder_results/0?mode=results&constraint=idanalysis=", <idanalysis>, sep=""))
@@ -241,7 +241,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 			$p=~s/<$_->[0]>/$_->[1]/gs foreach(@arr);
 			$p=~s/<idanalysis>/$idanalysis/gs;
 			$p=~s/<idpoint>/$idpoint/gs;
-###			warn $p;
+		###  warn $curr_patch->{patch_type} .' '.$p;
 			my $result=$p;
 			if($curr_patch->{patch_type} == 4)	# sql
 			{	my $sth = $dbh->prepare($p);
@@ -256,6 +256,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 				warn "error: $@ $p" if($@);
 			} elsif ($curr_patch->{patch_type} == 3)	# R/EBImage
 			{
+warn  ref $old_p;
 				next unless ref $old_p eq 'Image::Magick';
 				my $filename=tempFileName('/tmp/cellf');
 				$old_p->Write($filename.'.jpg');
@@ -263,6 +264,7 @@ sub imageForDBHAndRenderchainIDAndImage{
                 $p=~s/<idimage>/$idimage/ogs;
                 $p=~s/<idstack>/$idstack/ogs;
 				my $infile=runEBImageRCode( $filename.'.jpg', $p, $idanalysis);
+ warn  $p.' '.$infile;
 				$p = Image::Magick->new();
 				if(!$infile)
 				{   $p->Read($filename.'.jpg');				# read it back in just in case R/EBImage did some processing on it

@@ -91,6 +91,9 @@
 -(void) setVoronoi
 {	[annotatedImageView setStyleFlags: [annotatedImageView styleFlags] | AIVStyleVoronoi ];
 }
+-(void) addLengthInfo
+{	[annotatedImageView setStyleFlags: [annotatedImageView styleFlags] | AIVStyleLengthInfo ];
+}
 
 
 -(void) reaggregate: sender

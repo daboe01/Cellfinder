@@ -189,7 +189,7 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
     }
     if($idstack && $idcomposition && !$idanalysis)
     {   my $compo=cellfinder_image::getObjectFromDBHandID($self->db, 'patch_compositions', $idcomposition);
-        if($compo->{type} == 5)
+        if($compo->{type} == 5)  #clusterstacks
         {
             $idanalysis=cellfinder_image::insertObjectIntoTable($self->db, 'analyses', 'id', { idstack=> $idstack } );
         }
@@ -198,8 +198,6 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
     $p= cellfinder_image::imageForComposition($self->db, $preload,$f,$p) if($preload);
     $p= cellfinder_image::imageForComposition($self->db, $idcomposition,$f,$p, 1, $idanalysis, $idstack) if($idcomposition);
     $p= cellfinder_image::imageForComposition($self->db, $afterload,$f,$p,1) if($afterload);
-
-    app->log->debug("$idimage ");
 
     if($csize && !$idstack)
     {   $p->Extent(geometry=>$csize, gravity=>'NorthWest', background=>'graya(0%, 0)');
@@ -611,11 +609,14 @@ post '/IMG/makestack/:idtrial/:name'=> [name=>qr/.+/] => sub
     my @image_ids=@$jsonR;
     my $idmontage=cellfinder_image::insertObjectIntoTable($self->db, 'montages', 'id', {idtrial=> $idtrial, name=> $name} );
     my $idref;
+    my $trial = cellfinder_image::getObjectFromDBHandID($self->db, 'trials', $idtrial);
+    $self->db->{AutoCommit}=0;
     foreach my $id (@image_ids)
     {   my $idanalysis=$self->getLastAnaOfImageID( $id );
-        cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idimage=> $id, idanalysis=> $idanalysis, idanalysis_reference=>$idref, idmontage=> $idmontage} );
+        cellfinder_image::insertObjectIntoTable($self->db, 'montage_images', 'id', {idcomposition_for_editing => $trial->{composition_for_editing}, idimage=> $id, idanalysis=> $idanalysis, idanalysis_reference=>$idref, idmontage=> $idmontage} );
         $idref=$idanalysis unless $idref;
     }
+    $self->db->{AutoCommit}=1;
     $self->render(data=>$idmontage, format =>'txt' );
 };
 post '/IMG/makeidentiystack_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, folder_name =>qr/.+/] => sub
@@ -634,11 +635,12 @@ post '/IMG/makeidentiystack_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/
     my $idmontage=cellfinder_image::insertObjectIntoTable($dbh, 'montages', 'id', {idtrial=> $idtrial, name=> $folder_name} );
     my $idreference=$first->[1];
     cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $first->[0], idanalysis=> $idreference, idmontage=> $idmontage} );
-
+    $dbh->{AutoCommit}=0;
     while(my $curr=$sth->fetchrow_arrayref())
     {
         cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $curr->[0], idanalysis=> $curr->[1], idanalysis_reference=>$idreference, idmontage=> $idmontage, parameter=> '1,0,0,1,0,0'} );
     }
+    $dbh->{AutoCommit}=1;
     $self->render(data=>$idmontage, format =>'txt' );
 };
 
@@ -678,9 +680,11 @@ get '/IMG/analyze_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, folder_n
     my $sql=qq{select idimage, name from  folder_content where linkname=? order by 2};
     my $sth = $dbh->prepare( $sql );
     $sth->execute(($linkname));
+warn $linkname;
     my $sqldel = SQL::Abstract->new;
     while(my $curr=$sth->fetchrow_arrayref())
     {   my $idimage=$curr->[0];
+warn Dumper $curr;
         my $d={idimage=>$idimage, idcomposition_for_editing => $trial->{composition_for_editing}, idcomposition_for_analysis=> $trial->{composition_for_celldetection} };
         my($stmt, @bind) = $sqldel->delete('analyses', {idimage=>$idimage} );
         my $sthdel = $dbh->prepare($stmt);
@@ -1086,13 +1090,14 @@ post '/IMG/reset_imagenames/:idtrial'=> [idtrial=>qr/[0-9]+/] => sub
 # POST /upload (push one or more files to app)
 post '/upload/:idtrial' => [idtrial=>qr/[0-9]+/] => sub {
     my $self    = shift;
-    my $idtrial=    $self->param("idtrial");
-    my $prefix=     $self->param("prefix") || '';
+    my $idtrial = $self->param('idtrial');
+    my $prefix  = uri_decode( $self->param('prefix') ) || '';
     my @uploads = $self->req->upload('files[]');
     for my $curr_upload (@uploads) {
-        my $upload  = Mojo::Upload->new($curr_upload);
-        my $bytes = $upload->slurp;
-        my ($filename, $suffix)=$upload->filename =~/^(.+)\.([^\.]+)$/;
+        my $upload = Mojo::Upload->new($curr_upload);
+        my $bytes  = $upload->slurp;
+        my($filename, $suffix)=$upload->filename =~/^(.+)\.([^\.]+)$/;
+warn $prefix;
         cellfinder_image::uploadImageFromData($self->db, $idtrial, $prefix.$filename, $suffix, $bytes);
     }
     $self->render( json => \@uploads );

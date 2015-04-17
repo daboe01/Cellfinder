@@ -272,16 +272,32 @@ var myFastSortFunction=function(a,b,context)
 		for (hasNextTag=YES; hasNextTag; tag++)
 		{	hasNextTag=NO;
 			var first=YES;
+            var lastPoint;
 			for(var i = 0; i < n; i++) 
 			{	var currSubview = mySubviews[i];
 				var o=[currSubview objectValue];
 				if(!o ) continue;
 				if(o.tag == tag)
-				{	if(first)
+				{
+                    if(_styleFlags & AIVStyleLengthInfo && lastPoint && !first)
+                    {   var currPoint=o;
+                        CGContextSaveGState(context);
+                        CGContextSelectFont(context, [CPFont systemFontOfSize:12]);
+                    	var midPoint=CGPointMake((lastPoint.x+currPoint.x)/2, (lastPoint.y+currPoint.y)/2);
+                        var dist=Math.sqrt((lastPoint.x-currPoint.x)*(lastPoint.x-currPoint.x)+ (lastPoint.y-currPoint.y)*(lastPoint.y-currPoint.y));
+                        var distString=[CPString stringWithFormat:"%3.2f", dist];
+                        CGContextSetTextPosition(context, midPoint.x+2, midPoint.y+2);
+                        CGContextSetFillColor(context, [CPColor yellowColor]);
+                        CGContextSetStrokeColor(context, [CPColor yellowColor]);
+                        CGContextShowText(context, distString);
+                        CGContextRestoreGState(context);
+                    }
+                	if(first)
 					{	first=NO;
 						CGContextBeginPath(context);
 						CGContextMoveToPoint(context, o.x, o.y);
 					} else	CGContextAddLineToPoint(context, o.x, o.y);
+                    lastPoint=o;
 				} else if(o.tag > tag) hasNextTag=YES;
 								
 				if((_styleFlags & AIVStylePolygonClose) && i < n-1 && o.tag==0)
@@ -345,34 +361,7 @@ var myFastSortFunction=function(a,b,context)
 			CGContextShowText(context, n-i);
 		}
 	}
-	if( _styleFlags & AIVStyleLengthInfo )
-	{	CGContextSelectFont(context, [CPFont systemFontOfSize:12]);
-        CGContextBeginPath(context);
-		var mySubviews=[self subviews];
-		var n = [mySubviews count];
-		var lastPoint, currPoint;
-		for(var i = 0; i < n; i++) 
-		{	var currSubview = mySubviews[i];
-			if ( [currSubview isKindOfClass: contentClass])
-			{
-				currPoint=[currSubview objectValue];
-				if(lastPoint)
-				{	var midPoint=CGPointMake((lastPoint.x+currPoint.x)/2, (lastPoint.y+currPoint.y)/2);
-					var dist=Math.sqrt((lastPoint.x-currPoint.x)*(lastPoint.x-currPoint.x)+ (lastPoint.y-currPoint.y)*(lastPoint.y-currPoint.y));
-					var distString=[CPString stringWithFormat:"%3.2f", dist];
-					CGContextSetTextPosition(context, midPoint.x+2, midPoint.y+2);
-					CGContextSetFillColor(context, [currPoint textColor]);
-					CGContextSetStrokeColor(context, [currPoint textColor]);
-					CGContextShowText(context, distString);
-					CGContextSetTextPosition(context, midPoint.x+1, midPoint.y+1);
-					CGContextSetFillColor(context, [currPoint color]);
-					CGContextSetStrokeColor(context, [currPoint color]);
-					CGContextShowText(context, distString);
-				}
-				lastPoint=currPoint;
-			}
-		}
-	}
+
 	if( _styleFlags & AIVStyleVoronoi )
 	{	var bbox=[self frame];
 		var sites=[];
