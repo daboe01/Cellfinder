@@ -111,7 +111,7 @@
 {	[trialSettingsWindow makeKeyAndOrderFront:self];
 }
 
--(void)_makestackForIDTrial:idtrial
+-(void)_makestackForIDTrial:(unsigned)idtrial
 {	var myarr=[CPMutableArray new];
 	var so=[myAppController.folderContentController selectedObjects];
 	var i,l=[so count];
@@ -130,6 +130,15 @@
 	var ret=[CPURLConnection sendSynchronousRequest:myreq returningResponse:nil];
     return [ret rawString];
 }
+-(void)_makestackCurrentFolder
+{	var idtrial=[myAppController.trialsController valueForKeyPath:"selection.id"];
+	var folder_name=[myAppController.folderController valueForKeyPath:"selection.folder_name"];
+	var myurl=BaseURL+"makeidentiystack_folder/"+idtrial+"/"+ folder_name;
+	var myreq=[CPURLRequest requestWithURL: myurl];
+    [myreq setHTTPMethod:"POST"];
+	var ret = [CPURLConnection sendSynchronousRequest:myreq returningResponse:nil];
+    return [ret rawString];
+}
 
 -(void) matchDots: sender
 {
@@ -140,12 +149,7 @@
 
 - (void)makeStackFromFolder:(id)sender
 {
-	var idtrial=[myAppController.trialsController valueForKeyPath:"selection.id"];
-	var folder_name=[myAppController.folderController valueForKeyPath:"selection.folder_name"];
-	var myurl=BaseURL+"makeidentiystack_folder/"+idtrial+"/"+ folder_name;
-	var myreq=[CPURLRequest requestWithURL: myurl];
-    [myreq setHTTPMethod:"POST"];
-	[CPURLConnection sendSynchronousRequest:myreq returningResponse: nil];
+    [self _makestackCurrentFolder];
 	window.open("http://augimageserver:3000/Frontend/index.html?id="+idtrial+"&t=AutoStitching.gsmarkup",'autostitching');
 }
 
@@ -157,7 +161,7 @@
         return;
     }
 	var idtrial=[myAppController.trialsController valueForKeyPath:"selection.id"];
-    var idstack=[self _makestackForIDTrial:idtrial];
+    var idstack=[self _makestackCurrentFolder];
 	var myreq=[CPURLRequest requestWithURL:BaseURL+"0?cmp="+mycompoID+"&idstack="+idstack];
 	clusterConnection = [CPURLConnection connectionWithRequest:myreq delegate:self];
     clusterConnection._idtrial=idtrial;

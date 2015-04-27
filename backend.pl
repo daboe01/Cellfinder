@@ -18,7 +18,7 @@ use Mojo::JSON qw(decode_json encode_json);
 $ENV{MOJO_MAX_MESSAGE_SIZE} = 1_073_741_824;
 
 plugin 'database', {
-            dsn      => 'dbi:Pg:dbname=cellfinder;user=root;host=localhost',
+            dsn      => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
             username => 'root',
             password => 'root',
             options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
@@ -436,6 +436,27 @@ get '/ANA/aggregations/:idtrial'=> [idtrial =>qr/\d+/] => sub
     }
     $self->render(text=>$result);
 };
+get '/ANA/clusteraggregations/:idtrial'=> [idtrial =>qr/\d+/] => sub
+{   my $self=shift;
+    my $idtrial= $self->param("idtrial");
+    my $dbh=$self->db;
+    my $sql=qq{SELECT distinct aggregations.name from montages join analyses on analyses.idstack=montages.id join aggregations on aggregations.idanalysis=analyses.id where idtrial=? order by 1};
+    my $sth = $dbh->prepare( $sql );
+    $sth->execute(($idtrial));
+    my $a=$sth->fetchall_arrayref();
+    my @colnames=map {'"'.$_->[0].'"' } @$a;
+    my $colnames= join " text,",@colnames;
+    $sql="SELECT * FROM crosstab( 'select idanalysis, montages.name as stack_name, aggregations.name as cat, value from aggregations join analyses on aggregations.idanalysis=analyses.id join montages on idstack=montages.id where idtrial=$idtrial  order by 1,2', 'SELECT distinct aggregations.name FROM aggregations join analyses on aggregations.idanalysis=analyses.id join montages on idstack=montages.id where idtrial=$idtrial order by 1') AS ct(idanalysis integer,  stack_name text, $colnames text)";
+    $sth = $dbh->prepare( $sql );
+    $sth->execute();
+    my $result=    "idanalysis\tstack_name\t".join("\t", @colnames)."\n";
+    while(my $curr=$sth->fetchrow_arrayref())
+    {   $result.=join("\t", (@$curr));
+        $result.="\n";
+    }
+    $self->render(text=>$result);
+};
+
 get '/ANA/tags_image/:idimage'=> [idimage =>qr/\d+/] => sub
 {   my $self=shift;
     my $idimage= $self->param("idimage");
@@ -619,38 +640,42 @@ post '/IMG/makestack/:idtrial/:name'=> [name=>qr/.+/] => sub
     $self->db->{AutoCommit}=1;
     $self->render(data=>$idmontage, format =>'txt' );
 };
-post '/IMG/makeidentiystack_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, folder_name =>qr/.+/] => sub
-{   my $self=shift;
-    my $idtrial=    $self->param("idtrial");
-    my $folder_name = $self->param("folder_name");
-    my $linkname= $idtrial.$folder_name;
-    my $dbh=$self->db;
-
+helper makeidentiystackFolder => sub { my ($self, $dbh, $idtrial, $folder_name)=@_;
     my $sql=qq{select folder_content.idimage, min(analyses.id) as idanalysis from folder_content join analyses on analyses.idimage = folder_content.idimage where linkname = ? group by folder_content.idimage, name order by name};
     my $sth = $dbh->prepare( $sql );
+    my $linkname= $idtrial.$folder_name;
     $sth->execute(($linkname));
 
     my $first = $sth->fetchrow_arrayref();
     my $trial = cellfinder_image::getObjectFromDBHandID($dbh, 'trials', $idtrial);
     my $idmontage=cellfinder_image::insertObjectIntoTable($dbh, 'montages', 'id', {idtrial=> $idtrial, name=> $folder_name} );
     my $idreference=$first->[1];
-    cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $first->[0], idanalysis=> $idreference, idmontage=> $idmontage} );
+    cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idcomposition_for_editing => $trial->{composition_for_editing}, idimage=> $first->[0], idanalysis=> $idreference, idmontage=> $idmontage} );
     $dbh->{AutoCommit}=0;
     while(my $curr=$sth->fetchrow_arrayref())
     {
-        cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idimage=> $curr->[0], idanalysis=> $curr->[1], idanalysis_reference=>$idreference, idmontage=> $idmontage, parameter=> '1,0,0,1,0,0'} );
+        cellfinder_image::insertObjectIntoTable($dbh, 'montage_images', 'id', {idcomposition_for_editing => $trial->{composition_for_editing}, idimage=> $curr->[0], idanalysis=> $curr->[1], idanalysis_reference=>$idreference, idmontage=> $idmontage, parameter=> '1,0,0,1,0,0'} );
     }
     $dbh->{AutoCommit}=1;
+    return $idmontage;
+};
+post '/IMG/makeidentiystack_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, folder_name =>qr/.+/] => sub
+{   my $self=shift;
+    my $idtrial=    $self->param("idtrial");
+    my $folder_name = $self->param("folder_name");
+    my $dbh=$self->db;
+
+    my $idmontage=$self->makeidentiystackFolder($dbh, $idtrial, $folder_name);
     $self->render(data=>$idmontage, format =>'txt' );
 };
 
 post '/IMG/analyze/:idtrial/:name'=> [idtrial=>qr/[0-9]+/, name=>qr/.+/] => sub
-{   my $self=shift;
-    my $idtrial=    $self->param("idtrial");
-    my $name=        $self->param("name");
-    my $uri=        $self->req->body;
-    my $ua =        Mojo::UserAgent->new;
-    my $data=        $ua->get($uri)->res->body;
+{   my $self=          shift;
+    my $idtrial=      $self->param("idtrial");
+    my $name=         $self->param("name");
+    my $uri=          $self->req->body;
+    my $ua =          Mojo::UserAgent->new;
+    my $data=         $ua->get($uri)->res->body;
     my $suffix='.jpg';    # sensible default
     $suffix=$1 if $uri =~/^.+\.(.+)$/o;
 
@@ -922,7 +947,7 @@ get '/IMG/rebase_merge/:idmontage'=> [idmontage => qr/[0-9]+/] => sub
 get '/IMG/ransac_debug/:idransac/:idmontage/:idanalysis1/:idanalysis2'=> [idransac => qr/[0-9]+/, idmontage => qr/[0-9]+/, idanalysis1 => qr/[0-9]+/, idanalysis2 => qr/[0-9]+/] => sub
 {   my $self=shift;
     my $idransac=    $self->param("idransac");
-    my $idmontage = $self->param('idmontage');
+    my $idmontage   = $self->param('idmontage');
     my $idanalysis1 = $self->param('idanalysis1');
     my $idanalysis2 = $self->param('idanalysis2');
 
@@ -981,6 +1006,27 @@ post '/IMG/deleteAllAnalyses/:idtrial'=> [idtrial => qr/[0-9]+/] => sub
     $sth->execute(($idtrial));
     $self->render(data=> 'OK', format =>'txt' );
 };
+post '/IMG/cluster_all_folders/:idtrial'=> [idtrial => qr/[0-9]+/] => sub
+{   my $self=shift;
+    my $idtrial = $self->param('idtrial');
+    my $dbh=$self->db;
+    my $trial = cellfinder_image::getObjectFromDBHandID($dbh, 'trials', $idtrial);
+    my $idcomposition=$trial->{composition_for_clustering};
+    my $f= cellfinder_image::readImageFunctionForIDAndWidth($dbh, 0);
+
+    my $sth = $dbh->prepare( qq/select distinct folder_name from images join folder_content on folder_content.idimage=images.id where idtrial=? order by 1/);
+    $sth->execute(($idtrial));
+    my $a= $sth->fetchall_arrayref();
+    for my $currImage (@$a)
+    {
+        my $idmontage=$self->makeidentiystackFolder($dbh, $idtrial, $currImage->[0]);
+        my $idanalysis=cellfinder_image::insertObjectIntoTable($dbh, 'analyses', 'id', { idstack=> $idmontage } );
+        cellfinder_image::imageForComposition($dbh, $idcomposition, $f, $f->(0), 1, $idanalysis, $idmontage);
+        cellfinder_image::imageForComposition($dbh, $trial->{composition_for_aggregation}, $f, undef, undef, $idanalysis) if $trial->{composition_for_aggregation};
+    }
+    $self->render(data=> 'OK', format =>'txt' );
+};
+
 post '/IMG/duplicate_compo/:idcompo'=> [idcompo => qr/[0-9]+/] => sub
 {   my $self=shift;
     my $idcompo = $self->param('idcompo');

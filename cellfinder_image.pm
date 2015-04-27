@@ -256,14 +256,17 @@ sub imageForDBHAndRenderchainIDAndImage{
 				warn "error: $@ $p" if($@);
 			} elsif ($curr_patch->{patch_type} == 3)	# R/EBImage
 			{
-warn  ref $old_p;
-				next unless ref $old_p eq 'Image::Magick';
-				my $filename=tempFileName('/tmp/cellf');
-				$old_p->Write($filename.'.jpg');
-				chmod 0777, $filename.'.jpg';
+warn 'ref is:'. ref $old_p;
+                my $filename;
+                if(ref $old_p eq 'Image::Magick')
+                {
+                    $filename=tempFileName('/tmp/cellf');
+                    $old_p->Write($filename.'.jpg');
+                    chmod 0777, $filename.'.jpg';
+                }
                 $p=~s/<idimage>/$idimage/ogs;
                 $p=~s/<idstack>/$idstack/ogs;
-				my $infile=runEBImageRCode( $filename.'.jpg', $p, $idanalysis);
+				my $infile=runEBImageRCode($filename? $filename.'.jpg':undef, $p, $idanalysis);
  warn  $p.' '.$infile;
 				$p = Image::Magick->new();
 				if(!$infile)
@@ -492,7 +495,7 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsiz
 		if($curr_img->{image_repository})
 		{	$p->BlobToImage(LWP::Simple::get($curr_img->{image_repository}.'/'.$filename));
 		} else
-		{	$p->Read(server_root."/$filename");
+		{	$p->Read(server_root."/".$filename);
 			## warn server_root."/$filename";
 		} return $p;
 	}
@@ -500,7 +503,7 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsiz
 	my $curr_img = getObjectFromDBHandID($dbh,'images_name', $idimage);
 	## warn Dumper $curr_img;
 	return sub{
-        #		warn "$offX,$offY";
+        # warn "$offX, $offY";
 		return ($nocache? 0: $idimage) if shift;
 		$p = Image::Magick->new(magick=>'jpg');
 		if($idstack)
@@ -721,12 +724,12 @@ sub addStandardAnalysisToAll { my ($dbh, $idtrial)=@_;
 	my $idcomposition= $trial->{composition_for_celldetection};
 	return unless $idcomposition;
 
-	my $sth = $dbh->prepare( qq/select images.id from images left join analyses on analyses.idimage=images.id and idcomposition_for_analysis=? where analyses.id is null and idtrial=? order by 1/);
+	my $sth = $dbh->prepare( qq/select images.id, images.name from images left join analyses on analyses.idimage=images.id and idcomposition_for_analysis=? where analyses.id is null and idtrial=? order by 2,1/);
 	$sth->execute(($idcomposition, $idtrial));
 	my $a= $sth->fetchall_arrayref();
 	for my $currImage (@$a)
 	{	my $idimage=$currImage->[0];
-		my $d = { idimage=> $idimage , idcomposition_for_analysis=> $idcomposition };
+		my $d = { idimage=> $idimage, idcomposition_for_editing => $trial->{composition_for_editing}, idcomposition_for_analysis=> $idcomposition };
 		my $idanalysis=insertObjectIntoTable($dbh, 'analyses', 'id', $d );
 		my $f= cellfinder_image::readImageFunctionForIDAndWidth($dbh, $idimage);
         eval{

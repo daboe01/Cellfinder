@@ -351,7 +351,6 @@ PhotoDragType="PhotoDragType";
     [myalert addButtonWithTitle:"Cancel"];
     [myalert addButtonWithTitle:"Reaggregate all"];
     [myalert beginSheetModalForWindow:[CPApp mainWindow] modalDelegate:self didEndSelector:@selector(reaggregateAllWarningDidEnd:code:context:) contextInfo: idtrial];
-
 }
 -(void) deleteAllAnalyses: sender
 {	var idtrial=[[CPApp delegate].trialsController valueForKeyPath:"selection.id"];
@@ -368,6 +367,14 @@ PhotoDragType="PhotoDragType";
     [folderController reload];
     [folderContentController reload];
     [imagesController reload];
+}
+- (void)clusterAll:(id)sender
+{
+	var idtrial=[[CPApp delegate].trialsController valueForKeyPath:"selection.id"];
+    var myreq=[CPURLRequest requestWithURL: BaseURL+"cluster_all_folders"+"/"+idtrial];
+    [myreq setHTTPMethod:"POST"];
+    [myreq setHTTPBody:""];
+    [CPURLConnection connectionWithRequest:myreq delegate:self];
 }
 
 

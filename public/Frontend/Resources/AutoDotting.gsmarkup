@@ -31,7 +31,7 @@
    				<popUpButtonItem title="Analyze selected" target="#mydottingcontroller" action="analyzeSelected:"/>
    				<popUpButtonItem title="Make stack from selected..." target="#mydottingcontroller" action="matchDots:"/>
    				<popUpButtonItem title="Make identitystack from all..." target="#mydottingcontroller" action="makeStackFromFolder:"/>
-   				<popUpButtonItem title="Make clusterstack from selected..." target="#mydottingcontroller" action="clusterDots:"/>
+   				<popUpButtonItem title="Make clusterstack from all..." target="#mydottingcontroller" action="clusterDots:"/>
    				<popUpButtonItem title="Delete and reanalyze all" target="#mydottingcontroller" action="addDefaultAnalyses:"/>
    				<popUpButtonItem title="Autostich all" target="#mydottingcontroller" action="matchDotsAll:"/>
    				<popUpButtonItem title="Reaggregate all" target="#mydottingcontroller" action="reaggregateFolder:"/>

@@ -57,9 +57,10 @@
     <arrayController id="parameter_lists_controller_bound" entity="parameter_lists" valueBinding ="patch_parameters_controller2.selection.list"/>
 
   <menu type="main">
-    <menu title="Images">
+    <menu title="IO">
         <menuItem title="Upload File" action="uploadImage:"/>
         <menuItem title="ImageBrowser" action="runImageBrowser:"/>
+        <menuItem title="Download analysis" action="downloadAnalysis:"/>
     </menu>
     <menu title="Edit">
         <menuItem title="Cut" action="cut:" keyEquivalent="x"/>
@@ -67,11 +68,14 @@
         <menuItem title="Paste" action="paste:" keyEquivalent="v"/>
         <menuItem title="Remove" action="delete:" keyEquivalent="y"/>
         <menuItem title="Select all" action="selectAll:" keyEquivalent="a"/>
+        <menuItem title="Undo" action="undo:" keyEquivalent="z"/>
+        <menuItem title="Redo" action="redo:" keyEquivalent="Z"/>
     </menu>
     <menu title="Batch">
         <menuItem title="Reaggregate all" action="reaggregateAll:"/>
         <menuItem title="Add default analysis" action="addDefaultAnalysisToAll:"/>
         <menuItem title="Delete all analyses" action="deleteAllAnalyses:"/>
+        <menuItem title="Cluster all" action="clusterAll:"/>
     </menu>
     <menu title="Goto">
         <menuItem title="Compositions..." action="runCompoBrowser:"/>
@@ -98,6 +102,7 @@
         <column name="composition_for_javascript2"/>
         <column name="composition_for_ransac"/>
         <column name="composition_for_clustering"/>
+        <column name="composition_for_trialresults"/>
 
         <relationship name="compos" type="toMany" target="patch_compositions" targetColumn="idtrials"/>
         <relationship name="images" type="toMany" target="images" targetColumn="idtrial"/>

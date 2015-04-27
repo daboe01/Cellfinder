@@ -26,6 +26,16 @@
         </vbox>
         <vbox>
             <scrollView hasHorizontalScroller="NO">
+                <tableView zebra="yes" autosaveName="tv_autostacks_analyses"  valueBinding="#CPOwner.stacksAnalysesController" allowsMultipleSelection="NO">
+                    <tableColumn identifier="id" title="id"/>
+                  </tableView>
+             </scrollView>
+             <ButtonBar halign="expand" actionsButton="YES"  plusButtonAction="insert:" minusButtonAction="remove:" target="#CPOwner.stacksAnalysesController">
+                  <popUpButtonItem title="Edit coords textually..." target="#mystackscontroller" action="insertAnalysisFromInput:"/>
+             </ButtonBar>
+       </vbox>
+       <vbox>
+            <scrollView hasHorizontalScroller="NO">
                 <tableView zebra="yes" autosaveName="tv_autostacks_results"  valueBinding="#CPOwner.stacksContentController" target="#mystackscontroller" allowsMultipleSelection="NO">
                     <tableColumn identifier="idimage" title="idimg"/>
                     <tableColumn identifier="parameter" editable="YES" title="parameter"/>
@@ -33,7 +43,6 @@
              </scrollView>
              <ButtonBar halign="expand" actionsButton="YES">
                   <popUpButtonItem title="Reaggregate" target="#mystackscontroller" action="reaggregate:"/>
-                  <popUpButtonItem title="Edit coords textually..." target="#mystackscontroller" action="insertAnalysisFromInput:"/>
              </ButtonBar>
             <scrollView hasHorizontalScroller="NO">
                 <tableView autosaveName="aggregations_cluster_name" zebra="yes" valueBinding="#CPOwner.stackAggregationsController" target="#CPOwner">

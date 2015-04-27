@@ -34,6 +34,7 @@
                 <hbox><label valign="center" halign="min" width="130">GUI Cluster</label><popUpButton width="200" itemsBinding="#CPOwner.javascriptfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_javascript2"/></hbox>
                 <hbox><label valign="center" halign="min" width="130">Aggregator</label><popUpButton width="200" itemsBinding="#CPOwner.aggfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_aggregation"/></hbox>
                 <hbox><label valign="center" halign="min" width="130">Clustering</label><popUpButton width="200" itemsBinding="#CPOwner.analyticsfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_clustering"/></hbox>
+                <hbox><label valign="center" halign="min" width="130">Results</label><popUpButton width="200" itemsBinding="#CPOwner.analyticsfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.trialsController.selection.composition_for_trialresults"/></hbox>
 
 <hbox><label>Tags</label><hspace/><label>Value lists (only for tags of type 1)</label></hbox>
           <hbox>

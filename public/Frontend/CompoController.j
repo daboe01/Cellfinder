@@ -13,7 +13,7 @@
 @implementation FSObject(percentage)
 -(id) unpercentedValueForKey:(CPString)aString
 {	var r= [self valueForKey:aString];
-	return [r stringByReplacingOccurrencesOfString:"%" withString: ""];
+	return [r isKindOfClass:CPString]? [r stringByReplacingOccurrencesOfString:"%" withString:""]:r;
 }
 @end
 
@@ -25,8 +25,20 @@
 }
 
 - (id)objectValueForString:(CPString)aString error:(CPError)theError
-{	return [aString stringByReplacingOccurrencesOfString:"%" withString: ""];
+{	return [aString stringByReplacingOccurrencesOfString:"%" withString:""];
 
+}
+@end
+
+@implementation IntegerFormatter : CPFormatter
+
+- (CPString)stringForObjectValue:(id)theObject	// no percentage sign in UI 
+{	if(![theObject isKindOfClass:[CPString class]]) theObject=[theObject stringValue];
+	return theObject;
+}
+
+- (id)objectValueForString:(CPString)aString error:(CPError)theError
+{	return parseInt(aString, 10);
 }
 @end
 
@@ -152,7 +164,9 @@
 			{	var formatter="";
 				if([[input valueForKey:"range2"] hasSuffix:"%"])
 				{	[input setFormatter:[ReversePercentageFormatter new] forColumnName:"value"];
-				}
+				} else if([input valueForKey:"range2"] && [input valueForKey:"range2"].match(/^[0-9]+$/g))
+                {	[input setFormatter:[IntegerFormatter new] forColumnName:"value"];
+                }
 				var minVal=[input unpercentedValueForKey:"range1"];
 				var maxVal=[input unpercentedValueForKey:"range2"];
 				var curVal=[input unpercentedValueForKey:"value"];
