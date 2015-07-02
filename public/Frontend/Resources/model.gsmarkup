@@ -190,13 +190,16 @@
         <column name="name"/>
         <column name="filename"/>
         <column name="uploadtime"/>
+        <column name="rating"/>
         <relationship type="toOne" name="trial" bindingColumn="idtrial" target="trials"/>
         <relationship type="toMany" name="analyses" targetColumn="idimage" target="analyses"/>
+        <relationship type="toOne" name="image" targetColumn="id" target="images"/>
     </entity>
     <entity id="folders" store="#CPOwner.store">
         <column name="linkname" primaryKey="YES"/>
         <column name="folder_name"/>
         <column name="idtrial"/>
+        <column name="rating"/>
         <relationship type="toOne" name="trial" bindingColumn="idtrial" target="trials"/>
         <relationship type="toMany" name="folder_content" targetColumn="linkname" target="folder_content"/>
     </entity>
@@ -218,6 +221,7 @@
         <column name="idcomposition_for_editing"/>
         <column name="idcomposition_for_analysis"/>
         <column name="setup_params"/>
+        <column name="ordering"/>
         <relationship type="toOne" name="editing_compo" bindingColumn="idcomposition_for_editing" target="patch_compositions"/>
         <relationship type="toOne" name="analysis_compo" bindingColumn="idcomposition_for_analysis" target="patch_compositions"/>
         <relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>

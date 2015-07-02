@@ -5,6 +5,7 @@
 <objects>
 
   <window visible="NO">
+    <tableViewPopup   width="100" height="23" id="compo_popup" itemsController="#CPOwner.displayfilters_ac" itemsValue="arrangedObjects.id" itemsFace="arrangedObjects.name"/>
     <tableViewControl width="100" height="23" id="namedataview" editable="YES" face="tag.name"/>
     <tableViewJanusControl width="100" height="23" type="tag.type" id="popupdataview" itemsController="#CPOwner.taglistController" itemsValue="arrangedObjects.id" itemsFace="arrangedObjects.name" editable="YES" face="value" itemsPredicateFormat="idtag == $idtag"/>
   </window>
@@ -39,7 +40,8 @@
 					<scrollView hasHorizontalScroller="NO">
 						<tableView autosaveName="folders_dotting_analyses" zebra="yes" valueBinding="#CPOwner.analysesController" target="#CPOwner">
 							<tableColumn identifier="id" title="ID"/>
-							<tableColumn identifier="idimage" title="Analysis"/>
+							<tableColumn dataView="#compo_popup" identifier="idcomposition_for_editing" title="Compo"/>
+							<tableColumn identifier="ordering" title="ordering" editable="YES"/>
 						</tableView>
 					</scrollView>
 					<ButtonBar target="#CPOwner.analysesController" halign="right" width="250"  plusButtonAction="insert:" minusButtonAction="remove:" actionsButton="YES">
@@ -66,7 +68,7 @@
 				<slider continuous="NO" min="0" max="1" valueBinding="mydottingcontroller.scale" halign="right"/>
 				<label valign="center">Set tag:</label><textField halign="min" id="tagfield" width="100" target="#mydottingcontroller" action="setTag:"></textField>
 				<hspace/>
-				<popUpButton width="100" id="compoPopup" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.analysesController.selection.idcomposition_for_editing"/>
+				<popUpButton width="100" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.analysesController.selection.idcomposition_for_editing"/>
 				<button image="config.png" width="30" target="#mydottingcontroller" action="editViewingCompo:"/>
 			</hbox>
 		</vbox>

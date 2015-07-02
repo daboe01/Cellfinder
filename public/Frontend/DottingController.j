@@ -31,7 +31,6 @@
     {
         affine=nil;
     }
-
     if (window.___forceImageReloadRnd === undefined) window.___forceImageReloadRnd = 1;
     if (window.___forceImageReload) window.___forceImageReloadRnd = Math.floor(Math.random()*100000);
     var rnd = window.___forceImageReloadRnd;
@@ -99,7 +98,7 @@
 }
 
 
-- init
+- (id)init
 {	if(self=[super init])
 	{	_scale=1;
 		myAppController=[CPApp delegate];
@@ -177,7 +176,7 @@
 	[[myAppController.analysesController selectedObject] didChangeValueForKey:"aggregations"];
 }
 
--(void) webSocketActionData:(CPData) someData
+-(void)webSocketActionData:(CPData) someData
 {
     var re = new RegExp("([0-9]{2,12})");
 	var m = re.exec(someData);
@@ -185,9 +184,24 @@
     {
         [myAppController.folderController reload];
         [myAppController.folderContentController reload];
+        [myAppController.analysesController reload];
+
         var linkname=[myAppController.trialsController valueForKeyPath:"selection.id"]+m[0];
         [myAppController.folderController setFilterPredicate: [CPPredicate predicateWithFormat:"linkname=='"+linkname+"'" ]];
+        setTimeout(function(){[self _refreshResults]}, 200); // not sure whether we really need the setTimeout
       }
+}
+
+-(void)downloadImage:(id)sender
+{
+    var mycompoID=[myAppController.analysesController valueForKeyPath:"selection.idcomposition_for_editing" ];
+    if(mycompoID=='null' || mycompoID=='NULL')
+    {   mycompoID=nil;
+    }
+	var myidimage=[myAppController.analysesController valueForKeyPath:"selection.idimage"];
+	var myURL= [[CPApp delegate] baseImageURL]+myidimage+"?idanalysis="+[myAppController.analysesController valueForKeyPath:"selection.id"];
+	if(mycompoID && mycompoID !== CPNullMarker) myURL+="&cmp="+mycompoID;
+	window.open(myURL,'download_window');
 }
 
 @end

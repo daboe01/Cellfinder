@@ -19,6 +19,10 @@ AIVStyleAngleInfo=8;
 AIVStyleVoronoi=16;
 AIVStylePolygonClose=32;
 
+AIVStyleDotClassic=0;
+AIVStyleDotSmall=1;
+AIVStyleDotCross=2;
+
 AIVColorCodes=["8DD3C7","BEBADA","FB8072","80B1D3","FDB462","B3DE69","FCCDE5","D9D9D9","BC80BD"]; // brewer.pal(10, "Set3") (RColorBrewer)
 
 var mySortFunction=function(a,b,context)
@@ -39,14 +43,27 @@ var myFastSortFunction=function(a,b,context)
 }
 @end
 
+var _AIVStyleDot = 0;
+
 @implementation DotView : CPView
 {	BOOL	_selected;
 	id		_data @accessors(property=data);
 	id		_id @accessors(property=id);
 }
 +(double) radius
-{	return 5.0;	//<!> fixme GUI configurable
+{
+    switch(_AIVStyleDot)
+    {
+        case AIVStyleDotSmall:
+        return 3.0;
+        default:
+        return 5.0;
+    }
 }
++ (void)setDotStyle:(unsigned)aStyle
+{	_AIVStyleDot = aStyle;
+}
+
 -(CPColor) color
 {	var peek;
 	if(_data && (peek=[_data valueForKey:"tag"]))
@@ -91,16 +108,40 @@ var myFastSortFunction=function(a,b,context)
 
 - (void)drawRect:(CPRect)aRect
 {	var context = [[CPGraphicsContext currentContext] graphicsPort];
-	CGContextSetFillColor(context, [self color]);
 	var myrect=CPMakeRect(aRect.origin.x+2,aRect.origin.y+2, aRect.size.width-2, aRect.size.height-2);
-	CGContextFillEllipseInRect(context, myrect);
-	CGContextSetStrokeColor(context, [self shadowColor]);
-	CGContextStrokeEllipseInRect(context, myrect);
-	if(_selected)
-	{	CGContextSetFillColor(context, [CPColor whiteColor]);
-		CGContextSetAlpha(context, 0.5);
-		CGContextFillEllipseInRect(context, aRect);
-	}
+    switch(_AIVStyleDot)
+    {
+        case AIVStyleDotCross:
+            CGContextSetLineWidth(context, 1);
+            CGContextSetStrokeColor(context, [self color]);
+            CGContextBeginPath(context);
+            CGContextMoveToPoint(context, aRect.origin.x, aRect.origin.y);
+            CGContextAddLineToPoint(context, CPRectGetMaxX(aRect), CPRectGetMaxY(aRect));
+            CGContextMoveToPoint(context, CPRectGetMaxX(aRect), aRect.origin.y);
+            CGContextAddLineToPoint(context, aRect.origin.x, CPRectGetMaxY(aRect));
+            CGContextStrokePath(context);
+            if(_selected)
+            {
+                CGContextSetLineWidth(context, 3);
+                CGContextBeginPath(context);
+                CGContextMoveToPoint(context, aRect.origin.x, aRect.origin.y);
+                CGContextAddLineToPoint(context, CPRectGetMaxX(aRect), CPRectGetMaxY(aRect));
+                CGContextMoveToPoint(context, CPRectGetMaxX(aRect), aRect.origin.y);
+                CGContextAddLineToPoint(context, aRect.origin.x, CPRectGetMaxY(aRect));
+                CGContextStrokePath(context);
+            }
+        break;
+        default:
+            CGContextSetFillColor(context, [self color]);
+            CGContextFillEllipseInRect(context, myrect);
+            CGContextSetStrokeColor(context, [self shadowColor]);
+            CGContextStrokeEllipseInRect(context, myrect);
+            if(_selected)
+            {	CGContextSetFillColor(context, [CPColor whiteColor]);
+                CGContextSetAlpha(context, 0.5);
+                CGContextFillEllipseInRect(context, aRect);
+            }
+    }
 }
 -(void) translateByX:(double) someX andY:(double) someY
 {	var myRect=[self  frame];
@@ -611,6 +652,10 @@ var myFastSortFunction=function(a,b,context)
 	return ret;
 }
 
+-(void) setDotStyle:(unsigned)aStyle
+{
+    [DotView setDotStyle:aStyle];
+}
 @end
 
 @implementation GSMarkupTagAnnotatedImageView:GSMarkupTagView

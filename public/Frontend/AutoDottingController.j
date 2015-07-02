@@ -40,7 +40,9 @@
 	[[CPRunLoop currentRunLoop] performSelector:@selector(_postInit2) target:self argument: nil order:0 modes:[CPDefaultRunLoopMode]];
 }
 -(void) _postInit2
-{	[annotatedImageView bind:"backgroundImage" toObject: myAppController.analysesController withKeyPath: "selection._backgroundImage" options:nil];
+{
+
+	[annotatedImageView bind:"backgroundImage" toObject: myAppController.analysesController withKeyPath: "selection._backgroundImage" options:nil];
 	[myAppController.analysesController addObserver:self forKeyPath:"selection.idcomposition_for_editing" options:nil context:nil];
 }
 
@@ -94,6 +96,14 @@
 -(void) addLengthInfo
 {	[annotatedImageView setStyleFlags: [annotatedImageView styleFlags] | AIVStyleLengthInfo ];
 }
+
+-(void) setDotStyleCross
+{	[annotatedImageView setDotStyle:AIVStyleDotCross];
+}
+-(void) setDotStyleSmall
+{	[annotatedImageView setDotStyle:AIVStyleDotSmall];
+}
+
 
 
 -(void) reaggregate: sender

@@ -8,6 +8,7 @@
         <vbox>
             <scrollView hasHorizontalScroller="NO" width="200">
                 <tableView autosaveName="allpatches" zebra="yes" valueBinding="#CPOwner.patchRepoController" target="#CPOwner">
+                    <tableColumn identifier="id" title="id" editable="NO"/>
                     <tableColumn identifier="name" title="name" editable="YES"/>
                     <tableColumn identifier="type" title="type" editable="YES"/>
                     <tableColumn identifier="filetype" title="filetype" editable="YES"/>

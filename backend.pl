@@ -19,8 +19,6 @@ $ENV{MOJO_MAX_MESSAGE_SIZE} = 1_073_741_824;
 
 plugin 'database', {
             dsn      => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
-            username => 'root',
-            password => 'root',
             options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
             helper   => 'db'
 };
@@ -62,7 +60,7 @@ get '/DB/:table/:col/:pk' => [col=>qr/.+/, pk=>qr/.+/] => sub
     while(my $c=$sth->fetchrow_hashref())
     {   push @a,$c;
     }
-    warn Dumper \@a;
+    # warn Dumper \@a;
     $self-> render( json => \@a );
 };
 
@@ -105,8 +103,8 @@ post '/DB/:table/:pk'=> sub
     my $table   = $self->param('table');
     my $pk      = $self->param('pk');
     my $sql = SQL::Abstract->new;
-    my $jsonR   = decode_json( $self->req->body );
-    my($stmt, @bind) = $sql->insert($table, $jsonR || {name=>'New'});
+    my $jsonR   = decode_json( $self->req->body||'{"name":"New"}' );
+    my($stmt, @bind) = $sql->insert($table, $jsonR);
     my $sth     = $self->db->prepare($stmt);
     $sth->execute(@bind);
     app->log->debug("err: ".$DBI::errstr ) if $DBI::errstr;
@@ -194,10 +192,26 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
             $idanalysis=cellfinder_image::insertObjectIntoTable($self->db, 'analyses', 'id', { idstack=> $idstack } );
         }
     }
+    
+    $p= cellfinder_image::imageForComposition($self->db, $preload,$f,$p) if($preload); # unused?
+    if($idanalysis){
+        my $tmpf=$f;
+        my $ana=cellfinder_image::getObjectFromDBHandID($self->db, 'analyses', $idanalysis);
+        if($ana->{ordering}){
+            my $sql=qq{select id, ordering, idcomposition_for_editing from analyses where idimage=? and ordering is not null and ordering < ? and idcomposition_for_editing is not null order by 2};
+            my $sth = $self->db->prepare( $sql );
+            $sth->execute(($idimage, $ana->{ordering}));
+            while ( my $base_ana=$sth->fetchrow_hashref())
+            {
+                $p= cellfinder_image::imageForComposition($self->db, $base_ana->{idcomposition_for_editing}, $tmpf, $p, 1, $base_ana->{id});
+                $tmpf= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage, $width, $nocache, $csize, $affine, $idstack, undef, undef, $p);
 
-    $p= cellfinder_image::imageForComposition($self->db, $preload,$f,$p) if($preload);
-    $p= cellfinder_image::imageForComposition($self->db, $idcomposition,$f,$p, 1, $idanalysis, $idstack) if($idcomposition);
-    $p= cellfinder_image::imageForComposition($self->db, $afterload,$f,$p,1) if($afterload);
+            }
+        }
+    }
+
+    $p= cellfinder_image::imageForComposition($self->db, $idcomposition, $f, $p, 1, $idanalysis, $idstack) if($idcomposition);
+    $p= cellfinder_image::imageForComposition($self->db, $afterload, $f, $p, 1) if($afterload);
 
     if($csize && !$idstack)
     {   $p->Extent(geometry=>$csize, gravity=>'NorthWest', background=>'graya(0%, 0)');

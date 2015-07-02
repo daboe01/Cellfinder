@@ -6,6 +6,7 @@
   <autoDottingController id="mydottingcontroller"/>
 
   <window visible="NO">
+    <tableViewPopup   width="100" height="23" id="compo_popup" itemsController="#CPOwner.displayfilters_ac" itemsValue="arrangedObjects.id" itemsFace="arrangedObjects.name"/>
     <tableViewControl width="100" height="23" id="namedataview" editable="YES" face="tag.name"/>
     <tableViewJanusControl width="100" height="23" typeFace="tag.type" id="popupdataview" itemsController="#CPOwner.taglistController" itemsValue="arrangedObjects.id" itemsFace="arrangedObjects.name" editable="YES" face="value" itemsPredicateFormat="idtag == $idtag"/>
   </window>
@@ -16,6 +17,7 @@
 			<scrollView hasHorizontalScroller="NO">
 				<tableView autosaveName="folders_dotting" zebra="yes" valueBinding="#CPOwner.folderController" target="#CPOwner">
 					<tableColumn identifier="folder_name" title="Folder"/>
+					<tableColumn identifier="rating" title="rating"/>
 	  			</tableView>
 			</scrollView>
 		</vbox>
@@ -25,6 +27,7 @@
 				<tableView autosaveName="folders_auto_dotting_content" zebra="yes" allowsMultipleSelection="YES" valueBinding="#CPOwner.folderContentController" target="#CPOwner">
 					<tableColumn identifier="name" title="Image" editable="YES"/>
 					<tableColumn identifier="idimage" title="ID"/>
+					<tableColumn identifier="image.rating" title="rating" editable="YES"/>
 	  			</tableView>
 			</scrollView>
 			<ButtonBar target="#mydottingcontroller" halign="right" width="350" actionsButton="YES">
@@ -49,6 +52,8 @@
 					<scrollView hasHorizontalScroller="NO">
 						<tableView autosaveName="folders_dotting_analyses" zebra="yes" valueBinding="#CPOwner.analysesController" target="#CPOwner">
 							<tableColumn identifier="id" title="Analysis"/>
+							<tableColumn dataView="#compo_popup" identifier="idcomposition_for_editing" title="Compo"/>
+							<tableColumn identifier="ordering" title="ordering" editable="YES"/>
 						</tableView>
 					</scrollView>
 					<hbox>
@@ -60,6 +65,7 @@
   						<popUpButtonItem title="Reaggregate" target="#mydottingcontroller" action="reaggregate:"/>
  						<popUpButtonItem title="Switch Extractor" target="#mydottingcontroller" action="runSettings:"/>
  						<popUpButtonItem title="Toggle Voronoi" target="#mydottingcontroller" action="toggleVoronoi:"/>
+ 						<popUpButtonItem title="Download unscaled image" target="#mydottingcontroller" action="downloadImage:"/>
 					</ButtonBar>
 					<progresIndicator id="progress" indeterminate="YES"/>
 					</hbox>
