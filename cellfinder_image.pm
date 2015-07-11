@@ -505,6 +505,15 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsiz
 	return sub{
         # warn "$offX, $offY";
 		return ($nocache? 0: $idimage) if shift;
+
+	    my $cachename='/tmp/cellfinder_cache_2'.$idimage.'_'.$width.'.jpg';
+        if(!$nocache && $!affine && -e  $cachename)
+	    {	$p = Image::Magick->new();
+		    $p->Read($cachename);
+		    warn "cache hit2 for $cachename";
+		    return $p;
+	    }
+
 		$p = Image::Magick->new(magick=>'jpg');
 		if($idstack)
 		{	my $list=getObjectFromDBHandID($dbh,'montage_image_list',$idstack)->{list};
@@ -528,6 +537,12 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsiz
 		}
 		_distortImage($p, $affine) if $affine;
 		$p=resizeImage($p, $width) if $width;
+
+        if(!$nocache && !-e $cachename)
+        {
+		    $p->Write($cachename);
+        }
+
 		return $p;
 	}
 }
