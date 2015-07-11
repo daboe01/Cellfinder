@@ -204,7 +204,7 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
             while ( my $base_ana=$sth->fetchrow_hashref())
             {
                 $p= cellfinder_image::imageForComposition($self->db, $base_ana->{idcomposition_for_editing}, $tmpf, $p, 1, $base_ana->{id});
-                $tmpf= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage, $width, $nocache, $csize, $affine, $idstack, undef, undef, $p);
+                $tmpf= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage, $width, 1, $csize, $affine, $idstack, undef, undef, $p);
 
             }
         }
