@@ -10,7 +10,7 @@
     <tableViewJanusControl width="100" height="23" type="tag.type" id="popupdataview" itemsController="#CPOwner.taglistController" itemsValue="arrangedObjects.id" itemsFace="arrangedObjects.name" editable="YES" face="value" itemsPredicateFormat="idtag == $idtag"/>
   </window>
 
-  <manualDottingController id="mydottingcontroller"/>
+  <planimetryController id="mydottingcontroller"/>
   <window title="ImageDotting" x="50" y="30" width="400" height="340"  bridge="YES" delegate="mydottingcontroller">
 	<splitView vertical="YES" autosaveName="splitview_folders_manual_dotting1">
 		<vbox>

@@ -55,3 +55,26 @@
 }
 @end
 
+@implementation PlanimetryController : ManualDottingController
+
+-(void) annotatedImageView: someView dot: someDot movedToPoint: newPoint
+{	var area=someView._lastDegrees;
+	if (area) [self _saveValue:area forKey: "area"];
+}
+-(void) _postInit
+{	[super _postInit];
+	[self setDrawingLines];
+	[self setClosingPolygons];
+    
+}
+@end
+
+
+@implementation GSMarkupTagPlanimetryController : GSMarkupTagManualDottingController
++ (CPString) tagName
+{	return @"angulationController";
+}
++ (Class) platformObjectClass
+{	return [PlanimetryController class];
+}
+@end

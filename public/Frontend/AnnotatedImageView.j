@@ -307,7 +307,7 @@ var _AIVStyleDot = 0;
 	if(_styleFlags & AIVStylePolygon)
 	{	var mySubviews=[self allDots];
 		var n =  [mySubviews count];
-		var area;
+		var area=0;
 		var tag=0;
 		var hasNextTag;
 		for (hasNextTag=YES; hasNextTag; tag++)
@@ -341,11 +341,10 @@ var _AIVStyleDot = 0;
                     lastPoint=o;
 				} else if(o.tag > tag) hasNextTag=YES;
 								
-				if((_styleFlags & AIVStylePolygonClose) && i < n-1 && o.tag==0)
+				if((_styleFlags & AIVStylePolygonClose) && i < n && o.tag==0)
 				{	var p1 = o;
-					var p2 = [mySubviews[i+1] objectValue];
-					area += p1.x * p2.y;
-					area -= p1.y * p2.x;
+					var p2 = [mySubviews[i==0? n-1: i-1] objectValue];
+					area += (p2.x + p1.x)* (p2.y - p1.y);
 				}
 
 			}
@@ -354,7 +353,8 @@ var _AIVStyleDot = 0;
 			CGContextStrokePath(context);
 			CGContextBeginPath(context);
 		}
-		_lastDegrees=area;
+        document.tiltle=area;
+		_lastDegrees=area/2;
 	}	// else?!
 	if( _styleFlags & AIVStyleAngleInfo)
 	{	CGContextBeginPath(context);

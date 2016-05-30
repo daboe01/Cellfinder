@@ -1,7 +1,4 @@
-#!/usr/local/ActivePerl-5.14/site/bin/morbo
-
-
-use lib qw {/Users/Shared/bin /Users/Shared/bin/Cellfinder2 /srv/www/Cellfinder2/ /HHB/bin/Cellfinder/ /Users/boehringer/src/daboe01_Cellfinder/Cellfinder/ /Users/daboe01/src/daboe01_Cellfinder/Cellfinder /Users/boehringer/src/privatePerl /Users/daboe01/src/privatePerl};
+use lib qw{/Users/Shared/bin /Users/Shared/bin/Cellfinder2 /srv/www/Cellfinder2/ /HHB/bin/Cellfinder/ /Users/boehringer/src/daboe01_Cellfinder/Cellfinder/ /Users/daboe01/src/daboe01_Cellfinder/Cellfinder /Users/boehringer/src/privatePerl /Users/daboe01/src/privatePerl};
 use Mojolicious::Lite;
 use Mojolicious::Plugin::Database;
 use cellfinder_image;
@@ -19,6 +16,8 @@ $ENV{MOJO_MAX_MESSAGE_SIZE} = 1_073_741_824;
 
 plugin 'database', {
             dsn      => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
+            username => 'root',
+            password => 'root',
             options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
             helper   => 'db'
 };
@@ -173,7 +172,7 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
     my $nocache=0;
     $nocache= 1 if $width;  # ignore cache
     $nocache=-1 if $cc;     # delete cache
-
+    
     $spc="" unless $spc;
 
     my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage, $width, $nocache, $csize, $affine, $idstack);
@@ -204,15 +203,16 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
             while ( my $base_ana=$sth->fetchrow_hashref())
             {
                 $p= cellfinder_image::imageForComposition($self->db, $base_ana->{idcomposition_for_editing}, $tmpf, $p, 1, $base_ana->{id});
-                $tmpf= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage, $width, $nocache, $csize, $affine, $idstack, undef, undef, $p);
+                $tmpf= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage, $width, 1, $csize, $affine, $idstack, undef, undef, $p);
 
             }
         }
     }
 
     $p= cellfinder_image::imageForComposition($self->db, $idcomposition, $f, $p, 1, $idanalysis, $idstack) if($idcomposition);
-    $p= cellfinder_image::imageForComposition($self->db, $afterload, $f, $p, 1) if($afterload);
-
+    $p= cellfinder_image::imageForComposition($self->db, $afterload, $f, $p, 1, $idanalysis, $idstack) if($afterload);
+    warn $afterload;
+    
     if($csize && !$idstack)
     {   $p->Extent(geometry=>$csize, gravity=>'NorthWest', background=>'graya(0%, 0)');
     }
@@ -355,7 +355,7 @@ get '/IMG/copy_results/:idfrom/:idto'=> [idfrom =>qr/\d+/,idto =>qr/\d+/] => sub
     my $idfrom= $self->param("idfrom");
     my $idto  = $self->param("idto");
     my $dbh=$self->db;
-    my $sql=qq{insert into results (row,col,tag,idanalysis) (select row,col,tag, ? as idanalysis from results where idanalysis=?)};
+    my $sql=qq{insert into results (row,col,tag,idanalysis) (select row,col,tag, ? as idanalysis from results where idanalysis=? order by id)};
     my $sth = $dbh->prepare( $sql );
     $sth->execute(($idto,$idfrom));
     $self->render(text =>'OK');
@@ -902,6 +902,17 @@ helper rebaseMontageID => sub { my ($self, $idmontageimage)=@_;
     return $idstack;
 };
 
+#<!>fixme
+get '/IMG/setup_cam/:source'=> [source =>qr/[0-9a-z]+/i] =>sub
+{   my $self=shift;
+    my $source = $self->param('source');
+    if($source =~ /hhb/i)
+    {   Mojo::UserAgent->new->get('http://10.210.21.44/SetChannel.cgi?Channel=3')->res->body;
+        sleep(1);
+        Mojo::UserAgent->new->get('http://10.210.21.44/ChangeResolution.cgi?ResType=3')->res->body;
+    }
+    $self->render(data=>'OK', format =>'txt' );
+};
 
 get '/IMG/trigger/:loc/:piz'=> [loc =>qr/[0-9a-z]+/i, piz=>qr/[0-9a]{8,9}/i] => sub
 {   my $self=shift;

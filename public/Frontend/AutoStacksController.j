@@ -4,8 +4,8 @@
 
 
 @implementation AutoStacksController: ManualStacksController
-{	id		progress;
-	BOOL	_bridgeStitchingAll;
+{
+    BOOL	_bridgeStitchingAll;
 	id		mystacksconnection;
     id      mainBB;
 }

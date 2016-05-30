@@ -200,11 +200,13 @@ PhotoDragType="PhotoDragType";
     if(_myWatchLocation)
     {   [CPApp setNextResponder: self];
         _insertText="";
+        var myreq=[CPURLRequest requestWithURL: BaseURL+"setup_cam/"+_myWatchLocation];
+        [CPURLConnection connectionWithRequest:myreq delegate: nil];
     }
 }
 -(void) runWatch:(CPString)what
 {
-     [[CPWebSocket alloc] initWithURL: "ws:augimageserver:3005/echo/"+what delegate:self];
+    [[CPWebSocket alloc] initWithURL: "ws:augimageserver:3005/echo/"+what delegate:self];
 }
 
 - (void)webSocket:aSoc didReceiveMessage:someData
@@ -265,11 +267,12 @@ PhotoDragType="PhotoDragType";
             default:
                 loc="topcon1";
         }
-    	var myreq=[CPURLRequest requestWithURL: BaseURL+"trigger/"+loc+"/"+ m[1]];
+
+    	var myreq=[CPURLRequest requestWithURL:BaseURL+"trigger/"+loc+"/"+ m[1]];
 		[CPURLConnection connectionWithRequest:myreq delegate: self];
         _insertText="";
     }
-    if (aString === "\n" || aString === "\r" || aString === " ")
+    if (aString === "\n" || aString === "\r" || aString === " " || aString === "\t")
         _insertText="";
 }
 -(void) connection:(CPConnection)someConnection didReceiveData: data
