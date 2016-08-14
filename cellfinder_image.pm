@@ -23,16 +23,18 @@ use constant server_root=>'/Users/Shared/cellfinder';
 
 sub runRCode { my ($RCmd)=@_;
     return undef unless $RCmd;
-    my $R= Statistics::R->new(shared=>1);
+    my $R= Statistics::R->new(shared=>1, bin=> '/usr/local/bin/R');
     $R->startR;
-warn $RCmd;
 	my $filename=tempFileName('/tmp/cellf');
+    warn $RCmd."\nwriteLines(out, '$filename')\n1";
 	$R->send($RCmd."\nwriteLines(out, '$filename')\n1");
 	# my $out=$R->get('out');
 	my $out;
     $out=readFile($filename) if -e $filename;
+    warn "out is: '$out'";
     chomp $out;
-warn "out is: '$out'";
+
+    warn $R->error if $R->error;
     $R->stopR;
 	return  $out;
 }
@@ -104,15 +106,15 @@ sub runEBImageRCode { my ($infile,$code, $idanalysis)=@_;
     if(nchar("<infile>") & file.exists("<infile>"))
         e=readImage("<infile>")
     if(nchar("<idanalysis>"))
-        d1=read.delim(paste("http://auginfo/cellfinder_results/0?mode=results&constraint=idanalysis=", <idanalysis>, sep=""))
-	#	d1=read.delim(paste("http://localhost:3000/ANA/results/", <idanalysis>, sep=""))
+        d1=read.delim(paste("http://localhost:3000/ANA/results/", <idanalysis>, sep=""))
+    #    d1=read.delim(paste("http://auginfo/cellfinder_results/0?mode=results&constraint=idanalysis=", <idanalysis>, sep=""))
     out=""
     <code>
 ENDOFR
 ;	$RCmd=~s/<code>/$code/ogs;
 	$RCmd=~s/<infile>/$infile/ogs;
 	$RCmd=~s/<idanalysis>/$idanalysis/ogs;
-warn $RCmd;
+    #warn $RCmd;
 	my $out=runRCode($RCmd);
 	return (length $out)? JSON::XS->new->utf8->decode($out):undef;
 }
@@ -125,7 +127,7 @@ sub insertAggregation{
 	use SQL::Abstract;
 	my $sql = SQL::Abstract->new;
 
-warn Dumper $result;
+    #warn Dumper $result;
 	for(sort keys %$result)
 	{	next if $_ eq 'idanalysis';
         my $val=$result->{$_};
@@ -183,7 +185,9 @@ sub imageForDBHAndRenderchainIDAndImage{
 
 	my $idpoint;
 	my $idimage=$readImageFunction? $readImageFunction->(1):0;
-
+    my $original_size=$readImageFunction? $readImageFunction->(2):0;
+    my $image_name=$readImageFunction? $readImageFunction->(3):'';
+    my $idimage_orig=$idimage;
     warn "** $idimage";
 
 	my $stash;
@@ -197,6 +201,8 @@ sub imageForDBHAndRenderchainIDAndImage{
 		return $p;
 	}
 	$p=$readImageFunction->(0) unless $p;
+    my $p_original=$p->Clone() if ref $p eq 'Image::Magick';
+    my ($w,$h)=$p->Get('width', 'height') if ref $p eq 'Image::Magick';
 
 	# warn $id;
 	my $sql=qq/select * from patch_chains_with_parameters where idpatch_chain=?/;
@@ -231,7 +237,7 @@ sub imageForDBHAndRenderchainIDAndImage{
 			};
 ###			warn $curr_patch->{patch};
 			warn "error: $@" if($@);
-		} elsif($curr_patch->{patch_type} ~~ [3,4,5,6, 7])	# only parameter substitution required
+		} elsif($curr_patch->{patch_type} ~~ [3, 4, 5, 6, 7])	# only parameter substitution required
 		{	my @arr= map {  $_->[0]=~s/"$//ogs; $_->[1]=~s/"//ogs;$_;}
 				map { [ split/=>/o ] }
 				map {s/^["\s]+//ogs;$_;}
@@ -239,6 +245,7 @@ sub imageForDBHAndRenderchainIDAndImage{
             my $old_p=$p; # preserve image information
 			$p=$curr_patch->{patch};
 			$p=~s/<$_->[0]>/$_->[1]/gs foreach(@arr);
+            $p=~s/<idimage>/$idimage_orig/ogs;
 			$p=~s/<idanalysis>/$idanalysis/gs;
 			$p=~s/<idpoint>/$idpoint/gs;
 		###  warn $curr_patch->{patch_type} .' '.$p;
@@ -256,22 +263,26 @@ sub imageForDBHAndRenderchainIDAndImage{
 				warn "error: $@ $p" if($@);
 			} elsif ($curr_patch->{patch_type} == 3)	# R/EBImage
 			{
-warn 'ref is:'. ref $old_p;
                 my $filename;
+                my $filetype='.'.($curr_patch->{filetype}|| 'jpg'); 
                 if(ref $old_p eq 'Image::Magick')
                 {
                     $filename=tempFileName('/tmp/cellf');
-                    $old_p->Write($filename.'.jpg');
-                    chmod 0777, $filename.'.jpg';
+                    $old_p->Write($filename.$filetype);
+                    chmod 0777, $filename.$filetype;
                 }
-                $p=~s/<idimage>/$idimage/ogs;
+                my ($w,$h)=$old_p->Get('width', 'height') if ref $old_p eq 'Image::Magick';
+                $p=~s/<idimage>/$idimage_orig/ogs;
                 $p=~s/<idstack>/$idstack/ogs;
-				my $infile=runEBImageRCode($filename? $filename.'.jpg':undef, $p, $idanalysis);
- warn  $p.' '.$infile;
+                $p=~s/<width>/$w/ogs;
+                $p=~s/<height>/$h/ogs;
+                $p=~s/<original_size>/$original_size/ogs;
+
+                my $infile=runEBImageRCode($filename? $filename.$filetype:undef, $p, $idanalysis);
 				$p = Image::Magick->new();
 				if(!$infile)
-				{   $p->Read($filename.'.jpg');				# read it back in just in case R/EBImage did some processing on it
-					$idimage=$result=0;
+				{   $p->Read($filename.$filetype);				# read it back in just in case R/EBImage did some processing on it
+					$idimage=$result=0;                     # cache control (?)
 				} elsif(exists $infile->{xpoint} && exists $infile->{ypoint}) # simple points return
 				{
 					$dbh->{AutoCommit}=0;
@@ -298,10 +309,11 @@ warn 'ref is:'. ref $old_p;
 					cellfinder_image::insertAggregation($dbh, $idanalysis, $infile);
 					$idimage=0;
 				}
+
 				# now perform fixup and aggregation if necessary
-				if($idimage)
+				if($idimage_orig)
 				{
-					my $image = getObjectFromDBHandID($dbh,'images', $idimage);
+					my $image = getObjectFromDBHandID($dbh,'images', $idimage_orig);
 					my $trial = getObjectFromDBHandID($dbh,'trials', $image->{idtrial});
 					cellfinder_image::imageForComposition($dbh, $trial->{composition_for_fixup}, $readImageFunction, undef, undef, $idanalysis) if($trial->{composition_for_fixup});
 					cellfinder_image::imageForComposition($dbh, $trial->{composition_for_aggregation}, $readImageFunction, undef, undef, $idanalysis) if($trial->{composition_for_aggregation});
@@ -348,14 +360,14 @@ warn 'ref is:'. ref $old_p;
 			my $effective_fn= ((scalar @filenamelist)>1) ?  (join ' ', @filenamelist) : $filename.$filetype;
 			my $effective_fn_out=$filename.'_out'.$filetype;
 			my $args=join ' ', @arr;
-			if( $call=~ /<infiles>/o)
-            {	$call=~s/<infiles>/$effective_fn/ogs;
-                $call=~s/<args>/$args/ogs;
-                $call=~s/<outfile>/$effective_fn_out/ogs;
-            } else
-            {	$call.=" $args $filename".$filetype;
-            }
+            $call=~s/<args>/$args/ogs;
+            $call=~s/<infiles>/$effective_fn/ogs;
+            $call=~s/<outfile>/$effective_fn_out/ogs;
+
             $call=~s/<idanalysis>/$idanalysis/gs;
+            my ($w,$h)=$p->Get('width', 'height') if ref $p eq 'Image::Magick';
+            $call=~s/<width>/$w/ogs;
+            $call=~s/<height>/$h/ogs;
             #     $call.=" >$filename".$filetype.'_out';
             system($call);
             warn($call);
@@ -469,11 +481,12 @@ sub _distortImage{ my ($i, $parameter, $offsetX, $offsetY)=@_;
 
 sub resizeImage{ my ($p, $pixels)=@_;
 	my ($w,$h)=$p->Get('width', 'height');
-	if (0&& $w*$h > 5000000 && -e '/usr/bin/sips')	# use sips on large images whenever poosible
+	if ($w*$h > 5000000 && -e '/usr/bin/sips')	# use sips on large images whenever poosible
 	{	my $filename=tempFileName('/tmp/cellf', '.jpg');
+        warn "using sips";
 		$p->Write($filename);
 		my $max1= floor($w*sqrt($pixels/($w*$h)));
-		system('/usr/bin/sips --resampleWidth '. $max1 . ' '. $filename);
+        system('/usr/bin/sips -s  format jpeg '.$filename.' --resampleWidth '.$max1.'  --out '.$filename);
 		$p = Image::Magick->new();
 		$p->Read($filename);
 	} else
@@ -482,7 +495,7 @@ sub resizeImage{ my ($p, $pixels)=@_;
 	return $p;
 }
 
-sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsize, $affine, $idstack, $idcomposition, $idcomposite)=@_;
+sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsize, $affine, $idstack, $idcomposition, $idcomposite, $p_in)=@_;
 	return sub {return undef} if(!$idimage&& !$idstack);
 	my $csize=$ocsize;
 	$csize=$1 if $ocsize=~/([0-9]+x[0-9]+)/o;
@@ -504,17 +517,25 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsiz
 	## warn Dumper $curr_img;
 	return sub{
         # warn "$offX, $offY";
-		return ($nocache? 0: $idimage) if shift;
+        my $par=shift;
+		return ($nocache? 0: $idimage) if $par == 1;
+        return $curr_img->{name} if $par == 3;
+		if ($par == 2)
+        {   my $p=doReadImageFile(undef, $curr_img);
+            my ($w,$h)=$p->Get('width', 'height');
+            return $w*$h;
+        }
+        return $p_in if $p_in;
 
-	    my $cachename='/tmp/cellfinder_cache_2'.$idimage.'_'.$width.'.jpg';
-        if(!$nocache && $!affine && -e  $cachename)
-	    {	$p = Image::Magick->new();
-		    $p->Read($cachename);
-		    warn "cache hit2 for $cachename";
-		    return $p;
-	    }
-
-		$p = Image::Magick->new(magick=>'jpg');
+        my $cachename='/tmp/cellfinder_cache_2_'.$idimage.'_'.$width.'.jpg';
+        if($width && !$affine && -e $cachename)
+        {	$p = Image::Magick->new();
+            $p->Read($cachename);
+            warn "cache hit2 for $cachename";
+            return $p;
+        }
+        
+		my $p = Image::Magick->new(magick=>'jpg');
 		if($idstack)
 		{	my $list=getObjectFromDBHandID($dbh,'montage_image_list',$idstack)->{list};
 			my @idarr= split/, /o, $list;
@@ -538,9 +559,9 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsiz
 		_distortImage($p, $affine) if $affine;
 		$p=resizeImage($p, $width) if $width;
 
-        if(!$nocache && !-e $cachename)
+        if(!(-e $cachename) && $width)
         {
-		    $p->Write($cachename);
+            $p->Write($cachename);
         }
 
 		return $p;
@@ -660,7 +681,7 @@ sub uploadImageFromData { my ($dbh, $idtrial, $name, $suffix, $data)=@_;
             }
             $idimage=-1;
         }
-    } elsif($suffix =~/mp|m4v/i) # movie
+    } elsif($suffix =~/^mp|m4v/i) # movie
     {   system('/usr/local/bin/convert -deconstruct '.$filename.' '.$filename.'-%d.jpg');
         my @files=sorted_filenamearray($filename);
         my $i=1;

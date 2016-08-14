@@ -1,7 +1,4 @@
-#!/usr/local/ActivePerl-5.14/site/bin/morbo
-
-
-use lib qw {/Users/Shared/bin /Users/Shared/bin/Cellfinder2 /srv/www/Cellfinder2/ /HHB/bin/Cellfinder/ /Users/boehringer/src/daboe01_Cellfinder/Cellfinder/ /Users/daboe01/src/daboe01_Cellfinder/Cellfinder /Users/boehringer/src/privatePerl /Users/daboe01/src/privatePerl};
+use lib qw{/Users/Shared/bin /Users/Shared/bin/Cellfinder2 /srv/www/Cellfinder2/ /HHB/bin/Cellfinder/ /Users/boehringer/src/daboe01_Cellfinder/Cellfinder/ /Users/daboe01/src/daboe01_Cellfinder/Cellfinder /Users/boehringer/src/privatePerl /Users/daboe01/src/privatePerl};
 use Mojolicious::Lite;
 use Mojolicious::Plugin::Database;
 use cellfinder_image;
@@ -21,6 +18,13 @@ plugin 'database', {
             dsn      => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
             options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
             helper   => 'db'
+};
+
+# turn cache off
+hook after_dispatch => sub {
+    my $tx = shift;
+    my $e = Mojo::Date->new(time-100);
+    $tx->res->headers->header(Expires => $e);
 };
 
 ###########################################
@@ -173,7 +177,7 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
     my $nocache=0;
     $nocache= 1 if $width;  # ignore cache
     $nocache=-1 if $cc;     # delete cache
-
+    
     $spc="" unless $spc;
 
     my $f= cellfinder_image::readImageFunctionForIDAndWidth($self->db, $idimage, $width, $nocache, $csize, $affine, $idstack);
@@ -187,7 +191,7 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
     }
     if($idstack && $idcomposition && !$idanalysis)
     {   my $compo=cellfinder_image::getObjectFromDBHandID($self->db, 'patch_compositions', $idcomposition);
-        if($compo->{type} == 5)  #clusterstacks
+        if($compo->{type} == 5 && !$idanalysis)  #clusterstacks
         {
             $idanalysis=cellfinder_image::insertObjectIntoTable($self->db, 'analyses', 'id', { idstack=> $idstack } );
         }
@@ -211,8 +215,9 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
     }
 
     $p= cellfinder_image::imageForComposition($self->db, $idcomposition, $f, $p, 1, $idanalysis, $idstack) if($idcomposition);
-    $p= cellfinder_image::imageForComposition($self->db, $afterload, $f, $p, 1) if($afterload);
-
+    $p= cellfinder_image::imageForComposition($self->db, $afterload, $f, $p, 1, $idanalysis, $idstack) if($afterload);
+    warn $afterload;
+    
     if($csize && !$idstack)
     {   $p->Extent(geometry=>$csize, gravity=>'NorthWest', background=>'graya(0%, 0)');
     }
@@ -258,6 +263,23 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
         }
     }
 };
+
+get '/LASTIMGNAMEID/:imagename/:idtrial'=> [ imagename => qr/[a-z\d_]+/, idtrial => qr/\d+/ ] => sub
+{   my $self=       shift;
+    my $imagename=  $self->param("imagename");
+    my $idtrial=    $self->param("idtrial");
+    my $dbh=        $self->db;
+    my $sql=qq{SELECT idimage, image_name, last_image.folder_name from (select max(name) as image_name,  linkname, folder_name from folder_content group by folder_name, linkname) last_image
+        join folders on folders.linkname=last_image.linkname
+        join folder_content on folder_content.name=last_image.image_name
+        where idtrial=? and last_image.folder_name=?;
+    };
+    my $sth = $dbh->prepare( $sql );
+    $sth->execute(($idtrial, $imagename));
+    my $curr=$sth->fetchrow_arrayref();
+    $self->render(text => $curr->[0]);
+};
+
 get '/IMG/make_tags'=> sub
 {   my $self=shift;
     my $sql='INSERT INTO tags (idimage, idtag)  (select images.id as idimage, tag_repository.id as idtag from images join tag_repository on images.idtrial=tag_repository.idtrial left join tags on idimage=images.id and tags.idtag=tag_repository.id where tags.id is null)';
@@ -301,7 +323,7 @@ post '/IMG/reaggregate_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, fol
     my $trial = cellfinder_image::getObjectFromDBHandID($dbh, 'trials', $idtrial);
 
     $dbh->{AutoCommit}=0;
-    my $sql=qq{ select distinct analyses.id, analyses.idimage from analyses left join aggregations on  aggregations.idanalysis=analyses.id join images on analyses.idimage=images.id  join number_points on number_points.idanalysis=analyses.id 
+    my $sql=qq{ select distinct analyses.id, analyses.idimage from analyses left join aggregations on  aggregations.idanalysis=analyses.id join images on analyses.idimage=images.id join number_points on number_points.idanalysis=analyses.id
                 join folder_content on folder_content.idimage=analyses.idimage 
                 where aggregations.idanalysis is null and idtrial=? and linkname=?};
 
@@ -355,7 +377,7 @@ get '/IMG/copy_results/:idfrom/:idto'=> [idfrom =>qr/\d+/,idto =>qr/\d+/] => sub
     my $idfrom= $self->param("idfrom");
     my $idto  = $self->param("idto");
     my $dbh=$self->db;
-    my $sql=qq{insert into results (row,col,tag,idanalysis) (select row,col,tag, ? as idanalysis from results where idanalysis=?)};
+    my $sql=qq{insert into results (row,col,tag,idanalysis) (select row,col,tag, ? as idanalysis from results where idanalysis=? order by id)};
     my $sth = $dbh->prepare( $sql );
     $sth->execute(($idto,$idfrom));
     $self->render(text =>'OK');
@@ -902,6 +924,17 @@ helper rebaseMontageID => sub { my ($self, $idmontageimage)=@_;
     return $idstack;
 };
 
+#<!>fixme
+get '/IMG/setup_cam/:source'=> [source =>qr/[0-9a-z]+/i] =>sub
+{   my $self=shift;
+    my $source = $self->param('source');
+    if($source =~ /hhb/i)
+    {   Mojo::UserAgent->new->get('http://10.210.21.44/SetChannel.cgi?Channel=3')->res->body;
+        sleep(1);
+        Mojo::UserAgent->new->get('http://10.210.21.44/ChangeResolution.cgi?ResType=3')->res->body;
+    }
+    $self->render(data=>'OK', format =>'txt' );
+};
 
 get '/IMG/trigger/:loc/:piz'=> [loc =>qr/[0-9a-z]+/i, piz=>qr/[0-9a]{8,9}/i] => sub
 {   my $self=shift;
