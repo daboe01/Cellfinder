@@ -60,16 +60,35 @@
 	[img setDelegate: mycontroller];
 	return img;
 }
--(void) _replaceAnalysisWithDelegate: someDelegate
+-(void) _replaceAnalysisWithDelegate:(id)someDelegate afterload:(BOOL) afterloadFlag withWidth:(BOOL)useWidth
 {	var mycompoID=		[self valueForKey:"idcomposition_for_analysis" ];
 	var myidimage=		[self valueForKey:"idimage" ];
 	var myidanalysis =	[self valueForKey:"id" ];
+	var mycompoIDViewing =	[self valueForKey:"idcomposition_for_editing" ];
 
 	if(mycompoID !== CPNullMarker)
-	{	var myurl= BaseURL +myidimage+"?cmp="+mycompoID+"&idanalysis="+ myidanalysis;
+	{	var myurl= afterloadFlag? BaseURL +myidimage+"?cmp="+mycompoIDViewing+"&idanalysis="+myidanalysis+"&afterload="+mycompoID : BaseURL +myidimage+"?cmp="+mycompoID+"&idanalysis="+ myidanalysis;
+
+        if(useWidth)
+        {
+        	var mycontroller= [[CPApp delegate] mainController];	// this is hack to get hold of the UI context from within the database context
+            var scale = mycontroller._scale;
+            var origSize=mycontroller._originalSizeArray[myidimage];
+            if(!origSize)
+            {	var geom=[self _cellfinderSpc:"geom" forID:myidimage];
+                var arr= geom.split(' ');
+                origSize= mycontroller._originalSizeArray[myidimage]= CPMakeSize(arr[0],arr[1]);
+            }
+            myurl+="&width="+ Math.floor(origSize.width *scale* origSize.height*scale);
+        }
+
 		var myreq=[CPURLRequest requestWithURL: myurl];
 		[CPURLConnection connectionWithRequest:myreq delegate: someDelegate];
 	}
+}
+-(void) _replaceAnalysisWithDelegate:(id)someDelegate 
+{
+    [self _replaceAnalysisWithDelegate:someDelegate afterload:NO withWidth:NO];
 }
 
 @end
@@ -175,6 +194,16 @@
 	[myAppController.analysesController._entity._relations makeObjectsPerformSelector:@selector(_invalidateCache)];
 	[[myAppController.analysesController selectedObject] didChangeValueForKey:"aggregations"];
 }
+-(void) afterload:(id)sender
+{
+	var myAnalysis=  [myAppController.analysesController selectedObject];
+	var mycompoID  = [myAppController.trialsController valueForKeyPath: "selection.composition_for_celldetection"];
+    [myAnalysis setValue:mycompoID forKey:"idcomposition_for_analysis" ]
+    [progress startAnimation:self];
+	[myAnalysis _replaceAnalysisWithDelegate:self afterload:YES withWidth:YES];
+
+
+}
 
 -(void)webSocketActionData:(CPData) someData
 {
@@ -188,7 +217,7 @@
 
         var linkname=[myAppController.trialsController valueForKeyPath:"selection.id"]+m[0];
         [myAppController.folderController setFilterPredicate: [CPPredicate predicateWithFormat:"linkname=='"+linkname+"'" ]];
-        setTimeout(function(){[self _refreshResults]}, 200); // not sure whether we really need the setTimeout
+		[[CPRunLoop currentRunLoop] performSelector:@selector(_refreshResults) target:self argument:nil order:0 modes:[CPDefaultRunLoopMode]];
       }
 }
 

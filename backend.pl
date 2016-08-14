@@ -16,6 +16,8 @@ $ENV{MOJO_MAX_MESSAGE_SIZE} = 1_073_741_824;
 
 plugin 'database', {
             dsn      => 'dbi:Pg:dbname=cellfinder;user=root;host=auginfo',
+            username => 'root',
+            password => 'root',
             options  => { 'pg_enable_utf8' => 1, AutoCommit => 1 },
             helper   => 'db'
 };

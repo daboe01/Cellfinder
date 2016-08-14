@@ -302,7 +302,9 @@ sub imageForDBHAndRenderchainIDAndImage{
 				{
 				} else # result is (probably) an aggregation
 				{
+warn "got here";
 					next unless $idanalysis;
+warn $idanalysis;
 					my $sql = 'delete from aggregations where idanalysis = ?';
 					my $sth = $dbh->prepare($sql);
 					$sth->execute(($idanalysis));

@@ -12,6 +12,7 @@
 		<string>Angulation</string>
 		<string>SimpleDotting</string>
 		<string>AutoDotting</string>
+		<string>Planimetry</string>
 	</array>
 	<key>CPPrincipalClass</key>
 	<string>CPApplication</string>
