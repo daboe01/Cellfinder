@@ -13,6 +13,7 @@
     id reanaConnection;
     id reaggConnection;
     id tagsTV;
+    id imageBB;
 }
 
 -(void) _postInit
@@ -38,10 +39,17 @@
     [annotatedImageView setDefaultTag:0];
 	// this is necessary to prevent the imageDidLoad event beeing eaten up sometimes in firefox (because this event takes too long to finish)
 	[[CPRunLoop currentRunLoop] performSelector:@selector(_postInit2) target:self argument: nil order:0 modes:[CPDefaultRunLoopMode]];
+
+    var button=[imageBB addButtonWithImageName:"reload.png" target:self action:@selector(reloadImage:)];
+    [button setToolTip:"Reload image"];
+    var button=[imageBB addButtonWithImageName:"download.png" target:self action:@selector(downloadImage:)];
+    [button setToolTip:"Download image"];
+    var button=[imageBB addButtonWithImageName:"config.png" target:self action:@selector(editViewingCompo:)];
+    [button setToolTip:"Edit Composition"];
+
 }
 -(void) _postInit2
 {
-
 	[annotatedImageView bind:"backgroundImage" toObject: myAppController.analysesController withKeyPath: "selection._backgroundImage" options:nil];
 	[myAppController.analysesController addObserver:self forKeyPath:"selection.idcomposition_for_editing" options:nil context:nil];
 }
@@ -57,10 +65,14 @@
         window.___forceImageReload = 1;
 		[[CPRunLoop currentRunLoop] performSelector:@selector(reloadImage) target:self argument:nil order:0 modes:[CPDefaultRunLoopMode]];
 }
+-(void) downloadImage:(id)sender
+{
+    window.open([[annotatedImageView._backgroundImageView image] filename],'download');
+}
 
 -(void) setScale:(double) someScale
 {	_scale=someScale;
-	[annotatedImageView setScale: _scale];
+	[annotatedImageView setScale:_scale];
 	[self reloadImage];
 }
 -(void) reloadImage
@@ -167,7 +179,7 @@
 {
 	var mycompoID= [myAppController.trialsController valueForKeyPath: "selection.composition_for_clustering"];
     if (mycompoID === CPNullMarker) 
-    {   alert("no compo given");
+    {   alert("No adequate compo given (cluster)");
         return;
     }
 	var idtrial=[myAppController.trialsController valueForKeyPath:"selection.id"];
@@ -315,7 +327,14 @@
 	return coords;
 }
 
--(void) setTag: sender
+- (void)deleteAllDots:(id)sender
+{	var myIdSourceAnalysis=  [myAppController.analysesController valueForKeyPath:"selection.id"];
+    var myreq=[CPURLRequest requestWithURL: BaseURL+"delete_all_results/"+myIdSourceAnalysis];
+    [CPURLConnection sendSynchronousRequest: myreq returningResponse: nil];
+    [self _refreshResults];
+}
+
+- (void)setTag:(id)sender
 {
 	var tag=[sender integerValue];
 	[annotatedImageView setDefaultTag: tag];

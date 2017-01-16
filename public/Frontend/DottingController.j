@@ -58,6 +58,7 @@
 	var img=[[IdStoringImage alloc] initWithContentsOfFile: myURL];
 	img.myidimage= myidimage;
 	[img setDelegate: mycontroller];
+    img.__idanalysis=[self valueForKey:"id"];
 	return img;
 }
 -(void) _replaceAnalysisWithDelegate:(id)someDelegate afterload:(BOOL) afterloadFlag withWidth:(BOOL)useWidth
@@ -204,6 +205,13 @@
 
 
 }
+
+// for prevention of display of wrong (lagging) image after user changed analysis
+-(void)currentIDAnalysis
+{
+    return [myAppController.analysesController valueForKeyPath:"selection.id"];
+}
+
 
 -(void)webSocketActionData:(CPData) someData
 {

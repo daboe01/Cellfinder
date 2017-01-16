@@ -60,12 +60,13 @@
 					<ButtonBar target="#mydottingcontroller" halign="right" width="250"  plusButtonAction="insertAnalysis:" minusButtonAction="removeAnalysis:" actionsButton="YES">
    						<popUpButtonItem title="New empty" target="#mydottingcontroller" action="insertEmptyAnalysis:"/>
    						<popUpButtonItem title="Duplicate" target="#mydottingcontroller" action="duplicateAnalysis:"/>
+              <popUpButtonItem title="Delete all dots" target="#mydottingcontroller" action="deleteAllDots:"/>
    						<popUpButtonItem title="Edit coords textually..." target="#mydottingcontroller" action="insertAnalysisFromInput:"/>
- 						<popUpButtonItem title="Edit composition..." target="#mydottingcontroller" action="editAnalysis:"/>
+ 					    <popUpButtonItem title="Edit composition..." target="#mydottingcontroller" action="editAnalysis:"/>
   						<popUpButtonItem title="Reaggregate" target="#mydottingcontroller" action="reaggregate:"/>
- 						<popUpButtonItem title="Switch Extractor" target="#mydottingcontroller" action="runSettings:"/>
- 						<popUpButtonItem title="Toggle Voronoi" target="#mydottingcontroller" action="toggleVoronoi:"/>
- 						<popUpButtonItem title="Download unscaled image" target="#mydottingcontroller" action="downloadImage:"/>
+              <popUpButtonItem title="Switch Extractor" target="#mydottingcontroller" action="runSettings:"/>
+              <popUpButtonItem title="Toggle Voronoi" target="#mydottingcontroller" action="toggleVoronoi:"/>
+              <popUpButtonItem title="Download unscaled image" target="#mydottingcontroller" action="downloadImage:"/>
 					</ButtonBar>
 					<progresIndicator id="progress" indeterminate="YES"/>
 					</hbox>

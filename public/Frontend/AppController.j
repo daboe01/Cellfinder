@@ -24,7 +24,6 @@ PhotoDragType="PhotoDragType";
 @import "UploadManager.j"
 @import "TableViewControl.j"
 @import "CPWebSocket.j"
-@import <CPTextView/CPTextView.j>
 
 
 /////////////////////////////////////////////////////////
@@ -87,6 +86,28 @@ PhotoDragType="PhotoDragType";
 - (void) registerWithArrayController:(CPArrayController) aController
 {
     [self registerWithArrayController:aController plusTooltip:nil minusTooltip:nil]
+}
+
+@end
+
+@implementation SessionStore : FSStore
+
+-(CPURLRequest) requestForAddressingObjectsWithKey:(CPString)aKey equallingValue:(id)someval inEntity:(FSEntity) someEntity
+{   var request = [CPURLRequest requestWithURL: [self baseURL]+"/"+[someEntity name]+"/"+aKey+"/"+someval+"?session="+ window.G_SESSION];
+    
+    return request;
+}
+-(CPURLRequest) requestForFuzzilyAddressingObjectsWithKey: aKey equallingValue:(id) someval inEntity:(FSEntity) someEntity
+{   var request = [CPURLRequest requestWithURL: [self baseURL]+"/"+[someEntity name]+"/"+aKey+"/like/"+someval+"?session="+ window.G_SESSION];
+    return request;
+}
+-(CPURLRequest) requestForAddressingAllObjectsInEntity:(FSEntity) someEntity
+{    return [CPURLRequest requestWithURL: [self baseURL]+"/"+[someEntity name]+"?session="+ window.G_SESSION ];
+}
+-(CPURLRequest) requestForInsertingObjectInEntity:(FSEntity) someEntity
+{   var request = [CPURLRequest requestWithURL: [self baseURL]+"/"+[someEntity name]+"/"+ [someEntity pk]+"?session="+ window.G_SESSION];
+    [request setHTTPMethod:"POST"];
+    return request;
 }
 
 @end
@@ -169,7 +190,8 @@ PhotoDragType="PhotoDragType";
 }
 
 - (void) applicationDidFinishLaunching:(CPNotification)aNotification
-{	store=[[FSStore alloc] initWithBaseURL: HostURL+"/DB"];
+{
+    store = [[SessionStore alloc] initWithBaseURL: HostURL+"/DB"];
 	[CPBundle loadRessourceNamed: "model.gsmarkup" owner:self];
 	var model;
 	var re = new RegExp("id=([0-9]+)");

@@ -30,7 +30,7 @@
                     <tableColumn identifier="id" title="id"/>
                   </tableView>
              </scrollView>
-             <ButtonBar halign="expand" actionsButton="YES"  plusButtonAction="insert:" minusButtonAction="remove:" target="#CPOwner.stacksAnalysesController">
+             <ButtonBar halign="expand" actionsButton="YES"  plusButtonAction="insert:" minusButtonAction="remove:" target="#CPOwner.stacksAnalysesController" id="imagebb">
                   <popUpButtonItem title="Edit coords textually..." target="#mystackscontroller" action="insertAnalysisFromInput:"/>
              </ButtonBar>
        </vbox>
@@ -90,6 +90,7 @@
     <outlet source="#mystackscontroller" target="tagfield" label="tagField"/>
     <outlet source="#mystackscontroller" target="inputwindow" label="inputAnalysisWindow"/>
     <outlet source="#mystackscontroller" target="incoordsfield" label="inputAnalysisField"/>
+    <outlet source="#mystackscontroller" target="imagebb" label="imageBB"/>
 </connectors>
 
 </gsmarkup>

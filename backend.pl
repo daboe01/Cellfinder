@@ -3,6 +3,7 @@ use Mojolicious::Lite;
 use Mojolicious::Plugin::Database;
 use cellfinder_image;
 use SQL::Abstract;
+use Apache::Session::File;
 use Data::Dumper;
 use Mojo::UserAgent;
 use POSIX;
@@ -22,6 +23,30 @@ plugin 'database', {
             helper   => 'db'
 };
 
+# turn cache off
+hook after_dispatch => sub {
+    my $tx = shift;
+    my $e = Mojo::Date->new(time-100);
+    $tx->res->headers->header(Expires => $e);
+};
+
+# <!> fixme: implement https://blog.darkpan.com/article/6/Perl-and-Google-Authenticator.html here
+any '/DB/session_key/:key'=> [key =>qr/[-\da-z_]+/i] => sub {
+    my $self = shift;
+    my $key = $self->param('key');
+    my $sessionid = '';
+
+    # detect internet access
+    my $is_external = $self->req->headers->header('X-Forwarded-For')? 1:0;
+    my  %session;
+    tie %session, 'Apache::Session::File', undef , {Transaction => 0};
+    $sessionid = $session{_session_id};
+    $session{is_external} = $is_external;
+
+    $self->render(text => $sessionid );
+};
+
+
 ###########################################
 # dbi part
 
@@ -29,16 +54,16 @@ plugin 'database', {
 get '/DB/:table'=> sub
 {   my $self = shift;
     my $sql = SQL::Abstract->new;
-    my $table  = $self->param('table');
+    my $table = $self->param('table');
+    my $sessionid  = $self->param('session');
+    my  %session;
+    tie %session, 'Apache::Session::File', $sessionid , {Transaction => 0};
+
     my($stmt, @bind) = $sql->select($table);
     my $sth = $self->db->prepare($stmt);
     $sth->execute(@bind);
-
-    my @a;
-    while(my $c=$sth->fetchrow_hashref())
-    {   push @a,$c;
-    }
-    $self->render( json=> \@a );
+app->log->debug( '**************************'.$session{is_external} );
+    $self->render( json=> $sth->fetchall_arrayref({}) );
 };
 
 # fetch entities by (foreign) key
@@ -52,15 +77,8 @@ get '/DB/:table/:col/:pk' => [col=>qr/.+/, pk=>qr/.+/] => sub
     warn $pk;
     my($stmt, @bind) = $sql->select($table, undef, {$col=> $pk} );
     my $sth = $self->db->prepare($stmt);
-    warn "@bind $stmt";
     $sth->execute(@bind);
-
-    my @a;
-    while(my $c=$sth->fetchrow_hashref())
-    {   push @a,$c;
-    }
-    # warn Dumper \@a;
-    $self-> render( json => \@a );
+    $self->render( json=> $sth->fetchall_arrayref({}) );
 };
 
 helper getTypeHashForTable => sub { my ($self, $table)=@_;
@@ -186,7 +204,7 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
     }
     if($idstack && $idcomposition && !$idanalysis)
     {   my $compo=cellfinder_image::getObjectFromDBHandID($self->db, 'patch_compositions', $idcomposition);
-        if($compo->{type} == 5)  #clusterstacks
+        if($compo->{type} == 5 && !$idanalysis)  #clusterstacks
         {
             $idanalysis=cellfinder_image::insertObjectIntoTable($self->db, 'analyses', 'id', { idstack=> $idstack } );
         }
@@ -258,6 +276,23 @@ get '/IMG/:idimage'=> [idimage =>qr/\d+/] => sub
         }
     }
 };
+
+get '/LASTIMGNAMEID/:imagename/:idtrial'=> [ imagename => qr/[a-z\d_]+/, idtrial => qr/\d+/ ] => sub
+{   my $self=       shift;
+    my $imagename=  $self->param("imagename");
+    my $idtrial=    $self->param("idtrial");
+    my $dbh=        $self->db;
+    my $sql=qq{SELECT idimage, image_name, last_image.folder_name from (select max(name) as image_name,  linkname, folder_name from folder_content group by folder_name, linkname) last_image
+        join folders on folders.linkname=last_image.linkname
+        join folder_content on folder_content.name=last_image.image_name
+        where idtrial=? and last_image.folder_name=?;
+    };
+    my $sth = $dbh->prepare( $sql );
+    $sth->execute(($idtrial, $imagename));
+    my $curr=$sth->fetchrow_arrayref();
+    $self->render(text => $curr->[0]);
+};
+
 get '/IMG/make_tags'=> sub
 {   my $self=shift;
     my $sql='INSERT INTO tags (idimage, idtag)  (select images.id as idimage, tag_repository.id as idtag from images join tag_repository on images.idtrial=tag_repository.idtrial left join tags on idimage=images.id and tags.idtag=tag_repository.id where tags.id is null)';
@@ -301,7 +336,7 @@ post '/IMG/reaggregate_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, fol
     my $trial = cellfinder_image::getObjectFromDBHandID($dbh, 'trials', $idtrial);
 
     $dbh->{AutoCommit}=0;
-    my $sql=qq{ select distinct analyses.id, analyses.idimage from analyses left join aggregations on  aggregations.idanalysis=analyses.id join images on analyses.idimage=images.id  join number_points on number_points.idanalysis=analyses.id 
+    my $sql=qq{ select distinct analyses.id, analyses.idimage from analyses left join aggregations on  aggregations.idanalysis=analyses.id join images on analyses.idimage=images.id join number_points on number_points.idanalysis=analyses.id
                 join folder_content on folder_content.idimage=analyses.idimage 
                 where aggregations.idanalysis is null and idtrial=? and linkname=?};
 
@@ -322,7 +357,6 @@ post '/IMG/reaggregate_folder/:idtrial/:folder_name'=> [idtrial=>qr/[0-9]+/, fol
     $dbh->{AutoCommit}=1;
     $self->render(text => 'OK');
 };
-
 
 get '/IMG/input_results/:idto/:results'=> [idto =>qr/\d+/,results =>qr/.+/] => sub
 {   my $self=shift;
@@ -347,6 +381,17 @@ get '/IMG/input_results/:idto/:results'=> [idto =>qr/\d+/,results =>qr/.+/] => s
     $dbh->commit;
     $dbh->{AutoCommit}=1;
 
+    $self->render(text=> 'OK');
+};
+get '/IMG/delete_all_results/:idto'=> [idto =>qr/\d+/] => sub
+{   my $self=shift;
+    my $idanalysis  = $self->param("idto");
+    my $dbh=$self->db;
+    
+    my $sql = 'delete from results where idanalysis = ?';
+    my $sth = $dbh->prepare($sql);
+    $sth->execute(($idanalysis));
+    
     $self->render(text=> 'OK');
 };
 
@@ -1174,7 +1219,7 @@ warn $prefix;
     $self->render( json => \@uploads );
 };
 
-use Mojo::Log;
-# app->log( Mojo::Log->new( path => '/tmp/cellfinder.log', level => 'debug' ) );
+#use Mojo::Log;
+#app->log->level('debug');
 app->config(hypnotoad => {listen => ['http://*:3000'], workers => 20, heartbeat_timeout=>600000, inactivity_timeout=> 600000});
 app->start;

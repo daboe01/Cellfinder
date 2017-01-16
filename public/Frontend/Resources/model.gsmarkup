@@ -31,7 +31,7 @@
 
 
     <arrayController id="patch_repo_controller" entity="patch_repository" autoFetch="YES" sortDescriptor="by_name"/>
-    <arrayController id="trials_controller" entity="trials" autoFetch="YES" sortDescriptor="by_name"/>
+    <arrayController id="trials_controller" entity="trials" autoFetchSync="YES" sortDescriptor="by_name"/>
     <arrayController id="images_controller" entity="images" valueBinding ="trials_controller.selection.images" sortDescriptor="by_name"/>
     <arrayController id="compos_controller" entity="patch_compositions" valueBinding ="trials_controller.selection.compos"/>
     <arrayController id="chains_controller" entity="patch_chains" valueBinding ="compos_controller.selection.chains" sortDescriptor="by_ordering"/>
@@ -103,6 +103,7 @@
         <column name="composition_for_ransac"/>
         <column name="composition_for_clustering"/>
         <column name="composition_for_trialresults"/>
+        <column name="masking"/>
 
         <relationship name="compos" type="toMany" target="patch_compositions" targetColumn="idtrials"/>
         <relationship name="images" type="toMany" target="images" targetColumn="idtrial"/>
@@ -200,6 +201,8 @@
         <column name="folder_name"/>
         <column name="idtrial"/>
         <column name="rating"/>
+        <column name="display_folder_name"/>
+        <column name="uploadtime"/>
         <relationship type="toOne" name="trial" bindingColumn="idtrial" target="trials"/>
         <relationship type="toMany" name="folder_content" targetColumn="linkname" target="folder_content"/>
     </entity>
@@ -207,6 +210,7 @@
         <column name="idimage" primaryKey="YES"/>
         <column name="folder_name"/>
         <column name="name"/>
+        <column name="display_name"/>
         <column name="linkname"/>
         <relationship type="toOne" name="image" bindingColumn="idimage" target="images"/>
         <relationship type="toMany" name="analyses" targetColumn="idimage" target="analyses"/>

@@ -8,7 +8,7 @@
 
 @import <Foundation/CPObject.j>
 @import <Renaissance/Renaissance.j>
-@import <CoreText/CGContextText.j>
+@import <AppKit/CGContextText.j>
 @import "Voronoi.j"
 
 AIVStylePlain=0;
@@ -272,7 +272,12 @@ var _AIVStyleDot = 0;
 }
 
 - (void)imageDidLoad:(CPImage)image
-{	[self setBackgroundImage: image];
+{
+// prevent display of wrong (lagging) image after user changed analysis
+
+    var currAna=[_delegate currentIDAnalysis];
+    if(typeof(currAna) === 'object' || image.__idanalysis === currAna)
+        [self setBackgroundImage: image];
 }
 -(void) setBackgroundImage:(CPImage) someImage
 {	[someImage setDelegate: self];
@@ -559,6 +564,11 @@ var _AIVStyleDot = 0;
     [self interpretKeyEvents:[anEvent]];
 }
 
+// to make the scanner work if we have the focus
+- (void)insertText:(CPString)aString
+{   [[CPApp delegate] insertText:aString];
+}
+
 - (void)mouseDown:(CPEvent)event
 {
 	[[self window] makeFirstResponder: self];
@@ -608,6 +618,7 @@ var _AIVStyleDot = 0;
 
 -(CPDictionary) addToModelPoint: (CPPoint) point
 {	var myArr=[self objectValue];
+    myArr._entity._insertsAsyncronously = YES;
 	var myDict=[CPDictionary new];
 	[myDict setObject: point.x forKey:"row"];
 	[myDict setObject: point.y forKey:"col"];

@@ -35,10 +35,10 @@ var _sharedUploadManager;
 	[_sharedUploadManager.uploadWindow makeKeyAndOrderFront:self];
 	return _sharedUploadManager;
 }
-- (void) setUploadPrefix: somePrefix
+- (void) setUploadPrefix:(CPString)somePrefix
 {	var idtrial = [appController.trialsController valueForKeyPath:"selection.id"];
 	uploadPrefix = somePrefix;
-	[myCuploader setURL:HostURL+"/upload/"+ idtrial+"?prefix="+encodeURIComponent(uploadPrefix)];
+	[myCuploader setURL:HostURL+"/upload/"+ idtrial+"?prefix="+encodeURIComponent(uploadPrefix||'')];
 }
 
 - (void)cup:(Cup)aCup uploadDidCompleteForFile:(CupFile)aFile

@@ -16,8 +16,7 @@
 		<vbox>
 			<scrollView hasHorizontalScroller="NO">
 				<tableView autosaveName="folders_dotting" zebra="yes" valueBinding="#CPOwner.folderController" target="#CPOwner">
-            <tableColumn identifier="display_folder_name" title="Folder"/>
-            <tableColumn identifier="uploadtime" title="Time"/>
+					<tableColumn identifier="folder_name" title="Folder"/>
 	  			</tableView>
 			</scrollView>
 		</vbox>
@@ -25,7 +24,7 @@
 		<vbox halign="min" width="400">
 			<scrollView hasHorizontalScroller="NO">
 				<tableView autosaveName="folders_auto_dotting_content" zebra="yes" allowsMultipleSelection="YES" valueBinding="#CPOwner.folderContentController" target="#CPOwner">
-					<tableColumn identifier="display_name" title="Image"/>
+					<tableColumn identifier="name" title="Image"/>
 					<tableColumn identifier="idimage" title="ID"/>
 	  			</tableView>
 			</scrollView>
@@ -71,10 +70,10 @@
 			</scrollView>
 			<hbox>
 				<slider continuous="NO" min="0" max="1" valueBinding="mydottingcontroller.scale" halign="right"/>
-        <textField halign="min"  width="40" valueBinding="mydottingcontroller.scale"></textField> 	<label valign="center">%</label>
 				<label valign="center">Set tag:</label><textField halign="min" id="tagfield" width="100" target="#mydottingcontroller" action="setTag:"></textField>
-        <popUpButton width="100" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.analysesController.selection.idcomposition_for_editing"/>
-        <ButtonBar id="imagebb" actionsButton="NO"/>
+				<hspace/>
+				<popUpButton width="100" itemsBinding="#CPOwner.displayfilters_ac.arrangedObjects.name" valueBinding="#CPOwner.analysesController.selection.idcomposition_for_editing"/>
+				<button image="config.png" width="30" target="#mydottingcontroller" action="editViewingCompo:"/>
 			</hbox>
 		</vbox>
 		</hbox>
@@ -101,8 +100,7 @@
 	<outlet source="mydottingcontroller" target="annotated_image_view" label="annotatedImageView"/>
 	<outlet source="mydottingcontroller" target="tagfield" label="tagField"/>
 	<outlet source="mydottingcontroller" target="inputwindow" label="inputAnalysisWindow"/>
-  <outlet source="mydottingcontroller" target="incoordsfield" label="inputAnalysisField"/>
-  <outlet source="mydottingcontroller" target="imagebb" label="imageBB"/>
+	<outlet source="mydottingcontroller" target="incoordsfield" label="inputAnalysisField"/>
 </connectors>
 
 

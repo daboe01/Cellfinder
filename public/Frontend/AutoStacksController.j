@@ -189,6 +189,8 @@
     id tagField;
 	id inputAnalysisWindow;
 	id inputAnalysisField;
+    id imageBB;
+    id clusterConnection;
 }
 -(void) _postInit
 {
@@ -216,6 +218,23 @@
 	[stacksImageView bind:"value" toObject:myAppController.stacksAnalysesController withKeyPath: "selection.results" options:nil];
 	[stacksImageView bind:"backgroundImage" toObject:myAppController.stacksContentController withKeyPath: "selection._backgroundImage" options:nil];
 	[myAppController.stacksContentController addObserver:self forKeyPath:"selection.idcomposition_for_editing" options:nil context:nil];
+
+
+    var button=[imageBB addButtonWithImageName:"play.png" target:self action:@selector(runSimulation:)];
+    [button setToolTip:"Run simulation"];
+}
+
+// refresh gui after finishing async stuff
+-(void) connection: someConnection didReceiveData: data
+{	if(someConnection === clusterConnection){
+        [[myAppController.stacksAnalysesController selectedObject] willChangeValueForKey:"results"];
+        [[myAppController.stacksAnalysesController._entity relationOfName:"results"] _invalidateCache];
+        [[myAppController.stacksAnalysesController selectedObject] didChangeValueForKey:"results"];
+        [stacksImageView setNeedsDisplay:YES]
+        clusterConnection = nil;
+    } else
+    {	[super connection:someConnection didReceiveData:data];
+    }
 }
 
 // CompoAPI
@@ -236,6 +255,24 @@
 }
 
 
+-(void)currentIDAnalysis
+{
+    return {};  // return dummy object. it has to be an object in order to fool imageDidLoad:(CPImage) from AnnotatedImageView
+}
+
+-(void)runSimulation:(id)sender
+{
+    var mycompoID= [myAppController.trialsController valueForKeyPath: "selection.composition_for_clustering"];
+    if (mycompoID === CPNullMarker)
+    {   alert("No adequate compo given (cluster)");
+        return;
+    }
+    var idtrial=[myAppController.trialsController valueForKeyPath:"selection.id"];
+    var idstack=[myAppController.stacksController valueForKeyPath:"selection.id"];
+    var idanalysis=[myAppController.stacksAnalysesController valueForKeyPath:"selection.id"];
+    var myreq=[CPURLRequest requestWithURL:BaseURL+"0?cmp="+mycompoID+"&idstack="+idstack+"&idanalysis="+idanalysis];
+    clusterConnection = [CPURLConnection connectionWithRequest:myreq delegate:self];
+}
 
 - (void)observeValueForKeyPath: keyPath ofObject: object change: change context: context
 {	if(keyPath === "selection.idcomposition_for_editing" || keyPath === "value" )
