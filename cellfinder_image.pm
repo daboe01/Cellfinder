@@ -185,7 +185,8 @@ sub imageForDBHAndRenderchainIDAndImage{
 
 	my $idpoint;
 	my $idimage=$readImageFunction? $readImageFunction->(1):0;
-	my $original_size=$readImageFunction? $readImageFunction->(2):0;
+    my $original_size=$readImageFunction? $readImageFunction->(2):0;
+    my $image_name=$readImageFunction? $readImageFunction->(3):'';
     my $idimage_orig=$idimage;
     warn "** $idimage";
 
@@ -520,6 +521,7 @@ sub readImageFunctionForIDAndWidth{ my ($dbh, $idimage, $width, $nocache, $ocsiz
         # warn "$offX, $offY";
         my $par=shift;
 		return ($nocache? 0: $idimage) if $par == 1;
+        return $curr_img->{name} if $par == 3;
 		if ($par == 2)
         {   my $p=doReadImageFile(undef, $curr_img);
             my ($w,$h)=$p->Get('width', 'height');
